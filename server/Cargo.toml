@@ -1,0 +1,12 @@
+[package]
+name = "avalon"
+version = "0.1.0"
+authors = ["sunho <ksunhokim123@naver.com>"]
+
+[dependencies]
+
+uuid = { version = "0.7", features = ["v4"] }
+serde = "1.0"
+serde_derive = "1.0"
+serde_json = "1.0"
+quick-error = "1.2.2"
