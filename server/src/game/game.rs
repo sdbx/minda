@@ -7,20 +7,19 @@ quick_error! {
     }
 }
 
-#[derive(Serialize, Deserialize, Copy, Clone, Debug)]
-pub enum Stone {
+enum_number!(Stone {
     Blank = 0,
     Black = 1,
-    White = 2 
-}
+    White = 2,
+});
 
 #[derive(Serialize, Deserialize, Copy, Clone, Debug)]
 pub struct Cord(isize, isize, isize);
 
 pub struct Game {
-    board: Board,
-    black: String,
-    white: String
+    pub board: Board,
+    pub black: String,
+    pub white: String
 }
 
 impl Game {
@@ -35,7 +34,7 @@ impl Game {
 
 #[derive(Clone)]
 pub struct Board {
-    payload: Vec<Vec<Stone>>,
+    pub payload: Vec<Vec<Stone>>,
     side: isize
 }
 

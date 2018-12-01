@@ -35,7 +35,9 @@ impl SocketHub {
         thread::spawn(move || {
             for stream in listener.incoming() {
                 let stream = stream.unwrap();
+                println!("asdfsadf");
                 h.lock().unwrap().add_stream(stream);
+                println!("asdfsadf");
             }
         });
 
@@ -52,8 +54,8 @@ impl SocketHub {
 
     fn add_stream(&mut self, stream: TcpStream) {
         let id = Uuid::new_v4().to_string();
-        self.dispatch(&id, Event::Id{id: id.clone()});
         self.streams.insert(id.clone(), stream);
+        self.dispatch(&id, Event::Id{id: id.clone()});
         self.send_event(ServerEvent::Connect{id: id});
     }
 
@@ -63,7 +65,10 @@ impl SocketHub {
 
     fn dispatch(&mut self, to: &str, ev: Event) {
         if let Some(stream) = self.streams.get_mut(to) {
-            stream.write(serde_json::to_string(&ev).unwrap().as_bytes());
+            let st = serde_json::to_string(&ev).unwrap();
+            println!("asdfasdf");
+            println!("{}", st);
+            stream.write(st.as_bytes());
         }
     }
 }

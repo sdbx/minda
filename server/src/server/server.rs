@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::sync::mpsc::{Sender, Receiver};
 use std::sync::{Arc, Mutex};
 use std::sync::mpsc;
-use evhub::{EventSend, ServerEvent, ServerEventSend};
+use evhub::{Event, EventSend, ServerEvent, ServerEventSend};
 use std::thread;
 use game::{Game, Board};
 
@@ -18,15 +18,10 @@ impl Server {
         let serv = Arc::new(Mutex::new(Server::new(sends)));
 
         let s = serv.clone();
-        thread::spawn(move || {
-            loop {
-                if let Ok(es) = recv.recv() {
-                    s.lock().unwrap().handle_event(es)
-                }
-            }
-        });
-
         loop {
+            if let Ok(es) = recv.recv() {
+                s.lock().unwrap().handle_event(es)
+            }
         }
     }
 
@@ -43,8 +38,10 @@ impl Server {
 
     fn handle_event(&mut self, ev: ServerEventSend) {
         use self::ServerEvent::*;
+        let ref send = self.sends.get(ev.from).unwrap();
         match ev.ev {
             Connect{ id: id } => {
+                send.send(EventSend{ to: id, ev: Event::Board { board: self.game.board.payload.clone() }});
             }
         }
     }

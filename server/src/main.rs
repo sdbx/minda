@@ -5,10 +5,13 @@ extern crate serde_json;
 extern crate serde_derive;
 #[macro_use]
 extern crate quick_error;
+#[macro_use]
+mod tool;
 
 mod evhub;
 mod game;
 mod server;
+
 
 use evhub::SocketHub;
 use std::sync::{Arc, Mutex};
