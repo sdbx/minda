@@ -5,7 +5,8 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 
-public class NetworkManager : MonoBehaviour {
+public class NetworkManager : MonoBehaviour 
+{
 
 	public string ipAddress = "127.0.0.1";
 	public int port = 0;

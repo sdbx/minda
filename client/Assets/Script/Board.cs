@@ -20,7 +20,7 @@ public class Board
             for (int y = -s; y <= s; y++)
             {
                 if (Mathf.Abs(x+y) <= s)
-                    _holes[x + s, y + s] = new Hole(x, y);
+                    _holes[x + s, y + s] = new Hole(new CubeCoord(x,y));
             }
         }
     }
@@ -33,6 +33,11 @@ public class Board
     public Hole GetHole(int x, int y)
     {
         return _holes[x + _side - 1, y + _side - 1];
+    }
+    
+    public Hole GetHoleByCubeCoord(CubeCoord cubeCoord)
+    {
+        return _holes[cubeCoord.x + _side - 1, cubeCoord.y + _side - 1];
     }
 
     public int GetSide()

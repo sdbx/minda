@@ -16,15 +16,23 @@ static public class BallCreator
                 continue;
             }
 
-            Vector3 holePoint = hole.GetPoint();
+            CubeCoord holeCubeCoord = hole.GetCubeCoord();
             GameObject BallPrefab = (hole.GetBall() == Hole.Ball.Black ? blackBallPrefab : whiteBallPrefab);
 
 			Vector2 holePosition = hole.GetPixelPoint(holeDistance);
-            BallObjects[(int)holePoint.x, (int)holePoint.y] = UnityEngine.Object.Instantiate(BallPrefab, new Vector3(holePosition.x,holePosition.y,-3),
+
+            GameObject ballObject = UnityEngine.Object.Instantiate(BallPrefab, new Vector3(holePosition.x,holePosition.y,-3),
             new Quaternion(0, 0, 0, 0), ballsObject.transform);
 
+
             Vector3 ballSpriteSize = BallPrefab.GetComponent<SpriteRenderer>().sprite.bounds.size;
-			BallObjects[(int)holePoint.x, (int)holePoint.y].transform.localScale = new Vector3(sizeOfBall/ballSpriteSize.x,sizeOfBall/ballSpriteSize.y);
+			ballObject.transform.localScale = new Vector3(sizeOfBall/ballSpriteSize.x,sizeOfBall/ballSpriteSize.y);
+
+            Ball ballScript = ballObject.GetComponent<Ball>();
+            ballScript.SetBall(hole.GetBall());
+            ballScript.SetCubeCoord(holeCubeCoord);
+
+            BallObjects[(int)holeCubeCoord.x, (int)holeCubeCoord.y] = ballObject;
         }
 		return BallObjects;
     }

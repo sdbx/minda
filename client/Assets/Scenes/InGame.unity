@@ -161,7 +161,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 2.7083344
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -221,6 +221,7 @@ MonoBehaviour:
   boardObject: {fileID: 1740618209}
   BallsObject: {fileID: 1910673794}
   networkObject: {fileID: 1126846786}
+  myBallType: 1
 --- !u!4 &1126846788
 Transform:
   m_ObjectHideFlags: 0
@@ -245,7 +246,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a3320e0b6a3e034a85441654b534018, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ipAddress: 0.0.0.0.0
+  ipAddress: 127.0.0.1
   port: 0
 --- !u!1 &1740618209
 GameObject:
@@ -326,6 +327,7 @@ MonoBehaviour:
     type: 2}
   whiteBallPrefab: {fileID: 1189055881600474, guid: 3ba3120928b2149449af8906b5667bf8,
     type: 2}
+  state: 0
   sizeOfBall: 0.4
 --- !u!4 &1910673796
 Transform:

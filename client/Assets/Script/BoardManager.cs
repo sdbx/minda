@@ -13,14 +13,17 @@ public class BoardManager : MonoBehaviour
     public float holeDistance = 5;
 
     private Board _board;
+    private Hole.Ball _myBallType = Hole.Ball.Black;
 
 	void Start()
 	{
 
 	}
 
-	public void CreateBoard() {
+	public void CreateBoard(Hole.Ball myBallType) 
+	{
 		_board = new Board(boardSide);
+		_myBallType = myBallType;
 		BoardCreator.CreateBoard(_board,boardObject,holePrefab,boardBottomPrefab,boardCenter,holeDistance);
 	}
 	
@@ -33,7 +36,10 @@ public class BoardManager : MonoBehaviour
 	{
 		return _board;
 	}
-
+	public Hole.Ball GetMyBallType()
+	{
+		return _myBallType;
+	}
 	public void SetMap(int[,] map)
 	{
 		int s = boardSide-1;

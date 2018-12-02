@@ -11,32 +11,30 @@ public class Hole
 		White,
 	}
 
-    private int _x, _y, _z;
+    private CubeCoord _cubeCoord;
 
 	private Ball _ball = Ball.Empty;
 
-	public Hole(int x, int y)
+	public Hole(CubeCoord cubeCoord)
 	{
-		_x = x;
-		_y = y;
-		_z = -(x+y);
+		_cubeCoord = cubeCoord;
 	}
 
-	public Vector2 GetPoint()
+	public CubeCoord GetCubeCoord()
 	{
-		return new Vector3(_x,_y,_z);
+		return _cubeCoord;
 	}
 	public Vector2 GetPixelPoint(float distance)
 	{
-		return new Vector2(_x*distance+_y*distance/2,-_y*Mathf.Sqrt(3)*distance/2);
-	}
+        return new Vector2(_cubeCoord.x * distance + _cubeCoord.y * distance / 2, -_cubeCoord.y * Mathf.Sqrt(3) * distance / 2);
+    }
 
-	public Ball GetBall()
-	{
-		return _ball;
-	}
+    public Ball GetBall()
+    {
+        return _ball;
+    }
 
-	public void SetBall(Ball ball)
+    public void SetBall(Ball ball)
 	{
 		_ball = ball;
 	}
