@@ -35,9 +35,7 @@ impl SocketHub {
         thread::spawn(move || {
             for stream in listener.incoming() {
                 let stream = stream.unwrap();
-                println!("asdfsadf");
                 h.lock().unwrap().add_stream(stream);
-                println!("asdfsadf");
             }
         });
 
@@ -66,7 +64,6 @@ impl SocketHub {
     fn dispatch(&mut self, to: &str, ev: Event) {
         if let Some(stream) = self.streams.get_mut(to) {
             let st = serde_json::to_string(&ev).unwrap();
-            println!("asdfasdf");
             println!("{}", st);
             stream.write(st.as_bytes());
         }

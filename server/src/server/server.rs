@@ -41,7 +41,7 @@ impl Server {
         let ref send = self.sends.get(ev.from).unwrap();
         match ev.ev {
             Connect{ id: id } => {
-                send.send(EventSend{ to: id, ev: Event::Board { board: self.game.board.payload.clone() }});
+                send.send(EventSend{ to: id, ev: Event::Board { board: self.game.board.raw() }});
             }
         }
     }

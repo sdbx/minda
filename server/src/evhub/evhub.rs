@@ -6,7 +6,7 @@ use std::sync::mpsc::{Sender, Receiver};
 pub enum Event {
     #[serde(rename = "id")]
     Id { id: String },
-    #[serde(rename = "board")]
+    #[serde(rename = "110vbabu")]
     Board { board: Vec<Vec<Stone>> },
     #[serde(rename = "error")]
     Error { message: String },
