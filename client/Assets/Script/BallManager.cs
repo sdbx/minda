@@ -24,7 +24,7 @@ public class BallManager : MonoBehaviour
     //임시 효과 주기용
     private List<GameObject> _selectingBalls = new List<GameObject>();
 
-    public void createBalls(BoardManager boardManager)
+    public void CreateBalls(BoardManager boardManager)
     {
         ballObjects = BallCreator.createBalls(sizeOfBall, ballsObject, boardManager.holeDistance, boardManager.GetBoard(), blackBallPrefab, whiteBallPrefab);
         _ballSelector = new BallSelector(this, boardManager);

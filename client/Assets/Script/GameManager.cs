@@ -5,7 +5,7 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     public GameObject boardObject;
-    public GameObject BallsObject;
+    public GameObject ballsObject;
     public GameObject networkObject;
     public Hole.Ball myBallType = Hole.Ball.Black;
 
@@ -17,7 +17,7 @@ public class GameManager : MonoBehaviour
     {
         _networkManager = networkObject.GetComponent<NetworkManager>();
         _boardManger = boardObject.GetComponent<BoardManager>();
-        _ballManager = BallsObject.GetComponent<BallManager>();
+        _ballManager = ballsObject.GetComponent<BallManager>();
         /*if(!_networkManager.Connect())
 		{
 			return;
@@ -28,7 +28,7 @@ public class GameManager : MonoBehaviour
         _boardManger.GetBoard().Set(0, 1, Hole.Ball.Black);
         _boardManger.GetBoard().Set(0, 2, Hole.Ball.Black);
         _boardManger.GetBoard().Set(0, 3, Hole.Ball.Black);
-        _ballManager.createBalls(_boardManger);
+        _ballManager.CreateBalls(_boardManger);
     }
 
     // Update is called once per frame
