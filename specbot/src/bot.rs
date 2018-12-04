@@ -10,6 +10,8 @@ impl EventHandler for Handler {
     fn ready(&self, _: Context, ready: Ready) {
         println!("{} is connected!", ready.user.name);
     }
+
+    fn 
 }
 
 pub fn client(token: &str) -> Client {
@@ -31,7 +33,7 @@ fn framework() -> StandardFramework {
 }
 
 command!(ping(_ctx, msg, _args) {
-    if let Err(why) = msg.channel_id.say("Pong! : )") {
+    if let Err(why) = msg.channel_id.say("Pong!") {
         println!("Error sending message: {:?}", why);
     }
 });
