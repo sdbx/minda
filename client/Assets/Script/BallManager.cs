@@ -35,11 +35,11 @@ public class BallManager : MonoBehaviour
     {
         return ballObjects;
     }
-	public GameObject GetBallObjectByCubeCoord(CubeCoord cubeCoord)
-	{
-		int s = _boardManager.GetBoard().GetSide()-1;
-		return ballObjects[cubeCoord.x+s,cubeCoord.y+s];
-	}
+    public GameObject GetBallObjectByCubeCoord(CubeCoord cubeCoord)
+    {
+        int s = _boardManager.GetBoard().GetSide() - 1;
+        return ballObjects[cubeCoord.x + s, cubeCoord.y + s];
+    }
     void Update()
     {
 
@@ -51,88 +51,87 @@ public class BallManager : MonoBehaviour
         BallSelecting();
     }
 
-	private void BallSelecting()
-	{
-		foreach(GameObject selectingBall in _selectingBalls)
-		{
-			selectingBall.GetComponent<SpriteRenderer>().color = Color.white;
-		}
-		_selectingBalls.Clear();
+    private void BallSelecting()
+    {
+        foreach (GameObject selectingBall in _selectingBalls)
+        {
+            selectingBall.GetComponent<SpriteRenderer>().color = Color.white;
+        }
+        _selectingBalls.Clear();
         Vector2 mousePos = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0));
         CubeCoord ballCubeCoord = _ballSelector.GetBallCubeCoordByMouseXY(mousePos);
         if (ballCubeCoord == null)
         {
+            UnSelectable();
             return;
         }
         GameObject ballObject = GetBallObjectByCubeCoord(ballCubeCoord);
-		int s = _boardManager.GetBoard().GetSide() - 1;
+        int s = _boardManager.GetBoard().GetSide() - 1;
 
-      
-		
+
+
         if (state == 1)
         {
-			if (Input.GetMouseButtonDown(0))
+            if (Input.GetMouseButtonDown(0))
             {
                 _firstBallSelection = ballCubeCoord;
-                //임시 효과 주기용
-                ballObject.GetComponent<SpriteRenderer>().color = Color.green;
                 state = 2;
             }
         }
-		else if(state == 2)
-		{
-			if(ballCubeCoord.CheckInSameLine(_firstBallSelection))
-			{
-				int distance = Utils.GetDistanceBy2CubeCoord(ballCubeCoord, _firstBallSelection);
+        else if (state == 2)
+        {
+            if (ballCubeCoord.CheckInSameLine(_firstBallSelection))
+            {
+                int distance = Utils.GetDistanceBy2CubeCoord(ballCubeCoord, _firstBallSelection);
 
-				if(distance == 0)
-				{
-					_lastBallSelection = ballCubeCoord;
-					 Selectable(distance);
-				}
-				else if(distance == 1)
-				{
-					_lastBallSelection = ballCubeCoord;
-					 Selectable(distance);
-				}
-				else if (distance == 2)
+                if (distance == 0)
+                {
+                    _lastBallSelection = ballCubeCoord;
+                    Selectable(distance);
+                    return;
+                }
+                else if (distance == 1)
+                {
+                    _lastBallSelection = ballCubeCoord;
+                    Selectable(distance);
+                    return;
+                }
+                else if (distance == 2)
                 {
                     GameObject middleBall = GetBallObjectByCubeCoord(
-						Utils.GetMiddleCubeCoordBy2CubeCoord(ballCubeCoord, _firstBallSelection));
+                        Utils.GetMiddleCubeCoordBy2CubeCoord(ballCubeCoord, _firstBallSelection));
 
-					if(CheckBallObjectIsMine(middleBall))
-					{
-						_lastBallSelection = ballCubeCoord;
-						Selectable(distance);
-					}
-					else{UnSelectable();}
+                    if (middleBall != null && CheckBallObjectIsMine(middleBall))
+                    {
+                        _lastBallSelection = ballCubeCoord;
+                        Selectable(distance);
+                        return;
+                    }
                 }
-				else{UnSelectable();}
-			}
-		}
-
+            }
+        }
+        UnSelectable();
     }
 
     private void UnSelectable()
     {
         if (Input.GetMouseButtonUp(0))
         {
-			GetBallObjectByCubeCoord(_firstBallSelection).GetComponent<SpriteRenderer>().color = Color.white;
-			state = 1;
+            state = 1;
         }
     }
 
-	private void Selectable(int count)
+    private void Selectable(int count)
     {
         if (Input.GetMouseButtonUp(0))
         {
-			state = 3;
-			SetBallsColor(count,Color.cyan);
+            state = 3;
+            SetBallsColor(count, Color.cyan);
         }
-		else
-		{
-			SetBallsColor(count,Color.green);
-		}
+        else
+        {
+            SetBallsColor(count, Color.green);
+        }
     }
 
     private void SetBallsColor(int count, Color color)
@@ -140,12 +139,12 @@ public class BallManager : MonoBehaviour
         GameObject first = GetBallObjectByCubeCoord(_firstBallSelection);
         first.GetComponent<SpriteRenderer>().color = color;
 
-		if(state == 2)
-		{
-			_selectingBalls.Add(first);
-		}
+        if (state == 2)
+        {
+            _selectingBalls.Add(first);
+        }
 
-        if (count >= 2)
+        if (count >= 1)
         {
             GameObject last = GetBallObjectByCubeCoord(_lastBallSelection);
             last.GetComponent<SpriteRenderer>().color = color;
@@ -156,7 +155,7 @@ public class BallManager : MonoBehaviour
             }
         }
 
-        if (count == 3)
+        if (count == 2)
         {
             GameObject middleBall = GetBallObjectByCubeCoord(
                    Utils.GetMiddleCubeCoordBy2CubeCoord(_firstBallSelection, _lastBallSelection));
@@ -170,9 +169,9 @@ public class BallManager : MonoBehaviour
     }
 
     private bool CheckBallObjectIsMine(GameObject ballObject)
-	{
-		 return ballObject.GetComponent<Ball>().GetBall() == _boardManager.GetMyBallType();
-	}
+    {
+        return ballObject.GetComponent<Ball>().GetBall() == _boardManager.GetMyBallType();
+    }
 
 }
 

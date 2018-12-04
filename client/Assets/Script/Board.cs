@@ -19,8 +19,8 @@ public class Board
         {
             for (int y = -s; y <= s; y++)
             {
-                if (Mathf.Abs(x+y) <= s)
-                    _holes[x + s, y + s] = new Hole(new CubeCoord(x,y));
+                if (Mathf.Abs(x + y) <= s)
+                    _holes[x + s, y + s] = new Hole(new CubeCoord(x, y));
             }
         }
     }
@@ -34,7 +34,7 @@ public class Board
     {
         return _holes[x + _side - 1, y + _side - 1];
     }
-    
+
     public Hole GetHoleByCubeCoord(CubeCoord cubeCoord)
     {
         return _holes[cubeCoord.x + _side - 1, cubeCoord.y + _side - 1];
@@ -45,8 +45,8 @@ public class Board
         return _side;
     }
 
-    public void Set(int x,int y, Hole.Ball ball)
+    public void Set(int x, int y, Hole.Ball ball)
     {
-        _holes[x+(_side-1),y+(_side-1)].SetBall(ball);
+        _holes[x + (_side - 1), y + (_side - 1)].SetBall(ball);
     }
 }

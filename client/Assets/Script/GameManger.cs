@@ -6,23 +6,25 @@ public class GameManger : MonoBehaviour
 {
     public GameObject boardObject;
     public GameObject BallsObject;
-	public GameObject networkObject;
+    public GameObject networkObject;
+    public Hole.Ball myBall = Hole.Ball.Black;
 
     private BoardManager _boardManger;
-    private BallManger _ballManager;
-	private NetworkManager _networkManager;
+    private BallManager _ballManager;
+    private NetworkManager _networkManager;
+
     // Use this for initialization
     void Start()
     {
-		_networkManager = networkObject.GetComponent<NetworkManager>();
+        _networkManager = networkObject.GetComponent<NetworkManager>();
         _boardManger = boardObject.GetComponent<BoardManager>();
-        _ballManager = BallsObject.GetComponent<BallManger>();
-		if(!_networkManager.Connect())
-		{
-			return;
-		}
-		_networkManager.StartReceive();
-        _boardManger.CreateBoard();
+        _ballManager = BallsObject.GetComponent<BallManager>();
+        if (!_networkManager.Connect())
+        {
+            return;
+        }
+        _networkManager.StartReceive();
+        _boardManger.CreateBoard(myBall);
         _ballManager.createBalls(_boardManger);
     }
 

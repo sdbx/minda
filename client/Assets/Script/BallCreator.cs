@@ -4,7 +4,7 @@ using UnityEngine;
 
 static public class BallCreator
 {
-    static public GameObject[,] createBalls(float sizeOfBall,GameObject ballsObject, float holeDistance,Board board, GameObject blackBallPrefab, GameObject whiteBallPrefab)
+    static public GameObject[,] createBalls(float sizeOfBall, GameObject ballsObject, float holeDistance, Board board, GameObject blackBallPrefab, GameObject whiteBallPrefab)
     {
         int side = board.GetSide();
         GameObject[,] BallObjects = new GameObject[side * 2 - 1, side * 2 - 1];
@@ -19,14 +19,14 @@ static public class BallCreator
             CubeCoord holeCubeCoord = hole.GetCubeCoord();
             GameObject BallPrefab = (hole.GetBall() == Hole.Ball.Black ? blackBallPrefab : whiteBallPrefab);
 
-			Vector2 holePosition = hole.GetPixelPoint(holeDistance);
+            Vector2 holePosition = hole.GetPixelPoint(holeDistance);
 
-            GameObject ballObject = UnityEngine.Object.Instantiate(BallPrefab, new Vector3(holePosition.x,holePosition.y,-3),
+            GameObject ballObject = UnityEngine.Object.Instantiate(BallPrefab, new Vector3(holePosition.x, holePosition.y, -3),
             new Quaternion(0, 0, 0, 0), ballsObject.transform);
 
 
             Vector3 ballSpriteSize = BallPrefab.GetComponent<SpriteRenderer>().sprite.bounds.size;
-			ballObject.transform.localScale = new Vector3(sizeOfBall/ballSpriteSize.x,sizeOfBall/ballSpriteSize.y);
+            ballObject.transform.localScale = new Vector3(sizeOfBall / ballSpriteSize.x, sizeOfBall / ballSpriteSize.y);
 
             Ball ballScript = ballObject.GetComponent<Ball>();
             ballScript.SetBall(hole.GetBall());
@@ -34,6 +34,6 @@ static public class BallCreator
 
             BallObjects[(int)holeCubeCoord.x, (int)holeCubeCoord.y] = ballObject;
         }
-		return BallObjects;
+        return BallObjects;
     }
 }

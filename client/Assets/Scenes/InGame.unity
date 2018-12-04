@@ -215,7 +215,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1126846786}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 60fcf7e3a4e219e459d131beaeb580cd, type: 3}
+  m_Script: {fileID: 11500000, guid: 99141c04cd6e64c41973799f72125592, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   boardObject: {fileID: 1740618209}
@@ -319,7 +319,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1910673794}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b4c37bb37eec3c14583661001849f7df, type: 3}
+  m_Script: {fileID: 11500000, guid: 432a3d5f7ea6b4244814edf77a1ea7ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ballsObject: {fileID: 1910673794}
