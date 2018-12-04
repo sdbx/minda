@@ -1,48 +1,51 @@
+use server::User;
+use api::Api;
 use std::collections::HashMap;
-use std::sync::mpsc::{Sender, Receiver};
 use std::sync::{Arc, Mutex};
 use std::sync::mpsc;
-use evhub::{Event, EventSend, ServerEvent, ServerEventSend};
+use evhub::Evhub;
 use std::thread;
-use game::{Game, Board};
+use server::evhub_handler::EvhubHandler;
+use server::api_event_handler::ApiEventHandler;
 
-pub type SendMap = HashMap<&'static str, Sender<EventSend>>;
 
-pub struct Server {
-    game: Game,
-    sends: SendMap
+pub struct Server<T: Evhub + 'static> {
+    users: Arc<Mutex<HashMap<String, User>>>,
+    apis: Arc<Mutex<HashMap<&'static str, Box<Api>>>>,
+    evhub: T
 }
 
-impl Server {
-    pub fn start(recv: Receiver<ServerEventSend>, sends: SendMap) {
-        let serv = Arc::new(Mutex::new(Server::new(sends)));
-
-        let s = serv.clone();
-        loop {
-            if let Ok(es) = recv.recv() {
-                s.lock().unwrap().handle_event(es)
-            }
-        }
-    }
-
-    pub fn new_chan() -> (Sender<ServerEventSend>, Receiver<ServerEventSend>) {
-        mpsc::channel()
-    }
-
-    fn new(sends: SendMap) -> Self {
+impl<T: Evhub + 'static> Server<T> {
+    pub fn new(evhub: T) -> Self {
         Self {
-            game: Game::new(Board::test_board(), "110v".to_owned(), "babu".to_owned()),
-            sends: sends,
+            users: Arc::new(Mutex::new(HashMap::new())),
+            apis: Arc::new(Mutex::new(HashMap::new())),
+            evhub: evhub,
         }
     }
 
-    fn handle_event(&mut self, ev: ServerEventSend) {
-        use self::ServerEvent::*;
-        let ref send = self.sends.get(ev.from).unwrap();
-        match ev.ev {
-            Connect{ id: id } => {
-                send.send(EventSend{ to: id, ev: Event::Board { board: self.game.board.raw() }});
+    pub fn add_api(&mut self, api: Box<Api>) {
+        self.apis.lock().unwrap().insert(api.kind(), api);
+    }
+
+    pub fn run(&self) {
+        let (event_tx, event_rv) = mpsc::channel();
+
+        {
+            let mut apis = self.apis.lock().unwrap();
+            for (_, api) in apis.iter() {
+                api.run(event_tx.clone());
             }
         }
+
+        let evhub_handler = EvhubHandler::new(self.evhub, self.users.clone(), self.apis.clone());
+        thread::spawn(move || {
+            evhub_handler.run();
+        });
+
+        let api_event_handler = ApiEventHandler::new(event_rv);
+        thread::spawn(move || {
+            api_event_handler.run();
+        });
     }
 }

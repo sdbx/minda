@@ -1,6 +1,4 @@
 use game::Stone;
-use std::sync::mpsc::{Sender, Receiver};
-
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(tag = "type")]
 pub enum Event {
@@ -13,15 +11,6 @@ pub enum Event {
 }
 
 pub struct EventSend {
-    pub to: String,
+    pub user_id: String,
     pub ev: Event
-}
-
-pub enum ServerEvent {
-    Connect { id: String }
-}
-
-pub struct ServerEventSend {
-    pub from: &'static str,
-    pub ev: ServerEvent
 }

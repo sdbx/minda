@@ -1,5 +1,12 @@
-mod evhub;
-mod socket;
+use std::sync::mpsc::Receiver;
 
-pub use self::evhub::{Event, EventSend, ServerEvent, ServerEventSend};
-pub use self::socket::SocketHub;
+mod event;
+mod memory_evhub;
+
+pub trait Evhub : Sync + Send {
+    fn subscribe(&mut self) -> Receiver<EventSend>;
+    fn publish(&mut self, to: &str, ev: Event);
+}
+
+pub use self::event::{Event, EventSend};
+pub use self::memory_evhub::MemoryEvhub;
