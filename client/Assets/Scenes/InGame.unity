@@ -219,7 +219,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   boardObject: {fileID: 1740618209}
-  BallsObject: {fileID: 1910673794}
+  ballsObject: {fileID: 1910673794}
   networkObject: {fileID: 1126846786}
   myBallType: 1
 --- !u!4 &1126846788

@@ -58,4 +58,8 @@ public class BoardManager : MonoBehaviour
         }
 
     }
+	public bool CheckBallObjectIsMine(GameObject ballObject)
+    {
+        return ballObject.GetComponent<Ball>().GetBall() == GetMyBallType();
+    }
 }
