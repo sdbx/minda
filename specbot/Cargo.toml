@@ -1,0 +1,7 @@
+[package]
+name = "specbot"
+version = "0.1.0"
+authors = ["sunho <ksunhokim123@naver.com>"]
+
+[dependencies]
+serenity = "0.5"
