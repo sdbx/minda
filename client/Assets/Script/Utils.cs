@@ -16,4 +16,35 @@ public static class Utils
     {
         return new CubeCoord((first.x + last.x) / 2, (first.y + last.y) / 2);
     }
+    static public int GetNumberDirection(CubeCoord direction)
+    {
+        if(direction.x == 1 && direction.y == -1)
+        {
+            return 0;
+        }
+        else if(direction.x == 1 && direction.y == 0)
+        {
+            return 1;
+        }
+        else if(direction.x == 0 && direction.y == 1)
+        {
+            return 2;
+        }
+        else if(direction.x == -1 && direction.y == 1)
+        {
+            return 3;
+        }
+        else if(direction.x == -1 && direction.y == 0)
+        {
+            return 4;
+        }
+        else if(direction.x == 0 && direction.y == -1)
+        {
+            return 5;
+        }
+        else
+        {
+            return -1;
+        }
+    }
 }
