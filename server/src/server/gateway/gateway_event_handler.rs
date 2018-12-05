@@ -1,13 +1,12 @@
-use api::ApiEventSend;
-use api::ApiEvent;
+use super::{GatewayEvent, GatewayEventSend};
 use std::sync::mpsc::Receiver;
 
-pub struct ApiEventHandler {
-    event_rx: Receiver<ApiEventSend>
+pub struct GatewayEventHandler {
+    event_rx: Receiver<GatewayEventSend>
 }
 
-impl ApiEventHandler {
-    pub fn new(event_rx: Receiver<ApiEventSend>) -> Self{
+impl GatewayEventHandler {
+    pub fn new(event_rx: Receiver<GatewayEventSend>) -> Self{
         Self {
             event_rx: event_rx
         }
@@ -16,7 +15,7 @@ impl ApiEventHandler {
     pub fn run(&self) {
         while let Ok(ev) = self.event_rx.recv() {
             match ev.ev {
-                ApiEvent::Connect{id: id} => {
+                GatewayEvent::Connect{id: id} => {
                 },
                 _ => {}
             }

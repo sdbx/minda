@@ -50,16 +50,12 @@ impl Player {
 
 pub struct Game {
     pub board: Board,
-    pub black: String,
-    pub white: String
 }
 
 impl Game {
-    pub fn new(board: Board, black: String, white: String) -> Self {
+    pub fn new(board: Board) -> Self {
         Self {
-            board: board,
-            black: black,
-            white: white
+            board: board
         }
     }
 }

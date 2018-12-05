@@ -1,51 +1,26 @@
-use server::User;
-use api::Api;
+use model::EventSend;
+use super::gateway::{Gateway, GatewayManager, GatewayEventHandler};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
-use std::sync::mpsc;
-use evhub::Evhub;
 use std::thread;
-use server::evhub_handler::EvhubHandler;
-use server::api_event_handler::ApiEventHandler;
 
-
-pub struct Server<T: Evhub + 'static> {
-    users: Arc<Mutex<HashMap<String, User>>>,
-    apis: Arc<Mutex<HashMap<&'static str, Box<Api>>>>,
-    evhub: T
+pub struct Server {
+    gateway_manager: Arc<Mutex<GatewayManager>>
 }
 
-impl<T: Evhub + 'static> Server<T> {
-    pub fn new(evhub: T) -> Self {
+impl Server {
+    pub fn new() -> Self {
         Self {
-            users: Arc::new(Mutex::new(HashMap::new())),
-            apis: Arc::new(Mutex::new(HashMap::new())),
-            evhub: evhub,
+            gateway_manager: GatewayManager::new(),
         }
     }
 
-    pub fn add_api(&mut self, api: Box<Api>) {
-        self.apis.lock().unwrap().insert(api.kind(), api);
+    pub fn add_gateway(&self, gateway: Box<Gateway>) {
+        self.gateway_manager.lock().unwrap().add(gateway);
     }
 
     pub fn run(&self) {
-        let (event_tx, event_rv) = mpsc::channel();
+        self.gateway_manager.lock().unwrap().run();
 
-        {
-            let mut apis = self.apis.lock().unwrap();
-            for (_, api) in apis.iter() {
-                api.run(event_tx.clone());
-            }
-        }
-
-        let evhub_handler = EvhubHandler::new(self.evhub, self.users.clone(), self.apis.clone());
-        thread::spawn(move || {
-            evhub_handler.run();
-        });
-
-        let api_event_handler = ApiEventHandler::new(event_rv);
-        thread::spawn(move || {
-            api_event_handler.run();
-        });
     }
 }

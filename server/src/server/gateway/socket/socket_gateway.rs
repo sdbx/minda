@@ -1,20 +1,20 @@
-use api::socket::socket_listener::SocketListener;
+use super::super::{Gateway, GatewayEventSend, GatewayUserManager };
+use super::socket_listener::SocketListener;
 use std::collections::HashMap;
-use api::{Api, ApiEventSend};
-use evhub::Event;
+use model::{Event};
 use std::io::Write;
 use std::net::{TcpStream};
 use std::sync::{Arc, Mutex};
 use std::sync::mpsc::{Sender};
 use std::thread;
 
-pub struct SocketApi {
+pub struct SocketGateway {
     addr: String,
     streams: Arc<Mutex<HashMap<String, TcpStream>>>
 }
 
-impl SocketApi {
-    pub fn new(addr: &str) -> SocketApi {
+impl SocketGateway {
+    pub fn new(addr: &str) -> SocketGateway {
         Self {
             addr: addr.to_owned(),
             streams: Arc::new(Mutex::new(HashMap::new()))
@@ -22,9 +22,10 @@ impl SocketApi {
     }
 }
 
-impl Api for SocketApi {
-    fn run(&self, event_tx: Sender<ApiEventSend>) {
+impl Gateway for SocketGateway {
+    fn run(&self, event_tx: Sender<GatewayEventSend>, user_manager: Arc<Mutex<GatewayUserManager>>) {
         let socket_listener = SocketListener {
+            user_manager: user_manager,
             addr: self.addr,
             event_tx: event_tx,
             streams: self.streams.clone()
@@ -43,6 +44,6 @@ impl Api for SocketApi {
     }
 
     fn kind(&self) -> &'static str {
-        "socket_hub"
+        "socket"
     }
 }

@@ -1,7 +1,5 @@
-mod api_event_handler;
-mod evhub_handler;
 mod server;
-mod user;
 
-pub use self::user::User;
+pub mod room;
+pub mod gateway;
 pub use self::server::{Server};

@@ -8,8 +8,7 @@ extern crate quick_error;
 #[macro_use]
 mod tool;
 
-mod api;
-mod evhub;
+mod model;
 mod game;
 mod server;
 
