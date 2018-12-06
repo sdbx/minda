@@ -1,4 +1,4 @@
-/server/target
+/game-server/target
 /specbot/target
 **/*.rs.bk
 

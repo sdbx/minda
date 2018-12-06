@@ -14,3 +14,13 @@ pub struct EventSend {
     pub user_id: String,
     pub ev: Event
 }
+
+pub struct Room {
+    pub name: String,
+    pub people: usize
+}
+
+pub struct User {
+    pub id: String,
+    pub kind: &'static str,
+}

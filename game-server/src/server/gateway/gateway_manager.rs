@@ -8,8 +8,8 @@ use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
 
 pub struct GatewayManager {
+    pub user_manager: Arc<Mutex<GatewayUserManager>>,
     event_tx: Sender<GatewayEventSend>,
-    user_manager: Arc<Mutex<GatewayUserManager>>,
     gateways: HashMap<&'static str, Box<Gateway>>
 }
 
@@ -38,10 +38,4 @@ impl GatewayManager {
         }
     }
 
-    pub fn dispatch(&self, ev: EventSend) {
-        if let Some(user) = self.user_manager.lock().unwrap().get(&ev.user_id) {
-            let gate = self.gateways.get(user.kind).unwrap();
-            gate.dispatch(&ev.user_id, ev.ev);
-        }
-    }
 }

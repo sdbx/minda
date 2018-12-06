@@ -1,14 +1,10 @@
+use model::User;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::sync::{Arc, Mutex};
 
-pub struct GatewayUser {
-    pub id: String,
-    pub kind: &'static str
-}
-
 pub struct GatewayUserManager {
-    users: HashMap<String, GatewayUser>,
+    users: HashMap<String, User>,
     invited_users: HashSet<String>
 }
 
@@ -20,7 +16,7 @@ impl GatewayUserManager {
         }))
     }
 
-    pub fn get(&self, id: &str) -> Option<&GatewayUser> {
+    pub fn get(&self, id: &str) -> Option<&User> {
         self.users.get(id)
     }
 }
