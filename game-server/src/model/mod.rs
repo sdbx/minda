@@ -15,12 +15,7 @@ pub struct EventSend {
     pub ev: Event
 }
 
-pub struct Room {
-    pub name: String,
-    pub people: usize
-}
-
-pub struct User {
+pub struct Invite {
     pub id: String,
-    pub kind: &'static str,
+    pub room: String
 }

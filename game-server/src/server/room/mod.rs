@@ -1,9 +1,3 @@
-use game::Game;
-use std::collections::HashSet;
+mod room;
 
-pub struct Room {
-    pub name: String,
-    pub users: HashSet<String,>,
-    pub ingame: bool,
-    pub game: Game
-}
+pub use self::room::Room;
