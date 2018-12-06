@@ -4,13 +4,20 @@ using UnityEngine;
 
 public class DirectionSelectingArrow : MonoBehaviour
 {
-
-    public int direction = 0;
+    
     public BallSelection _ballSelection;
-    public Vector3 _originPosition = new Vector3(0, 0, -5);
-    public bool working = false;
+    public Vector2 originPosition = new Vector2(); 
     public bool isPushing = false;
     public float originDistance = 0.1f;
+    public float maxDistance;
+    private int _direction = 0;
+    public float pushingDistance = 0;
+    private ArrowsManager _arrowsManager;
+
+    public void SetDirection(int direction)
+    {
+        _direction = direction;
+    }
 
     private float GetDistanceFromOrigin(Vector2 mousePosition)
     {
@@ -26,44 +33,51 @@ public class DirectionSelectingArrow : MonoBehaviour
 
         arrowPosition.x = distance * Mathf.Cos(angle);
         arrowPosition.y = distance * Mathf.Sin(angle);
-        arrowPosition += _originPosition;
-
+        arrowPosition.z = 7;
         return arrowPosition;
     }
 
     public float GetRad()
     {
-        return -direction * Mathf.PI / 3;
+        return -_direction * Mathf.PI / 3;
     }
     public float GetDegree()
     {
-        return -direction * 60 + 90;
+        return -_direction * 60 + 90;
     }
     void Start()
     {
-
+        _arrowsManager = gameObject.transform.parent.GetComponent<ArrowsManager>();
     }
 
     void Update()
     {
+        Vector3 parentPostion = gameObject.transform.parent.position;
         if (isPushing && Input.GetMouseButtonUp(0))
         {
             isPushing = false;
+            _arrowsManager.pushingArrow = -1;
         }
 
-        if (working)
+
+        gameObject.transform.rotation = Quaternion.Euler(0, 0, GetDegree());
+
+        Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        float distance = GetDistanceFromOrigin(mousePos);
+
+        Debug.Log("거리:" + distance);
+
+        if (isPushing && distance <= originDistance)
         {
-            gameObject.transform.rotation = Quaternion.Euler(0, 0, GetDegree());
-            if (isPushing)
-            {
-                Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                gameObject.transform.position = GetArrowPosition(GetDistanceFromOrigin(mousePos));
-            }
-            else
-            {
-                gameObject.transform.position = GetArrowPosition(originDistance);
-            }
+            _arrowsManager.pushingArrow = _direction;
+            gameObject.transform.position = GetArrowPosition(distance) + parentPostion;
+            pushingDistance = distance;
         }
+        else
+        {
+            gameObject.transform.position = GetArrowPosition(originDistance) + parentPostion;
+        }
+
     }
 
 

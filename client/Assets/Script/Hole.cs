@@ -26,7 +26,7 @@ public class Hole
     }
     public Vector2 GetPixelPoint(float distance)
     {
-        return new Vector2(_cubeCoord.x * distance + _cubeCoord.y * distance / 2, -_cubeCoord.y * Mathf.Sqrt(3) * distance / 2);
+        return _cubeCoord.GetPixelPoint(distance);
     }
 
     public Ball GetBall()

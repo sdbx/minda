@@ -34,4 +34,9 @@ public class CubeCoord
     {
         return new CubeCoord(a.x + b.x, a.y + b.y, a.z + b.z);
     }
+
+    public Vector2 GetPixelPoint(float distance)
+    {
+        return new Vector2(x * distance + y * distance / 2, -y * Mathf.Sqrt(3) * distance / 2);
+    }
 }

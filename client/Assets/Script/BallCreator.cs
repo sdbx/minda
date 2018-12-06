@@ -21,7 +21,7 @@ static public class BallCreator
 
             Vector2 holePosition = hole.GetPixelPoint(holeDistance);
 
-            GameObject ballObject = UnityEngine.Object.Instantiate(BallPrefab, new Vector3(holePosition.x, holePosition.y, -3),
+            GameObject ballObject = UnityEngine.Object.Instantiate(BallPrefab, new Vector3(holePosition.x, holePosition.y, 8),
             new Quaternion(0, 0, 0, 0), ballsObject.transform);
 
 

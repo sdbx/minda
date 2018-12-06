@@ -17,12 +17,12 @@ public static class BoardCreator
             holeCount++;
             Vector2 holePosition = hole.GetPixelPoint(holeDistance) + boardCenter;
             duplicatedHole = UnityEngine.Object.Instantiate(holePrefab, new Vector3(holePosition.x, holePosition.y, 0), new Quaternion(0, 0, 0, 0), boardObject.transform);
-            duplicatedHole.transform.position += new Vector3(0, 0, -1);
+            duplicatedHole.transform.position += new Vector3(0, 0, 9);
             duplicatedHole.name = "Hole" + holeCount;
         }
 
 
-        GameObject boardBottom = UnityEngine.Object.Instantiate(boardBottomPrefab, new Vector3(boardCenter.x, boardCenter.y, 1), new Quaternion(0, 0, 0, 0), boardObject.transform);
+        GameObject boardBottom = UnityEngine.Object.Instantiate(boardBottomPrefab, new Vector3(boardCenter.x, boardCenter.y, 10), new Quaternion(0, 0, 0, 0), boardObject.transform);
         Vector3 boardBottomSpriteSize = boardBottomPrefab.GetComponent<SpriteRenderer>().sprite.bounds.size;
         float boardDiameter = (board.GetSide() * 2 + 1) * holeDistance;
         boardBottom.transform.localScale = new Vector3(boardDiameter / boardBottomSpriteSize.x, (boardDiameter * Mathf.Sqrt(3) / 2) / boardBottomSpriteSize.y, 0);
