@@ -2,7 +2,7 @@
 
 # Minda
 
-Minda is a online multiplayer [abalone](https://en.wikipedia.org/wiki/Abalone_(board_game)), available on Windows and mac os. It supports custom map, spectator mode and sharding.
+Minda is an online multiplayer [abalone](https://en.wikipedia.org/wiki/Abalone_(board_game)), available on Windows and mac os. It supports custom map, spectator mode and sharding.
 
 ## Build
 
