@@ -21,7 +21,6 @@ public class MoveCommand : Command
 
     public MoveCommand(BallType player,CubeCoord start,CubeCoord end,CubeCoord dir)
     {
-        this.player = player;
         this.start = start;
         this.end = end;
         this.dir = dir;
