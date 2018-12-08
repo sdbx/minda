@@ -4,17 +4,11 @@ using UnityEngine;
 
 public class Hole
 {
-    public enum Ball
-    {
-        Empty,
-        Black,
-        White,
-        Out,
-    }
+
 
     private CubeCoord _cubeCoord;
 
-    private Ball _ball = Ball.Empty;
+    private BallType _ball = BallType.Empty;
 
     public Hole(CubeCoord cubeCoord)
     {
@@ -30,12 +24,12 @@ public class Hole
         return _cubeCoord.GetPixelPoint(distance);
     }
 
-    public Ball GetBall()
+    public BallType GetBall()
     {
         return _ball;
     }
 
-    public void SetBall(Ball ball)
+    public void SetBall(BallType ball)
     {
         _ball = ball;
     }

@@ -12,7 +12,7 @@ public class Arrow : MonoBehaviour
     public float pushingDistance = 0;
 
     private ArrowsManager _arrowsManager;
-    public int _direction = 0;
+    private int _direction = 0;
 
 
 
@@ -138,22 +138,22 @@ public class Arrow : MonoBehaviour
         {
             //unslected
             case 0:
-                {
-                    gameObject.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255, 0.8f);
-                    break;
-                }
+            {
+                gameObject.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255, 0.8f);
+                break;
+            }
             //selected
             case 1:
-                {
-                    gameObject.GetComponent<SpriteRenderer>().color = Color.white;
-                    break;
-                }
+            {
+                gameObject.GetComponent<SpriteRenderer>().color = Color.white;
+                break;
+            }
             //AfterHalf
             case 2:
-                {
-                    gameObject.GetComponent<SpriteRenderer>().color = Color.green;
-                    break;
-                }
+            {
+                gameObject.GetComponent<SpriteRenderer>().color = Color.green;
+                break;
+            }
 
         }
     }

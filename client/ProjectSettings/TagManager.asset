@@ -41,3 +41,12 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Board
+    uniqueID: 4203261531
+    locked: 0
+  - name: Balls
+    uniqueID: 1307746297
+    locked: 0
+  - name: Arrow
+    uniqueID: 3343267143
+    locked: 0

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using UnityEngine;
 
 [Serializable]
@@ -10,6 +11,7 @@ public class CubeCoord
     public int y = 0;
     public int z = 0;
 
+    [JsonConstructor]
     public CubeCoord(int x, int y, int z)
     {
         this.x = x;

@@ -8,19 +8,17 @@ public class ArrowsManager : MonoBehaviour
     public GameObject arrowPrefab;
     public float arrowDistance;
     public BallSelection ballSelection;
-
     public int pushingArrow = -1;
     public int selectedArrow = -1;
     public float pushedDistance = 0;
     public bool selected = false;
     public bool working = false;
     
-
     private Arrow[] _arrows = new Arrow[6];
     private BoardManager _boardManger;
 
 
-    private void Reset()
+    public void Reset()
     {
         pushingArrow = -1;
         selectedArrow = -1;

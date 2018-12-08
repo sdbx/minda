@@ -39,12 +39,13 @@ public class Board
     {
         return _holes[cubeCoord.x + _side - 1, cubeCoord.y + _side - 1];
     }
-    public void SetHoleByCubeCoord(CubeCoord cubeCoord, Hole.Ball ball)
+
+    public void SetHoleByCubeCoord(CubeCoord cubeCoord, BallType ball)
     {
         _holes[cubeCoord.x+_side-1,cubeCoord.y+_side-1].SetBall(ball);
     }
 
-    public Hole.Ball GetBallByCubeCoord(CubeCoord cubeCoord)
+    public BallType GetBallByCubeCoord(CubeCoord cubeCoord)
     {
         return GetHoleByCubeCoord(cubeCoord).GetBall();
     }
@@ -54,12 +55,12 @@ public class Board
         return _side;
     }
 
-    public void Set(int x, int y, Hole.Ball ball)
+    public void Set(int x, int y, BallType ball)
     {
         _holes[x + (_side - 1), y + (_side - 1)].SetBall(ball);
     }
 
-    public bool CheckMovement(BallSelection ballSelection, int direction,Hole.Ball myBallType)
+    public bool CheckMovement(BallSelection ballSelection, int direction,BallType myBallType)
     {
         int sameLine = GetSameLine(ballSelection.first,ballSelection.end);
         CubeCoord dirCubeCoord = Utils.GetDirectionByNum(direction);
@@ -119,7 +120,7 @@ public class Board
     }
     public bool CheckHoleIsEmptyOrOut(CubeCoord coord)
     {
-        return CheckOutOfBoard(coord) || GetBallByCubeCoord(coord) == Hole.Ball.Empty;
+        return CheckOutOfBoard(coord) || GetBallByCubeCoord(coord) == BallType.Empty;
     }
     public bool CheckOutOfBoard(CubeCoord cubeCoord)
     {

@@ -8,12 +8,12 @@ public class Ball : MonoBehaviour
     public bool moving = false;
     public int direction;
     public float moveDistance;
-    private Hole.Ball _ballType;
+    private BallType _ballType;
     private BoardManager _boardManager;
     private bool _die = false;
     void Start()
     {
-        _boardManager = gameObject.transform.parent.GetComponent<BallManager>()._boardManager;
+        _boardManager = gameObject.transform.parent.GetComponent<BallManager>().boardManager;
     }
 
     // Update is called once per frame
@@ -37,11 +37,11 @@ public class Ball : MonoBehaviour
         return -direction * Mathf.PI / 3 + Mathf.PI / 3;
     }
 
-    public void SetBall(Hole.Ball ballType)
+    public void SetBall(BallType ballType)
     {
         _ballType = ballType;
     }
-    public Hole.Ball GetBall()
+    public BallType GetBall()
     {
         return _ballType;
     }

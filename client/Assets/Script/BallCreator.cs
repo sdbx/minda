@@ -11,13 +11,13 @@ static public class BallCreator
 
         foreach (Hole hole in board.GetHoles())
         {
-            if (hole == null || hole.GetBall() == Hole.Ball.Empty)
+            if (hole == null || hole.GetBall() == BallType.Empty)
             {
                 continue;
             }
 
             CubeCoord holeCubeCoord = hole.GetCubeCoord();
-            GameObject BallPrefab = (hole.GetBall() == Hole.Ball.Black ? blackBallPrefab : whiteBallPrefab);
+            GameObject BallPrefab = (hole.GetBall() == BallType.Black ? blackBallPrefab : whiteBallPrefab);
 
             Vector2 holePosition = hole.GetPixelPoint(holeDistance);
 

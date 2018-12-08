@@ -101,9 +101,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9db04db800474cd408b04f80b74e8bfd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  arrowsMangerObject: {fileID: 0}
-  originPosition: {x: 0, y: 0}
-  working: 0
   isPushing: 0
   originDistance: 0.1
   maxDistance: 0
@@ -140,8 +137,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -951700153
+  m_SortingLayer: 3
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: f5485a3101d0b0c42846e03289db0808, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

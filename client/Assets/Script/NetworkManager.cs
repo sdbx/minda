@@ -4,49 +4,132 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System;
+using Newtonsoft.Json;
+using System.Collections.Generic;
 
 public class NetworkManager : MonoBehaviour
 {
-
+    
+    public GameManager gameManager;
     public string ipAddress = "127.0.0.1";
     public int port = 0;
 
-    private Socket _socket;
+    private JsonSerializerSettings jsonSettings;
+    static string receiveData;
+    float connectTime;
 
-    public bool Connect()
+    delegate void EventHandler(Event e);
+
+    Dictionary<Type, EventHandler> handle;
+
+
+    void Start()
     {
-        _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
-        try
+        jsonSettings = new JsonSerializerSettings
         {
-            IPAddress ipAddr = IPAddress.Parse(ipAddress);
-            IPEndPoint ipendPoint = new IPEndPoint(ipAddr, port);
-            _socket.Connect(ipendPoint);
-            return true;
-
-        }
-        catch (SocketException SocketException)
+            TypeNameHandling = TypeNameHandling.Objects,
+        };
+        jsonSettings.Converters.Add(new EventConverter());
+        handle = new Dictionary<Type, EventHandler>
         {
-            Debug.Log("소켓 연결 에러 ! : " + SocketException.ToString());
-            return false;
+            { typeof(GameStartEvent), new EventHandler(GameStartHandler)},
+            { typeof(EnterEvent), (Event e) => {}},
+            { typeof(MoveEvent), (Event e) => {}},
+            { typeof(ConnectedEvent), (Event e) => {}}
+        };
+    }
+
+    void GameStartHandler(Event e)
+    {
+        GameStartEvent gameStart = (GameStartEvent)e;
+        gameManager.StartGame(gameStart.board,gameStart.turn);
+    }
+
+    void EnterHandler(Event e)
+    {
+        EnterEvent Enter = (EnterEvent)e;
+    }
+
+    void MoveHandler(Event e)
+    {
+        MoveEvent Move = (MoveEvent)e;
+        if(Move.player != gameManager.myBallType)
+        {
+            gameManager.OppenetMovement(new BallSelection(Move.start,Move.end),Utils.GetNumberDirection(Move.dir));
         }
     }
-    public void StartReceive()
-    {
-        Thread t = new Thread(new ThreadStart(Receive));
-        t.Start();
-    }
-    private void Receive()
-    {
-        byte[] buffer = new byte[1024];
-        _socket.Receive(buffer);
-        string result = System.Text.Encoding.UTF8.GetString(buffer);
-        Debug.Log(result);
 
+    void ConnectedHandler(Event e)
+    {
+        ConnectedEvent connected = (ConnectedEvent)e;
     }
-    // Update is called once per frame
+
     void Update()
     {
+        if(AsyncCallbackClient.Instance().state == ClientState.CONNECTED&&Input.GetKeyDown(KeyCode.A))
+        {
+            SendData("{\"type\":\"connect\",\"id\":\"white\"}");
+        }
+        if (AsyncCallbackClient.Instance().state == ClientState.DISCONNECTED)
+        {
+            connectTime += Time.deltaTime;
+            if (connectTime > 3.0f)
+            {
+                AsyncCallbackClient.Instance().Connect(ipAddress, port);
+                connectTime = 0;
+            }
+        }
 
+        int dataCount = AsyncCallbackClient.Instance().dataQueue.Count;
+        if (dataCount > 0)
+        {
+            for (int i = 0; i < dataCount; i++)
+            {
+                string data = AsyncCallbackClient.Instance().dataQueue.Dequeue();
+                ReceiveData(data);
+            }
+        }
+
+        int logCount = AsyncCallbackClient.Instance().logQueue.Count;
+        if (logCount > 0)
+        {
+            for (int i = 0; i < logCount; i++)
+            {
+                Debug.Log(AsyncCallbackClient.Instance().logQueue.Dequeue());
+            }
+        }
     }
+    public void SendCommand(Command command)
+    {
+        string json = JsonConvert.SerializeObject(command);
+        SendData(json);
+    }
+
+    void ReceiveData(string receiveStr)
+    {
+        foreach (string splitedStr in receiveStr.Split('\n'))
+        {
+            if(splitedStr=="")
+                return;
+
+            Event e = JsonConvert.DeserializeObject<Event>(splitedStr, jsonSettings);
+            handle[e.GetType()](e);
+            Debug.Log(e.GetType());
+        }
+    }
+
+    public static void SendData(string data)
+    {
+        AsyncCallbackClient.Instance().SendData(data);
+    }
+
+    void OnApplicationQuit()
+    {
+        AsyncCallbackClient.Instance().Close();
+    }
+
+
+
+
 }

@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class BoardManager : MonoBehaviour
 {
-
     public GameObject boardObject;
     public GameObject holePrefab;
     public GameObject boardBottomPrefab;
@@ -13,14 +12,14 @@ public class BoardManager : MonoBehaviour
     public float holeDistance = 5;
 
     private Board _board;
-    private Hole.Ball _myBallType = Hole.Ball.Black;
+    private BallType _myBallType;
 
     void Start()
     {
 
     }
 
-    public void CreateBoard(Hole.Ball myBallType)
+    public void CreateBoard(BallType myBallType)
     {
         _board = new Board(boardSide);
         _myBallType = myBallType;
@@ -37,7 +36,7 @@ public class BoardManager : MonoBehaviour
     {
         return _board;
     }
-    public Hole.Ball GetMyBallType()
+    public BallType GetMyBallType()
     {
         return _myBallType;
     }
@@ -51,7 +50,7 @@ public class BoardManager : MonoBehaviour
                 int type = map[x, y];
                 if (type != 0)
                 {
-                    _board.Set(x, y, (type == 1 ? Hole.Ball.Black : Hole.Ball.White));
+                    _board.Set(x-s, y-s, (BallType)type);
                 }
 
             }
