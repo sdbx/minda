@@ -12,6 +12,14 @@ pub struct Room {
 }
 
 impl Room {
+    pub fn new(name: String) -> Self {
+        Self {
+            name: name,
+            users: HashMap::new(),
+            game: None
+        }
+    }
+
     pub fn add_user(&mut self, id: &str, conn_id: Uuid, user: User) {
         self.users.insert(id.to_owned(), RoomUser {
             conn_id: conn_id,

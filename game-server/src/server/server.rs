@@ -1,4 +1,7 @@
+use model::User;
+use server::game::Game;
 use model::Event;
+use board::{Player, Board, Cord, Stone};
 use std::sync::mpsc::Sender;
 use std::sync::mpsc::channel;
 use std::sync::mpsc::Receiver;
@@ -34,13 +37,56 @@ pub struct Server {
     pub streams: HashMap<Uuid, TcpStream>
 }
 
+fn test_board() -> Board {
+    let mut board = Board::new(5);
+    board.set(Cord(0,0,0), Stone::Black);
+    board.set(Cord(1,0,-1), Stone::White);
+    board
+}
+
+fn test_game() -> Game {
+    Game {
+        black: "black".to_owned(),
+        white: "white".to_owned(),
+        board: test_board(),
+        turn: Player::Black
+    }
+}
+
+fn test_rooms() -> HashMap<String, Room> {
+    let mut t = HashMap::new();
+    let mut room = Room::new("test".to_owned());
+    room.game = Some(test_game());
+    t.insert("test".to_owned(), room);
+    t
+}
+
+fn test_invites() -> HashMap<String, Invite> {
+    let mut t = HashMap::new();
+    t.insert("black".to_owned(), Invite {
+        id: "black".to_owned(),
+        user: User{
+            username: "110vBABU".to_owned()
+        },
+        room: "test".to_owned()
+    });
+    t.insert("white".to_owned(), Invite {
+        id: "white".to_owned(),
+        user: User{
+            username: "110vBABU".to_owned()
+        },
+        room: "test".to_owned()
+    });
+    t
+}
+
 impl Server {
     pub fn new(addr: &str) -> Self {
         Self {
             tx: None,
             addr: addr.to_owned(),
-            rooms: HashMap::new(),
-            invites: HashMap::new(),
+            rooms: test_rooms(),
+            invites: test_invites(),
             conns: HashMap::new(),
             streams: HashMap::new()
         }
@@ -50,6 +96,7 @@ impl Server {
         for event in self.listen().iter() {
             match event {
                 ServerEvent::Connect{ conn_id, conn } => {
+                    info!("client({}) connected", conn_id);
                     self.conns.insert(conn_id, Connection {
                         conn_id: conn_id,
                         id: None,
@@ -58,6 +105,7 @@ impl Server {
                     self.streams.insert(conn_id, conn);
                 },
                 ServerEvent::Command { conn_id, cmd } => {
+                    info!("client({}) command", conn_id);
                     let conn = { 
                         self.conns.get(&conn_id).unwrap().clone()
                     };
@@ -70,8 +118,9 @@ impl Server {
     
     pub fn dispatch(&mut self, conn_id: Uuid, event: Event) {
         if let Some(stream) = self.streams.get_mut(&conn_id) {
-            let st = serde_json::to_string(&event).unwrap();
-            stream.write(st.as_bytes());
+            let msg = serde_json::to_string(&event).unwrap();
+            info!("client({}) will receive msg: {}", conn_id, msg);
+            stream.write(msg.as_bytes());
         }
     }
 
@@ -84,12 +133,19 @@ impl Server {
                         break;
                     }
                     let msg = String::from_utf8_lossy(&buffer);
-                    let t = parse_command(&msg);
-                    if let Ok(cmd) = t {
-                        tx.send(ServerEvent::Command{
-                            conn_id,
-                            cmd
-                        });
+                    info!("client({}) sent msg: {:?}", conn_id, msg.as_bytes());
+                    let t = parse_command(&msg.trim_matches('\0'));
+                    match t {
+                        Ok(cmd) =>  {
+                            info!("{:?}", cmd);
+                            tx.send(ServerEvent::Command{
+                                conn_id,
+                                cmd
+                            });
+                        },
+                        Err(e) => {
+                            warn!("{:?}",e);
+                        }
                     }
                 },
                 Err(e) => {/*todo*/}

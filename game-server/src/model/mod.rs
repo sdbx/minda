@@ -22,8 +22,6 @@ pub enum Event {
     GameStart{ board: Vec<Vec<Stone>>, black: String, white: String, turn: String },
     #[serde(rename = "enter")]
     Enter { username: String },
-    #[serde(rename = "110vbabu")]
-    Board { board: Vec<Vec<Stone>> },
     #[serde(rename = "error")]
     Error { message: String },
     #[serde(rename = "move")]
