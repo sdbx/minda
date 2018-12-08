@@ -69,7 +69,7 @@ public class NetworkManager : MonoBehaviour
     {
         if(AsyncCallbackClient.Instance().state == ClientState.CONNECTED&&Input.GetKeyDown(KeyCode.A))
         {
-            SendData("{\"type\":\"connect\",\"id\":\""+Enum.GetName(typeof(BallType), gameManager.myBallType)+"\"}");
+            SendData("{\"type\":\"connect\",\"id\":\""+Enum.GetName(typeof(BallType), gameManager.myBallType).ToLower()+"\"}");
         }
         if (AsyncCallbackClient.Instance().state == ClientState.DISCONNECTED)
         {

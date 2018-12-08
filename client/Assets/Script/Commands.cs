@@ -14,7 +14,6 @@ public class ConnectCommand : Command
 public class MoveCommand : Command
 {
     public string type = "move";
-    public BallType player;
     public CubeCoord start;
     public CubeCoord end;
     public CubeCoord dir;
