@@ -24,11 +24,15 @@ public class GameManager : MonoBehaviour
 		}
 		_networkManager.StartReceive();*/
         _boardManger.CreateBoard(myBallType);
+        //_boardManger.GetBoard().Set(0, -3, Hole.Ball.Black);
+        _boardManger.GetBoard().Set(0, -2, Hole.Ball.White);
+        _boardManger.GetBoard().Set(0, -1, Hole.Ball.White);
         _boardManger.GetBoard().Set(0, 0, Hole.Ball.Black);
         _boardManger.GetBoard().Set(0, 1, Hole.Ball.Black);
         _boardManger.GetBoard().Set(0, 2, Hole.Ball.Black);
         _boardManger.GetBoard().Set(0, 3, Hole.Ball.Black);
         _ballManager.CreateBalls(_boardManger);
+        _ballManager.state = 1;
     }
 
     // Update is called once per frame

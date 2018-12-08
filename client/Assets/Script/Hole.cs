@@ -9,6 +9,7 @@ public class Hole
         Empty,
         Black,
         White,
+        Out,
     }
 
     private CubeCoord _cubeCoord;

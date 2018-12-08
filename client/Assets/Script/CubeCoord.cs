@@ -27,12 +27,19 @@ public class CubeCoord
     public bool CheckInSameLine(CubeCoord cubeCoord)
     {
         return (x == cubeCoord.x || y == cubeCoord.y || z == cubeCoord.z);
-
     }
     
     public static CubeCoord operator +(CubeCoord a, CubeCoord b)
     {
         return new CubeCoord(a.x + b.x, a.y + b.y, a.z + b.z);
+    }
+    public static CubeCoord operator *(CubeCoord a, int b)
+    {
+        return new CubeCoord(a.x * b, a.y * b, a.z * b);
+    }
+    public bool isSame(CubeCoord a)
+    {
+        return (x==a.x)&&(y==a.y)&&(z==a.z);
     }
 
     public Vector2 GetPixelPoint(float distance)
