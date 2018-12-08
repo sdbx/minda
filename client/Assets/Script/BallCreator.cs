@@ -32,7 +32,7 @@ static public class BallCreator
             ballScript.SetBall(hole.GetBall());
             ballScript.SetCubeCoord(holeCubeCoord);
 
-            BallObjects[(int)holeCubeCoord.x, (int)holeCubeCoord.y] = ballObject;
+            BallObjects[(int)holeCubeCoord.x+side-1, (int)holeCubeCoord.y+side-1] = ballObject;
         }
         return BallObjects;
     }

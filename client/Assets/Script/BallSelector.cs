@@ -63,12 +63,16 @@ public class BallSelector
         _selectingBalls.Clear();
         Vector2 mousePos = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0));
         CubeCoord ballCubeCoord = GetBallCubeCoordByMouseXY(mousePos);
+
         if (ballCubeCoord == null)
         {
             UnSelectable();
             return;
         }
         GameObject ballObject = _ballManager.GetBallObjectByCubeCoord(ballCubeCoord);
+        if(ballObject.GetComponent<Ball>().GetBall()!=_boardManager.GetMyBallType())
+            return;
+            
         int s = _boardManager.GetBoard().GetSide() - 1;
 
 

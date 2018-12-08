@@ -47,4 +47,35 @@ public static class Utils
             return -1;
         }
     }
+    static public CubeCoord GetDirectionByNum(int direction)
+    {
+        if(direction == 0)
+        {
+            return new CubeCoord(1,-1);
+        }
+        else if(direction == 1)
+        {
+            return new CubeCoord(1,0);
+        }
+        else if(direction == 2)
+        {
+            return new CubeCoord(0,1);
+        }
+        else if(direction == 3)
+        {
+            return new CubeCoord(-1,1);
+        }
+        else if(direction == 4)
+        {
+            return new CubeCoord(-1,0);
+        }
+        else if(direction == 5)
+        {
+            return new CubeCoord(0,-1);
+        }
+        else
+        {
+            return null;
+        }
+    }
 }
