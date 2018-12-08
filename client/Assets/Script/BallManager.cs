@@ -110,8 +110,8 @@ public class BallManager : MonoBehaviour
     public void PushBalls(BallSelection ballSelection, int direction)
     {
         List<CubeCoord> movingBalls = GetMovingBalls(ballSelection, direction);
-        
-        foreach (CubeCoord ballCoord in _movingBalls)
+
+        foreach (CubeCoord ballCoord in movingBalls)
         {
             Ball currentBall = GetBallObjectByCubeCoord(ballCoord).GetComponent<Ball>();
             MoveBall(ballCoord, arrowsManager.selectedArrow);
