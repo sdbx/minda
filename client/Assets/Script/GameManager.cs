@@ -49,5 +49,6 @@ public class GameManager : MonoBehaviour
     public void OppenetMovement(BallSelection ballSelection,int direction)
     {
         ballManager.PushBalls(ballSelection, direction);
+        myTurn();
     }
 }
