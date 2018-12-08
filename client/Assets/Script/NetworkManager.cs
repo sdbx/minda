@@ -34,9 +34,9 @@ public class NetworkManager : MonoBehaviour
         handle = new Dictionary<Type, EventHandler>
         {
             { typeof(GameStartEvent), new EventHandler(GameStartHandler)},
-            { typeof(EnterEvent), (Event e) => {}},
-            { typeof(MoveEvent), (Event e) => {}},
-            { typeof(ConnectedEvent), (Event e) => {}}
+            { typeof(EnterEvent), new EventHandler(EnterHandler)},
+            { typeof(MoveEvent), new EventHandler(MoveHandler)},
+            { typeof(ConnectedEvent), new EventHandler(ConnectedHandler)}
         };
     }
 
@@ -69,7 +69,7 @@ public class NetworkManager : MonoBehaviour
     {
         if(AsyncCallbackClient.Instance().state == ClientState.CONNECTED&&Input.GetKeyDown(KeyCode.A))
         {
-            SendData("{\"type\":\"connect\",\"id\":\""+"white"+"\"}");
+            SendData("{\"type\":\"connect\",\"id\":\""+"black"+"\"}");
         }
         if (AsyncCallbackClient.Instance().state == ClientState.DISCONNECTED)
         {

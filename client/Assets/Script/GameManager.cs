@@ -35,6 +35,7 @@ public class GameManager : MonoBehaviour
         {
             myTurn();
         }
+        //OppenetMovement(new BallSelection(new CubeCoord(0,0),new CubeCoord(0,0)),0);
     }
     public void SendBallMoving(BallSelection ballSelection,int direction)
     {
