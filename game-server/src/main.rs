@@ -12,8 +12,9 @@ mod tool;
 extern crate simplelog;
 use simplelog::*;
 
+mod error;
 mod model;
-mod board;
+mod game;
 mod server;
 
 
@@ -22,7 +23,6 @@ use server::{Server};
 
 fn main() {
     CombinedLogger::init(vec![TermLogger::new(LevelFilter::Info, Config::default()).unwrap()]).unwrap();
-    info!("asdfasdf");
     let server = Server::new("0.0.0.0:5353");
     server.serve();
 }

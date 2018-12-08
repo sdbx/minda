@@ -1,5 +1,4 @@
-use board::Cord;
-use board::Stone;
+use game::{Cord, Stone};
 
 #[derive(Deserialize, Serialize, Copy, Clone, PartialEq, Debug)]
 pub struct AxialCord {

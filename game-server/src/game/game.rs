@@ -1,10 +1,6 @@
-//TODO: move to board
-
 use model::AxialCord;
-use board::Player;
-use board::Board;
-use board::BoardError;
-use board::Move;
+use game::{Player, Board, Move};
+use error::Error;
 
 pub struct Game {
     pub board: Board,
@@ -14,7 +10,7 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn run_move(&mut self, id: &str, start: AxialCord, end: AxialCord, dir: AxialCord) -> Result<(), BoardError> {
+    pub fn run_move(&mut self, id: &str, start: AxialCord, end: AxialCord, dir: AxialCord) -> Result<(), Error> {
         let player = self.get_turn(id)?;
 
         self.board.push(Move {
@@ -25,13 +21,13 @@ impl Game {
         })
     }
 
-    pub fn get_turn(&self, id: &str) -> Result<Player, BoardError> {
+    pub fn get_turn(&self, id: &str) -> Result<Player, Error> {
         if self.black == id && self.turn == Player::Black {
             Ok(Player::Black)
         } else if self.white == id && self.turn == Player::White {
             Ok(Player::White)
         } else {
-            Err(BoardError::InvalidMove)
+            Err(Error::InvalidMove)
         }
     }
 }

@@ -3,17 +3,18 @@ use server::room::Room;
 use server::{Server, Connection};
 use uuid::Uuid;
 use model::Command;
+use error::Error;
 
 mod game;
 mod connect;
 
-pub fn handle(server: &mut Server, conn: &Connection, cmd: Command) {
+pub fn handle(server: &mut Server, conn: &Connection, cmd: Command) -> Result<(), Error> {
     match cmd {
         Command::Connect { id } => {
-            connect::handle(server, conn, id);
+            connect::handle(server, conn, id)
         },
         Command::Move { start, end, dir } => {{
-            game::game_move(server, conn, start, end, dir);
+            game::game_move(server, conn, start, end, dir)
         }}
     }
 }
