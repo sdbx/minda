@@ -3,12 +3,13 @@ use game::{Cord, Stone};
 #[derive(Deserialize, Serialize, Copy, Clone, PartialEq, Debug)]
 pub struct AxialCord {
     pub x: isize,
-    pub y: isize
+    pub y: isize,
+    pub z: isize
 }
 
 impl AxialCord {
     pub fn to_cord(&self) -> Cord {
-        Cord(self.x, self.y, -self.x-self.y)
+        Cord(self.x, self.y, self.z)
     }
 }
 

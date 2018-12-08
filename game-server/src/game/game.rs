@@ -18,7 +18,9 @@ impl Game {
             from: start.to_cord(),
             to: end.to_cord(),
             dir: dir.to_cord()
-        })
+        })?;
+        self.turn = self.turn.opp();
+        Ok(())
     }
 
     pub fn get_turn(&self, id: &str) -> Result<Player, Error> {

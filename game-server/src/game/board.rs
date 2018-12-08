@@ -35,6 +35,13 @@ impl Player {
         }
     }
 
+    pub fn opp(&self) -> Player {
+        match self {
+            Player::White => Player::Black,
+            Player::Black => Player::White
+        }
+    }
+
     pub fn to_string(&self) -> String {
         match self {
             Player::White => "white".to_owned(),
