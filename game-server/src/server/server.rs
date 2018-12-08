@@ -1,7 +1,6 @@
 use model::User;
-use server::game::Game;
 use model::Event;
-use board::{Player, Board, Cord, Stone};
+use game::{Game, Player, Board, Cord, Stone};
 use std::sync::mpsc::Sender;
 use std::sync::mpsc::channel;
 use std::sync::mpsc::Receiver;
@@ -40,7 +39,11 @@ pub struct Server {
 fn test_board() -> Board {
     let mut board = Board::new(5);
     board.set(Cord(0,0,0), Stone::Black);
-    board.set(Cord(1,0,-1), Stone::White);
+    board.set(Cord(0,-3,3), Stone::White);
+    board.set(Cord(0,-3,3), Stone::Black);
+    board.set(Cord(-1,-2,3), Stone::Black);
+    board.set(Cord(-2,-1,3), Stone::White);
+    board.set(Cord(-3,0,3), Stone::White);
     board
 }
 
@@ -73,7 +76,7 @@ fn test_invites() -> HashMap<String, Invite> {
     t.insert("white".to_owned(), Invite {
         id: "white".to_owned(),
         user: User{
-            username: "110vBABU".to_owned()
+            username: "asd".to_owned()
         },
         room: "test".to_owned()
     });
@@ -109,7 +112,9 @@ impl Server {
                     let conn = { 
                         self.conns.get(&conn_id).unwrap().clone()
                     };
-                    cmd::handle(&mut self, &conn, cmd);
+                    if let Err(err) = cmd::handle(&mut self, &conn, cmd) {
+                        self.dispatch(conn_id, Event::Error{message: format!("{}", err)});
+                    };
                 },
                 _ => { }
             }
@@ -118,9 +123,10 @@ impl Server {
     
     pub fn dispatch(&mut self, conn_id: Uuid, event: Event) {
         if let Some(stream) = self.streams.get_mut(&conn_id) {
-            let msg = serde_json::to_string(&event).unwrap();
+            let msg = serde_json::to_string(&event).unwrap() + "\n";
             info!("client({}) will receive msg: {}", conn_id, msg);
             stream.write(msg.as_bytes());
+            stream.flush();
         }
     }
 
@@ -133,22 +139,19 @@ impl Server {
                         break;
                     }
                     let msg = String::from_utf8_lossy(&buffer);
-                    info!("client({}) sent msg: {:?}", conn_id, msg.as_bytes());
+                    info!("client({}) sent msg: {}", conn_id, msg);
                     let t = parse_command(&msg.trim_matches('\0'));
-                    match t {
-                        Ok(cmd) =>  {
-                            info!("{:?}", cmd);
-                            tx.send(ServerEvent::Command{
-                                conn_id,
-                                cmd
-                            });
-                        },
-                        Err(e) => {
-                            warn!("{:?}",e);
-                        }
+                    if let Ok(cmd) = t {
+                        info!("{:?}", cmd);
+                        tx.send(ServerEvent::Command{
+                            conn_id,
+                            cmd
+                        });
                     }
                 },
-                Err(e) => {/*todo*/}
+                Err(e) => {
+                    error!("{}", e);
+                }
             }
         }
     }

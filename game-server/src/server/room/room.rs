@@ -1,4 +1,4 @@
-use server::game::Game;
+use game::Game;
 use model::Event;
 use server::Server;
 use std::collections::HashMap;

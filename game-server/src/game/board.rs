@@ -1,22 +1,8 @@
 use std::collections::VecDeque;
 use std::iter::FromIterator;
 use std::fmt::{self, Display, Formatter};
-use board::Cord;
-
-quick_error! {
-    #[derive(Debug)]
-    pub enum BoardError {
-        InvalidCord {
-            description("Invalid coordinates")
-        }
-        InvalidVec {
-            description("Invalid vec")
-        }
-        InvalidMove {
-            description("Invalid move")
-        }
-    }
-}
+use game::Cord;
+use error::Error;
 
 enum_number!(Stone {
     Blank = 0,
@@ -102,17 +88,17 @@ impl Board {
         self.payload.clone()
     }
 
-    pub fn get(&self, cord: Cord) -> Result<Stone, BoardError> {
+    pub fn get(&self, cord: Cord) -> Result<Stone, Error> {
         if !self.validate(cord) {
-            return Err(BoardError::InvalidCord);
+            return Err(Error::InvalidCord);
         }
         let (i, j) = self.to_axial(cord);
         Ok(self.payload[i][j])
     }
 
-    pub fn set(&mut self, cord: Cord, stone: Stone) -> Result<(), BoardError> {
+    pub fn set(&mut self, cord: Cord, stone: Stone) -> Result<(), Error> {
         if !self.validate(cord) {
-            return Err(BoardError::InvalidCord)
+            return Err(Error::InvalidCord)
         }
         let (i, j) = self.to_axial(cord);
         self.payload[i][j] = stone;
@@ -130,7 +116,7 @@ impl Board {
         ((cord.0 + self.side - 1) as usize, (cord.1 + self.side - 1) as usize)
     }
 
-    fn get_until_blank(&self, p: Cord, dir: Cord) -> Result<Vec<Stone>, BoardError> {
+    fn get_until_blank(&self, p: Cord, dir: Cord) -> Result<Vec<Stone>, Error> {
         let mut i = p;
         let mut out: VecDeque<Stone> = VecDeque::new();
         loop {
@@ -148,12 +134,12 @@ impl Board {
         Ok(Vec::from_iter(out.into_iter()))
     }
 
-    fn get_between(&self, from: Cord, to: Cord) -> Result<Vec<Stone>, BoardError> {
+    fn get_between(&self, from: Cord, to: Cord) -> Result<Vec<Stone>, Error> {
         if !self.validate(from) || !self.validate(to) {
-            return Err(BoardError::InvalidCord)
+            return Err(Error::InvalidCord)
         }
         if !from.is_linear_to(to) {
-            return Err(BoardError::InvalidCord)
+            return Err(Error::InvalidCord)
         }
         let cords = from.linedraw(to);
         Ok(cords.iter().map(|&c| { 
@@ -161,17 +147,17 @@ impl Board {
         }).collect())
     }
 
-    fn nums_of_stones(player: Player, stones: Vec<Stone>) -> Result<(usize, usize), BoardError> {
+    fn nums_of_stones(player: Player, stones: Vec<Stone>) -> Result<(usize, usize), Error> {
         let mut opp_started = false;
         let mut me = 0;
         let mut opp = 0;
         if stones[0] != player.stone() {
-            return Err(BoardError::InvalidMove);
+            return Err(Error::InvalidMove);
         }
         for s in stones.iter() {
             if *s == player.stone() {
                 if opp_started {
-                    return Err(BoardError::InvalidMove);
+                    return Err(Error::InvalidMove);
                 }
                 me += 1;
             } else {
@@ -182,11 +168,11 @@ impl Board {
         return Ok((me, opp))
     }
 
-    fn push_foward(&mut self, player: Player, from: Cord, dir: Cord) -> Result<(), BoardError> {
+    fn push_foward(&mut self, player: Player, from: Cord, dir: Cord) -> Result<(), Error> {
         let stones = self.get_until_blank(from, dir)?;
         let (me, opp) = Board::nums_of_stones(player, stones)?;
         if me <= opp {
-            return Err(BoardError::InvalidMove)
+            return Err(Error::InvalidMove)
         }
         let mut i = from + dir * (me + opp) as isize;
         while i != from {
@@ -200,18 +186,13 @@ impl Board {
         Ok(())
     }
 
-    fn push_sideways(&mut self, player: Player, from: Cord, to: Cord, dir: Cord) -> Result<(), BoardError> {
+    fn push_sideways(&mut self, player: Player, from: Cord, to: Cord, dir: Cord) -> Result<(), Error> {
         let cords = from.linedraw(to);
         for cord in cords.iter() {
-            let s = self.get(*cord)?;
-            if s != player.stone() {
-                return Err(BoardError::InvalidMove)
-            }
-
             if self.validate(*cord + dir) {
                 let s = self.get(*cord + dir)?; 
                 if s != Stone::Blank {
-                    return Err(BoardError::InvalidMove)
+                    return Err(Error::InvalidMove)
                 }
             }
         }
@@ -224,11 +205,11 @@ impl Board {
         Ok(())
     }
 
-    fn push_one(&mut self, player: Player, from: Cord, dir: Cord) -> Result<(), BoardError> {
+    fn push_one(&mut self, player: Player, from: Cord, dir: Cord) -> Result<(), Error> {
         if self.validate(from + dir) {
             let s = self.get(from + dir)?;
             if s != Stone::Blank {
-                return Err(BoardError::InvalidMove)
+                return Err(Error::InvalidMove)
             }
         }
         if self.validate(from + dir) {
@@ -238,18 +219,25 @@ impl Board {
         Ok(())
     }
 
-    fn push_internal(&mut self, player: Player, from: Cord, to: Cord, dir: Cord) -> Result<(), BoardError> {
+    fn push_internal(&mut self, player: Player, from: Cord, to: Cord, dir: Cord) -> Result<(), Error> {
         if !self.validate(from) || !self.validate(to) {
-            return Err(BoardError::InvalidCord)
+            return Err(Error::InvalidCord)
         }
         if !dir.is_linear_vec() || dir.vec_size() != 1 {
-            return Err(BoardError::InvalidVec)
+            return Err(Error::InvalidVec)
         }
         if from == to {
             return self.push_one(player, from, dir)
         }
         if !from.is_linear_to(to) || from.distance(to) > 2 {
-            return Err(BoardError::InvalidCord)
+            return Err(Error::InvalidCord)
+        }
+        let cords = from.linedraw(to);
+        for cord in cords.iter() {
+            let s = self.get(*cord)?;
+            if s != player.stone() {
+                return Err(Error::InvalidMove)
+            }
         }
         if from.dir(to) == dir {
             return self.push_foward(player, from, dir)
@@ -260,7 +248,7 @@ impl Board {
         }
     }
 
-    pub fn push(&mut self, m: Move) -> Result<(), BoardError> {
+    pub fn push(&mut self, m: Move) -> Result<(), Error> {
         self.push_internal(m.player, m.from, m.to, m.dir)
     }
 }

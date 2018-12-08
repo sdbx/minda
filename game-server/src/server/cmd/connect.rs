@@ -1,20 +1,21 @@
-use board::Player::Black;
+use game::Player::Black;
 use server::cmd;
 use server::room::Room;
 use model::Event;
 use server::{Server, Connection};
+use error::Error;
 use uuid::Uuid;
 
-pub fn handle(server: &mut Server, conn: &Connection, id: String) {
+pub fn handle(server: &mut Server, conn: &Connection, id: String) -> Result<(), Error> {
     let (roomname, invite, gameevent) = {
         let invite = match server.invites.get(&id) {
             Some(invite) => invite,
-            None => { return }
+            None => { return Err(Error::InvalidCommand) }
         };
 
         let room = match server.rooms.get_mut(&invite.room) {
             Some(room) => room,
-            None => { return }
+            None => { return Err(Error::Internal) }
         };
 
         let conn2 = server.conns.get_mut(&conn.conn_id).unwrap();
@@ -41,4 +42,5 @@ pub fn handle(server: &mut Server, conn: &Connection, id: String) {
         username: invite.user.username
     });
     server.dispatch(conn.conn_id, Event::Connected{ roomname: roomname });
+    Ok(())
 }
