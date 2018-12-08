@@ -1,9 +1,12 @@
+use serde::Serializer;
+use serde::Serialize;
+use serde::ser::SerializeStruct;
 use std::iter::FromIterator;
 use std::collections::VecDeque;
 use std::cmp::max;
 use std::ops;
 
-#[derive(Serialize, Deserialize, Copy, Clone, PartialEq, Debug)]
+#[derive(Copy, Clone, PartialEq, Debug)]
 pub struct Cord(pub isize, pub isize, pub isize);
 
 impl Cord {

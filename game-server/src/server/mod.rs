@@ -1,4 +1,5 @@
 mod server;
-
-pub use self::server::{Server};
-pub mod room;
+mod game;
+mod room;
+mod cmd;
+pub use self::server::{Server, Connection};
