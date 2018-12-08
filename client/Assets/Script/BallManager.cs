@@ -114,7 +114,7 @@ public class BallManager : MonoBehaviour
         foreach (CubeCoord ballCoord in movingBalls)
         {
             Ball currentBall = GetBallObjectByCubeCoord(ballCoord).GetComponent<Ball>();
-            MoveBall(ballCoord, arrowsManager.selectedArrow);
+            MoveBall(ballCoord, direction);
         }
     }
 
