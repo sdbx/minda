@@ -1,4 +1,4 @@
-use game::{Cord, Board, Stone, Move, Player};
+use board::{Cord, Board, Stone, Move, Player};
 
 #[test]
 fn board_test1() {

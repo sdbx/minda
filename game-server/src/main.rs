@@ -9,18 +9,14 @@ extern crate quick_error;
 mod tool;
 
 mod model;
-mod game;
+mod board;
 mod server;
 
 
-use evhub::SocketHub;
-use std::sync::{Arc, Mutex};
-use server::{Server, SendMap};
+use server::{Server};
 
 fn main() {
-    let mut send_map = SendMap::new();
-    let send2 = SocketHub::start("0.0.0.0:8080", send.clone());
-    send_map.insert(SocketHub::name, send2);
-    Server::start(recv, send_map);
+    let server = Server::new("0.0.0.0:5353");
+    server.serve();
 }
 
