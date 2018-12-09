@@ -10,6 +10,16 @@ enum_number!(Stone {
     White = 2,
 });
 
+impl Stone {
+    pub fn from_num(i: usize) -> Option<Self> {
+        match i {
+            0 => Some(Stone::Blank),
+            1 => Some(Stone::Black),
+            2 => Some(Stone::White),
+            _ => None
+        }
+    }
+}
 impl Display for Stone {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         use self::Stone::*;
@@ -82,6 +92,30 @@ impl Board {
             payload: vec![vec![Blank; side*2-1]; side*2-1],
             side: side as isize,
         }
+    }
+
+    pub fn from_string(msg: &str) -> Option<Self> {
+        let parsed = msg.split("#")
+            .map(|s| s.split("@")
+                .collect::<Vec<_>>()
+            ).collect::<Vec<_>>();
+        if parsed.len() <= 1 {
+            return None
+        }
+        let mut out = Board::new((parsed.len() + 1) / 2);
+        for i in 0..parsed.len() {
+            for j in 0..parsed[i].len() {
+                if i >= out.payload.len() || j >= out.payload[i].len() {
+                    return None
+                }
+                let num = match parsed[i][j].parse::<usize>() {
+                    Ok(n) => n,
+                    Err(e) => return None
+                };
+                out.payload[i][j] = Stone::from_num(num)?;
+            }
+        }
+        Some(out)
     }
 
     pub fn test_board() -> Self {

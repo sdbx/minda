@@ -37,14 +37,7 @@ pub struct Server {
 }
 
 fn test_board() -> Board {
-    let mut board = Board::new(5);
-    board.set(Cord(0,0,0), Stone::Black);
-    board.set(Cord(0,-3,3), Stone::White);
-    board.set(Cord(0,-3,3), Stone::Black);
-    board.set(Cord(-1,-2,3), Stone::Black);
-    board.set(Cord(-2,-1,3), Stone::White);
-    board.set(Cord(-3,0,3), Stone::White);
-    board
+    Board::from_string("0@0@0@0@0@0@0@2@2#0@0@0@0@0@0@0@2@2#0@0@0@0@0@0@2@2@2#0@1@0@0@0@0@2@2@2#1@1@1@0@0@0@2@2@2#1@1@1@0@0@0@0@2@0#1@1@1@0@0@0@0@0@0#1@1@0@0@0@0@0@0@0#1@1@0@0@0@0@0@0@0").unwrap()
 }
 
 fn test_game() -> Game {
@@ -138,7 +131,7 @@ impl Server {
                     if size == 0 {
                         break;
                     }
-                    let msg = String::from_utf8_lossy(&buffer);
+                    let msg = String::from_utf8_lossy(&buffer[..size]);
                     info!("client({}) sent msg: {}", conn_id, msg);
                     let t = parse_command(&msg.trim_matches('\0'));
                     if let Ok(cmd) = t {
