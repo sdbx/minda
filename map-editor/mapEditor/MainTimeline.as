@@ -1,24 +1,24 @@
 ﻿package mapEditor {
 	import flash.display.*;
-    import flash.events.*;
+	import flash.events.*;
 	import flash.events.Event;
 	import flash.net.FileReference;
 
-	dynamic public class MainTimeline extends MovieClip {
-		public var eraser:MovieClip;
-		public var blackball:MovieClip;
-		public var whiteball:MovieClip;
-		public var saveBtn:SimpleButton;
+	dynamic
+	public class MainTimeline extends MovieClip {
+		public var eraser: MovieClip;
+		public var blackball: MovieClip;
+		public var whiteball: MovieClip;
+		public var saveBtn: SimpleButton;
 		public var side: int = 5;
 		public var distance: Number = 150.55 * 0.4;
 		public var map: Array = new Array(side * 2 - 1);
 		public var file: FileReference = new FileReference();
 		public var selectedTool = 0;
-		
-		public function MainTimeline()
-        {
-            addFrameScript(0, this.frame1);
-        }
+
+		public function MainTimeline() {
+			addFrameScript(0, this.frame1);
+		}
 
 		public function frame1() {
 			for (var i = 0; i < this.side * 2 - 1; i++) {
@@ -40,15 +40,15 @@
 		public function eraser_click(e: Event) {
 			this.selectedTool = 0;
 		}
-		
+
 		public function blackball_click(e: Event) {
 			this.selectedTool = 1;
 		}
-		
+
 		public function whiteball_click(e: Event) {
 			this.selectedTool = 2;
 		}
-		
+
 		public function saveBtn_click(e: Event) {
 			var s = this.side - 1;
 			var mapStr = "";
@@ -107,7 +107,7 @@
 				}
 			}
 		}
-		
+
 		public function clickHex(e: MouseEvent) {
 			e.currentTarget.Type = this.selectedTool;
 			e.currentTarget.gotoAndStop(this.selectedTool + 1);
