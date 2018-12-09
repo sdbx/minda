@@ -4,8 +4,7 @@
 	import flash.events.Event;
 	import flash.net.FileReference;
 
-	dynamic
-	public class MainTimeline extends MovieClip {
+	dynamic public class MainTimeline extends MovieClip {
 		public var eraser: MovieClip;
 		public var blackball: MovieClip;
 		public var whiteball: MovieClip;
@@ -17,20 +16,20 @@
 		public var selectedTool = 0;
 
 		public function MainTimeline() {
-			addFrameScript(0, this.frame1);
+			addFrameScript(0,frame1);
 		}
 
 		public function frame1() {
-			for (var i = 0; i < this.side * 2 - 1; i++) {
-				map[i] = new Array(this.side * 2 - 1);
+			for (var i = 0; i < side * 2 - 1; i++) {
+				map[i] = new Array(side * 2 - 1);
 			}
-			this.CreateBoard();
-			stage.addEventListener(Event.ENTER_FRAME, this.EnterFrameHandler);
-			this.eraser.addEventListener(MouseEvent.CLICK, this.eraser_click);
-			this.whiteball.addEventListener(MouseEvent.CLICK, this.whiteball_click);
-			this.blackball.addEventListener(MouseEvent.CLICK, this.blackball_click);
-			this.saveBtn.addEventListener(MouseEvent.CLICK, this.saveBtn_click);
-			this.file.addEventListener(Event.COMPLETE, this.fileSaved);
+			CreateBoard();
+			stage.addEventListener(Event.ENTER_FRAME, EnterFrameHandler);
+			eraser.addEventListener(MouseEvent.CLICK, eraser_click);
+			whiteball.addEventListener(MouseEvent.CLICK, whiteball_click);
+			blackball.addEventListener(MouseEvent.CLICK, blackball_click);
+			saveBtn.addEventListener(MouseEvent.CLICK, saveBtn_click);
+			file.addEventListener(Event.COMPLETE, fileSaved);
 		}
 
 		public function fileSaved(event: Event): void {
@@ -38,19 +37,19 @@
 		}
 
 		public function eraser_click(e: Event) {
-			this.selectedTool = 0;
+			selectedTool = 0;
 		}
 
 		public function blackball_click(e: Event) {
-			this.selectedTool = 1;
+			selectedTool = 1;
 		}
 
 		public function whiteball_click(e: Event) {
-			this.selectedTool = 2;
+			selectedTool = 2;
 		}
 
 		public function saveBtn_click(e: Event) {
-			var s = this.side - 1;
+			var s = side - 1;
 			var mapStr = "";
 			for (var x = -s; x <= s; x++) {
 				for (var y = -s; y <= s; y++) {
@@ -64,29 +63,29 @@
 				mapStr += "#";
 			}
 			mapStr = mapStr.substr(0, mapStr.length - 1);
-			this.file.save(mapStr, "map.txt");
+			file.save(mapStr, "map.txt");
 		}
 
 		public function EnterFrameHandler(e: Event) {
-			if (this.selectedTool == 0) {
-				this.eraser.gotoAndStop(2);
+			if (selectedTool == 0) {
+				eraser.gotoAndStop(2);
 			} else {
-				this.eraser.gotoAndStop(1);
+				eraser.gotoAndStop(1);
 			}
-			if (this.selectedTool == 1) {
-				this.blackball.gotoAndStop(2);
+			if (selectedTool == 1) {
+				blackball.gotoAndStop(2);
 			} else {
-				this.blackball.gotoAndStop(1);
+				blackball.gotoAndStop(1);
 			}
-			if (this.selectedTool == 2) {
-				this.whiteball.gotoAndStop(2);
+			if (selectedTool == 2) {
+				whiteball.gotoAndStop(2);
 			} else {
-				this.whiteball.gotoAndStop(1);
+				whiteball.gotoAndStop(1);
 			}
 		}
 
 		public function CreateBoard() {
-			var s = this.side - 1;
+			var s = side - 1;
 
 			for (var x = -s; x <= s; x++) {
 				for (var y = -s; y <= s; y++) {
@@ -98,10 +97,10 @@
 						currentHole.scaleY = 0.4;
 						currentHole.coordX = x + s;
 						currentHole.coordY = y + s;
-						currentHole.addEventListener(MouseEvent.CLICK, this.clickHex);
-						this.addChildAt(currentHole, 0);
+						currentHole.addEventListener(MouseEvent.CLICK, clickHex);
+						addChildAt(currentHole, 0);
 						currentHole.Type = 0;
-						this.map[x + s][y + s] = currentHole;
+						map[x + s][y + s] = currentHole;
 					}
 
 				}
@@ -109,8 +108,8 @@
 		}
 
 		public function clickHex(e: MouseEvent) {
-			e.currentTarget.Type = this.selectedTool;
-			e.currentTarget.gotoAndStop(this.selectedTool + 1);
+			e.currentTarget.Type = selectedTool;
+			e.currentTarget.gotoAndStop(selectedTool + 1);
 		}
 	}
 }

@@ -110,7 +110,7 @@ impl Board {
                 }
                 let num = match parsed[i][j].parse::<usize>() {
                     Ok(n) => n,
-                    Err(e) => return None
+                    Err(_) => return None
                 };
                 out.payload[i][j] = Stone::from_num(num)?;
             }
