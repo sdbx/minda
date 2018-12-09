@@ -38,6 +38,13 @@ public class NetworkManager : MonoBehaviour
             { typeof(MoveEvent), new EventHandler(MoveHandler)},
             { typeof(ConnectedEvent), new EventHandler(ConnectedHandler)}
         };
+        AsyncCallbackClient.Instance().connectedCallback = connectedCallback;
+    }
+    
+    void connectedCallback()
+    {
+        ConnectCommand connectCommand = new ConnectCommand(Enum.GetName(typeof(BallType), gameManager.myBallType).ToLower());
+        SendCommand(connectCommand);
     }
 
     void GameStartHandler(Event e)
@@ -67,10 +74,6 @@ public class NetworkManager : MonoBehaviour
 
     void Update()
     {
-        if(AsyncCallbackClient.Instance().state == ClientState.CONNECTED&&Input.GetKeyDown(KeyCode.A))
-        {
-            SendData("{\"type\":\"connect\",\"id\":\""+Enum.GetName(typeof(BallType), gameManager.myBallType).ToLower()+"\"}");
-        }
         if (AsyncCallbackClient.Instance().state == ClientState.DISCONNECTED)
         {
             connectTime += Time.deltaTime;

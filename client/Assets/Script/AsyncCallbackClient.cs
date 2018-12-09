@@ -20,6 +20,7 @@ public class AsyncCallbackClient
     byte[] receiveByte;
     public Queue<string> dataQueue = new Queue<string>();
     public Queue<string> logQueue = new Queue<string>();
+    public Action connectedCallback;
     public static AsyncCallbackClient Instance()
     {
         if (sdbxClient == null)
@@ -54,6 +55,8 @@ public class AsyncCallbackClient
             receiveByte = new byte[client.ReceiveBufferSize];
             client.BeginReceive(receiveByte, 0, receiveByte.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), client);
             state = ClientState.CONNECTED;
+            if(connectedCallback!=null)
+                connectedCallback();
         }
         catch (Exception e)
         {
