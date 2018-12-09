@@ -55,8 +55,9 @@
 				for (var y = -s; y <= s; y++) {
 					if (Math.abs(x + y) <= s) {
 						mapStr += map[x + s][y + s].Type;
+					} else {
+						mapStr += "0";
 					}
-
 					mapStr += "@";
 				}
 				mapStr = mapStr.substr(0, mapStr.length - 1);
