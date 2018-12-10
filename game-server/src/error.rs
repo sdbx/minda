@@ -1,6 +1,18 @@
 quick_error! {
     #[derive(Debug)]
     pub enum Error {
+        JsonError(err: serde_json::Error) {
+            from()
+            description("json error")
+            display("json error: {}", err)
+            cause(err)
+        }
+        RedisError(err: redis::RedisError) {
+            from()
+            description("redis error")
+            display("redis error: {}", err)
+            cause(err)
+        }
         Internal {
             description("Internal error")
         }

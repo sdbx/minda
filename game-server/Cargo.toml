@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = ["sunho <ksunhokim123@naver.com>"]
 
 [dependencies]
-
+redis = "0.9.1"
 simplelog = "^0.5.0"
 log = "0.4"
 uuid = { version = "0.7", features = ["v4"] }
@@ -12,3 +12,5 @@ serde = "1.0"
 serde_derive = "1.0"
 serde_json = "1.0"
 quick-error = "1.2.2"
+ticker = "0.1.1"
+chrono = { version = "0.4", features = ["serde"] }

@@ -1,3 +1,5 @@
+use chrono::Utc;
+use chrono::DateTime;
 use game::Game;
 use model::Event;
 use server::Server;
@@ -7,6 +9,7 @@ use model::User;
 
 pub struct Room {
     pub name: String,
+    pub created_at: DateTime<Utc>,
     pub users: HashMap<String, RoomUser>,
     pub game: Option<Game>
 }
@@ -15,6 +18,7 @@ impl Room {
     pub fn new(name: String) -> Self {
         Self {
             name: name,
+            created_at: Utc::now(),
             users: HashMap::new(),
             game: None
         }

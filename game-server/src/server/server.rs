@@ -1,9 +1,13 @@
 use model::User;
 use model::Event;
+use std::time::Duration;
+use ticker::Ticker;
 use game::{Game, Player, Board, Cord, Stone};
 use std::sync::mpsc::Sender;
 use std::sync::mpsc::channel;
+use server::discover;
 use std::sync::mpsc::Receiver;
+use redis::Client;
 use uuid::Uuid;
 use std::net::{TcpStream, TcpListener};
 use model::{parse_command, Command, Invite};
@@ -17,6 +21,7 @@ use server::cmd;
 pub enum ServerEvent {
     Connect{ conn_id: Uuid, conn: TcpStream },
     Close { conn_id: Uuid },
+    Updated,
     Command { conn_id: Uuid, cmd: Command }
 }
 
@@ -29,7 +34,9 @@ pub struct Connection {
 
 pub struct Server {
     tx: Option<Sender<ServerEvent>>,
-    addr: String,
+    pub name: String,
+    pub addr: String,
+    pub redis: Client,
     pub rooms: HashMap<String, Room>,
     pub invites: HashMap<String, Invite>,
     pub conns: HashMap<Uuid, Connection>,
@@ -37,7 +44,8 @@ pub struct Server {
 }
 
 fn test_board() -> Board {
-    Board::from_string("0@0@0@0@0@0@0@2@2#0@0@0@0@0@0@0@2@2#0@0@0@0@0@0@2@2@2#0@1@0@0@0@0@2@2@2#1@1@1@0@0@0@2@2@2#1@1@1@0@0@0@0@2@0#1@1@1@0@0@0@0@0@0#1@1@0@0@0@0@0@0@0#1@1@0@0@0@0@0@0@0").unwrap()
+    //Board::from_string("0@0@0@0@0@0@0@2@2#0@0@0@0@0@0@0@2@2#0@0@0@0@0@0@2@2@2#0@1@0@0@0@0@2@2@2#1@1@1@0@0@0@2@2@2#1@1@1@0@0@0@0@2@0#1@1@1@0@0@0@0@0@0#1@1@0@0@0@0@0@0@0#1@1@0@0@0@0@0@0@0").unwrap()
+    Board::from_string("0@0@0@0@0@0@0@0@0#0@0@0@0@0@0@0@0@0#0@0@0@0@0@0@0@0@0#0@1@1@1@1@1@1@1@1#0@0@0@0@0@0@0@0@0#0@0@0@0@0@0@0@0@0#0@0@0@0@0@0@0@0@0#0@0@0@0@0@0@0@0@0#0@0@0@0@0@0@0@0@0").unwrap()
 }
 
 fn test_game() -> Game {
@@ -77,15 +85,22 @@ fn test_invites() -> HashMap<String, Invite> {
 }
 
 impl Server {
-    pub fn new(addr: &str) -> Self {
+    pub fn new(name: &str, addr: &str, redis_addr: &str) -> Self {
         Self {
             tx: None,
+            name: name.to_owned(),
             addr: addr.to_owned(),
+            redis: Client::open(redis_addr).unwrap(),
             rooms: test_rooms(),
             invites: test_invites(),
             conns: HashMap::new(),
             streams: HashMap::new()
         }
+    }
+
+    pub fn make_tx(&self) -> Sender<ServerEvent> {
+        let tx = self.tx.as_ref().unwrap();
+        tx.clone()
     }
 
     pub fn serve(mut self) {
@@ -109,6 +124,9 @@ impl Server {
                         self.dispatch(conn_id, Event::Error{message: format!("{}", err)});
                     };
                 },
+                ServerEvent::Updated => {
+                    discover::update(&mut self);
+                },
                 _ => { }
             }
         }
@@ -121,6 +139,15 @@ impl Server {
             stream.write(msg.as_bytes());
             stream.flush();
         }
+    }
+
+    fn ping_update(&self) {
+        let tx = self.make_tx();
+        thread::spawn(move || {
+            for _ in Ticker::new(0.., Duration::from_secs(10)) {
+                tx.send(ServerEvent::Updated);
+            }
+        });
     }
 
     fn handle_stream_loop(conn_id: Uuid, tx: &Sender<ServerEvent>, mut stream: TcpStream) {
@@ -175,6 +202,7 @@ impl Server {
                 }
             }
         });
+        self.ping_update();
         rx
    }
 

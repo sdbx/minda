@@ -1,3 +1,4 @@
+mod discover;
 mod server;
 mod room;
 mod cmd;

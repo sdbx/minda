@@ -3,7 +3,7 @@ package oauthserv
 import (
 	"github.com/labstack/echo"
 	"github.com/markbates/goth/gothic"
-	"lobby/serv/redisserv"
+	"lobby/servs/redisserv"
 	"github.com/markbates/goth/providers/google"
 	"github.com/markbates/goth/providers/discord"
 	"github.com/markbates/goth"

@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"lobby/serv/oauthserv"
+	"lobby/servs/oauthserv"
 
 	"github.com/labstack/echo"
 	"github.com/sunho/dim"
@@ -12,7 +12,6 @@ type auth struct {
 }
 
 func (a *auth) Register(d *dim.Group) {
-	d.GET()
 	d.GET("/o/:provider", a.oauth)
 	d.GET("/o/callback/:provider", a.oauthCallback)
 }
