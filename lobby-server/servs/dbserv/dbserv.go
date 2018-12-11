@@ -10,6 +10,10 @@ type DBServConf struct {
 	Stage string `yaml:"stage"`
 }
 
+func (DBServ) ConfigName() string {
+	return "db"
+}
+
 func Provide(conf DBServConf) (*DBServ, error) {
 	c, err := pop.Connect(conf.Stage)
 	if err != nil {

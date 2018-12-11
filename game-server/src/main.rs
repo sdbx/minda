@@ -24,7 +24,7 @@ use server::{Server};
 
 fn main() {
     CombinedLogger::init(vec![TermLogger::new(LevelFilter::Info, Config::default()).unwrap()]).unwrap();
-    let server = Server::new("hey", "0.0.0.0:5353", "redis://127.0.0.1/");
+    let server = Server::new("0.0.0.0:5353", "test", "127.0.0.1:5353", "redis://127.0.0.1/");
     server.serve();
 }
 

@@ -1,13 +1,21 @@
 package models
 
 type Result struct {
-	ID    string  `json:"id"`
 	Error *string `json:"error"`
-	Value []byte  `json:"value"`
+	Value string  `json:"value"`
 }
 
-type Task struct {
-	ID    string `json:"id"`
-	Type  string `json:"type"`
-	Param []byte `json:"param"`
+type TaskRequest struct {
+	ID   string `json:"id"`
+	Task Task   `json:"task"`
+}
+
+type Task interface{}
+
+func UnmarshalTaskRequest(buf []byte) (TaskRequest, error) {
+	return nil, nil
+}
+
+func MarshalTaskRequest(t TaskRequest) ([]byte, error) {
+
 }

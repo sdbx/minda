@@ -75,7 +75,7 @@ impl GameServer {
         }).collect::<Vec<_>>();
         Self {
             name: server.name.clone(),
-            addr: server.addr.clone(),
+            addr: server.real_addr.clone(),
             rooms: rooms,
             last_ping: Utc::now()
         }
@@ -87,4 +87,20 @@ pub struct Room {
     pub id: String,
     pub created_at: DateTime<Utc>,
     pub name: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct TaskRequest {
+    pub id: String,
+    pub task: Task
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub enum Task {
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct TaskResult {
+    pub error: Option<String>,
+    pub value: String
 }

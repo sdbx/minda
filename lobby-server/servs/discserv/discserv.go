@@ -1,4 +1,4 @@
-package gameserv
+package discserv
 
 import (
 	"encoding/json"
@@ -30,21 +30,22 @@ func (r Rooms) Len() int {
 	return len(r)
 }
 
-type GameServerServ struct {
+type DiscoverServ struct {
 	Redis *redisserv.RedisServ `dim:"on"`
 
 	rooms Rooms
 }
 
-func Provide() *GameServerServ {
-	return &GameServerServ{}
+func Provide() *DiscoverServ {
+	return &DiscoverServ{}
 }
 
-func (g *GameServerServ) Init() {
+func (g *DiscoverServ) Init() error {
 	go g.update()
+	return nil
 }
 
-func (g *GameServerServ) update() {
+func (g *DiscoverServ) update() {
 	ticker := time.NewTicker(updateTick)
 	for {
 		select {
@@ -54,8 +55,8 @@ func (g *GameServerServ) update() {
 			}
 			rooms := Rooms{}
 			for _, server := range servers {
-				if server.LastPing.Add(garbageTime).Before(time.Now()) {
-					g.Redis.Conn().Send("HDEL", redisServerHash, server.Name)
+				if server.LastPing.Add(garbageTime).Before(time.Now().UTC()) {
+					g.Redis.Conn().Do("HDEL", redisServerHash, server.Name)
 				}
 				rooms = append(rooms, server.Rooms...)
 			}
@@ -65,11 +66,11 @@ func (g *GameServerServ) update() {
 	}
 }
 
-func (g *GameServerServ) GetRooms() Rooms {
+func (g *DiscoverServ) GetRooms() Rooms {
 	return g.rooms
 }
 
-func (g *GameServerServ) ListGameServers() ([]models.GameServer, error) {
+func (g *DiscoverServ) ListGameServers() ([]models.GameServer, error) {
 	conn := g.Redis.Conn()
 	vals, err := redis.ByteSlices(conn.Do("HVALS", redisServerHash))
 	if err != nil {
@@ -88,7 +89,7 @@ func (g *GameServerServ) ListGameServers() ([]models.GameServer, error) {
 	return out, nil
 }
 
-func (g *GameServerServ) ExistsGameServer(name string) (bool, error) {
+func (g *DiscoverServ) ExistsGameServer(name string) (bool, error) {
 	conn := g.Redis.Conn()
 	return redis.Bool(conn.Do("HEXISTS", redisServerHash, name))
 }

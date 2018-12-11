@@ -36,11 +36,11 @@ pub fn handle(server: &mut Server, conn: &Connection, id: String) -> Result<(), 
     };
 
     if let Some(event) = gameevent {
-        server.dispatch(conn.conn_id, event);
+        server.dispatch(conn.conn_id, &event);
     }
-    server.broadcast(&invite.room, Event::Enter{
+    server.broadcast(&invite.room, &Event::Enter{
         username: invite.user.username
     });
-    server.dispatch(conn.conn_id, Event::Connected{ roomname: roomname });
+    server.dispatch(conn.conn_id, &Event::Connected{ roomname: roomname });
     Ok(())
 }

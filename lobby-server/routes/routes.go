@@ -11,4 +11,5 @@ func HelloWorld(c echo.Context) error {
 
 func Register(d *dim.Group) {
 	d.GET("/", HelloWorld)
+	d.Route("/gameservers", &gameServer{})
 }

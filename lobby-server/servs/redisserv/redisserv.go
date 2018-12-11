@@ -32,6 +32,10 @@ func Provide(conf RedisServConf) (*RedisServ, error) {
 	}, nil
 }
 
+func (RedisServ) ConfigName() string {
+	return "redis"
+}
+
 func (r *RedisServ) GetPool() *redis.Pool {
 	return r.pool
 }

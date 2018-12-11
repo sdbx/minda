@@ -40,6 +40,6 @@ pub fn game_move(server: &mut Server, conn: &Connection, start: AxialCord, end: 
         })
     };
 
-    server.broadcast(&room, event);
+    server.broadcast(&room, &event);
     Ok(())
 }
