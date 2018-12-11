@@ -6,6 +6,7 @@ public class ArrowsManager : MonoBehaviour
 {
     public GameObject boardObject;
     public GameObject arrowPrefab;
+    
     public float arrowDistance;
     public BallSelection ballSelection;
     public int pushingArrow = -1;
@@ -17,7 +18,6 @@ public class ArrowsManager : MonoBehaviour
     private Arrow[] _arrows = new Arrow[6];
     private BoardManager _boardManger;
 
-
     public void Reset()
     {
         pushingArrow = -1;
@@ -26,6 +26,7 @@ public class ArrowsManager : MonoBehaviour
         selected = false;
         working = false;
     }
+
     void Start()
     {
         _boardManger = boardObject.GetComponent<BoardManager>();

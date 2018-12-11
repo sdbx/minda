@@ -4,7 +4,6 @@ using UnityEngine;
 
 public static class BoardCreator
 {
-
     public static void CreateBoard(Board board, GameObject boardObject, GameObject holePrefab, GameObject boardBottomPrefab, Vector2 boardCenter, float holeDistance)
     {
         GameObject duplicatedHole;
@@ -24,7 +23,7 @@ public static class BoardCreator
 
         GameObject boardBottom = UnityEngine.Object.Instantiate(boardBottomPrefab, new Vector3(boardCenter.x, boardCenter.y, 10), new Quaternion(0, 0, 0, 0), boardObject.transform);
         Vector3 boardBottomSpriteSize = boardBottomPrefab.GetComponent<SpriteRenderer>().sprite.bounds.size;
-        float boardDiameter = (board.GetSide() * 2 + 1) * holeDistance;
+        float boardDiameter = (board.GetSide() * 2 ) * holeDistance + 0.95f;
         boardBottom.transform.localScale = new Vector3(boardDiameter / boardBottomSpriteSize.x, (boardDiameter * Mathf.Sqrt(3) / 2) / boardBottomSpriteSize.y, 0);
     }
 }

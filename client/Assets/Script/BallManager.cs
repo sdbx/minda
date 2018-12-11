@@ -128,7 +128,7 @@ public class BallManager : MonoBehaviour
             ballObject.GetComponent<Ball>().Move(direction);
             ballObject.GetComponent<Ball>().Die();
             SetBallObject(cubeCoord, null);
-            boardManager.GetBoard().SetHoleByCubeCoord(cubeCoord, BallType.Empty);
+            boardManager.GetBoard().SetHoleByCubeCoord(cubeCoord, HoleState.Empty);
         }
         else
         {
@@ -136,7 +136,7 @@ public class BallManager : MonoBehaviour
             SetBallObject(cubeCoord, null);
             SetBallObject(cubeCoord + Utils.GetDirectionByNum(direction), ballObject);
             boardManager.GetBoard().SetHoleByCubeCoord(cubeCoord + Utils.GetDirectionByNum(direction), ball);
-            boardManager.GetBoard().SetHoleByCubeCoord(cubeCoord, BallType.Empty);
+            boardManager.GetBoard().SetHoleByCubeCoord(cubeCoord, HoleState.Empty);
             ballObject.GetComponent<Ball>().Move(direction);
         }
 
@@ -149,7 +149,7 @@ public class BallManager : MonoBehaviour
         List<CubeCoord> balls = new List<CubeCoord>(5);
 
         Board board = boardManager.GetBoard();
-        BallType myBallType = board.GetBallByCubeCoord(ballSelection.first);
+        BallType myBallType = (BallType)board.GetHoleStateByCubeCoord(ballSelection.first);
 
         int sameLine = board.GetSameLine(ballSelection.first, ballSelection.end);
         CubeCoord dirCubeCoord = Utils.GetDirectionByNum(direction);

@@ -4,17 +4,14 @@ using UnityEngine;
 
 public class Arrow : MonoBehaviour
 {
-
-    public BallSelection _ballSelection;
-    public bool isPushing = false;
     public float originDistance = 0.1f;
     public float maxDistance;
-    public float pushingDistance = 0;
 
+    private BallSelection _ballSelection;
+    private bool _isPushing = false;
+    private float _pushingDistance = 0;
     private ArrowsManager _arrowsManager;
     private int _direction = 0;
-
-
 
     public void SetDirection(int direction)
     {
@@ -40,14 +37,14 @@ public class Arrow : MonoBehaviour
     void Update()
     {
         Vector3 parentPostion = gameObject.transform.parent.position;
-        if (isPushing && Input.GetMouseButtonUp(0))
+        if (_isPushing && Input.GetMouseButtonUp(0))
         {
             if (CheckDistanceOverHalf())
             {
                 _arrowsManager.selected = true;
                 _arrowsManager.selectedArrow = _direction;
             }
-            isPushing = false;
+            _isPushing = false;
             _arrowsManager.pushingArrow = -1;
             SetArrowDisplayMode(0);
             gameObject.SetActive(false);
@@ -59,7 +56,7 @@ public class Arrow : MonoBehaviour
         Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         float distance = GetDistanceFromOrigin(mousePos);
 
-        if (isPushing)
+        if (_isPushing)
         {
             if (distance <= maxDistance - originDistance)
             {
@@ -97,9 +94,9 @@ public class Arrow : MonoBehaviour
 
     void OnMouseOver()
     {
-        if (Input.GetMouseButtonDown(0) && !isPushing)
+        if (Input.GetMouseButtonDown(0) && !_isPushing)
         {
-            isPushing = true;
+            _isPushing = true;
         }
         else
         {
@@ -109,7 +106,7 @@ public class Arrow : MonoBehaviour
 
     void OnMouseExit()
     {
-        if (!isPushing)
+        if (!_isPushing)
             SetArrowDisplayMode(0);
     }
 

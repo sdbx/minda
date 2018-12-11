@@ -11,13 +11,13 @@ static public class BallCreator
 
         foreach (Hole hole in board.GetHoles())
         {
-            if (hole == null || hole.GetBall() == BallType.Empty)
+            if (hole == null || hole.GetHoleState() == HoleState.Empty)
             {
                 continue;
             }
 
             CubeCoord holeCubeCoord = hole.GetCubeCoord();
-            GameObject BallPrefab = (hole.GetBall() == BallType.Black ? blackBallPrefab : whiteBallPrefab);
+            GameObject BallPrefab = (hole.GetHoleState() == HoleState.Black ? blackBallPrefab : whiteBallPrefab);
 
             Vector2 holePosition = hole.GetPixelPoint(holeDistance);
 
@@ -29,7 +29,7 @@ static public class BallCreator
             ballObject.transform.localScale = new Vector3(sizeOfBall / ballSpriteSize.x, sizeOfBall / ballSpriteSize.y);
 
             Ball ballScript = ballObject.GetComponent<Ball>();
-            ballScript.SetBall(hole.GetBall());
+            ballScript.SetBall((BallType)hole.GetHoleState());
             ballScript.SetCubeCoord(holeCubeCoord);
 
             BallObjects[(int)holeCubeCoord.x+side-1, (int)holeCubeCoord.y+side-1] = ballObject;

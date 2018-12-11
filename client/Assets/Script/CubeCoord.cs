@@ -35,10 +35,12 @@ public class CubeCoord
     {
         return new CubeCoord(a.x + b.x, a.y + b.y, a.z + b.z);
     }
+
     public static CubeCoord operator *(CubeCoord a, int b)
     {
         return new CubeCoord(a.x * b, a.y * b, a.z * b);
     }
+    
     public bool isSame(CubeCoord a)
     {
         return (x==a.x)&&(y==a.y)&&(z==a.z);

@@ -12,15 +12,18 @@ public enum ClientState
     CONNECTING,
     CONNECTED
 }
+
 public class AsyncCallbackClient
 {
-    static AsyncCallbackClient sdbxClient;
-    Socket client;
-    public ClientState state = ClientState.DISCONNECTED;
-    byte[] receiveByte;
     public Queue<string> dataQueue = new Queue<string>();
     public Queue<string> logQueue = new Queue<string>();
     public Action connectedCallback;
+    public ClientState state = ClientState.DISCONNECTED;
+
+    private static AsyncCallbackClient sdbxClient;
+    private Socket client;
+    private byte[] receiveByte;
+
     public static AsyncCallbackClient Instance()
     {
         if (sdbxClient == null)
@@ -30,6 +33,7 @@ public class AsyncCallbackClient
         }
         return sdbxClient;
     }
+
     public void Connect(string ip, int port)
     {
         try
@@ -46,6 +50,7 @@ public class AsyncCallbackClient
             logQueue.Enqueue(e.Message);
         }
     }
+
     void ConnectCallback(IAsyncResult iar)
     {
         try
@@ -64,6 +69,7 @@ public class AsyncCallbackClient
             logQueue.Enqueue(e.Message);
         }
     }
+
     void ReceiveCallback(IAsyncResult iar)
     {
         try
@@ -87,6 +93,7 @@ public class AsyncCallbackClient
             Close();
         }
     }
+
     public void SendData(string data)
     {
         try
@@ -101,12 +108,14 @@ public class AsyncCallbackClient
             Close();
         }
     }
+
     void SendCallback(IAsyncResult ias)
     {
         Socket handler = (Socket)ias.AsyncState;
         int bytesSent = handler.EndSend(ias);
         logQueue.Enqueue("[Sent Bytes]" + bytesSent);
     }
+    
     public void Close()
     {
         logQueue.Enqueue("[Disconnected]");

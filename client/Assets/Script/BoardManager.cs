@@ -26,20 +26,16 @@ public class BoardManager : MonoBehaviour
         BoardCreator.CreateBoard(_board, boardObject, holePrefab, boardBottomPrefab, boardCenter, holeDistance);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
     public Board GetBoard()
     {
         return _board;
     }
+
     public BallType GetMyBallType()
     {
         return _myBallType;
     }
+
     public void SetMap(int[,] map)
     {
         int s = boardSide - 1;
@@ -57,6 +53,7 @@ public class BoardManager : MonoBehaviour
         }
 
     }
+    
 	public bool CheckBallObjectIsMine(GameObject ballObject)
     {
         return ballObject.GetComponent<Ball>().GetBall() == GetMyBallType();

@@ -51,6 +51,7 @@ public class BallSelection
 
         return startPoint;
     }
+    
     public CubeCoord GetEndPoint(int dirNum)
     {
         CubeCoord endPoint;

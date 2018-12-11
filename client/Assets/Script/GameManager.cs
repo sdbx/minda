@@ -12,14 +12,6 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         boardManger.CreateBoard(myBallType);
-
-        /*boardManger.GetBoard().Set(0, -2, Hole.Ball.White);
-        boardManger.GetBoard().Set(0, -1, Hole.Ball.White);
-        boardManger.GetBoard().Set(0, 0, Hole.Ball.Black);
-        boardManger.GetBoard().Set(0, 1, Hole.Ball.Black);
-        boardManger.GetBoard().Set(0, 2, Hole.Ball.Black);
-        boardManger.GetBoard().Set(0, 3, Hole.Ball.Black);
-        ballManager.state = 1;*/
     }
     
     void Update()
@@ -37,11 +29,13 @@ public class GameManager : MonoBehaviour
         }
         //OppenetMovement(new BallSelection(new CubeCoord(0,0),new CubeCoord(0,0)),0);
     }
+    
     public void SendBallMoving(BallSelection ballSelection,int direction)
     {
         MoveCommand moveCommand = new MoveCommand(myBallType, ballSelection.first, ballSelection.end, Utils.GetDirectionByNum(direction));
         networkManager.SendCommand(moveCommand);
     }
+
     public void myTurn()
     {
         ballManager.state = 1;

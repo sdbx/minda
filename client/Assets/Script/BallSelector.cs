@@ -25,7 +25,7 @@ public class BallSelector
 	{
 		return new BallSelection(_firstBallSelection,_lastBallSelection);
 	}
-
+    
     public CubeCoord GetBallCubeCoordByMouseXY(Vector2 mouseXY)
     {
         int s = _boardManager.GetBoard().GetSide() - 1;

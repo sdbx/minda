@@ -8,7 +8,7 @@ public class Hole
 
     private CubeCoord _cubeCoord;
 
-    private BallType _ball = BallType.Empty;
+    private HoleState _holeState = HoleState.Empty;
 
     public Hole(CubeCoord cubeCoord)
     {
@@ -24,13 +24,13 @@ public class Hole
         return _cubeCoord.GetPixelPoint(distance);
     }
 
-    public BallType GetBall()
+    public HoleState GetHoleState()
     {
-        return _ball;
+        return _holeState;
     }
 
-    public void SetBall(BallType ball)
+    public void SetHoleState(HoleState holeState)
     {
-        _ball = ball;
+        _holeState = holeState;
     }
 }

@@ -8,9 +8,11 @@ public class Ball : MonoBehaviour
     public bool moving = false;
     public int direction;
     public float moveDistance;
+
     private BallType _ballType;
     private BoardManager _boardManager;
     private bool _die = false;
+
     void Start()
     {
         _boardManager = gameObject.transform.parent.GetComponent<BallManager>().boardManager;
@@ -41,28 +43,34 @@ public class Ball : MonoBehaviour
     {
         _ballType = ballType;
     }
+
     public BallType GetBall()
     {
         return _ballType;
     }
+
     public void SetCubeCoord(CubeCoord cubeCoord)
     {
         _cubeCoord = cubeCoord;
     }
+
     public CubeCoord GetCoordinates()
     {
         return _cubeCoord;
     }
+
     public void Move(int dirNum)
     {
         _cubeCoord += Utils.GetDirectionByNum(dirNum);
         RefreshPosition();
     }
+
     public void Die()
     {
         gameObject.AddComponent<Rigidbody2D>();
         _die = true;
     }
+    
     public void RefreshPosition()
     {
         gameObject.transform.position = _cubeCoord.GetPixelPoint(_boardManager.holeDistance);

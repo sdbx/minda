@@ -8,14 +8,17 @@ public class GameStartEvent : Event
     public int[,] board;
     public BallType turn;
 }
+
 public class EnterEvent : Event
 {
     public string username;
 }
+
 public class ConnectedEvent : Event
 {
     public string roomName = "";
 }
+
 public class MoveEvent : Event
 {
     public BallType player;

@@ -16,13 +16,12 @@ public class NetworkManager : MonoBehaviour
     public int port = 0;
 
     private JsonSerializerSettings jsonSettings;
-    static string receiveData;
-    float connectTime;
 
     delegate void EventHandler(Event e);
+    private Dictionary<Type, EventHandler> handle;
 
-    Dictionary<Type, EventHandler> handle;
-
+    private static string receiveData;
+    private float connectTime = 2;
 
     void Start()
     {
@@ -31,6 +30,7 @@ public class NetworkManager : MonoBehaviour
             TypeNameHandling = TypeNameHandling.Objects,
         };
         jsonSettings.Converters.Add(new EventConverter());
+
         handle = new Dictionary<Type, EventHandler>
         {
             { typeof(GameStartEvent), new EventHandler(GameStartHandler)},
@@ -38,6 +38,7 @@ public class NetworkManager : MonoBehaviour
             { typeof(MoveEvent), new EventHandler(MoveHandler)},
             { typeof(ConnectedEvent), new EventHandler(ConnectedHandler)}
         };
+
         AsyncCallbackClient.Instance().connectedCallback = connectedCallback;
     }
     
@@ -103,6 +104,7 @@ public class NetworkManager : MonoBehaviour
             }
         }
     }
+
     public void SendCommand(Command command)
     {
         string json = JsonConvert.SerializeObject(command);
@@ -131,8 +133,4 @@ public class NetworkManager : MonoBehaviour
     {
         AsyncCallbackClient.Instance().Close();
     }
-
-
-
-
 }
