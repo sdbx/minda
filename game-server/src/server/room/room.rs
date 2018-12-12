@@ -15,9 +15,9 @@ pub struct Room {
 }
 
 impl Room {
-    pub fn new(name: String) -> Self {
+    pub fn new(name: &str) -> Self {
         Self {
-            name: name,
+            name: name.to_owned(),
             created_at: Utc::now(),
             users: HashMap::new(),
             game: None

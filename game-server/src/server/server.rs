@@ -75,6 +75,10 @@ impl Server {
         }
     }
 
+    pub fn tx(&self) -> &Sender<ServerEvent> {
+        self.tx.as_ref().unwrap()
+    }
+
     pub fn make_tx(&self) -> Sender<ServerEvent> {
         let tx = self.tx.as_ref().unwrap();
         tx.clone()
@@ -107,12 +111,14 @@ impl Server {
                 ServerEvent::TaskRequest { task_request } => {
                     match task::handle(&mut self, task_request.task) {
                         Ok(res) => {
+                            info!("task({}) was successful", task_request.id);
                             self.send_result(&task_request.id, &TaskResult{
                                 error: None,
                                 value: res
                             });
                         },
                         Err(e) => {
+                            info!("task({}) encounterd an error: {}", task_request.id, e);
                             self.send_result(&task_request.id, &TaskResult{
                                 error: Some(format!("{}", e)),
                                 value: "".to_owned()
@@ -145,7 +151,8 @@ impl Server {
     fn ping_update(&self) {
         let tx = self.make_tx();
         thread::spawn(move || {
-            for _ in Ticker::new(0.., Duration::from_secs(10)) {
+            tx.send(ServerEvent::Updated);
+            for _ in Ticker::new(0.., Duration::from_secs(5)) {
                 tx.send(ServerEvent::Updated);
             }
         });
@@ -226,14 +233,15 @@ impl Server {
         let tx = self.make_tx();
         thread::spawn(move || {
             loop {
-                let res: String = match conn.blpop(redis_game_queue(&name), 0) {
+                let res: Vec<String> = match conn.blpop(redis_game_queue(&name), 0) {
                     Ok(res) => res,
-                    Err(e) => continue
+                    Err(e) => { error!("{}", e); continue }
                 };
-                let task_request: TaskRequest = match serde_json::from_str(&res) {
+                let task_request: TaskRequest = match serde_json::from_str(&res.get(1).unwrap()) {
                     Ok(task) => task,
-                    Err(e) => continue
+                    Err(e) => { error!("{}", e); continue }
                 };
+                info!("task({}) arrived: {:?}", task_request.id, task_request.task);
                 tx.send(ServerEvent::TaskRequest { task_request });
             }
         });

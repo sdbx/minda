@@ -51,7 +51,7 @@ pub fn parse_command(msg: &str) -> Result<Command, serde_json::Error> {
     serde_json::from_str(msg)
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct User {
     pub username: String
 }
@@ -95,12 +95,20 @@ pub struct TaskRequest {
     pub task: Task
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
+#[serde(tag = "kind")]
 pub enum Task {
+    #[serde(rename = "create-room")]
+    CreateRoom { name: String, user: User }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct TaskResult {
     pub error: Option<String>,
     pub value: String
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct CreateRoomResult {
+    pub id: String
 }

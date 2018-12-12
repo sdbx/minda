@@ -43,7 +43,7 @@ func ListenQueue(conn redis.Conn, onMessage func(buf []byte), name string) error
 	done := make(chan error, 1)
 	go func() {
 		for {
-			buf, err := redis.Bytes(conn.Do("BLPOP", name))
+			buf, err := redis.Bytes(conn.Do("BLPOP", name, 0))
 			if err != nil {
 				done <- err
 				return

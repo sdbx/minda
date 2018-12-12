@@ -20,5 +20,5 @@ func (g *gameServer) getGameServers(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return c.JSON(200, servers)
+	return c.JSONPretty(200, servers, "\t")
 }

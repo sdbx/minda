@@ -13,7 +13,7 @@ import (
 const (
 	redisServerHash = "game_server_hash"
 	updateTick      = time.Second
-	garbageTime     = time.Second * 20
+	garbageTime     = time.Second * 10
 )
 
 type Rooms []models.Room

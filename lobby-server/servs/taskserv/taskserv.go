@@ -77,13 +77,13 @@ func redisGameQueue(server string) string {
 	return fmt.Sprintf(redisGameQueueTmpl, server)
 }
 
-func (t *TaskServ) Request(server string, task models.Task) (models.Result, error) {
+func (t *TaskServ) Request(server string, task models.Task) (interface{}, error) {
 	exists, err := t.Disc.ExistsGameServer(server)
 	if err != nil {
-		return models.Result{}, err
+		return nil, err
 	}
 	if !exists {
-		return models.Result{}, errors.New("no such server")
+		return nil, errors.New("no such server")
 	}
 
 	id2, _ := uuid.NewV4()
@@ -95,28 +95,32 @@ func (t *TaskServ) Request(server string, task models.Task) (models.Result, erro
 	}
 	buf, err := json.Marshal(taskReq)
 	if err != nil {
-		return models.Result{}, err
+		return nil, err
 	}
 
-	conn := t.Redis.Conn()
-	conn.Send("BLPOP", redisResultChannel(id), resultTimeout)
-	conn.Flush()
 
 	_, err = t.Redis.Conn().Do("RPUSH", redisGameQueue(server), buf)
 	if err != nil {
-		return models.Result{}, err
+		return nil, err
 	}
 
-	buf, err = redis.Bytes(conn.Receive())
+	buf2, err := redis.ByteSlices(t.Redis.Conn().Do("BLPOP", redisResultChannel(id), resultTimeout))
 	if err != nil {
-		return models.Result{}, err
+		return nil, err
 	}
 
 	res := models.Result{}
-	err = json.Unmarshal(buf, &res)
+	err = json.Unmarshal(buf2[1], &res)
 	if err != nil {
-		return models.Result{}, err
+		return nil, err
 	}
 
-	return res, nil
+	if res.Error != nil {
+		return nil, errors.New(*res.Error)
+	}
+
+	out := task.Out()
+	err = json.Unmarshal([]byte(res.Value), &out)
+
+	return out, err
 }

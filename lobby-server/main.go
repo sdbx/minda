@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+	"math/rand"
 	"lobby/routes"
 	"lobby/servs/discserv"
 	"lobby/servs/redisserv"
@@ -10,6 +12,7 @@ import (
 )
 
 func main() {
+	rand.Seed(time.Now().Unix())
 	d := dim.New()
 	d.Provide(redisserv.Provide)
 	d.Provide(discserv.Provide)
