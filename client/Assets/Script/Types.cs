@@ -1,7 +1,7 @@
     public enum BallType
     {
         Black = 1,
-        White,
+        White ,
     }
     public enum HoleState
     {

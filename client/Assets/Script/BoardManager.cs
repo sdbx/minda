@@ -39,19 +39,38 @@ public class BoardManager : MonoBehaviour
     public void SetMap(int[,] map)
     {
         int s = boardSide - 1;
-        for (int x = 0; x <= 2 * s; x++)
+        for (int y = 0; y <= 2 * s; y++)
         {
-            for (int y = 0; y <= 2 * s; y++)
+            for (int x = 0; x <= 2 * s; x++)
             {
                 int type = map[x, y];
                 if (type != 0)
                 {
                     _board.Set(x-s, y-s, (BallType)type);
                 }
-
             }
         }
 
+    }
+
+    public int[,] GetMapFromString(string mapStr)
+    {
+        string[] firstArray = mapStr.Split('#');
+        int[,] map = new int[firstArray.Length,firstArray.Length];
+        for(int x = 0;x < firstArray.Length;x++)
+        {
+            string[] secondArray = firstArray[x].Split('@');
+            for(int y = 0;y<firstArray.Length;y++)
+            {
+                int parsedInt;
+                if(!int.TryParse(secondArray[x],out parsedInt))
+                {
+                    return null;
+                }
+                map[x,y] = parsedInt;
+            }
+        }
+        return map;
     }
     
 	public bool CheckBallObjectIsMine(GameObject ballObject)

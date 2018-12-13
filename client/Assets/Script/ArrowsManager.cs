@@ -49,7 +49,7 @@ public class ArrowsManager : MonoBehaviour
             Reset();
             for (int i = 0; i < 6; i++)
             {
-                _arrows[i].gameObject.SetActive(false);
+                _arrows[i].Stop();
             }
             return;
         }

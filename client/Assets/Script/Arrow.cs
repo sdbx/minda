@@ -28,6 +28,13 @@ public class Arrow : MonoBehaviour
         return -_direction * 60 - 30;
     }
 
+    public void Stop()
+    {
+        _isPushing = false;
+        _pushingDistance = 0;
+        gameObject.SetActive(false);
+    }
+
     void Start()
     {
         gameObject.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255, 0.8f);

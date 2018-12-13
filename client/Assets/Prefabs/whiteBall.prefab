@@ -56,9 +56,14 @@ MonoBehaviour:
     x: 0
     y: 0
     z: 0
-  moving: 0
-  direction: 0
-  moveDistance: 0
+  movingSpeed: 0.08
+  _positionState: 0
+  _ballType: 0
+  _boardManager: {fileID: 0}
+  _die: 0
+  _direction: 0
+  _pushedDistance: 0
+  _movedDistance: 0
 --- !u!212 &212117334686646928
 SpriteRenderer:
   m_ObjectHideFlags: 1

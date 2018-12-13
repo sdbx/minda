@@ -4,13 +4,14 @@ using UnityEngine;
 
 public class BallManager : MonoBehaviour
 {
-    public GameManager gameManager;
     public GameObject ballsObject;
-    public NetworkManager networkManager;
-    public ArrowsManager arrowsManager;
     public GameObject blackBallPrefab;
     public GameObject whiteBallPrefab;
+    public GameManager gameManager;
+
     public BoardManager boardManager;
+    public NetworkManager networkManager;
+    public ArrowsManager arrowsManager;
 
     //0: 대기 1: 구슬 선택 2: 구슬 움직임 방향 선택
     public int state = 0;
@@ -29,13 +30,18 @@ public class BallManager : MonoBehaviour
         _ballSelector = new BallSelector(this, boardManager);
         this.boardManager = boardManager;
     }
+
     public void RemoveBalls()
     {
+        if(ballObjects==null)
+            return;
+
         foreach (var ballObject in ballObjects)
         {
             Destroy(ballObject);
         }
     }
+
     public GameObject[,] GetBallObjects()
     {
         return ballObjects;
@@ -74,6 +80,11 @@ public class BallManager : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Escape) || Input.GetMouseButtonDown(1))
             {
                 arrowsManager.Reset();
+                foreach (CubeCoord ballCoord in _movingBalls)
+                {
+                    Ball currentBall = GetBallObjectByCubeCoord(ballCoord).GetComponent<Ball>();
+                    currentBall.StopPushing(true);
+                }
                 state = 1;
                 return;
             }
@@ -87,9 +98,7 @@ public class BallManager : MonoBehaviour
                 foreach (CubeCoord ballCoord in _movingBalls)
                 {
                     Ball currentBall = GetBallObjectByCubeCoord(ballCoord).GetComponent<Ball>();
-                    currentBall.moving = true;
-                    currentBall.direction = arrowsManager.pushingArrow;
-                    currentBall.moveDistance = arrowsManager.pushedDistance;
+                    currentBall.Push(arrowsManager.pushingArrow,arrowsManager.pushedDistance/1.5f);
                 }
             }
             else
@@ -97,11 +106,11 @@ public class BallManager : MonoBehaviour
                 foreach (CubeCoord ballCoord in _movingBalls)
                 {
                     Ball currentBall = GetBallObjectByCubeCoord(ballCoord).GetComponent<Ball>();
-                    MoveBall(ballCoord, arrowsManager.selectedArrow);
-                    currentBall.moving = false;
+                    MoveBall(ballCoord,arrowsManager.selectedArrow, true);
                 }
 
                 gameManager.SendBallMoving(_ballSelection,arrowsManager.selectedArrow);
+                gameManager.turnText.text = "Opponenent's turn";
                 state = 0;
             }
         }
@@ -114,18 +123,23 @@ public class BallManager : MonoBehaviour
         foreach (CubeCoord ballCoord in movingBalls)
         {
             Ball currentBall = GetBallObjectByCubeCoord(ballCoord).GetComponent<Ball>();
-            MoveBall(ballCoord, direction);
+            MoveBall(ballCoord, direction, false);
         }
     }
 
-    public void MoveBall(CubeCoord cubeCoord, int direction)
+    public void MoveBall(CubeCoord cubeCoord, int direction, bool isPushingBall)
     {
         GameObject ballObject = GetBallObjectByCubeCoord(cubeCoord);
         if (boardManager.GetBoard().CheckOutOfBoard(cubeCoord + Utils.GetDirectionByNum(direction)))
         {
             //주금
             Debug.Log("죽엇어");
-            ballObject.GetComponent<Ball>().Move(direction);
+
+            if(isPushingBall)
+                ballObject.GetComponent<Ball>().StopPushing(false);
+            else
+                ballObject.GetComponent<Ball>().Move(direction);
+
             ballObject.GetComponent<Ball>().Die();
             SetBallObject(cubeCoord, null);
             boardManager.GetBoard().SetHoleByCubeCoord(cubeCoord, HoleState.Empty);
@@ -137,7 +151,11 @@ public class BallManager : MonoBehaviour
             SetBallObject(cubeCoord + Utils.GetDirectionByNum(direction), ballObject);
             boardManager.GetBoard().SetHoleByCubeCoord(cubeCoord + Utils.GetDirectionByNum(direction), ball);
             boardManager.GetBoard().SetHoleByCubeCoord(cubeCoord, HoleState.Empty);
-            ballObject.GetComponent<Ball>().Move(direction);
+
+            if(isPushingBall)
+                ballObject.GetComponent<Ball>().StopPushing(false);
+            else
+                ballObject.GetComponent<Ball>().Move(direction);
         }
 
     }
