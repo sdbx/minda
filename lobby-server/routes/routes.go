@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"lobby/middlewares"
 	"github.com/labstack/echo"
 	"github.com/sunho/dim"
 )
@@ -10,6 +11,7 @@ func HelloWorld(c echo.Context) error {
 }
 
 func Register(d *dim.Group) {
+	d.UseRaw(middlewares.ContextMiddleware)
 	d.GET("/", HelloWorld)
 	d.Route("/gameservers", &gameServer{})
 	d.Route("/rooms", &room{})
