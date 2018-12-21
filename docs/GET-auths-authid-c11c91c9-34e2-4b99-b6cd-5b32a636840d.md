@@ -1,0 +1,2 @@
+# GET /auths/{authid}/
+
