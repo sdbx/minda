@@ -6,6 +6,7 @@ import (
 )
 
 type AuthServ struct {
+	reqRes map[string]string
 }
 
 func Provide() *AuthServ {

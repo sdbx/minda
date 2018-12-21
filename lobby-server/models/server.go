@@ -12,5 +12,14 @@ type GameServer struct {
 type Room struct {
 	ID        string    `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
-	Name      string    `json:"name"`
+	Conf      RoomConf  `json:"conf"`
+	Users     []int     `json:"users"`
+	Ingame    bool      `json:"ingame"`
+}
+
+type RoomConf struct {
+	Name  string `json:"name"`
+	King  int    `json:"king"`
+	Black int    `json:"black"`
+	White int    `json:"white"`
 }
