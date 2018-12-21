@@ -13,6 +13,6 @@ require (
 	github.com/labstack/echo v3.3.5+incompatible
 	github.com/markbates/goth v1.47.2
 	github.com/markbates/oncer v0.0.0-20181203154359-bf2de49a0be2 // indirect
-	github.com/sunho/dim v1.0.2
+	github.com/sunho/dim v1.0.3
 	gopkg.in/boj/redistore.v1 v1.0.0-20160128113310-fc113767cd6b
 )

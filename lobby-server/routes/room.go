@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"lobby/middlewares"
 	"math/rand"
 	"lobby/servs/taskserv"
 	"lobby/models"
@@ -16,6 +17,7 @@ type room struct {
 }
 
 func (r *room) Register(d *dim.Group) {
+	d.Use(&middlewares.UserMiddleware{})
 	d.GET("/", r.listRoom)
 	d.POST("/", r.postRoom)
 }
@@ -24,7 +26,9 @@ func (r *room) listRoom(c echo.Context) error {
 	return c.JSONPretty(200, r.Disc.GetRooms(), "\t")
 }
 
-func (r *room) postRoom(c echo.Context) error {
+func (r *room) postRoom(c2 echo.Context) error {
+	c := c2.(*models.Context)
+
 	room := models.Room{}
 	err := c.Bind(&room)
 	if err != nil {
@@ -42,6 +46,7 @@ func (r *room) postRoom(c echo.Context) error {
 
 	res, err := r.Task.Request(servers[rand.Intn(len(servers))].Name, &models.CreateRoomTask{
 		Name: room.Name,
+		User: *c.User,
 	})
 	if err != nil {
 		return err
