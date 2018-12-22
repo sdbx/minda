@@ -15,6 +15,7 @@ type Room struct {
 	Conf      RoomConf  `json:"conf"`
 	Users     []int     `json:"users"`
 	Ingame    bool      `json:"ingame"`
+	Server    string    `json:"-"`
 }
 
 type RoomConf struct {

@@ -17,6 +17,7 @@ type TaskRequest struct {
 
 const (
 	CreateRoomKind = "create-room"
+	JoinRoomKind   = "join-room"
 )
 
 type Task interface {
@@ -48,6 +49,8 @@ func (r *TaskRequest) UnmarshalJSON(b []byte) error {
 	switch obj2.Kind {
 	case CreateRoomKind:
 		r.Task = &CreateRoomTask{}
+	case JoinRoomKind:
+		r.Task = &JoinRoomTask{}
 	default:
 		return errors.New("unknown task kind")
 	}
@@ -76,8 +79,8 @@ func (r TaskRequest) MarshalJSON() ([]byte, error) {
 }
 
 type CreateRoomTask struct {
-	Name string `json:"name"`
-	User User   `json:"user"`
+	Conf RoomConf `json:"conf"`
+	User int      `json:"user"`
 }
 
 func (CreateRoomTask) Out() interface{} {
@@ -90,7 +93,27 @@ func (CreateRoomTask) Kind() string {
 
 func (CreateRoomTask) sealedTask() {}
 
+type JoinRoomTask struct {
+	Room string `json:"room"`
+	User int    `json:"user"`
+}
+
+func (JoinRoomTask) Out() interface{} {
+	return &JoinRoomResult{}
+}
+
+func (JoinRoomTask) Kind() string {
+	return JoinRoomKind
+}
+
+func (JoinRoomTask) sealedTask() {}
+
 type CreateRoomResult struct {
-	ID   string `json:"id"`
-	Addr string `json:"addr"`
+	Invite string `json:"invite"`
+	Addr   string `json:"addr"`
+}
+
+type JoinRoomResult struct {
+	Invite string `json:"invite"`
+	Addr   string `json:"addr"`
 }

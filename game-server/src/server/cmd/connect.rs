@@ -1,14 +1,11 @@
 use game::Player::Black;
-use server::cmd;
-use server::room::Room;
 use model::Event;
 use server::{Server, Connection};
 use error::Error;
-use uuid::Uuid;
 
-pub fn handle(server: &mut Server, conn: &Connection, id: String) -> Result<(), Error> {
-    let (roomname, invite, gameevent) = {
-        let invite = match server.invites.get(&id) {
+pub fn handle(server: &mut Server, conn: &Connection, key: String) -> Result<(), Error> {
+    let (room, invite, gameevent) = {
+        let invite = match server.invites.get(&key) {
             Some(invite) => invite,
             None => { return Err(Error::InvalidCommand) }
         };
@@ -19,28 +16,28 @@ pub fn handle(server: &mut Server, conn: &Connection, id: String) -> Result<(), 
         };
 
         let conn2 = server.conns.get_mut(&conn.conn_id).unwrap();
-        conn2.id = Some(id.clone());
+        conn2.id = Some(key.clone());
         conn2.room = Some(invite.room.clone());
-        room.add_user(&id, conn.conn_id, invite.user.clone());
+        room.add_user(&key, conn.conn_id, invite.user);
 
         if let Some(ref game) = room.game {
-            (room.name.clone(), invite.clone(), Some(Event::GameStart{
-                black: room.get_username_or_empty(&game.black),
-                white: room.get_username_or_empty(&game.white),
+            (room.to_model(), invite.clone(), Some(Event::Started{
+                black: room.conf.black,
+                white: room.conf.white,
                 board: game.board.raw().clone(),
                 turn: { if game.turn == Black { "black".to_owned() } else { "white".to_owned() } }
             }))
         } else {
-            (room.name.clone(), invite.clone(), None)
+            (room.to_model(), invite.clone(), None)
         }
     };
 
     if let Some(event) = gameevent {
         server.dispatch(conn.conn_id, &event);
     }
-    server.broadcast(&invite.room, &Event::Enter{
-        username: invite.user.username
+    server.broadcast(&invite.room, &Event::Entered{
+        user: invite.user
     });
-    server.dispatch(conn.conn_id, &Event::Connected{ roomname: roomname });
+    server.dispatch(conn.conn_id, &Event::Connected{ room: room });
     Ok(())
 }

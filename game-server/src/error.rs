@@ -1,6 +1,11 @@
 quick_error! {
     #[derive(Debug)]
     pub enum Error {
+        NoneError(err: std::option::NoneError) {
+            from()
+            description("none error")
+            display("none error")
+        }
         JsonError(err: serde_json::Error) {
             from()
             description("json error")

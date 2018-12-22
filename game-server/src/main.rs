@@ -1,3 +1,4 @@
+#![feature(try_trait)]
 extern crate redis;
 extern crate uuid;
 extern crate serde;

@@ -32,7 +32,7 @@ pub fn game_move(server: &mut Server, conn: &Connection, start: AxialCord, end: 
         };
 
         game.run_move(id, start, end, dir)?;
-        (name.clone(), Event::Move {
+        (name.clone(), Event::Moved {
             player: turn.to_string(),
             start: start,
             end: end,

@@ -5,41 +5,44 @@ use model::Event;
 use server::Server;
 use std::collections::HashMap;
 use uuid::Uuid;
-use model::User;
+use model::{User, UserId, RoomConf, Room as MRoom};
 
 pub struct Room {
-    pub name: String,
+    pub id: String,
     pub created_at: DateTime<Utc>,
+    pub conf: RoomConf,
     pub users: HashMap<String, RoomUser>,
     pub game: Option<Game>
 }
 
 impl Room {
-    pub fn new(name: &str) -> Self {
+    pub fn new(conf: &RoomConf) -> Self {
         Self {
-            name: name.to_owned(),
+            id: Uuid::new_v4().to_string(),
             created_at: Utc::now(),
+            conf: conf.clone(),
             users: HashMap::new(),
             game: None
         }
     }
 
-    pub fn add_user(&mut self, id: &str, conn_id: Uuid, user: User) {
+    pub fn add_user(&mut self, id: &str, conn_id: Uuid, user: UserId) {
         self.users.insert(id.to_owned(), RoomUser {
             conn_id: conn_id,
             user: user
         });
     }
 
-    pub fn get_username_or_empty(&self, id: &str) -> String {
-        match self.users.get(id) {
-            Some(user) => user.user.username.clone(),
-            None => "".to_owned()
+    pub fn to_model(&self) -> MRoom {
+        MRoom {
+            id: self.id.clone(),
+            created_at: self.created_at,
+            conf: self.conf.clone()
         }
     }
 }
 
 pub struct RoomUser {
     pub conn_id: Uuid,
-    pub user: User
+    pub user: UserId
 }

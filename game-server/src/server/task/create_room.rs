@@ -1,14 +1,19 @@
+use model::CreateRoomResult;
+use model::{UserId, RoomConf};
 use server::{Server, ServerEvent};
-use model::{Task, TaskResult, CreateRoomResult};
+use model::{Invite};
 use error::Error;
 use server::room::Room;
-use uuid::Uuid;
 
-pub fn handle(server: &mut Server, name: &str) -> Result<String, Error> {
-    let id = Uuid::new_v4().to_string();
-    server.rooms.insert(id.clone(), Room::new(&name));
+pub fn handle(server: &mut Server, user: UserId, conf: RoomConf) -> Result<String, Error> {
+    let room = Room::new(&conf);
+    let invite = Invite::new(user, &room.id);
+    let res = CreateRoomResult{
+        invite: invite.key.clone(),
+        addr: server.real_addr.clone()
+    };
+    server.rooms.insert(room.id.clone(), room);
+    server.invites.insert(invite.key.clone(), invite);
     server.tx().send(ServerEvent::Updated);
-    Ok(serde_json::to_string(&CreateRoomResult{
-        id: id
-    }).unwrap())
+    Ok(serde_json::to_string(&res).unwrap())
 }

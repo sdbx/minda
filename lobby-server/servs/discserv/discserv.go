@@ -84,6 +84,9 @@ func (g *DiscoverServ) ListGameServers() ([]models.GameServer, error) {
 		if err != nil {
 			return nil, err
 		}
+		for i := range s.Rooms {
+			s.Rooms[i].Server = s.Name
+		}
 		out = append(out, s)
 	}
 	return out, nil
