@@ -7,14 +7,17 @@ using System.Threading;
 using System;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
+
 namespace Game
 {
     public class NetworkManager : MonoBehaviour
     {
 
-        public GameManager gameManager;
+        private GameManager gameManager;
         public string ipAddress = "127.0.0.1";
         public int port = 0;
+
 
         private JsonSerializerSettings jsonSettings;
 
@@ -22,10 +25,31 @@ namespace Game
         private Dictionary<Type, EventHandler> handle;
 
         private static string receiveData;
-        private float connectTime = 2;
+        private float connectTime = 0;
+        private string invite = "";
+        private bool isGameScene = false; 
 
         void Start()
         {
+            DontDestroyOnLoad(gameObject);
+            SceneManager.sceneLoaded+= new UnityEngine.Events.UnityAction<Scene, LoadSceneMode>(OnSceneLoaded);
+        }
+
+        void OnSceneLoaded(Scene scene,LoadSceneMode loadMode)
+        {
+            if(scene.name == "GameScene")
+            {
+                gameManager = FindObjectOfType<GameManager>();
+                isGameScene = true;
+            }
+        }
+
+        public void StartManger(string ip,int port, string invite)
+        {
+            this.ipAddress = ip;
+            this.port = port;
+            this.invite = invite;
+
             jsonSettings = new JsonSerializerSettings
             {
                 TypeNameHandling = TypeNameHandling.Objects,
@@ -41,11 +65,12 @@ namespace Game
         };
 
             AsyncCallbackClient.Instance().connectedCallback = connectedCallback;
+            AsyncCallbackClient.Instance().Connect(ipAddress, port);
         }
 
         void connectedCallback()
         {
-            ConnectCommand connectCommand = new ConnectCommand(Enum.GetName(typeof(BallType), gameManager.myBallType).ToLower());
+            ConnectCommand connectCommand = new ConnectCommand(invite);
             SendCommand(connectCommand);
         }
 
@@ -73,9 +98,11 @@ namespace Game
         {
             ConnectedEvent connected = (ConnectedEvent)e;
         }
-
         void Update()
         {
+            if(!isGameScene)
+                return;
+
             if (AsyncCallbackClient.Instance().state == ClientState.DISCONNECTED)
             {
                 connectTime += Time.deltaTime;
