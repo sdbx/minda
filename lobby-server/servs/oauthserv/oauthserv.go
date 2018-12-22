@@ -83,8 +83,6 @@ func (a *OAuthServ) CompleteAuth(c echo.Context, provider string) (goth.User, er
 		return goth.User{}, err
 	}
 
-	
-	
 	return user, nil
 }
 

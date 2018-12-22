@@ -45,7 +45,7 @@ func (r *room) postRoom(c2 echo.Context) error {
 	}
 
 	res, err := r.Task.Request(servers[rand.Intn(len(servers))].Name, &models.CreateRoomTask{
-		Name: room.Name,
+		Name: room.Conf.Name,
 		User: *c.User,
 	})
 	if err != nil {
