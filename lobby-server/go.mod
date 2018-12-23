@@ -9,6 +9,7 @@ require (
 	github.com/gobuffalo/pop v4.9.3+incompatible
 	github.com/gobuffalo/uuid v2.0.5+incompatible
 	github.com/gobuffalo/x v0.0.0-20181110221217-14085ca3e1a9 // indirect
+	github.com/gofrs/uuid v3.1.0+incompatible
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/labstack/echo v3.3.5+incompatible
 	github.com/markbates/goth v1.47.2

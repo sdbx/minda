@@ -1,11 +1,10 @@
 package oauthserv
 
 import (
-	"lobby/servs/authserv"
-	"encoding/base64"
-	"github.com/gobuffalo/uuid"
 	"errors"
-	"net/url"
+	"encoding/base64"
+	"github.com/gofrs/uuid"
+	"lobby/servs/authserv"
 	"net/http"
 	"github.com/labstack/echo"
 	"github.com/markbates/goth/gothic"
@@ -17,9 +16,15 @@ import (
 	"gopkg.in/boj/redistore.v1"
 )
 
+var (
+	ErrNotAuthorized = errors.New("not authorized")
+	ErrNotFound = errors.New("not found")
+)
+
 type OAuthServ struct {
 	Auth *authserv.AuthServ `dim:"on"`
 	Redis *redisserv.RedisServ `dim:"on"`
+	secret []byte
 	reqs map[string]*string
 }
 
@@ -30,6 +35,7 @@ type oauthProvier struct {
 
 type OAuthServConf struct {
 	CallbackURL string        `yaml:"callback_url"`
+	Secret string `yaml:"secret"`
 	Naver       *oauthProvier `yaml:"naver"`
 	Discord     *oauthProvier `yaml:"discord"`
 	Google      *oauthProvier `yaml:"google"`
@@ -38,72 +44,108 @@ type OAuthServConf struct {
 func Provide(conf OAuthServConf) *OAuthServ {
 	providers := []goth.Provider{}
 	if conf.Naver != nil {
-		providers = append(providers, naver.New(conf.Naver.Key, conf.Naver.Secret, conf.CallbackURL+"/naver"))
+		providers = append(providers, naver.New(conf.Naver.Key, conf.Naver.Secret, conf.CallbackURL+"/naver/"))
 	}
 	if conf.Discord != nil {
-		providers = append(providers, discord.New(conf.Discord.Key, conf.Discord.Secret, conf.CallbackURL+"/discord"))
+		providers = append(providers, discord.New(conf.Discord.Key, conf.Discord.Secret, conf.CallbackURL+"/discord/"))
 	}
 	if conf.Google != nil {
-		providers = append(providers, google.New(conf.Google.Key, conf.Google.Secret, conf.CallbackURL+"/google"))
+		providers = append(providers, google.New(conf.Google.Key, conf.Google.Secret, conf.CallbackURL+"/google/"))
 	}
 	goth.UseProviders(providers...)
-	return &OAuthServ{}
+	return &OAuthServ{
+		secret: []byte(conf.Secret),
+		reqs: make(map[string]*string),
+	}
+}
+
+func (OAuthServ) ConfigName() string {
+	return "oauth"
 }
 
 func (a *OAuthServ) Init() error {
-	store, err := redistore.NewRediStoreWithPool(a.Redis.GetPool())
+	store, err := redistore.NewRediStoreWithPool(a.Redis.GetPool(), a.secret)
 	if err != nil {
 		return err
 	}
 	gothic.Store = store
-	gothic.SetState = func(req *http.Request) string {
-		state := req.URL.Query().Get("state")
-		if len(state) > 0 {
-			return state
-		}
-	
-		id, _ := uuid.NewV4()
-		return base64.URLEncoding.EncodeToString(id.Bytes())
-	}
 	return nil
 }
 
-func (a *OAuthServ) CompleteAuth(c echo.Context, provider string) (goth.User, error) {
-	r := c.Request()
-	r.URL.Query().Set("provider", provider)
-	state := r.URL.Query().Get("state")
-	if _, ok := a.reqs[state]; !ok {
-		c.Error(echo.NewHTTPError(http.StatusBadRequest))
-		return goth.User{}, errors.New("no such auth request")
+func (a *OAuthServ) List() []string {
+	providers := goth.GetProviders() 
+	out := make([]string, 0, len(providers))
+	for name := range providers {
+		out = append(out, name)
 	}
-
-	user, err := gothic.CompleteUserAuth(c.Response().Writer,r)
-	if err != nil {
-		c.Error(echo.NewHTTPError(http.StatusBadRequest))
-		return goth.User{}, err
+	return out
+}
+func (a *OAuthServ) GetReq(reqid string) (string, error) {
+	tok, ok := a.reqs[reqid]
+	if !ok {
+		return "", ErrNotFound
 	}
-
-	return user, nil
+	if tok == nil {
+		return "", ErrNotAuthorized
+	}
+	delete(a.reqs, reqid)
+	return *tok, nil
 }
 
-func (a *OAuthServ) BeginAuth(c echo.Context, provider string) (string, error) {
+func (a *OAuthServ) MakeReq() string {
+	id, _ := uuid.NewV4()
+	reqid := base64.URLEncoding.EncodeToString(id.Bytes())
+	a.reqs[reqid] = nil
+	return reqid
+}
+
+func (a *OAuthServ) CompleteAuth(c echo.Context, provider string) error {
 	r := c.Request()
-	r.URL.Query().Set("provider", provider)
+	q := r.URL.Query()
+	q.Set("provider", provider)
+    r.URL.RawQuery = q.Encode()
+	reqid := q.Get("state")
+
+	if _, ok := a.reqs[reqid]; !ok {
+		return echo.NewHTTPError(http.StatusBadRequest)
+	}
+
+	guser, err := gothic.CompleteUserAuth(c.Response().Writer,r)
+	if err != nil {
+		return err
+	}
+
+	user, err := a.Auth.GetUserByOAuth(provider, guser.UserID)
+	if err == authserv.ErrNotFound {
+		user, err = a.Auth.CreateUserByOAuth(provider, guser)
+		if err != nil {
+			return err
+		}
+	} else if err != nil{
+		return err
+	}
+
+	tok := a.Auth.CreateToken(user.ID)
+	a.reqs[reqid] = &tok
+
+	return c.JSON(200, user)
+}
+
+func (a *OAuthServ) BeginAuth(c echo.Context, provider string, reqid string) error {
+	if _, ok := a.reqs[reqid]; !ok {
+		return echo.NewHTTPError(http.StatusBadRequest)
+	}
+
+	r := c.Request()
+	q := r.URL.Query()
+	q.Set("provider", provider)
+	q.Set("state", reqid)
+	r.URL.RawQuery = q.Encode()
+
 	u, err := gothic.GetAuthURL(c.Response().Writer, r)
 	if err != nil {
-		c.Error(echo.NewHTTPError(http.StatusBadRequest))
-		return "", err
+		return err
 	}
-	u2, err  := url.Parse(u)
-	if err != nil {
-		c.Error(echo.NewHTTPError(http.StatusInternalServerError))
-		return "", err
-	}
-	state := u2.Query().Get("state")
-	if state == "" {
-		c.Error(echo.NewHTTPError(http.StatusInternalServerError))
-		return "", err
-	}
-	a.reqs[state] = nil
-	return "", nil
+
+	return c.Redirect(302, u)
 }

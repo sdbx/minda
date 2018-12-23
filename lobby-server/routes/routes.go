@@ -11,8 +11,11 @@ func HelloWorld(c echo.Context) error {
 }
 
 func Register(d *dim.Group) {
+	d.UseRaw(middlewares.ErrorMiddleware)
 	d.UseRaw(middlewares.ContextMiddleware)
 	d.GET("/", HelloWorld)
 	d.Route("/gameservers", &gameServer{})
+	d.Route("/users", &user{})
 	d.Route("/rooms", &room{})
+	d.Route("/auth", &auth{})
 }

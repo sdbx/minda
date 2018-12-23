@@ -44,6 +44,7 @@ sysinfo.txt
 # Crashlytics generated file
 Assets/StreamingAssets/crashlytics-build.properties
 
+/lobby-server/*.yml
 /lobby-server/*.yaml
 /lobby-server/lobby.exe
 /lobby-server/lobby

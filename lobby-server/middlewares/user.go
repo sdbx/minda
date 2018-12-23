@@ -16,7 +16,7 @@ func (a *UserMiddleware) Act(c echo.Context) error {
 	if token == "" {
 		return echo.NewHTTPError(400, "No authorization header")
 	}
-	user, err := a.Auth.GetUser(token)
+	user, err := a.Auth.Authorize(token)
 	if err != nil {
 		return echo.NewHTTPError(403, "Invalid token")
 	}

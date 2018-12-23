@@ -3,24 +3,15 @@ package dbserv
 import "github.com/gobuffalo/pop"
 
 type DBServ struct {
-	c *pop.Connection
+	*pop.Connection
 }
 
-type DBServConf struct {
-	Stage string `yaml:"stage"`
-}
-
-func (DBServ) ConfigName() string {
-	return "db"
-}
-
-func Provide(conf DBServConf) (*DBServ, error) {
-	c, err := pop.Connect(conf.Stage)
+func Provide() (*DBServ, error) {
+	c, err := pop.Connect("minda")
 	if err != nil {
 		return nil, err
 	}
-
-	return &DBServ {
-		c: c,
-	}, nil
+	return &DBServ{
+		Connection: c,
+	}, nil 
 }

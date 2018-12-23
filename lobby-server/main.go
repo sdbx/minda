@@ -1,6 +1,8 @@
 package main
 
 import (
+	"lobby/servs/dbserv"
+	"lobby/servs/oauthserv"
 	"time"
 	"math/rand"
 	"lobby/routes"
@@ -15,7 +17,7 @@ import (
 func main() {
 	rand.Seed(time.Now().Unix())
 	d := dim.New()
-	d.Provide(authserv.Provide, redisserv.Provide, discserv.Provide, taskserv.Provide)
+	d.Provide(authserv.Provide, redisserv.Provide, discserv.Provide, taskserv.Provide, oauthserv.Provide, dbserv.Provide)
 	d.Init("")
 	d.Register(routes.Register)
 	d.Start(":8080")
