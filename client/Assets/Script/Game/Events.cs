@@ -18,7 +18,7 @@ namespace Game
 
     public class ConnectedEvent : Event
     {
-        public string roomName = "";
+        public Menu.Models.Room room;
     }
 
     public class MoveEvent : Event
@@ -26,6 +26,6 @@ namespace Game
         public BallType player;
         public CubeCoord start;
         public CubeCoord end;
-        public CubeCoord dir;
+        public CubeCoord ㄴdir;
     }
 }

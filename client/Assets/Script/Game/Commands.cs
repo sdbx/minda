@@ -5,11 +5,11 @@ namespace Game
     public class ConnectCommand : Command
     {
         public string type = "connect";
-        public string id;
+        public string invite;
 
-        public ConnectCommand(string id)
+        public ConnectCommand(string invite)
         {
-            this.id = id;
+            this.invite = invite;
         }
     }
 

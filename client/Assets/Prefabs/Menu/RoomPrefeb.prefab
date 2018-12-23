@@ -9,8 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8309456981215908150}
-  - component: {fileID: 8309456981215908151}
   - component: {fileID: 2329802384966165671}
+  - component: {fileID: 2701713635504873256}
   m_Layer: 5
   m_Name: RoomPrefeb
   m_TagString: Untagged
@@ -39,21 +39,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 841, y: 67.9}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &8309456981215908151
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8309456981215908149}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3ed50a261ea57744c9f6d9482c91992a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  roomInformation:
-    name: TestRoom
-    index: 1
 --- !u!114 &2329802384966165671
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -74,6 +59,22 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &2701713635504873256
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8309456981215908149}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57dddf8eafa610344a6ed388cfed4bfa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  index: -1
+  roomListManger: {fileID: 0}
+  _focusedColor: {r: 0.8254717, g: 0.9800598, b: 1, a: 1}
+  _selectedColor: {r: 0.62473303, g: 0.8586016, b: 0.9528302, a: 1}
 --- !u!1 &8309456981465707117
 GameObject:
   m_ObjectHideFlags: 0
@@ -133,7 +134,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.9254902, g: 0.96862745, b: 0.9843137, a: 1}
+  m_Color: {r: 0.9386792, g: 0.9836478, b: 1, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
