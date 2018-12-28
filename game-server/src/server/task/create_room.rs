@@ -5,7 +5,7 @@ use model::{Invite};
 use error::Error;
 use server::room::Room;
 
-pub fn handle(server: &mut Server, user: UserId, conf: RoomConf) -> Result<String, Error> {
+pub fn handle(server: &mut Server, user: UserId, conf: &RoomConf) -> Result<String, Error> {
     let room = Room::new(&conf);
     let invite = Invite::new(user, &room.id);
     let res = CreateRoomResult{

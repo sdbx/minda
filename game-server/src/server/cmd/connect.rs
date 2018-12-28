@@ -3,9 +3,9 @@ use model::Event;
 use server::{Server, Connection};
 use error::Error;
 
-pub fn handle(server: &mut Server, conn: &Connection, key: String) -> Result<(), Error> {
+pub fn handle(server: &mut Server, conn: &Connection, key: &str) -> Result<(), Error> {
     let (room, invite, gameevent) = {
-        let invite = match server.invites.get(&key) {
+        let invite = match server.invites.get(key) {
             Some(invite) => invite,
             None => { return Err(Error::InvalidCommand) }
         };
@@ -16,9 +16,9 @@ pub fn handle(server: &mut Server, conn: &Connection, key: String) -> Result<(),
         };
 
         let conn2 = server.conns.get_mut(&conn.conn_id).unwrap();
-        conn2.id = Some(key.clone());
+        conn2.user_id = Some(invite.user);
         conn2.room = Some(invite.room.clone());
-        room.add_user(&key, conn.conn_id, invite.user);
+        room.add_user(conn.conn_id, invite.user, &key);
 
         if let Some(ref game) = room.game {
             (room.to_model(), invite.clone(), Some(Event::Started{

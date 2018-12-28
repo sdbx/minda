@@ -1,16 +1,17 @@
+use model::UserId;
 use model::AxialCord;
 use game::{Player, Board, Move};
 use error::Error;
 
 pub struct Game {
     pub board: Board,
-    pub black: String,
-    pub white: String,
+    pub black: UserId,
+    pub white: UserId,
     pub turn: Player
 }
 
 impl Game {
-    pub fn run_move(&mut self, id: &str, start: AxialCord, end: AxialCord, dir: AxialCord) -> Result<(), Error> {
+    pub fn run_move(&mut self, id: UserId, start: AxialCord, end: AxialCord, dir: AxialCord) -> Result<(), Error> {
         let player = self.get_turn(id)?;
 
         self.board.push(Move {
@@ -23,7 +24,7 @@ impl Game {
         Ok(())
     }
 
-    pub fn get_turn(&self, id: &str) -> Result<Player, Error> {
+    pub fn get_turn(&self, id: UserId) -> Result<Player, Error> {
         if self.black == id && self.turn == Player::Black {
             Ok(Player::Black)
         } else if self.white == id && self.turn == Player::White {

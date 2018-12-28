@@ -1,3 +1,4 @@
+use model::UserId;
 use model::User;
 use server::task;
 use model::Event;
@@ -33,7 +34,7 @@ pub enum ServerEvent {
 #[derive(Clone, Debug)]
 pub struct Connection {
     pub conn_id: Uuid,
-    pub id: Option<String>,
+    pub user_id: Option<UserId>,
     pub room: Option<String>
 }
 
@@ -87,11 +88,11 @@ impl Server {
     pub fn serve(mut self) {
         for event in self.listen().iter() {
             match event {
-                ServerEvent::Connect{ conn_id, conn } => {
+                ServerEvent::Connect { conn_id, conn } => {
                     info!("client({}) connected", conn_id);
                     self.conns.insert(conn_id, Connection {
                         conn_id: conn_id,
-                        id: None,
+                        user_id: None,
                         room: None
                     });
                     self.streams.insert(conn_id, conn);
@@ -101,7 +102,7 @@ impl Server {
                     let conn = { 
                         self.conns.get(&conn_id).unwrap().clone()
                     };
-                    if let Err(err) = cmd::handle(&mut self, &conn, cmd) {
+                    if let Err(err) = cmd::handle(&mut self, &conn, &cmd) {
                         self.dispatch(conn_id, &Event::Error{message: format!("{}", err)});
                     };
                 },
@@ -125,6 +126,25 @@ impl Server {
                             });
                         }
                     };
+                },
+                ServerEvent::Close { conn_id } => {
+                    self.streams.remove(&conn_id);
+                    {
+                        let conn = match self.conns.get(&conn_id) {
+                            Some(conn) => conn,
+                            None => continue
+                        };
+                        let room_id = match conn.room.as_ref() {
+                            Some(room) => room,
+                            None => continue
+                        };
+                        let mut room = match self.rooms.get_mut(room_id) {
+                            Some(room) => room,
+                            None => continue
+                        };
+                        room.users.remove(&conn_id);
+                    }
+                    self.conns.remove(&conn_id);
                 },
                 _ => { }
             }

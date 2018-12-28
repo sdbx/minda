@@ -11,7 +11,7 @@ pub struct Room {
     pub id: String,
     pub created_at: DateTime<Utc>,
     pub conf: RoomConf,
-    pub users: HashMap<String, RoomUser>,
+    pub users: HashMap<Uuid, RoomUser>,
     pub game: Option<Game>
 }
 
@@ -26,9 +26,10 @@ impl Room {
         }
     }
 
-    pub fn add_user(&mut self, id: &str, conn_id: Uuid, user: UserId) {
-        self.users.insert(id.to_owned(), RoomUser {
+    pub fn add_user(&mut self, conn_id: Uuid, user: UserId, key: &str) {
+        self.users.insert(conn_id.clone(), RoomUser {
             conn_id: conn_id,
+            key: key.to_owned(),
             user: user
         });
     }
@@ -44,5 +45,6 @@ impl Room {
 
 pub struct RoomUser {
     pub conn_id: Uuid,
+    pub key: String,
     pub user: UserId
 }

@@ -48,3 +48,5 @@ Assets/StreamingAssets/crashlytics-build.properties
 /lobby-server/*.yaml
 /lobby-server/lobby.exe
 /lobby-server/lobby
+
+/ts-lib/node_modules/

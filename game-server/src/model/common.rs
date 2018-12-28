@@ -4,7 +4,7 @@ use game::Cord;
 use chrono::Utc;
 use chrono::DateTime;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct UserId(isize);
 
 impl UserId {

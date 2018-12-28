@@ -80,6 +80,7 @@ func (a *OAuthServ) List() []string {
 	}
 	return out
 }
+
 func (a *OAuthServ) GetReq(reqid string) (string, error) {
 	tok, ok := a.reqs[reqid]
 	if !ok {

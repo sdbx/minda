@@ -35,6 +35,8 @@ pub enum Event {
     Error { message: String },
     #[serde(rename = "moved")]
     Moved { player: String, start: AxialCord, end: AxialCord, dir: AxialCord },
+    #[serde(rename = "chated")]
+    Chated { user: UserId, content: String }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -43,7 +45,9 @@ pub enum Command {
     #[serde(rename = "connect")]
     Connect { invite: String },
     #[serde(rename = "move")]
-    Move { start: AxialCord, end: AxialCord, dir: AxialCord }
+    Move { start: AxialCord, end: AxialCord, dir: AxialCord },
+    #[serde(rename = "chat")]
+    Chat { content: String }
 }
 
 pub fn parse_command(msg: &str) -> Result<Command, serde_json::Error> {

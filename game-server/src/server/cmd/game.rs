@@ -5,8 +5,8 @@ use server::server::Server;
 use error::Error;
 
 pub fn game_move(server: &mut Server, conn: &Connection, start: AxialCord, end: AxialCord, dir: AxialCord) -> Result<(), Error> {
-    let id = match conn.id {
-        Some(ref id) => id,
+    let id = match conn.user_id {
+        Some(id) => id,
         None => { return Err(Error::InvalidCommand) }
     };
 
@@ -26,7 +26,7 @@ pub fn game_move(server: &mut Server, conn: &Connection, start: AxialCord, end: 
             None => { return Err(Error::InvalidCommand) }
         };
 
-        let turn = match game.get_turn(&id) {
+        let turn = match game.get_turn(id) {
             Ok(x) => x,
             Err(_) => { return Err(Error::InvalidCommand) }
         };
