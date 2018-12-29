@@ -10,5 +10,6 @@ namespace Menu.Models
         public string createdAt;
         public RoomSettings conf;
         public int[] Users;
+        public bool ingame;
     }
 }

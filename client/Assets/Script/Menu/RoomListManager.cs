@@ -5,13 +5,12 @@ using UnityEngine;
 using Menu.Models;
 using Game;
 using UnityEngine.SceneManagement;
+using Network;
 
 namespace Menu
 {
     public class RoomListManager : MonoBehaviour
     {
-        [SerializeField]
-        NetworkManager networkManger;
         [SerializeField]
         private RoomObject roomPrefeb;
         [SerializeField]
@@ -19,7 +18,6 @@ namespace Menu
         private Transform content;
         private List<RoomObject> _roomList = new List<RoomObject>();
         
-        private LobbyServerRequestor lobbyServerRequestor = new LobbyServerRequestor("http://127.0.0.1:8080");
         private int _selectedRoomIndex = -1;
 
         private void Awake()
@@ -54,7 +52,7 @@ namespace Menu
 
         void Start()
         {
-            StartCoroutine(lobbyServerRequestor.Get<Models.Room[]>("/rooms/", CreateRoomList, "black"));
+            StartCoroutine(NetworkManager.instance.lobbyServerRequestor.Get<Models.Room[]>("/rooms/", "black", CreateRoomList));
         }
 
         private void CreateRoomList(Models.Room[] rooms)
@@ -64,18 +62,30 @@ namespace Menu
                 Add(rooms[i]);
             }
         }
-        public void TryEnterToRoom(Room room)
+        public void EnterRoom(Room room)
         {
-             StartCoroutine(lobbyServerRequestor.Put<JoinRoomResult>("/rooms/"+room.id,"",TryConnectRoom,"black"));
+            StartCoroutine(NetworkManager.instance.lobbyServerRequestor.Put<JoinRoomResult>("/rooms/" + room.id, "", "black", (JoinRoomResult joinRoomResult) =>{
+                     Debug.Log(joinRoomResult.addr);
+                     var Addr = joinRoomResult.addr.Split(':');
+                     NetworkManager.instance.EnterRoom(Addr[0],int.Parse(Addr[1]),joinRoomResult.invite, StartGame);
+                 }));
+        }
+        public void StartGame(Game.Events.Event e)
+        {
+            var connected = (Game.Events.ConnectedEvent)e;
+            if(connected.room.ingame)
+            {
+                NetworkManager.instance.EndConnection();
+                //이미 플레이 중인 게임입니다. 알림
+            }
+            else
+            {
+                //방설정 씬으로 이동
+                SceneManager.LoadScene("GameScene",LoadSceneMode.Single);
+            }
+            
         }
 
-        public void TryConnectRoom(JoinRoomResult joinRoomResult)
-        {
-            Debug.Log(joinRoomResult.addr);
-            var Addr = joinRoomResult.addr.Split(':');
-            networkManger.StartManger(Addr[0], int.Parse(Addr[1]), joinRoomResult.invite);
-            SceneManager.LoadScene("GameScene",LoadSceneMode.Single);
-        }
     }
 
 }

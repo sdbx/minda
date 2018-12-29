@@ -72,7 +72,7 @@ namespace Menu
                 roomListManger.SelectRoom(index);
                 return;
             }
-            roomListManger.TryEnterToRoom(room);
+            roomListManger.EnterRoom(room);
         }
 
         private string CreateImformationText()

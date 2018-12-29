@@ -469,7 +469,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   boardManger: {fileID: 1740618211}
   ballManager: {fileID: 1910673795}
-  networkManager: {fileID: 0}
   myBallType: 1
   turnText: {fileID: 771107627}
 --- !u!4 &1126846788
@@ -512,13 +511,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1437375291}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 49ca3ba2c1a37aa4d8eb9e4064ca47e9, type: 3}
+  m_Script: {fileID: 11500000, guid: a813d3f28baef794cbe0b5576c1ca99b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boardObject: {fileID: 1740618209}
+  boardManager: {fileID: 1740618211}
   arrowPrefab: {fileID: 1747881363660498, guid: 89cf64c249f476242bd9ecd8a0cc8ec8,
     type: 3}
-  arrowDistance: 0.5
+  arrowDistance: 0
   pushingArrow: -1
   selectedArrow: -1
   pushedDistance: 0
@@ -550,7 +549,7 @@ GameObject:
   - component: {fileID: 1670742514}
   - component: {fileID: 1670742516}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: Ground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -664,16 +663,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 1740618209}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c77ae311cece2994799d42be5e558ba5, type: 3}
+  m_Script: {fileID: 11500000, guid: b01d736c1fb98fa4babd498e3df3280b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boardObject: {fileID: 1740618209}
   holePrefab: {fileID: 1598789304165022, guid: 4acc75729bcb0ba45a74c4e374d1594b, type: 3}
   boardBottomPrefab: {fileID: 1380037499080512, guid: 52690e0f23f014d4f86b50bdf943b395,
     type: 3}
-  boardSide: 5
+  boardSide: 9
   boardCenter: {x: 0, y: 0}
-  holeDistance: 0.5
+  holeDistance: 5
 --- !u!1 &1910673794
 GameObject:
   m_ObjectHideFlags: 0
@@ -700,20 +698,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 1910673794}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 432a3d5f7ea6b4244814edf77a1ea7ab, type: 3}
+  m_Script: {fileID: 11500000, guid: 607ce001498f6cc45950f5aa973794a7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ballsObject: {fileID: 1910673794}
   blackBallPrefab: {fileID: 1423527644810248, guid: e495cfeeb0ad2ad41a0a0e701dbeb767,
     type: 3}
   whiteBallPrefab: {fileID: 1189055881600474, guid: 3ba3120928b2149449af8906b5667bf8,
     type: 3}
   gameManager: {fileID: 1126846787}
   boardManager: {fileID: 1740618211}
-  networkManager: {fileID: 0}
   arrowsManager: {fileID: 1437375292}
   state: 0
-  sizeOfBall: 0.4
+  sizeOfBall: 5
 --- !u!4 &1910673796
 Transform:
   m_ObjectHideFlags: 0
