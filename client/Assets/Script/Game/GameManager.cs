@@ -2,6 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
+using Network;
+using Game.Events;
+using Game.Coords;
+using Game.Balls;
+using Game.Boards;
 
 namespace Game
 {
@@ -9,14 +14,13 @@ namespace Game
     {
         public BoardManager boardManger;
         public BallManager ballManager;
-        public NetworkManager networkManager;
         public BallType myBallType = BallType.Black;
 
         public Text turnText;
 
         void Start()
         {
-            boardManger.CreateBoard(myBallType);
+            SetHandlers();
         }
 
         void Update()
@@ -24,23 +28,49 @@ namespace Game
 
         }
 
+        private void SetHandlers()
+        {
+            NetworkManager.instance.SetHandler<ConnectedEvent>(GameStartHandler);
+            NetworkManager.instance.SetHandler<EnteredEvent>(EnteredHandler);
+            NetworkManager.instance.SetHandler<MoveEvent>(MoveHandler);
+        }
+
+        private void GameStartHandler(Events.Event e)
+        {
+            var game = (GameStartEvent)e;
+            StartGame(game.board, game.turn);
+        }
+
+        private void EnteredHandler(Events.Event e)
+        {
+            var entered = (EnteredEvent)e;
+        }
+
+        private void MoveHandler(Events.Event e)
+        {
+            var move = (MoveEvent)e;
+            if (move.player != myBallType)
+            {
+                OppenetMovement(new BallSelection(move.start, move.end), CubeCoord.ConvertDirectionToNum(move.dir));
+            }
+        }
+
+
         public void StartGame(int[,] map, BallType turn)
         {
             ballManager.RemoveBalls();
-            //string mapstr = "0@0@0@0@2@2@2@2@2#0@0@0@2@2@2@2@2@2#0@0@0@0@2@2@2@0@0#0@0@0@0@0@0@0@0@0#0@0@0@0@0@0@0@0@0#0@0@0@0@0@0@0@0@0#0@0@1@1@1@0@0@0@0#1@1@1@1@1@1@0@0@0#1@1@1@1@1@0@0@0@0";
             boardManger.SetMap(map);
             ballManager.CreateBalls(boardManger);
             if (turn == myBallType)
             {
                 myTurn();
             }
-            //OppenetMovement(new BallSelection(new CubeCoord(0,0),new CubeCoord(0,0)),0);
         }
 
         public void SendBallMoving(BallSelection ballSelection, int direction)
         {
             MoveCommand moveCommand = new MoveCommand(myBallType, ballSelection.first, ballSelection.end, CubeCoord.ConvertNumToDirection(direction));
-            networkManager.SendCommand(moveCommand);
+            NetworkManager.instance.SendCommand(moveCommand);
         }
 
         public void myTurn()

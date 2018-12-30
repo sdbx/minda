@@ -1,7 +1,8 @@
-public abstract class Command { };
+using Game.Coords;
 
 namespace Game
 {
+    public abstract class Command { };
     public class ConnectCommand : Command
     {
         public string type = "connect";
