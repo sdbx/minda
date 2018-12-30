@@ -20,7 +20,7 @@ func (r *room) Register(d *dim.Group) {
 	d.Use(&middlewares.UserMiddleware{})
 	d.GET("/", r.listRoom)
 	d.POST("/", r.postRoom)
-	d.PUT("/:roomid", r.putRoom)
+	d.PUT("/:roomid/", r.putRoom)
 }
 
 func (r *room) listRoom(c echo.Context) error {

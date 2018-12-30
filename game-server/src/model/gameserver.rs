@@ -1,3 +1,4 @@
+use model::RoomConf;
 use super::{UserId, AxialCord, Room};
 use game::Stone;
 use server::Server;
@@ -36,7 +37,9 @@ pub enum Event {
     #[serde(rename = "moved")]
     Moved { player: String, start: AxialCord, end: AxialCord, dir: AxialCord },
     #[serde(rename = "chated")]
-    Chated { user: UserId, content: String }
+    Chated { user: UserId, content: String },
+    #[serde(rename = "confed")]
+    Confed { conf: RoomConf }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -47,7 +50,9 @@ pub enum Command {
     #[serde(rename = "move")]
     Move { start: AxialCord, end: AxialCord, dir: AxialCord },
     #[serde(rename = "chat")]
-    Chat { content: String }
+    Chat { content: String },
+    #[serde(rename = "conf")]
+    Conf { conf: RoomConf }
 }
 
 pub fn parse_command(msg: &str) -> Result<Command, serde_json::Error> {

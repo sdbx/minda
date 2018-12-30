@@ -27,11 +27,10 @@ export class MindaSocket extends EventEmitter {
 
     private onData(raw:Buffer) {
         const data = raw.toString("utf8")
-        if (data.indexOf("\n") < 0) {
-            this.buffer += data
-        } else {
-            const msg = this.buffer + data.substring(0, data.indexOf('\n'))
-            this.buffer = data.substring(data.indexOf("\n") + 1)
+        this.buffer += data
+        while (this.buffer.indexOf("\n") >= 0) {
+            const msg = this.buffer.substring(0, this.buffer.indexOf('\n'))
+            this.buffer = this.buffer.substring(this.buffer.indexOf("\n") + 1)
             const event:Event = JSON.parse(msg)
             switch (event.type) {
                 case "connected": {
@@ -40,6 +39,9 @@ export class MindaSocket extends EventEmitter {
                 }
                 case "chated": {
                     this.emit("chated", event as Chated)
+                    break
+                }
+                default: {
                     break
                 }
             }

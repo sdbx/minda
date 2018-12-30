@@ -8,6 +8,8 @@ use chrono::DateTime;
 pub struct UserId(isize);
 
 impl UserId {
+    pub const empty: UserId = UserId(-1);
+
     pub fn to_isize(&self) -> isize {
         self.0
     }
@@ -64,5 +66,6 @@ pub struct RoomConf {
 pub struct Room {
     pub id: String,
     pub created_at: DateTime<Utc>,
-    pub conf: RoomConf
+    pub conf: RoomConf,
+    pub users: Vec<UserId>
 }

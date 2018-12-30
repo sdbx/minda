@@ -1,4 +1,4 @@
-import { Room } from "./mdmodel"
+import { Room, RoomConf } from "./mdmodel"
 
 export interface Connected {
     type:"connected"
@@ -9,6 +9,11 @@ export interface Chated {
     type:"chated"
     user:number
     content:string
+}
+
+export interface Confed {
+    type:"confed"
+    conf:RoomConf
 }
 
 export type Event = Connected | Chated

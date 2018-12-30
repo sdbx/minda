@@ -34,11 +34,23 @@ impl Room {
         });
     }
 
+    pub fn exists_user(&self, user: UserId) -> bool {
+        for (_, u) in self.users.iter() {
+            if u.user == user {
+                return true
+            }
+        }
+        false
+    }
+
     pub fn to_model(&self) -> MRoom {
         MRoom {
             id: self.id.clone(),
             created_at: self.created_at,
-            conf: self.conf.clone()
+            conf: self.conf.clone(),
+            users: self.users.iter().map(|(_,u)| {
+                u.user
+            }).collect::<Vec<_>>()
         }
     }
 }

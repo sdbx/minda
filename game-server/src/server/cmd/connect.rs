@@ -16,7 +16,7 @@ pub fn handle(server: &mut Server, conn: &Connection, key: &str) -> Result<(), E
         };
 
         let conn2 = server.conns.get_mut(&conn.conn_id).unwrap();
-        conn2.user_id = Some(invite.user);
+        conn2.user_id = invite.user;
         conn2.room = Some(invite.room.clone());
         room.add_user(conn.conn_id, invite.user, &key);
 

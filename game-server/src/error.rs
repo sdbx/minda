@@ -6,6 +6,9 @@ quick_error! {
             description("none error")
             display("none error")
         }
+        PermissionError {
+            description("permission lacked")
+        }
         JsonError(err: serde_json::Error) {
             from()
             description("json error")
@@ -20,6 +23,9 @@ quick_error! {
         }
         Internal {
             description("Internal error")
+        }
+        InvalidParm {
+            description("Invalid parameters")
         }
         InvalidCommand {
             description("Invalid command")

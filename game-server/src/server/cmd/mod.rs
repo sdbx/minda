@@ -6,6 +6,7 @@ use model::Command;
 use error::Error;
 
 mod middleware;
+mod conf;
 mod chat;
 mod game;
 mod connect;
@@ -17,6 +18,9 @@ pub fn handle(server: &mut Server, conn: &Connection, cmd: &Command) -> Result<(
         },
         Command::Chat { content } => {
             chat::handle(server, conn, &content)
+        },
+        Command::Conf { conf } => {
+            conf::handle(server, conn, &conf)
         },
         Command::Move { start, end, dir } => {
             game::game_move(server, conn, *start, *end, *dir)

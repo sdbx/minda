@@ -34,7 +34,7 @@ pub enum ServerEvent {
 #[derive(Clone, Debug)]
 pub struct Connection {
     pub conn_id: Uuid,
-    pub user_id: Option<UserId>,
+    pub user_id: UserId,
     pub room: Option<String>
 }
 
@@ -92,7 +92,7 @@ impl Server {
                     info!("client({}) connected", conn_id);
                     self.conns.insert(conn_id, Connection {
                         conn_id: conn_id,
-                        user_id: None,
+                        user_id: UserId::empty,
                         room: None
                     });
                     self.streams.insert(conn_id, conn);
@@ -160,9 +160,9 @@ impl Server {
         }
     }
 
-    pub fn broadcast(&mut self, room: &str, event: &Event) {
+    pub fn broadcast(&mut self, room_id: &str, event: &Event) {
         let conn_ids = {
-            let room = self.rooms.get(room).unwrap();
+            let room = self.rooms.get(room_id).unwrap();
             room.users.iter().map(|t| t.1.conn_id.clone()).collect::<Vec<_>>()
         };
         conn_ids.iter().for_each(|conn_id| self.dispatch(*conn_id, &event));

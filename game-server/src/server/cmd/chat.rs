@@ -10,7 +10,7 @@ pub fn handle(server: &mut Server, conn: &Connection, content: &str) -> Result<(
         room.id.clone()
     };
     server.broadcast(&id, &Chated {
-        user: conn.user_id.unwrap(),
+        user: conn.user_id,
         content: content.to_owned()
     });
     Ok(())
