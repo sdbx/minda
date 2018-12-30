@@ -22,7 +22,6 @@ namespace Menu
 
         private void Update() 
         {
-           
             if(_scrollbar.value == 0)
             {
                 if(_tempSize*2/3>_scrollbar.size)

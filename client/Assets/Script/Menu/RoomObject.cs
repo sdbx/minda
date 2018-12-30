@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using Menu.Models;
+using Network.Models;
 
 namespace Menu
 {

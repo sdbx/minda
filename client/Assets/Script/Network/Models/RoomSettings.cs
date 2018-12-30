@@ -1,4 +1,6 @@
-namespace Menu.Models
+using Menu.Models;
+
+namespace Network.Models
 {
     public class RoomSettings
     {

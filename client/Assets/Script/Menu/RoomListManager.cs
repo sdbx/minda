@@ -6,6 +6,7 @@ using Menu.Models;
 using Game;
 using UnityEngine.SceneManagement;
 using Network;
+using Network.Models;
 
 namespace Menu
 {
@@ -52,11 +53,13 @@ namespace Menu
 
         void Start()
         {
-            StartCoroutine(NetworkManager.instance.lobbyServerRequestor.Get<Models.Room[]>("/rooms/", "black", CreateRoomList));
+            NetworkManager.instance.Get<Room[]>("/rooms/",CreateRoomList);
         }
 
-        private void CreateRoomList(Models.Room[] rooms)
+        private void CreateRoomList(Room[] rooms)
         {
+            if(rooms==null)
+                return;
             for(int i = 0;i<rooms.Length;i++)
             {
                 Add(rooms[i]);
@@ -64,11 +67,11 @@ namespace Menu
         }
         public void EnterRoom(Room room)
         {
-            StartCoroutine(NetworkManager.instance.lobbyServerRequestor.Put<JoinRoomResult>("/rooms/" + room.id, "", "black", (JoinRoomResult joinRoomResult) =>{
+            NetworkManager.instance.Put("/rooms/" + room.id+"/", "", (JoinRoomResult joinRoomResult) =>{
                      Debug.Log(joinRoomResult.addr);
                      var Addr = joinRoomResult.addr.Split(':');
                      NetworkManager.instance.EnterRoom(Addr[0],int.Parse(Addr[1]),joinRoomResult.invite, StartGame);
-                 }));
+                 });
         }
         public void StartGame(Game.Events.Event e)
         {

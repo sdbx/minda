@@ -1,4 +1,4 @@
-namespace Menu.Models
+namespace Network.Models
 {
     public class GameRule
     {

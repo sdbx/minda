@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Game.Coords;
 using UnityEngine;
-namespace Game
+namespace Game.Boards
 {
     public class Hole
     {

@@ -19,7 +19,7 @@ namespace Game.Events
 
     public class ConnectedEvent : Event
     {
-        public Menu.Models.Room room;
+        public Network.Models.Room room;
     }
 
     public class MoveEvent : Event

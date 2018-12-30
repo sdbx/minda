@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Game;
 using Game.Events;
 using Network;
+using Network.Models;
 using Newtonsoft.Json;
 using UnityEngine;
 
@@ -10,15 +11,27 @@ namespace Network
 {
     public class NetworkManager : MonoBehaviour
     {
+        public enum LoginState
+        {
+            Logout,
+            SendReq,
+            GetReqid,
+            Login,
+        } 
         public LobbyServerRequestor lobbyServerRequestor;
         public static NetworkManager instance = null;
-        public Menu.Models.User loginUser;
-
+        public string token;
+        public LoginState loginState = LoginState.Logout;
+        
         [SerializeField]
         private string addr = "http://127.0.0.1:8080";
         private AsyncCallbackClient asyncCallbackClient = null;
         private Dictionary<Type, Action<Game.Events.Event>> handle = new Dictionary<Type, Action<Game.Events.Event>>();
         private JsonSerializerSettings eventJsonSettings;
+
+        private string loginReqid;
+        private Action loginCallback;
+        private float loginCheckingTimer = 2;
 
         private void Awake() 
         {
@@ -62,6 +75,22 @@ namespace Network
                     Debug.Log(asyncCallbackClient.logQueue.Dequeue());
                 }
             }
+            if (loginState == LoginState.GetReqid)
+            {
+                if (loginCheckingTimer < 0)
+                {
+                    StartCoroutine(lobbyServerRequestor.Get("/auth/reqs/" + loginReqid + "/", "", (LoginResult loginResult) =>
+                    {
+                        this.token = loginResult.token;
+                        loginCallback();
+                        loginCallback = null;
+                        loginState = LoginState.Login;
+                    }));
+                    loginCheckingTimer = 2;
+                }
+                else loginCheckingTimer -= Time.deltaTime;
+            }
+
         }
 
         void OnApplicationQuit()
@@ -118,6 +147,20 @@ namespace Network
             asyncCallbackClient.SendData(data);
         }
 
+        public void Post<T>(string endPoint, string data, Action<T> callBack)
+        {
+            StartCoroutine(lobbyServerRequestor.Post(endPoint, data, token, callBack));
+        }
+        
+        public void Get<T>(string endPoint, Action<T> callBack)
+        {
+            StartCoroutine(lobbyServerRequestor.Get(endPoint, token, callBack));
+        }
+
+        public void Put<T>(string endPoint, string data, Action<T> callBack)
+        {
+            StartCoroutine(lobbyServerRequestor.Put(endPoint, data, token, callBack));
+        }
 
         public bool IsConnected()
         {
@@ -137,6 +180,21 @@ namespace Network
             }
         }
         
+        public void login(string service, Action callBack)
+        {
+            if(loginState != LoginState.Logout)
+            {
+                return;
+            }
+            Debug.Log("크하하req시작");
+            loginState = LoginState.SendReq;
+            loginCallback = callBack;
+            Post("/auth/reqs/","",(Reqid reqid)=>{
+                Application.OpenURL(addr+"/auth/o/"+service+"/"+reqid.id+"/");
+                loginState = LoginState.GetReqid;
+                loginReqid = reqid.id;
+            });
+        }
 
     }
 }

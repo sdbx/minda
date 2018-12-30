@@ -32,7 +32,9 @@ namespace Network
 
             using (UnityWebRequest www = UnityWebRequest.Post(Addr+endPoint, data))
             {
-                www.SetRequestHeader("Authorization",token);
+                Debug.Log("Post:"+Addr+endPoint);
+                if(token!="")
+                    www.SetRequestHeader("Authorization",token);
                 www.SetRequestHeader("Content-Type","application/json");
 
                 yield return www.SendWebRequest();
@@ -43,6 +45,7 @@ namespace Network
                 }
                 else
                 {
+                    RequestCallBack<T>(www.downloadHandler.text,callBack);
                     Debug.Log("Post Complete");
                 }
             }
@@ -63,8 +66,9 @@ namespace Network
 
             using (UnityWebRequest www = UnityWebRequest.Put(Addr+endPoint, body))
             {
-
-                www.SetRequestHeader("Authorization",token);
+                Debug.Log("Put:"+Addr+endPoint);
+                if(token!="")
+                    www.SetRequestHeader("Authorization",token);
                 www.SetRequestHeader("Content-Type","application/json");
 
                 yield return www.SendWebRequest();
@@ -86,7 +90,9 @@ namespace Network
 
             using (UnityWebRequest www = UnityWebRequest.Get(Addr+endPoint))
             {
-                www.SetRequestHeader("Authorization",token);
+                Debug.Log("Get:"+Addr+endPoint);
+                if(token!="")
+                    www.SetRequestHeader("Authorization",token);
                 www.SetRequestHeader("Content-Type","application/json");
 
                 yield return www.SendWebRequest();
