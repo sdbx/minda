@@ -35,7 +35,7 @@ pub enum ServerEvent {
 pub struct Connection {
     pub conn_id: Uuid,
     pub user_id: UserId,
-    pub room: Option<String>
+    pub room_id: Option<String>
 }
 
 pub struct Server {
@@ -93,7 +93,7 @@ impl Server {
                     self.conns.insert(conn_id, Connection {
                         conn_id: conn_id,
                         user_id: UserId::empty,
-                        room: None
+                        room_id: None
                     });
                     self.streams.insert(conn_id, conn);
                 },
@@ -134,7 +134,7 @@ impl Server {
                             Some(conn) => conn,
                             None => continue
                         };
-                        let room_id = match conn.room.as_ref() {
+                        let room_id = match conn.room_id.as_ref() {
                             Some(room) => room,
                             None => continue
                         };
@@ -149,6 +149,22 @@ impl Server {
                 _ => { }
             }
         }
+    }
+
+    pub fn get_room(&self, conn: &Connection) -> Result<&Room, Error> {
+        let room_id = match conn.room_id {
+            Some(ref x) => x,
+            None => return Err(Error::Permission)
+        };
+        Ok(self.rooms.get(room_id)?)
+    }
+
+    pub fn get_room_mut(&mut self, conn: &Connection) -> Result<&mut Room, Error> {
+        let room_id = match conn.room_id {
+            Some(ref x) => x,
+            None => return Err(Error::Permission)
+        };
+        Ok(self.rooms.get_mut(room_id)?)
     }
     
     pub fn dispatch(&mut self, conn_id: Uuid, event: &Event) {

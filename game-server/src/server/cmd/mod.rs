@@ -5,7 +5,6 @@ use uuid::Uuid;
 use model::Command;
 use error::Error;
 
-mod middleware;
 mod conf;
 mod chat;
 mod game;

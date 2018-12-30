@@ -1,7 +1,7 @@
 import { MindaSocket } from "./minda"
 import { Chated, Connected } from "./minda/mdevent"
 
-const invite = "a3021e00-ed9d-400b-ac9b-5ccac3e6f51f"
+const invite = "9006d221-409e-41ca-93c9-1c02e95adb99"
 const invite2 = "ffe7811d-1a87-4dec-8e99-4dcf7e77e3cd"
 const sock = new MindaSocket("127.0.0.1", 5353, invite)
 const sock2 = new MindaSocket("127.0.0.1", 5353, invite2)

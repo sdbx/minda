@@ -3,11 +3,10 @@ use model::Event;
 use server::server::Connection;
 use server::server::Server;
 use error::Error;
-use super::middleware;
 
 pub fn game_move(server: &mut Server, conn: &Connection, start: AxialCord, end: AxialCord, dir: AxialCord) -> Result<(), Error> {
     let (room, event) = {
-        let room = middleware::get_room(server, conn)?;
+        let room = server.get_room_mut(&conn)?;
 
         let game = match room.game {
             Some(ref mut x) => x,

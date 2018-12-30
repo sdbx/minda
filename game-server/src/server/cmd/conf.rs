@@ -1,14 +1,13 @@
 use server::{Server, Connection};
 use model::{RoomConf,UserId};
 use model::Event::Confed;
-use super::middleware;
 use error::Error;
 
 pub fn handle(server: &mut Server, conn: &Connection, conf: &RoomConf) -> Result<(), Error> {
     let room = {
-        let room = middleware::get_room(server, &conn)?;
+        let room = server.get_room_mut(&conn)?;
         if room.conf.king != conn.user_id {
-            return Err(Error::PermissionError)
+            return Err(Error::Permission)
         }
         if (!room.exists_user(conf.black) && conf.black != UserId::empty) || 
             (!room.exists_user(conf.white) && conf.white != UserId::empty) || 

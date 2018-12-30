@@ -6,7 +6,7 @@ quick_error! {
             description("none error")
             display("none error")
         }
-        PermissionError {
+        Permission{
             description("permission lacked")
         }
         JsonError(err: serde_json::Error) {

@@ -28,12 +28,20 @@ func (a *auth) getReq(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return c.String(200, tok)
+	return c.JSONPretty(200, struct{
+		Token string `json:"token"`
+	}{
+		Token:tok,
+	}, "\t")
 }
 
 func (a *auth) postReq(c echo.Context) error {
 	reqid := a.OAuth.MakeReq()
-	return c.String(201, reqid)
+	return c.JSONPretty(201, struct{
+		ReqID string `json:"req_id"`
+	}{
+		ReqID:reqid,
+	}, "\t")
 }
 
 func (a *auth) oauth(c echo.Context) error {
