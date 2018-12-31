@@ -1,4 +1,3 @@
-mod discover;
 mod server;
 mod task;
 mod room;

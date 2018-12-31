@@ -12,7 +12,7 @@ import (
 
 const (
 	redisServerHash = "game_server_hash"
-	updateTick      = time.Second
+	updateTick      = time.Second / 10
 	garbageTime     = time.Second * 10
 )
 

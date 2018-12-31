@@ -3,14 +3,13 @@ use model::User;
 use server::task;
 use model::Event;
 use std::time::Duration;
-use model::{Task, TaskResult, TaskRequest};
+use model::{Task, TaskResult, TaskRequest, GameServer};
 use redis::Commands;
 use error::Error;
 use ticker::Ticker;
 use game::{Game, Player, Board, Cord, Stone};
 use std::sync::mpsc::Sender;
 use std::sync::mpsc::channel;
-use server::discover;
 use std::sync::mpsc::Receiver;
 use redis::{Client, PubSub};
 use uuid::Uuid;
@@ -50,6 +49,7 @@ pub struct Server {
     pub streams: HashMap<Uuid, TcpStream>
 }
 
+const redis_server_hash: &'static str = "game_server_hash";
 const redis_result_pubsub: &'static str = "task_result_pub_sub";
 const redis_lobby_queue: &'static str = "task_lobby_queue";
 
@@ -76,6 +76,14 @@ impl Server {
         }
     }
 
+    fn update_discover(&self) -> Result<(), Error> {
+        let conn = self.redis.get_connection()?;
+        let game_server = GameServer::from_server(self);
+        let buf = serde_json::to_string(&game_server)?;
+        let _: () = conn.hset(redis_server_hash, &self.name, &buf)?;
+        Ok(())
+    }
+
     pub fn tx(&self) -> &Sender<ServerEvent> {
         self.tx.as_ref().unwrap()
     }
@@ -87,68 +95,64 @@ impl Server {
 
     pub fn serve(mut self) {
         for event in self.listen().iter() {
-            match event {
-                ServerEvent::Connect { conn_id, conn } => {
-                    info!("client({}) connected", conn_id);
-                    self.conns.insert(conn_id, Connection {
-                        conn_id: conn_id,
-                        user_id: UserId::empty,
-                        room_id: None
-                    });
-                    self.streams.insert(conn_id, conn);
-                },
-                ServerEvent::Command { conn_id, cmd } => {
-                    info!("client({}) command", conn_id);
-                    let conn = { 
-                        self.conns.get(&conn_id).unwrap().clone()
-                    };
-                    if let Err(err) = cmd::handle(&mut self, &conn, &cmd) {
-                        self.dispatch(conn_id, &Event::Error{message: format!("{}", err)});
-                    };
-                },
-                ServerEvent::Updated => {
-                    discover::update(&mut self);
-                },
-                ServerEvent::TaskRequest { task_request } => {
-                    match task::handle(&mut self, task_request.task) {
-                        Ok(res) => {
-                            info!("task({}) was successful", task_request.id);
-                            self.send_result(&task_request.id, &TaskResult{
-                                error: None,
-                                value: res
-                            });
-                        },
-                        Err(e) => {
-                            info!("task({}) encounterd an error: {}", task_request.id, e);
-                            self.send_result(&task_request.id, &TaskResult{
-                                error: Some(format!("{}", e)),
-                                value: "".to_owned()
-                            });
-                        }
-                    };
-                },
-                ServerEvent::Close { conn_id } => {
-                    self.streams.remove(&conn_id);
-                    {
-                        let conn = match self.conns.get(&conn_id) {
-                            Some(conn) => conn,
-                            None => continue
-                        };
-                        let room_id = match conn.room_id.as_ref() {
-                            Some(room) => room,
-                            None => continue
-                        };
-                        let mut room = match self.rooms.get_mut(room_id) {
-                            Some(room) => room,
-                            None => continue
-                        };
-                        room.users.remove(&conn_id);
-                    }
-                    self.conns.remove(&conn_id);
-                },
-                _ => { }
-            }
+            self.handle_event(event);
         }
+    }
+
+    fn handle_event(&mut self, event: ServerEvent) -> Result<(), Error> {
+        match event {
+            ServerEvent::Connect { conn_id, conn } => {
+                info!("client({}) connected", conn_id);
+                self.conns.insert(conn_id, Connection {
+                    conn_id: conn_id,
+                    user_id: UserId::empty,
+                    room_id: None
+                });
+                self.streams.insert(conn_id, conn);
+            },
+            ServerEvent::Command { conn_id, cmd } => {
+                info!("client({}) command", conn_id);
+                let conn = { 
+                    self.conns.get(&conn_id).unwrap().clone()
+                };
+                if let Err(err) = cmd::handle(self, &conn, &cmd) {
+                    self.dispatch(conn_id, &Event::Error{message: format!("{}", err)});
+                };
+            },
+            ServerEvent::Updated => {
+                self.update_discover()?;
+            },
+            ServerEvent::TaskRequest { task_request } => {
+                match task::handle(self, task_request.task) {
+                    Ok(res) => {
+                        info!("task({}) was successful", task_request.id);
+                        self.send_result(&task_request.id, &TaskResult{
+                            error: None,
+                            value: res
+                        });
+                    },
+                    Err(e) => {
+                        info!("task({}) encounterd an error: {}", task_request.id, e);
+                        self.send_result(&task_request.id, &TaskResult{
+                            error: Some(format!("{}", e)),
+                            value: "".to_owned()
+                        });
+                    }
+                };
+            },
+            ServerEvent::Close { conn_id } => {
+                self.streams.remove(&conn_id);
+                {
+                    let conn = self.conns.get(&conn_id)?;
+                    let room_id = conn.room_id.as_ref()?;
+                    let mut room = self.rooms.get_mut(room_id)?;
+                    room.users.remove(&conn_id);
+                }
+                self.conns.remove(&conn_id);
+            },
+            _ => { }
+        }
+        Ok(())
     }
 
     pub fn get_room(&self, conn: &Connection) -> Result<&Room, Error> {

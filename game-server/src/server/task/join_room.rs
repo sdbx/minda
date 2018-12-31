@@ -5,9 +5,9 @@ use model::{Invite};
 use error::Error;
 use server::room::Room;
 
-pub fn handle(server: &mut Server, user: UserId, room: &str) -> Result<String, Error> {
-    server.rooms.get(room)?;
-    let invite = Invite::new(user, &room);
+pub fn handle(server: &mut Server, user: UserId, room_id: &str) -> Result<String, Error> {
+    server.rooms.get(room_id)?;
+    let invite = Invite::new(user, &room_id);
     let res = JoinRoomResult{
         invite: invite.key.clone(),
         addr: server.real_addr.clone()

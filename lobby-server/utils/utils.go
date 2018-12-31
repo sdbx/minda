@@ -1,7 +1,14 @@
 package utils
 
 import (
+	"errors"
+
 	"github.com/garyburd/redigo/redis"
+)
+
+var (
+	ErrNotExists    = errors.New("no such resource")
+	ErrNoGameServer = errors.New("no gameserver available")
 )
 
 func ListenPubSub(conn redis.Conn,

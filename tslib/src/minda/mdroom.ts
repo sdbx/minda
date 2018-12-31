@@ -38,10 +38,16 @@ export class MindaRoom {
      * 방 정보 (interface)
      */
     protected info:Immute<MSRoom>
-    public constructor(roomInfo:Immute<MSRoom>, serverInfo:MSRoomServer) {
-        this.updateInfo(roomInfo)
+    public constructor(serverInfo:MSRoomServer) {
         const [ip, port] = serverInfo.addr.split(":")
         this.socket = new Socket()
+        this.socket.on("connect", () => this.onSocketOpen.dispatch())
+        this.socket.on("drain", () => this.onSocketDrain.dispatch())
+        this.socket.on("error", (error:Error) => this.onSocketError.dispatch(error))
+        this.socket.on("data", (arraybuffer:ArrayBuffer) => this.onSocketData.dispatch(arraybuffer))
+        this.socket.on("close", () => this.onSocketClose.dispatch())
+        // debug
+        this.onSocketData.sub(this.onData.bind(this))
         this.socket.connect(Number.parseInt(port), ip, () => {
             console.log("Connected")
             this.connected = true
@@ -50,18 +56,6 @@ export class MindaRoom {
                 invite: serverInfo.invite, 
             })
         })
-        this.socket.on("connect", () => this.onSocketOpen.dispatch())
-        this.socket.on("drain", () => this.onSocketDrain.dispatch())
-        this.socket.on("error", (error:Error) => this.onSocketError.dispatch(error))
-        this.socket.on("data", (arraybuffer:ArrayBuffer) => this.onSocketData.dispatch(arraybuffer))
-        this.socket.on("close", () => this.onSocketClose.dispatch())
-        // chat
-        this.onSocketOpen.one(() => {
-            this.sendChat("ㅎㅇ요")
-        })
-        // debug
-        this.onSocketData.sub(this.onData.bind(this))
-        // 
     }
     /**
      * 기초적인 방 정보 업데이트
@@ -78,7 +72,7 @@ export class MindaRoom {
         if (!this.connected) {
             return
         }
-        this.send(MdEvents.chat, {
+        this.send("chat", {
             content: chat,
         })
     }

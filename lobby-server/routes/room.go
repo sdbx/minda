@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"lobby/utils"
 	"lobby/middlewares"
 	"math/rand"
 	"lobby/servs/taskserv"
@@ -41,7 +42,7 @@ func (r *room) postRoom(c2 echo.Context) error {
 		return err
 	}
 	if len(servers) == 0 {
-		return echo.NewHTTPError(503, "no game server available")
+		return utils.ErrNoGameServer
 	}
 
 	user := *c.User
@@ -74,5 +75,5 @@ func (r *room) putRoom(c2 echo.Context) error {
 			return c.JSONPretty(200, res.(*models.JoinRoomResult), "\t")
 		}
 	}
-	return c.String(404, "no such room")
+	return utils.ErrNotExists
 }

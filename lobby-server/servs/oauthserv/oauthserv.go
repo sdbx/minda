@@ -1,6 +1,7 @@
 package oauthserv
 
 import (
+	"lobby/utils"
 	"errors"
 	"encoding/base64"
 	"github.com/gofrs/uuid"
@@ -18,7 +19,6 @@ import (
 
 var (
 	ErrNotAuthorized = errors.New("not authorized")
-	ErrNotFound = errors.New("not found")
 )
 
 type OAuthServ struct {
@@ -84,7 +84,7 @@ func (a *OAuthServ) List() []string {
 func (a *OAuthServ) GetReq(reqid string) (string, error) {
 	tok, ok := a.reqs[reqid]
 	if !ok {
-		return "", ErrNotFound
+		return "", utils.ErrNotExists
 	}
 	if tok == nil {
 		return "", ErrNotAuthorized

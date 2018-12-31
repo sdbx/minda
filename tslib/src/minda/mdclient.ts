@@ -2,7 +2,7 @@ import { Immute } from "../types/deepreadonly"
 import { TimerID, WebpackTimer } from "../webpacktimer"
 import { extractContent, reqGet, reqPost } from "./mdrequest"
 import { MindaRoom } from "./mdroom"
-import { MSRoom, MSRoomServer } from "./structure/msroom"
+import { MSRoom, MSRoomConf, MSRoomServer } from "./structure/msroom"
 /**
  * 민다 서버 방 목록
  */
@@ -14,7 +14,7 @@ export class MindaClient {
     /**
      * 들어간 방 목록
      */
-    protected joinedRooms:Map<string, MindaRoom> = new Map()
+    protected connectedRooms:Map<string, MindaRoom> = new Map()
     protected token:string
     /**
      * 새로운 민다-클라를 생성합니다.
@@ -33,22 +33,34 @@ export class MindaClient {
         return this.rooms
     }
     /**
-     * 게임서버로 연결하기 위해 방에 접속합니다.
+     * 방을 만듭니다.
+     * @param roomConf 방설정
+     * @returns 방 혹은 null (실패)
+     */
+    public async createRoom(roomConf:MSRoomConf) {
+        const roomServer = await extractContent<MSRoomServer>(
+            reqPost("POST", `/rooms/`, this.token, roomConf))
+        return this.connectRoom(roomServer)
+    }
+    /**
+     * 방에 들어갑니다.
      * @param room 방
      * @returns 방 혹은 null (실패)
      */
-    public async connectRoom(room:string | Immute<MSRoom>) {
+    public async joinRoom(room:string | Immute<MSRoom>) {
         room = this.getRoomID(room)
+        const roomServer = await extractContent<MSRoomServer>(
+            reqPost("PUT", `/rooms/${room}/`, this.token))
+        return this.connectRoom(roomServer)
+    }
+    private async connectRoom(roomServer:MSRoomServer) {
         try {
-            const inviteCode = await extractContent<MSRoomServer>(
-                reqPost("PUT", `/rooms/${room}/`, this.token))
-            const mindaRoom = new MindaRoom(this.rooms.find((v) => v.id === room), inviteCode)
-            console.log(inviteCode)
-            this.joinedRooms.set(room, mindaRoom)
+            const mindaRoom = new MindaRoom(roomServer)
             return new Promise<MindaRoom>((res, rej) => {
                 let timer:TimerID
                 const fn = mindaRoom.onConnect.one(() => {
                     WebpackTimer.clearTimeout(timer)
+                    this.connectedRooms.set(mindaRoom.id, mindaRoom)
                     res(mindaRoom)
                 })
                 timer = WebpackTimer.setTimeout(() => {

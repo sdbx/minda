@@ -1,29 +1,27 @@
 import { MindaClient } from "./minda/mdclient"
-import { MindaCredit } from "./minda/mdcredit"
-import { requestPost } from "./minda/req"
-import { WebpackTimer } from "./webpacktimer"
 
+function sleep(ms) {
+    return new Promise(resolve => {
+        setTimeout(resolve,ms)
+    })
+}
 
 async function run() {
-    const mindaC = new MindaCredit()
-    /*
-    mindaC.onLogin.sub((token) => {
-        console.log("Login success: " + token)
-        room(token)
+    const black = new MindaClient("black")
+    const room = await black.createRoom({
+        name: "hello",
+        white: -1,
+        black: -1,
+        king: -1,
+        rule: null
     })
-    const providers = await mindaC.getProviders()
-    const url = await mindaC.genOAuth(providers.pop())
-    console.log(url)
-    mindaC.watchLogin()
-    */
-   room("black")
-   WebpackTimer.setTimeout(() => room("white"), 1000)
-}
-async function room(token:string) {
-    const mindaC = new MindaClient(token)
-    const rooms = await mindaC.fetchRoom()
-    const playRoom = await mindaC.connectRoom(mindaC.rooms[0])
-    playRoom.onChat.sub((v) => console.log(v))
-    playRoom.sendChat("안뇽")
+    room.onChat.sub((v) => console.log(v))
+    await sleep(1000)
+
+    const white = new MindaClient("white")
+    const room2 = await white.joinRoom(room.id)
+    room2.onChat.sub((v) => console.log(v))
+    room2.sendChat("안뇽")
+    room.sendChat("그래")
 }
 run()

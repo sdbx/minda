@@ -35,9 +35,9 @@ pub fn handle(server: &mut Server, conn: &Connection, key: &str) -> Result<(), E
     if let Some(event) = gameevent {
         server.dispatch(conn.conn_id, &event);
     }
+    server.dispatch(conn.conn_id, &Event::Connected{ room: room });
     server.broadcast(&invite.room, &Event::Entered{
         user: invite.user
     });
-    server.dispatch(conn.conn_id, &Event::Connected{ room: room });
     Ok(())
 }
