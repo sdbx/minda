@@ -53,9 +53,11 @@
     "@types/node-fetch": "^2.1.4",
     "@types/request-promise-native": "^1.0.15",
     "node-fetch": "^2.3.0",
+    "querystring": "^0.2.0",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.5",
-    "sha.js": "^2.4.11"
+    "sha.js": "^2.4.11",
+    "strongly-typed-events": "^1.4.10"
   },
   "devDependencies": {
     "ava": "1.0.0-beta.7",
