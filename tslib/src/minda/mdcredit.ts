@@ -3,6 +3,9 @@ import { SignalDispatcher, SimpleEventDispatcher } from "strongly-typed-events"
 import { TimerID, WebpackTimer } from "../webpacktimer"
 import { mdserver } from "./mdconst"
 import { extractContent, reqGet, reqPost } from "./mdrequest"
+/**
+ * 민다 서버 인증 모듈
+ */
 export class MindaCredit {
     /**
      * oAuth로 로그인을 성공했을때
@@ -42,7 +45,7 @@ export class MindaCredit {
      */
     public async getProviders() {
         try {
-            return await extractContent<string[]>(reqGet("/auth/o/"))
+            return await extractContent<string[]>(reqGet("GET", "/auth/o/"))
         } catch (err) {
             /*
             console.error(err)
@@ -56,7 +59,7 @@ export class MindaCredit {
      * @param provider oAuth 제공 URL (`getProviders()` 참조)
      */
     public async genOAuth(provider:string) {
-        this.reqid = (await extractContent<{req_id:string}>(reqPost("/auth/reqs/"))).req_id
+        this.reqid = (await extractContent<{req_id:string}>(reqPost("POST", "/auth/reqs/"))).req_id
         return `${mdserver}/auth/o/${provider}/${this.reqid}/`
     }
     /**
@@ -67,7 +70,7 @@ export class MindaCredit {
         if (this.reqid == null) {
             return false
         }
-        const res = await reqGet(`/auth/reqs/${this.reqid}/`)
+        const res = await reqGet("GET", `/auth/reqs/${this.reqid}/`)
         if (res.status === 403 || res.status === 400) {
             // not logined
             return false

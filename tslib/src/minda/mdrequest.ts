@@ -2,37 +2,37 @@ import fetch, { Response } from "node-fetch"
 import querystring from "querystring"
 import { Serializable, SerializeObject } from "../types/serializable"
 import { mdserver, mdversion } from "./mdconst"
-type GetType = "GET"
-type PostType = "POST"
+type GetType = "GET" | "DELETE"
+type PostType = "POST" | "PUT"
 /**
- * GET 요청을 보냅니다.
+ * GET 타입 요청을 보냅니다.
  * @param suffix minda 서버의 REST 주소
  * @param token 인증키
  * @param param 파라메터
  * @returns JSON 혹은 Error
  */
-export async function reqGet(suffix:string, token?:string, param:{[key in string]:string} = {}) {
-    return req("GET", false, suffix, token, param)
+export async function reqGet(type:GetType, suffix:string, token?:string, param:{[key in string]:string} = {}) {
+    return req(type, false, suffix, token, param)
 }
 /**
- * POST 요청을 보냅니다.
+ * POST 타입 요청을 보냅니다.
  * @param suffix minda 서버의 REST 주소
  * @param token 인증키
  * @param postParam POST로 보낼 `body`
  * @param urlParam URL 파라매터
  * @returns JSON 혹은 Error
  */
-export async function reqPost(suffix:string, token?:string,
+export async function reqPost(type:PostType, suffix:string, token?:string,
     postParam:SerializeObject = {}, urlParam:{[key in string]:string} = {}) {
-        return req("POST", true, suffix, token, urlParam, postParam)
+    return req(type, true, suffix, token, urlParam, postParam)
 }
 /**
  * content 출력
  * @param r Response
  */
-export async function extractContent<T extends Serializable>(r:Promise<Response> | Response) {
+export async function extractContent<T>(r:Promise<Response> | Response) {
     const rp = await r
-    if (rp.status !== 200 && rp.status !== 201) {
+    if (!rp.ok) {
         throw new Error(`${rp.url} / ${rp.status} : ${rp.statusText}`)
     }
     return await rp.json() as T
@@ -46,7 +46,7 @@ export async function extractContent<T extends Serializable>(r:Promise<Response>
  * @param getParam URL에 붙일 파라매터
  * @param postParam POST 형식으로 보낼 파라매터
  */
-async function req(type:"GET" | "POST", isPost:boolean, suffix:string, token?:string,
+async function req(type:GetType | PostType, isPost:boolean, suffix:string, token?:string,
     getParam:{[key in string]:string} = {}, postParam:SerializeObject = {}) {
     if (!suffix.startsWith("http")) {
         if (!suffix.startsWith("/")) {
