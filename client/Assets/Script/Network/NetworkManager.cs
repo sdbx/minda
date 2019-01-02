@@ -1,11 +1,13 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using Game;
 using Game.Events;
+using Models;
 using Network;
-using Network.Models;
 using Newtonsoft.Json;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace Network
 {
@@ -167,6 +169,25 @@ namespace Network
             return asyncCallbackClient.state == ClientState.CONNECTED;
         }
         
+        public void DownloadImage(string imgUrl, Action<Texture> callBack)
+        {
+            StartCoroutine(GetTexture(imgUrl,callBack));
+        }
+
+        IEnumerator GetTexture(string imgUrl, Action<Texture> callBack)
+        {
+            UnityWebRequest www = UnityWebRequestTexture.GetTexture(imgUrl);
+            yield return www.SendWebRequest();
+
+            if (www.isNetworkError || www.isHttpError)
+            {
+                Debug.Log(www.error);
+            }
+            else
+            {
+                callBack(((DownloadHandlerTexture)www.downloadHandler).texture);
+            }
+        }
 
         private void ReceiveData(string data)
         {

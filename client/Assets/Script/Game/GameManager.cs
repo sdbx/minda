@@ -30,7 +30,6 @@ namespace Game
 
         private void SetHandlers()
         {
-            NetworkManager.instance.SetHandler<ConnectedEvent>(GameStartHandler);
             NetworkManager.instance.SetHandler<EnteredEvent>(EnteredHandler);
             NetworkManager.instance.SetHandler<MoveEvent>(MoveHandler);
         }

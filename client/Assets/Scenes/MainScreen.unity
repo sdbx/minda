@@ -138,15 +138,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 100806903}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e5fccca1cebb2f34eafcd6f6ae2a56a4, type: 3}
+  m_Script: {fileID: 11500000, guid: be75c52f25dafe849b03fdc43b46273a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   title: {fileID: 263386345}
-  moveSpeed: 10
-  destination: {x: 0, y: 150, z: 0}
+  moveSpeed: 1
+  destination: {x: 0, y: 200, z: 0}
   clickToLogin: {fileID: 433904344}
   socialLoginBtns: {fileID: 1190421890}
-  timer: 0.7
+  timer: 1
 --- !u!4 &100806905
 Transform:
   m_ObjectHideFlags: 0
@@ -465,6 +465,49 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!1 &444901158
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 444901160}
+  - component: {fileID: 444901159}
+  m_Layer: 0
+  m_Name: SceneChanger
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &444901159
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 444901158}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 707dbef217528464e92a8ae5dc0265cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &444901160
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 444901158}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -10.374802, y: 0.16935313, z: 284.10135}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1139608709
 GameObject:
   m_ObjectHideFlags: 0
@@ -476,7 +519,6 @@ GameObject:
   - component: {fileID: 1139608710}
   - component: {fileID: 1139608712}
   - component: {fileID: 1139608711}
-  - component: {fileID: 1139608714}
   - component: {fileID: 1139608713}
   m_Layer: 5
   m_Name: Discord
@@ -548,41 +590,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1139608709}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aff9ee9adc085664e8a12f0efe0319bc, type: 3}
+  m_Script: {fileID: 11500000, guid: eb79e4b782dc90941b93ceba16473f62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   serviceName: discord
---- !u!114 &1139608714
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1139608709}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: -1862395651, guid: f70555f144d8491a825f0804e09c671c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Delegates:
-  - eventID: 4
-    callback:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 0}
-          m_MethodName: 
-          m_Mode: 1
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: 
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
-      m_TypeName: UnityEngine.EventSystems.EventTrigger+TriggerEvent, UnityEngine.UI,
-        Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  delegates: []
 --- !u!1 &1190421888
 GameObject:
   m_ObjectHideFlags: 0

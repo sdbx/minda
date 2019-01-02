@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using Menu.Models;
 using UnityEngine;
 using UnityEngine.Networking;
 using Newtonsoft.Json;

@@ -1,11 +1,12 @@
 import { MindaClient } from "./minda/mdclient"
 
-function sleep(ms) {
-    return new Promise(resolve => {
-        setTimeout(resolve,ms)
-    })
-}
 
-async function run() {
-}
-run()
+(async ()=>{
+    let client = new MindaClient("black")
+    await client.createRoom({
+    name: "hello",
+    black:-1,
+    white:-1,
+    king:-1,
+    rule: "",
+})})()

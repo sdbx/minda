@@ -152,7 +152,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 74264160}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 29fd1253d9a308240ae2b873b9870af5, type: 3}
+  m_Script: {fileID: 11500000, guid: 957f0fbf0abac894faa70ed3c223cb01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   roomPrefeb: {fileID: 2701713635504873256, guid: b5a9c1aeb2029794d8d5c0c5c98c00cc,
@@ -212,7 +212,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_Color: {r: 0.9716981, g: 0.9716981, b: 0.9716981, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -450,7 +450,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.1981132, g: 0.1981132, b: 0.1981132, a: 0}
+  m_BackGroundColor: {r: 1, g: 1, b: 1, a: 0}
   m_projectionMatrixMode: 1
   m_SensorSize: {x: 36, y: 24}
   m_LensShift: {x: 0, y: 0}
@@ -1095,22 +1095,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32c7821d30e30ab4aad475f30d6552de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  refreshEvent:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 74264162}
-        m_MethodName: AddFifty
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
 --- !u!1 &2003159832
 GameObject:
   m_ObjectHideFlags: 0
