@@ -14,6 +14,6 @@ pub fn handle(server: &mut Server, user_id: UserId, conf: &RoomConf) -> Result<S
     };
     server.rooms.insert(room.id.clone(), room);
     server.invites.insert(invite.key.clone(), invite);
-    server.tx().send(ServerEvent::Updated);
+    server.update_discover();
     Ok(serde_json::to_string(&res).unwrap())
 }

@@ -55,13 +55,10 @@ func (r *room) postRoom(c2 echo.Context) error {
 				}
 				return c.JSONPretty(201, res.(*models.LobbyRoomResult), "\t")
 			} 
-			_, err := r.Task.Request(room.Server, &models.KickUserTask{
+			r.Task.Request(room.Server, &models.KickUserTask{
 				UserID: user.ID,
 				RoomID: room.ID,
 			})
-			if err != nil {
-				return err
-			}
 		}
 	}
 	

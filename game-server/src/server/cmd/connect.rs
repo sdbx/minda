@@ -38,7 +38,7 @@ pub fn handle(server: &mut Server, conn: &Connection, key: &str) -> Result<(), E
     };
 
     server.invites.remove(&invite.key);
-    server.tx().send(Updated);
+    server.update_discover();
     server.dispatch(conn.conn_id, &Event::Connected{ room: room });
     if let Some(event) = gameevent {
         server.dispatch(conn.conn_id, &event);

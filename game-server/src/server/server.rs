@@ -85,7 +85,7 @@ impl Server {
         }
     }
 
-    fn update_discover(&self) -> Result<(), Error> {
+    pub fn update_discover(&self) -> Result<(), Error> {
         let conn = self.redis.get_connection()?;
         let game_server = GameServer::from_server(self);
         let buf = serde_json::to_string(&game_server)?;
@@ -159,7 +159,7 @@ impl Server {
                     room.users.remove(&conn_id);
                 }
                 self.conns.remove(&conn_id);
-                self.tx().send(Updated);
+                self.update_discover()?;
             },
             _ => { }
         }
