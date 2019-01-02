@@ -22,17 +22,18 @@ pub fn handle(server: &mut Server, conn: &Connection, key: &str) -> Result<(), E
         let conn2 = server.conns.get_mut(&conn.conn_id).unwrap();
         conn2.user_id = invite.user_id;
         conn2.room_id = Some(invite.room_id.clone());
+        let mroom = room.to_model();
         room.add_user(conn.conn_id, invite.user_id, &key);
 
         if let Some(ref game) = room.game {
-            (room.to_model(), invite.clone(), Some(Event::Started{
+            (mroom, invite.clone(), Some(Event::Started{
                 black: room.conf.black,
                 white: room.conf.white,
                 board: game.board.raw().clone(),
                 turn: { if game.turn == Black { "black".to_owned() } else { "white".to_owned() } }
             }))
         } else {
-            (room.to_model(), invite.clone(), None)
+            (mroom, invite.clone(), None)
         }
     };
 
