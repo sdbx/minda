@@ -6,7 +6,9 @@ import { MSRoom, MSRoomServer } from "./structure/msroom"
 
 export class MindaRoom {
     /* public events */
+    public onClose = new SignalDispatcher()
     public onConnect = new SignalDispatcher()
+    public onEnter = new SimpleEventDispatcher<EnterInfo>()
     public onChat = new SimpleEventDispatcher<ChatInfo>()
     /* Access Helper */
     public get id() {
@@ -26,7 +28,6 @@ export class MindaRoom {
     protected onSocketDrain = new SignalDispatcher()
     protected onSocketError = new SimpleEventDispatcher<Error>()
     protected onSocketData = new SimpleEventDispatcher<ArrayBuffer>()
-    protected onSocketClose = new SignalDispatcher()
     /**
      * 소-켓
      * 
@@ -45,11 +46,10 @@ export class MindaRoom {
         this.socket.on("drain", () => this.onSocketDrain.dispatch())
         this.socket.on("error", (error:Error) => this.onSocketError.dispatch(error))
         this.socket.on("data", (arraybuffer:ArrayBuffer) => this.onSocketData.dispatch(arraybuffer))
-        this.socket.on("close", () => this.onSocketClose.dispatch())
+        this.socket.on("close", () => this.onClose.dispatch())
         // debug
         this.onSocketData.sub(this.onData.bind(this))
         this.socket.connect(Number.parseInt(port), ip, () => {
-            console.log("Connected")
             this.connected = true
             this.cache = ""
             this.send("connect", {
@@ -76,6 +76,10 @@ export class MindaRoom {
             content: chat,
         })
     }
+
+    public close() {
+        this.socket.end()
+    }
     protected async onData(buf:ArrayBuffer) {
         const raw = Buffer.from(buf)
         const data = raw.toString("utf8")
@@ -88,22 +92,23 @@ export class MindaRoom {
             const type = event.type
             switch (type) {
                 case MdEvents.enter: {
-                    const user = event as EnterInfo
+                    const enter = event as EnterInfo
                     const users = this.users
-                    if (users.find((v) => v === user.user) == null) {
-                        users.push(user.user)
+                    if (users.find((v) => v === enter.user) == null) {
+                        users.push(enter.user)
                     }
                     this.info = {
                         ...this.info,
                         users,
                     }
+                    this.onEnter.dispatch(enter)
                 } break
                 // connected
                 case MdEvents.connect: {
-                    const room = event as ConnectInfo
+                    const connect = event as ConnectInfo
                     this.info = {
                         ...this.info,
-                        ...room.room,
+                        ...connect.room,
                     }
                     this.onConnect.dispatch()
                 } break

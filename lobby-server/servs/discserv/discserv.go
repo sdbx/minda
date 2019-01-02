@@ -30,6 +30,15 @@ func (r Rooms) Len() int {
 	return len(r)
 }
 
+func(r Rooms) Get(id string) *models.Room {
+	for key := range r {
+		if r[key].ID == id {
+			return &r[key]
+		}
+	}
+	return nil
+}
+
 type DiscoverServ struct {
 	Redis *redisserv.RedisServ `dim:"on"`
 
@@ -51,19 +60,34 @@ func (g *DiscoverServ) update() {
 		select {
 		case <-ticker.C:
 			servers, err := g.ListGameServers()
-			if err != nil {
-			}
-			rooms := Rooms{}
 			for _, server := range servers {
 				if server.LastPing.Add(garbageTime).Before(time.Now().UTC()) {
 					g.Redis.Conn().Do("HDEL", redisServerHash, server.Name)
 				}
-				rooms = append(rooms, server.Rooms...)
 			}
-			sort.Sort(rooms)
-			g.rooms = rooms
+			rooms, err := g.FetchRooms(false)
+			if err == nil {
+				g.rooms = rooms
+			}
 		}
 	}
+}
+
+func (g *DiscoverServ) FetchRooms(empty bool) (Rooms, error){
+	servers, err := g.ListGameServers()
+	if err != nil {
+		return nil, err
+	}
+	rooms := Rooms{}
+	for _, server := range servers {
+		for _, room := range server.Rooms {
+			if len(room.Users) != 0 || empty {
+				rooms = append(rooms, room)
+			}
+		}
+	}
+	sort.Sort(rooms)
+	return rooms, nil
 }
 
 func (g *DiscoverServ) GetRooms() Rooms {

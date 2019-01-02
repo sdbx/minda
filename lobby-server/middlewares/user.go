@@ -21,6 +21,6 @@ func (a *UserMiddleware) Act(c echo.Context) error {
 		return echo.NewHTTPError(403, "Invalid token")
 	}
 	c2 := c.(*models.Context)
-	c2.User = &user
+	c2.User = user
 	return nil
 }

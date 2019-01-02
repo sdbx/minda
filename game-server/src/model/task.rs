@@ -10,9 +10,11 @@ pub struct TaskRequest {
 #[serde(tag = "kind")]
 pub enum Task {
     #[serde(rename = "create-room")]
-    CreateRoom { conf: RoomConf, user: UserId },
+    CreateRoom { conf: RoomConf, user_id: UserId },
     #[serde(rename = "join-room")]
-    JoinRoom { room: String, user: UserId }
+    JoinRoom { room_id: String, user_id: UserId },
+    #[serde(rename = "kick-user")]
+    KickUser { room_id: String, user_id: UserId }
 }
 
 #[derive(Serialize, Deserialize, Debug)]

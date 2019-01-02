@@ -9,16 +9,16 @@ use uuid::Uuid;
 #[derive(Clone, Debug)]
 pub struct Invite {
     pub key: String,
-    pub user: UserId,
-    pub room: String
+    pub user_id: UserId,
+    pub room_id: String
 }
 
 impl Invite {
-    pub fn new(user: UserId, room: &str) -> Self {
+    pub fn new(user_id: UserId, room_id: &str) -> Self {
         Self {
             key: Uuid::new_v4().to_string(),
-            user: user.clone(),
-            room: room.to_owned()
+            user_id: user_id.clone(),
+            room_id: room_id.to_owned()
         }
     }
 }

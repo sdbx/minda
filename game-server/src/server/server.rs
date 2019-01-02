@@ -1,7 +1,9 @@
+use server::server::ServerEvent::Updated;
 use model::UserId;
 use model::User;
 use server::task;
 use model::Event;
+use std::net::Shutdown;
 use std::time::Duration;
 use model::{Task, TaskResult, TaskRequest, GameServer};
 use redis::Commands;
@@ -76,6 +78,13 @@ impl Server {
         }
     }
 
+    pub fn get_invite_of_user(&self, user_id: UserId, room_id: &str) -> Option<Invite> {
+        match self.invites.iter().find(|(_, x)| x.user_id == user_id && x.room_id == room_id) {
+            Some((_, x)) => Some(x.clone()),
+            None => None
+        }
+    }
+
     fn update_discover(&self) -> Result<(), Error> {
         let conn = self.redis.get_connection()?;
         let game_server = GameServer::from_server(self);
@@ -141,6 +150,7 @@ impl Server {
                 };
             },
             ServerEvent::Close { conn_id } => {
+                info!("client({}) disconnected", conn_id);
                 self.streams.remove(&conn_id);
                 {
                     let conn = self.conns.get(&conn_id)?;
@@ -149,6 +159,7 @@ impl Server {
                     room.users.remove(&conn_id);
                 }
                 self.conns.remove(&conn_id);
+                self.tx().send(Updated);
             },
             _ => { }
         }
@@ -188,12 +199,19 @@ impl Server {
         conn_ids.iter().for_each(|conn_id| self.dispatch(*conn_id, &event));
     }
 
+    pub fn kick(&mut self, conn_id: Uuid) {
+        if let Some(stream) = self.streams.get(&conn_id) {
+            info!("asdfa");
+            stream.shutdown(Shutdown::Both);
+        }
+    }
+
     fn ping_update(&self) {
         let tx = self.make_tx();
         thread::spawn(move || {
-            tx.send(ServerEvent::Updated);
+            tx.send(Updated);
             for _ in Ticker::new(0.., Duration::from_secs(5)) {
-                tx.send(ServerEvent::Updated);
+                tx.send(Updated);
             }
         });
     }
@@ -268,7 +286,7 @@ impl Server {
    }
 
    fn listen_task(&mut self) -> Result<(), Error> {
-        let mut conn = self.redis.get_connection()?;
+        let conn = self.redis.get_connection()?;
         let name = self.name.clone();
         let tx = self.make_tx();
         thread::spawn(move || {

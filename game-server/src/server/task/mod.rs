@@ -3,16 +3,19 @@ use model::{Task, TaskResult};
 use error::Error;
 
 mod create_room;
+mod kick_user;
 mod join_room;
 
 pub fn handle(server: &mut Server, task: Task) -> Result<String, Error> {
     match task {
-        Task::CreateRoom { user, conf } => {
-            create_room::handle(server, user, &conf)
+        Task::CreateRoom { user_id, conf } => {
+            create_room::handle(server, user_id, &conf)
         },
-        Task::JoinRoom { user, room } => {
-            join_room::handle(server, user, &room)
+        Task::JoinRoom { user_id, room_id } => {
+            join_room::handle(server, user_id, &room_id)
         },
-        _ => Err(Error::Internal)
+        Task::KickUser { user_id, room_id } => {
+            kick_user::handle(server, user_id, &room_id)
+        }
     }
 }

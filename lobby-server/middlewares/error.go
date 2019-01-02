@@ -1,6 +1,8 @@
 package middlewares
 
 import (
+	"strconv"
+	"strings"
 	"lobby/servs/oauthserv"
 	"lobby/utils"
 
@@ -18,6 +20,8 @@ func ErrorMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		switch err.(type) {
 		case *echo.HTTPError:
 			return err
+		case *strconv.NumError:
+			return echo.NewHTTPError(400, "Bad request")
 		default:
 			switch err {
 			case oauthserv.ErrNotAuthorized:
@@ -27,6 +31,9 @@ func ErrorMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			case utils.ErrNotExists:
 				return echo.NewHTTPError(404, "No such resource")
 			default:
+				if strings.Contains(err.Error(), "no rows in result") {
+					return echo.NewHTTPError(404, "No such resource")
+				}
 				return echo.NewHTTPError(500)
 			}
 		}

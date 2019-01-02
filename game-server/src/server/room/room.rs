@@ -35,12 +35,19 @@ impl Room {
     }
 
     pub fn exists_user(&self, user: UserId) -> bool {
+        match self.get_user(user) {
+            Some(_) => true,
+            None => false
+        }
+    }
+
+    pub fn get_user(&self, user: UserId) -> Option<&RoomUser> {
         for (_, u) in self.users.iter() {
             if u.user == user {
-                return true
+                return Some(u)
             }
         }
-        false
+        None
     }
 
     pub fn to_model(&self) -> MRoom {
