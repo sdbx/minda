@@ -1,7 +1,7 @@
 import fetch, { Response } from "node-fetch"
 import querystring from "querystring"
 import { Serializable, SerializeObject } from "../types/serializable"
-import { mdserver, mdversion } from "./mdconst"
+import { mdserver } from "./mdconst"
 type GetType = "GET" | "DELETE"
 type PostType = "POST" | "PUT"
 /**

@@ -1,4 +1,4 @@
-use model::CreateRoomResult;
+use model::LobbyRoomResult;
 use model::{UserId, RoomConf};
 use server::{Server, ServerEvent};
 use model::{Invite};
@@ -8,7 +8,7 @@ use server::room::Room;
 pub fn handle(server: &mut Server, user_id: UserId, conf: &RoomConf) -> Result<String, Error> {
     let room = Room::new(&conf);
     let invite = Invite::new(user_id, &room.id);
-    let res = CreateRoomResult{
+    let res = LobbyRoomResult{
         invite: invite.key.clone(),
         addr: server.real_addr.clone()
     };

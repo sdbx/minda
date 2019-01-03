@@ -46,19 +46,21 @@ func (r *room) postRoom(c2 echo.Context) error {
 	for _, room := range rooms {
 		if room.Conf.King == user.ID {
 			if len(room.Users) == 0 {
-				res, err := r.Task.Request(room.Server, &models.JoinRoomTask{
+				_, err := r.Task.Request(room.Server, &models.DeleteRoomTask{
+					RoomID: room.ID,
+				})
+				if err != nil {
+					return err
+				}
+			} else { 
+				_, err = r.Task.Request(room.Server, &models.KickUserTask{
 					UserID: user.ID,
 					RoomID: room.ID,
 				})
 				if err != nil {
 					return err
 				}
-				return c.JSONPretty(201, res.(*models.LobbyRoomResult), "\t")
-			} 
-			r.Task.Request(room.Server, &models.KickUserTask{
-				UserID: user.ID,
-				RoomID: room.ID,
-			})
+			}
 		}
 	}
 	
@@ -70,6 +72,8 @@ func (r *room) postRoom(c2 echo.Context) error {
 		return utils.ErrNoGameServer
 	}
 
+	conf.White = -1
+	conf.Black = -1
 	conf.King = user.ID
 	res, err := r.Task.Request(servers[rand.Intn(len(servers))].Name, &models.CreateRoomTask{
 		Conf: conf,

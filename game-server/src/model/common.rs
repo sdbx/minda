@@ -54,7 +54,7 @@ pub struct User {
     pub username: String
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, PartialEq, Deserialize, Debug, Clone)]
 pub struct RoomConf {
     pub name: String,
     pub king: UserId,

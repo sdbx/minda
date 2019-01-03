@@ -19,6 +19,7 @@ const (
 	CreateRoomKind = "create-room"
 	JoinRoomKind   = "join-room"
 	KickUserKind   = "kick-user"
+	DeleteRoomKind = "delete-room"
 )
 
 type Task interface {
@@ -125,6 +126,20 @@ func (KickUserTask) Kind() string {
 }
 
 func (KickUserTask) sealedTask() {}
+
+type DeleteRoomTask struct {
+	RoomID string `json:"room_id"`
+}
+
+func (DeleteRoomTask) Out() interface{} {
+	return &UnitResult{}
+}
+
+func (DeleteRoomTask) Kind() string {
+	return DeleteRoomKind
+}
+
+func (DeleteRoomTask) sealedTask() {}
 
 type LobbyRoomResult struct {
 	Invite string `json:"invite"`

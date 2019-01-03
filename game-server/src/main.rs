@@ -1,6 +1,7 @@
 #![feature(try_trait)]
 extern crate redis;
 extern crate uuid;
+extern crate rand;
 extern crate serde;
 extern crate ticker;
 extern crate serde_json;

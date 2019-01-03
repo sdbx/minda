@@ -16,7 +16,7 @@ export interface MSRoom extends SerializeObject {
      */
     conf:MSRoomConf,
     /**
-     * 들어있는 유저들 (**조만간 변경할듯**)
+     * 들어있는 유저들
      */
     users:number[],
     /**

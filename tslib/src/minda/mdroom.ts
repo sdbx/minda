@@ -103,7 +103,6 @@ export class MindaRoom {
                     }
                     this.onEnter.dispatch(enter)
                 } break
-                // connected
                 case MdEvents.connect: {
                     const connect = event as ConnectInfo
                     this.info = {
@@ -131,6 +130,6 @@ export class MindaRoom {
             "type": type,
             ...param,
         })
-        this.socket.write(json)
+        this.socket.write(json + "\n")
     }
 }
