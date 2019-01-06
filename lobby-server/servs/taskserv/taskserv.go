@@ -1,8 +1,8 @@
 package taskserv
 
 import (
+	"go.uber.org/zap"
 	"github.com/garyburd/redigo/redis"
-	"github.com/golang/glog"
 	"github.com/gobuffalo/uuid"
 	"fmt"
 	"errors"
@@ -40,7 +40,7 @@ func (t *TaskServ) Init() error {
 			redisLobbyQueue,
 		)
 		if err != nil {
-			glog.Errorf("Error while listening queue: %v", err)
+			utils.Log.Error("Error while listening queue", zap.Error(err))
 		}
 	}()
 	return nil
@@ -54,7 +54,7 @@ func (t *TaskServ) onQueueMessage(buf []byte) {
 	taskReq := models.TaskRequest{}
 	err := json.Unmarshal(buf, &taskReq)
 	if err != nil {
-		glog.Errorf("Error while parsing queue message: %v", buf)
+		utils.Log.Error("Error while parsing queue message", zap.Error(err))
 		return
 	}
 
@@ -64,7 +64,7 @@ func (t *TaskServ) onQueueMessage(buf []byte) {
 
 	_, err = t.Redis.Conn().Do("RPUSH", redisResultChannel(taskReq.ID), buf)
 	if err != nil {
-		glog.Errorf("Error while publishing the result: %v", err)
+		utils.Log.Error("Error while publishing the result", zap.Error(err))
 		return
 	}
 }

@@ -60,6 +60,19 @@ CREATE TABLE public.schema_migration (
 ALTER TABLE public.schema_migration OWNER TO sunho;
 
 --
+-- Name: user_permissions; Type: TABLE; Schema: public; Owner: sunho
+--
+
+CREATE TABLE public.user_permissions (
+    id uuid NOT NULL,
+    user_id integer NOT NULL,
+    admin boolean NOT NULL
+);
+
+
+ALTER TABLE public.user_permissions OWNER TO sunho;
+
+--
 -- Name: users; Type: TABLE; Schema: public; Owner: sunho
 --
 
@@ -112,6 +125,14 @@ ALTER TABLE ONLY public.oauth_users
 
 
 --
+-- Name: user_permissions user_permissions_pkey; Type: CONSTRAINT; Schema: public; Owner: sunho
+--
+
+ALTER TABLE ONLY public.user_permissions
+    ADD CONSTRAINT user_permissions_pkey PRIMARY KEY (user_id);
+
+
+--
 -- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: sunho
 --
 
@@ -132,6 +153,14 @@ CREATE UNIQUE INDEX schema_migration_version_idx ON public.schema_migration USIN
 
 ALTER TABLE ONLY public.oauth_users
     ADD CONSTRAINT oauth_users_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: user_permissions user_permissions_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sunho
+--
+
+ALTER TABLE ONLY public.user_permissions
+    ADD CONSTRAINT user_permissions_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
 
 --

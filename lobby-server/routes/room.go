@@ -18,7 +18,7 @@ type room struct {
 }
 
 func (r *room) Register(d *dim.Group) {
-	d.Use(&middlewares.UserMiddleware{})
+	d.Use(&middlewares.AuthMiddleware{})
 	d.GET("/", r.listRoom)
 	d.POST("/", r.postRoom)
 	d.PUT("/:roomid/", r.putRoom)

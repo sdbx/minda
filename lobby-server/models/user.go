@@ -1,13 +1,26 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/gobuffalo/uuid"
+
+	"github.com/gobuffalo/pop/nulls"
+)
 
 type User struct {
-	ID        int       `db:"id" json:"id"`
-	Username  string    `db:"username" json:"username"`
-	Picture   string    `db:"picture" json:"picture"`
-	CreatedAt time.Time `db:"created_at" json:"-"`
-	UpdatedAt time.Time `db:"updated_at" json:"-"`
+	ID         int            `db:"id" json:"id"`
+	Username   string         `db:"username" json:"username"`
+	Picture    nulls.String   `db:"picture" json:"picture"`
+	CreatedAt  time.Time      `db:"created_at" json:"-"`
+	UpdatedAt  time.Time      `db:"updated_at" json:"-"`
+	Permission UserPermission `has_one:"user_permission" json:"permission"`
+}
+
+type UserPermission struct {
+	ID     uuid.UUID `db:"id" json:"-"`
+	UserID int       `db:"user_id" json:"-"`
+	Admin  bool      `db:"admin" json:"admin"`
 }
 
 type OAuthUser struct {
