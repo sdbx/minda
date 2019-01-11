@@ -16,7 +16,7 @@ pub fn handle(server: &mut Server, conn: &Connection) -> Result<(), Error> {
         if !room.game.is_none() {
             return Err(Error::GameStarted)
         }
-        let game = Game::new(room.conf.black, room.conf.white, Board::new(5));
+        let game = Game::new(room.conf.black, room.conf.white, Board::from_string("0@0@0@0@0@0@0@2@2#0@0@0@0@0@0@0@2@2#0@0@0@0@0@0@2@2@2#0@1@0@0@0@0@2@2@2#1@1@1@0@0@0@2@2@2#1@1@1@0@0@0@0@2@0#1@1@1@0@0@0@0@0@0#1@1@0@0@0@0@0@0@0#1@1@0@0@0@0@0@0@0").unwrap());
         let event = Event::game_to_started(&game);
         room.game = Some(game);
         (room.id.clone(), event)
