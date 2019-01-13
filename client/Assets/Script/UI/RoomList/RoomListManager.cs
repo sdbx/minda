@@ -56,8 +56,13 @@ namespace UI
             NetworkManager.instance.Get<Room[]>("/rooms/",CreateRoomList);
         }
 
-        private void CreateRoomList(Room[] rooms)
+        private void CreateRoomList(Room[] rooms, string err)
         {
+            if(err!=null)
+            {
+                Debug.Log("방 목록 받아오기 실패 " + err);
+                return;
+            }
             if(rooms==null)
                 return;
             for(int i = 0;i<rooms.Length;i++)
@@ -65,30 +70,22 @@ namespace UI
                 Add(rooms[i]);
             }
         }
+        
         public void EnterRoom(Room room)
         {
-            NetworkManager.instance.Put("/rooms/" + room.id+"/", "", (JoinRoomResult joinRoomResult) =>{
-                     Debug.Log(joinRoomResult.addr);
-                     var Addr = joinRoomResult.addr.Split(':');
-                     NetworkManager.instance.EnterRoom(Addr[0],int.Parse(Addr[1]), joinRoomResult.invite, StartConfigure);
-                 });
-        }
-
-        public void StartConfigure(Game.Events.Event e)
-        {
-            var connected = (Game.Events.ConnectedEvent)e;
-            if(connected.room.ingame)
+            NetworkManager.instance.Put("/rooms/" + room.id + "/", "", (JoinRoomResult joinRoomResult, string err) =>
             {
-                NetworkManager.instance.EndConnection();
-                //이미 플레이 중인 게임입니다. 알림
-            }
-            else
-            {
-                //방설정 씬으로 이동
-                SceneChanger.instance.RoomListToRoomConfigure(connected.room);
-            }
+                if (err != null)
+                {
+                    Debug.Log(err);
+                    return;
+                }
+                Debug.Log(joinRoomResult.addr);
+                var Addr = joinRoomResult.addr.Split(':');
+                SceneChanger.instance.ChangeTo("RoomConfigure");
+                NetworkManager.instance.EnterRoom(Addr[0], int.Parse(Addr[1]), joinRoomResult.invite);
+            });
         }
-
     }
 
 }

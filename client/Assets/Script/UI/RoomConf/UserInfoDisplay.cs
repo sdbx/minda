@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace UI
 {
-    public class UserInfo : MonoBehaviour
+    public class UserInfoDisplay : MonoBehaviour
     {
         public Models.User user;
 
@@ -43,10 +43,14 @@ namespace UI
                 informationText.color = Color.black;
             }
             kingIcon.SetActive(isKing);
-             NetworkManager.instance.DownloadImage(user.picture,(Texture texture)=>{
-                 Debug.Log(texture);
-                profileImage.texture = texture;
-            });
+            if(user.picture != null)
+            {
+                NetworkManager.instance.DownloadImage(user.picture, (Texture texture) =>
+                {
+                    Debug.Log(texture);
+                    profileImage.texture = texture;
+                });
+            }
             usernameText.text = user.username;
             informationText.text = "LV.53 MP.500";
         }

@@ -23,16 +23,24 @@ namespace Game.Events
                     item = new ConnectedEvent();
                     break;
 
-                case "gamestart":
-                    item = new GameStartEvent();
+                case "started":
+                    item = new GameStartedEvent();
                     break;
 
                 case "entered":
                     item = new EnteredEvent();
                     break;
 
-                case "move":
+                case "moved":
                     item = new MoveEvent();
+                    break;
+
+                case "left":
+                    item = new LeftEvent();
+                    break;
+
+                case "confed":
+                    item = new ConfedEvent();
                     break;
 
                 default:

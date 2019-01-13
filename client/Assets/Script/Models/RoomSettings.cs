@@ -4,7 +4,6 @@ namespace Models
     {
         public string name;
         public int king;
-        public GameRule rule;
         public int black;
         public int white;
     }

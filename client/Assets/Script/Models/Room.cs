@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace Models
@@ -9,7 +10,7 @@ namespace Models
         [JsonProperty("crearted_at")]
         public string createdAt;
         public RoomSettings conf;
-        public int[] Users;
+        public List<int> Users;
         public bool ingame;
     }
 }

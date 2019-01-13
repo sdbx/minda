@@ -1,18 +1,24 @@
 using Game.Coords;
 using Newtonsoft.Json;
+using Models;
 
 namespace Game.Events
 {
     public abstract class Event { };
 
-    public class GameStartEvent : Event
+    public class GameStartedEvent : Event
     {
-        public string black, white;
+        public int black, white;
         public int[,] board;
         public BallType turn;
     }
 
     public class EnteredEvent : Event
+    {
+        public int user;
+    }
+
+    public class LeftEvent : Event
     {
         public int user;
     }
@@ -28,5 +34,10 @@ namespace Game.Events
         public CubeCoord start;
         public CubeCoord end;
         public CubeCoord dir;
+    }
+
+    public class ConfedEvent : Event
+    {
+        public RoomSettings conf;
     }
 }

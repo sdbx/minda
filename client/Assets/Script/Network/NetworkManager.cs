@@ -19,10 +19,18 @@ namespace Network
             SendReq,
             GetReqid,
             Login,
+        }
+        public enum RoomState
+        {
+            Connected,
+            Entered,
+            Connecting,
+            NotConnected,
         } 
         public LobbyServerRequestor lobbyServerRequestor;
         public static NetworkManager instance = null;
         public string token;
+        public User loggedInUser;
         public LoginState loginState = LoginState.Logout;
         
         [SerializeField]
@@ -35,6 +43,14 @@ namespace Network
         private Action loginCallback;
         private float loginCheckingTimer = 2;
 
+        private RoomState roomState;
+        public Room connectedRoom;
+
+        public Action myEnterCallBack;
+        public Action<int> otherUserEnterCallBack;
+        public Action<RoomSettings> confedCallBack;
+        public Action<int> userLeftCallBack;
+        
         private void Awake() 
         {
             if(instance == null)
@@ -55,6 +71,14 @@ namespace Network
                 TypeNameHandling = TypeNameHandling.Objects,
             };
             eventJsonSettings.Converters.Add(new EventConverter());
+        }
+
+        private void Start() 
+        {
+            SetHandler<ConnectedEvent>(ConnectedHandler);
+            SetHandler<EnteredEvent>(UserEnteredHandler);
+            SetHandler<LeftEvent>(UserLeftCallBack);
+            SetHandler<ConfedEvent>(ConfedCallBack);
         }
 
         private void Update()
@@ -81,14 +105,28 @@ namespace Network
             {
                 if (loginCheckingTimer < 0)
                 {
-                    StartCoroutine(lobbyServerRequestor.Get("/auth/reqs/" + loginReqid + "/", "", (LoginResult loginResult) =>
+                    try
                     {
-                        this.token = loginResult.token;
-                        loginCallback();
-                        loginCallback = null;
-                        loginState = LoginState.Login;
-                    }));
-                    loginCheckingTimer = 2;
+                        Get("/auth/reqs/" + loginReqid + "/", (LoginResult loginResult, string err) =>
+                        {
+                            if (err != null)
+                            {
+                                Debug.Log($"로그인 실패 {err}");
+                                return;
+                            }
+                            this.token = loginResult.token;
+                            loginCallback();
+                            loginCallback = null;
+                            loginState = LoginState.Login;
+                            Debug.Log("로그인 성공");
+                            RefreshLoggedInUser();
+                        });
+                    }
+                    catch (System.Net.Http.HttpRequestException)
+                    {
+                        Debug.Log("로그인 실패");
+                    }
+                    loginCheckingTimer = 2;   
                 }
                 else loginCheckingTimer -= Time.deltaTime;
             }
@@ -100,9 +138,8 @@ namespace Network
             asyncCallbackClient.Close();
         }
 
-        public void EnterRoom(string ip, int port, string invite, Action<Game.Events.Event> connectedCallback)
+        public void EnterRoom(string ip, int port, string invite)
         {
-            SetHandler<ConnectedEvent>(connectedCallback);
             Connect(ip, port);
             asyncCallbackClient.connectedCallback = ()=> 
             { 
@@ -120,7 +157,7 @@ namespace Network
         public void SendCommand(Command command)
         {
             string json = JsonConvert.SerializeObject(command);
-            SendData(json);
+            SendData(json + "\n");
         }
 
         public void SetHandler<T>(Action<Game.Events.Event> handler)
@@ -137,6 +174,47 @@ namespace Network
             handle.Clear();
         }
 
+        private void ConnectedHandler(Game.Events.Event e)
+        {
+            var connected = (ConnectedEvent)e;
+            roomState = RoomState.Connected;
+            connectedRoom = connected.room;
+        }
+
+        private void UserEnteredHandler(Game.Events.Event e)
+        {
+            var entered = (EnteredEvent)e;
+            connectedRoom.Users.Add(entered.user);
+            if(entered.user == loggedInUser.id)
+            {
+                roomState = RoomState.Entered;
+                myEnterCallBack();
+            }
+            else
+            {
+                otherUserEnterCallBack(entered.user);
+            }    
+        }
+
+        private void UserLeftCallBack(Game.Events.Event e)
+        {
+            var left = (LeftEvent)e;
+            connectedRoom.Users.Remove(left.user);
+            userLeftCallBack(left.user);
+        }
+
+        public void UpdateConf()
+        {
+            ConfCommand command = new ConfCommand { conf = connectedRoom.conf };
+            NetworkManager.instance.SendCommand(command);
+        }
+
+        private void ConfedCallBack(Game.Events.Event e)
+        {
+            var confed = (ConfedEvent)e;
+            confedCallBack(confed.conf);
+        }
+        
         public void EndConnection()
         {
             ClearHandles();
@@ -148,18 +226,19 @@ namespace Network
         {
             asyncCallbackClient.SendData(data);
         }
+        
 
-        public void Post<T>(string endPoint, string data, Action<T> callBack)
+        public void Post<T>(string endPoint, string data, Action<T, string> callBack)
         {
             StartCoroutine(lobbyServerRequestor.Post(endPoint, data, token, callBack));
         }
         
-        public void Get<T>(string endPoint, Action<T> callBack)
+        public void Get<T>(string endPoint, Action<T, string> callBack)
         {
             StartCoroutine(lobbyServerRequestor.Get(endPoint, token, callBack));
         }
 
-        public void Put<T>(string endPoint, string data, Action<T> callBack)
+        public void Put<T>(string endPoint, string data, Action<T, string> callBack)
         {
             StartCoroutine(lobbyServerRequestor.Put(endPoint, data, token, callBack));
         }
@@ -207,13 +286,59 @@ namespace Network
             {
                 return;
             }
-            Debug.Log("크하하req시작");
             loginState = LoginState.SendReq;
             loginCallback = callBack;
-            Post("/auth/reqs/","",(Reqid reqid)=>{
+            Post("/auth/reqs/","",(Reqid reqid, string err)=>{
+                if(err!=null)
+                {
+                    Debug.Log(err);
+                    return;
+                }
                 Application.OpenURL(addr+"/auth/o/"+service+"/"+reqid.id+"/");
                 loginState = LoginState.GetReqid;
                 loginReqid = reqid.id;
+            });
+        }
+
+        public void RefreshLoggedInUser()
+        {
+            Get<User>("/users/me/", (User me, string err) =>
+            {
+                if(err!=null)
+                {
+                    Debug.Log(err);
+                    return;
+                }
+                loggedInUser = me;
+            });
+        }
+
+        public void RefreshLoggedInUser(Action refreshed)
+        {
+            Get<User>("/users/me/", (User me, string err) =>
+            {
+                if(err!=null)
+                {
+                    Debug.Log(err);
+                    return;
+                }
+                loggedInUser = me;
+                refreshed();
+            });
+        }
+
+        public void GetUserInformation(int id,Action<User> callback)
+        {
+            Network.NetworkManager.instance.Get<User>("/users/" + id + "/", (User user, string err) =>
+            {
+                if (err != null)
+                {
+                    callback(null);
+                }
+                else
+                {
+                    callback(user);
+                }
             });
         }
 

@@ -245,8 +245,8 @@ Canvas:
   m_GameObject: {fileID: 320222181}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 0
-  m_Camera: {fileID: 0}
+  m_RenderMode: 1
+  m_Camera: {fileID: 519420031}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
@@ -515,9 +515,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   boardManager: {fileID: 1740618211}
+  gameManager: {fileID: 1126846787}
   arrowPrefab: {fileID: 1747881363660498, guid: 89cf64c249f476242bd9ecd8a0cc8ec8,
     type: 3}
-  arrowDistance: 0
+  arrowDistance: 0.5
   pushingArrow: -1
   selectedArrow: -1
   pushedDistance: 0
@@ -666,12 +667,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b01d736c1fb98fa4babd498e3df3280b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gameManager: {fileID: 1126846787}
   holePrefab: {fileID: 1598789304165022, guid: 4acc75729bcb0ba45a74c4e374d1594b, type: 3}
   boardBottomPrefab: {fileID: 1380037499080512, guid: 52690e0f23f014d4f86b50bdf943b395,
     type: 3}
-  boardSide: 9
+  boardSide: 5
   boardCenter: {x: 0, y: 0}
-  holeDistance: 5
+  holeDistance: 0.5
 --- !u!1 &1910673794
 GameObject:
   m_ObjectHideFlags: 0
@@ -709,7 +711,7 @@ MonoBehaviour:
   boardManager: {fileID: 1740618211}
   arrowsManager: {fileID: 1437375292}
   state: 0
-  sizeOfBall: 5
+  sizeOfBall: 0.4
 --- !u!4 &1910673796
 Transform:
   m_ObjectHideFlags: 0

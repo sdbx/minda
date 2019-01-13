@@ -93,8 +93,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ccf9db498d8c194cb5de41302626523, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  originDistance: 0.1
-  maxDistance: 0
+  originDistance: 0.5
+  maxDistance: 1
 --- !u!60 &60476230703064546
 PolygonCollider2D:
   m_ObjectHideFlags: 0

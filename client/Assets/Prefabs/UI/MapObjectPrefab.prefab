@@ -164,8 +164,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1100993242786679966}
   - component: {fileID: 827182415952097928}
+  - component: {fileID: 4517272786654254212}
   m_Layer: 5
-  m_Name: MapElementPrefab
+  m_Name: MapObjectPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -211,3 +212,22 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &4517272786654254212
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8283567295710386829}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abd20c1fe47b32b4bbcb9c21f7770c0c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isDirectorySelectBtn: 0
+  mapName: 
+  nameText: {fileID: 8449273374604465175}
+  background: {fileID: 2567117045742194059}
+  mapPreview: {fileID: 0}
+  focusedColor: {r: 0.8867924, g: 0.8867924, b: 0.8867924, a: 1}
+  selectedColor: {r: 0.7075472, g: 0.7075472, b: 0.7075472, a: 1}

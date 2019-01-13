@@ -7,6 +7,8 @@ namespace Game.Boards
 {
     public class BoardManager : MonoBehaviour
     {
+        [SerializeField]
+        private GameManager gameManager;
         public GameObject holePrefab;
         public GameObject boardBottomPrefab;
         public int boardSide = 9;
@@ -14,17 +16,15 @@ namespace Game.Boards
         public float holeDistance = 5;
 
         private Board _board;
-        private BallType _myBallType;
 
         void Start()
         {
 
         }
 
-        public void CreateBoard(BallType myBallType)
+        public void CreateBoard()
         {
             _board = new Board(boardSide);
-            _myBallType = myBallType;
             BoardCreator.CreateBoard(_board, gameObject, holePrefab, boardBottomPrefab, boardCenter, holeDistance);
         }
 
@@ -33,26 +33,9 @@ namespace Game.Boards
             return _board;
         }
 
-        public BallType GetMyBallType()
-        {
-            return _myBallType;
-        }
-
         public void SetMap(int[,] map)
         {
-            int s = boardSide - 1;
-            for (int y = 0; y <= 2 * s; y++)
-            {
-                for (int x = 0; x <= 2 * s; x++)
-                {
-                    int type = map[x, y];
-                    if (type != 0)
-                    {
-                        _board.Set(x - s, y - s, (BallType)type);
-                    }
-                }
-            }
-
+            _board.SetMap(map);
         }
 
         public int[,] GetMapFromString(string mapStr)
@@ -77,7 +60,7 @@ namespace Game.Boards
 
         public bool CheckBallObjectIsMine(GameObject ballObject)
         {
-            return ballObject.GetComponent<Ball>().GetBall() == GetMyBallType();
+            return ballObject.GetComponent<Ball>().GetBall() == gameManager.myBallType;
         }
     }
 }

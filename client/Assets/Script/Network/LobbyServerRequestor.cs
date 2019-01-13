@@ -15,8 +15,28 @@ namespace Network
         {
             this.Addr = Addr;
         }
-        
-        public IEnumerator Post<T>(string endPoint, string data,string token, Action<T> callBack)
+
+        public IEnumerator Post<T>(string endPoint, string data, string token, Action<T, string> callBack)
+        {
+            if (data == "")
+                data = "{}";
+            byte[] postData = System.Text.Encoding.UTF8.GetBytes(data);
+            using (UnityWebRequest www = UnityWebRequest.Put(Addr + endPoint, postData))
+            {
+                Debug.Log("[Post]:" + Addr + endPoint + " Body:" + data);
+                www.method = UnityWebRequest.kHttpVerbPOST;
+                if (token != "")
+                    www.SetRequestHeader("Authorization", token);
+                www.SetRequestHeader("Content-Type", "application/json");
+
+                yield return www.SendWebRequest();
+
+                RequestCallBack(www.downloadHandler.text, callBack, www.error);
+                Debug.Log(www.downloadHandler.text);
+            }
+        }
+
+        public IEnumerator Put<T>(string endPoint, string data, string token, Action<T, string> callBack)
         {
             byte[] body;
             if (data == "")
@@ -29,88 +49,40 @@ namespace Network
                 body = Encoding.UTF8.GetBytes(data);
             }
 
-            using (UnityWebRequest www = UnityWebRequest.Post(Addr+endPoint, data))
+            using (UnityWebRequest www = UnityWebRequest.Put(Addr + endPoint, body))
             {
-                Debug.Log("Post:"+Addr+endPoint);
-                if(token!="")
-                    www.SetRequestHeader("Authorization",token);
-                www.SetRequestHeader("Content-Type","application/json");
+                Debug.Log("[Put]:" + Addr + endPoint + " Body:" + data);
+                if (token != "")
+                    www.SetRequestHeader("Authorization", token);
+                www.SetRequestHeader("Content-Type", "application/json");
 
                 yield return www.SendWebRequest();
 
-                if (www.isNetworkError || www.isHttpError)
-                {
-                    Debug.Log(www.error);
-                }
-                else
-                {
-                    RequestCallBack<T>(www.downloadHandler.text,callBack);
-                    Debug.Log("Post Complete");
-                }
+                RequestCallBack(www.downloadHandler.text, callBack, www.error);
+                Debug.Log(www.downloadHandler.text);
             }
         }
 
-        public IEnumerator Put<T>(string endPoint, string data,string token, Action<T> callBack)
+        public IEnumerator Get<T>(string endPoint, string token, Action<T, string> callBack)
         {
-            byte[] body;
-            if (data == "")
-            {
-                var packetToSend = JsonUtility.ToJson(string.Empty);
-                body = Encoding.UTF8.GetBytes(packetToSend);
-            }
-            else
-            {
-                body = Encoding.UTF8.GetBytes(data);
-            }
 
-            using (UnityWebRequest www = UnityWebRequest.Put(Addr+endPoint, body))
+            using (UnityWebRequest www = UnityWebRequest.Get(Addr + endPoint))
             {
-                Debug.Log("Put:"+Addr+endPoint);
-                if(token!="")
-                    www.SetRequestHeader("Authorization",token);
-                www.SetRequestHeader("Content-Type","application/json");
+                Debug.Log("[Get]:" + Addr + endPoint);
+                if (token != "")
+                    www.SetRequestHeader("Authorization", token);
+                www.SetRequestHeader("Content-Type", "application/json");
 
                 yield return www.SendWebRequest();
 
-                if (www.isNetworkError || www.isHttpError)
-                {
-                    Debug.Log(www.error);
-                }
-                else
-                {
-                    RequestCallBack<T>(www.downloadHandler.text,callBack);
-                    Debug.Log("Put Complete");
-                }
+                RequestCallBack(www.downloadHandler.text, callBack, www.error);
+                Debug.Log(www.downloadHandler.text);
             }
         }
 
-        public IEnumerator Get<T>(string endPoint, string token, Action<T> callBack)
+        private void RequestCallBack<T>(string data, Action<T, string> callBack, string err)
         {
-
-            using (UnityWebRequest www = UnityWebRequest.Get(Addr+endPoint))
-            {
-                Debug.Log("Get:"+Addr+endPoint);
-                if(token!="")
-                    www.SetRequestHeader("Authorization",token);
-                www.SetRequestHeader("Content-Type","application/json");
-
-                yield return www.SendWebRequest();
-
-                if (www.isNetworkError || www.isHttpError)
-                {
-                    Debug.Log(www.error);
-                }
-                else
-                {
-                    RequestCallBack(www.downloadHandler.text,callBack);
-                    Debug.Log(www.downloadHandler.text);
-                }
-            }
-        }
-
-        private void RequestCallBack<T>(string data, Action<T> callBack)
-        {
-            callBack(JsonConvert.DeserializeObject<T>(data));
+            callBack(JsonConvert.DeserializeObject<T>(data), err);
         }
     }
 }

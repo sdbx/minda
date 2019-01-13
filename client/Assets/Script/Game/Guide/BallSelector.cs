@@ -54,7 +54,7 @@ namespace Game.Guide
             return null;
         }
 
-        public void SelectingBalls()
+        public void SelectingBalls(BallType ballType)
         {
             if (_isSelected)
             {
@@ -75,7 +75,7 @@ namespace Game.Guide
                 return;
             }
             GameObject ballObject = _ballManager.GetBallObjectByCubeCoord(ballCubeCoord);
-            if (ballObject.GetComponent<Ball>().GetBall() != _boardManager.GetMyBallType())
+            if (ballObject.GetComponent<Ball>().GetBall() != ballType)
                 return;
 
             int s = _boardManager.GetBoard().GetSide() - 1;

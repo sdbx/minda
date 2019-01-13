@@ -89,5 +89,10 @@ namespace Game.Coords
             return _directions[num];
         }
 
+        public override string ToString ()
+        {
+            return $"{x} {y} {z}";
+        }
+
     }
 }

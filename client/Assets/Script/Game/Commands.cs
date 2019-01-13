@@ -1,4 +1,5 @@
 using Game.Coords;
+using Models;
 
 namespace Game
 {
@@ -32,5 +33,16 @@ namespace Game
     public class GGCommand : Command
     {
         public string type = "gg";
+    }
+
+    public class ConfCommand : Command
+    {
+        public string type = "conf";
+        public RoomSettings conf;
+    }
+
+    public class GameStart : Command 
+    {
+        public string type = "start";
     }
 }

@@ -11,6 +11,8 @@ namespace Game.Guide
         [SerializeField]
         private BoardManager boardManager;
         [SerializeField]
+        private GameManager gameManager;
+        [SerializeField]
         private GameObject arrowPrefab;
 
         public float arrowDistance;
@@ -80,7 +82,7 @@ namespace Game.Guide
                 for (int i = 0; i < 6; i++)
                 {
 
-                    if (boardManager.GetBoard().CheckMovement(ballSelection, i, boardManager.GetMyBallType()))
+                    if (boardManager.GetBoard().CheckMovement(ballSelection, i, gameManager.myBallType))
                         _arrows[i].gameObject.SetActive(true);
                     else
                         _arrows[i].gameObject.SetActive(false);

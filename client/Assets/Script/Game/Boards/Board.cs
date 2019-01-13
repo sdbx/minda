@@ -29,6 +29,46 @@ namespace Game.Boards
             }
         }
 
+
+        public void SetMap(int[,] map)
+        {
+            int s = _side - 1;
+
+            for (int y = 0; y <= 2 * s; y++)
+            {
+                for (int x = 0; x <= 2 * s; x++)
+                {
+                    int type = map[x, y];
+                    if (type != 0)
+                    {
+                        Set(x - s, y - s, (HoleState)type);
+                    }
+                    else Set(x - s, y - s, HoleState.Empty);
+                }
+            }
+
+        }
+
+        static public int[,] GetMapFromString(string mapStr)
+        {
+            string[] firstArray = mapStr.Split('#');
+            int[,] map = new int[firstArray.Length, firstArray.Length];
+            for (int x = 0; x < firstArray.Length; x++)
+            {
+                string[] secondArray = firstArray[x].Split('@');
+                for (int y = 0; y < firstArray.Length; y++)
+                {
+                    int parsedInt;
+                    if (!int.TryParse(secondArray[y], out parsedInt))
+                    {
+                        return null;
+                    }
+                    map[x, y] = parsedInt;
+                }
+            }
+            return map;
+        }
+
         public Hole[,] GetHoles()
         {
             return _holes;
@@ -67,6 +107,13 @@ namespace Game.Boards
         public void Set(int x, int y, BallType ball)
         {
             _holes[x + (_side - 1), y + (_side - 1)].SetHoleState((HoleState)ball);
+        }
+
+        public void Set(int x, int y, HoleState ball)
+        {
+            var hole = GetHole(x, y);
+            if (hole != null)
+                hole.SetHoleState(ball);
         }
 
         public bool CheckMovement(BallSelection ballSelection, int direction, BallType myBallType)

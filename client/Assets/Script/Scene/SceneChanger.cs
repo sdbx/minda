@@ -40,14 +40,9 @@ namespace Scene
             }
         }
 
-        public void RoomListToRoomConfigure(Models.Room room)
+        public void ChangeTo(string SceneName)
         {
-            SceneManager.LoadScene("RoomConfigureScene",LoadSceneMode.Single);
-            loaded = ()=>{
-                var roomConfSys = GameObject.FindWithTag("roomConfSys");
-                var asdf = roomConfSys.GetComponent<RoomConfSystem>();
-                asdf.room = room;
-            };
+            SceneManager.LoadScene(SceneName,LoadSceneMode.Single);
         }
     }
 }

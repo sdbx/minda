@@ -14,7 +14,7 @@ namespace UI
         public void OnPointerClick(PointerEventData eventData)
         {
             Network.NetworkManager.instance.login(serviceName,()=>{
-                SceneManager.LoadSceneAsync("MenuScene",LoadSceneMode.Single);
+                SceneManager.LoadSceneAsync("Menu",LoadSceneMode.Single);
                 Debug.Log("로그인 완료");
             });
         }

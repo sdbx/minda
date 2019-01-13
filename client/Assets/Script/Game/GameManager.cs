@@ -14,12 +14,14 @@ namespace Game
     {
         public BoardManager boardManger;
         public BallManager ballManager;
-        public BallType myBallType = BallType.Black;
+        public BallType myBallType;
 
         public Text turnText;
 
         void Start()
         {
+            boardManger.CreateBoard();
+            SendStartGameCommand();
             SetHandlers();
         }
 
@@ -30,19 +32,14 @@ namespace Game
 
         private void SetHandlers()
         {
-            NetworkManager.instance.SetHandler<EnteredEvent>(EnteredHandler);
             NetworkManager.instance.SetHandler<MoveEvent>(MoveHandler);
+            NetworkManager.instance.SetHandler<GameStartedEvent>(GameStartHandler);
         }
 
         private void GameStartHandler(Events.Event e)
         {
-            var game = (GameStartEvent)e;
+            var game = (GameStartedEvent)e;
             StartGame(game.board, game.turn);
-        }
-
-        private void EnteredHandler(Events.Event e)
-        {
-            var entered = (EnteredEvent)e;
         }
 
         private void MoveHandler(Events.Event e)
@@ -54,9 +51,9 @@ namespace Game
             }
         }
 
-
         public void StartGame(int[,] map, BallType turn)
         {
+            myBallType = IdUtils.GetBallType(NetworkManager.instance.loggedInUser.id);
             ballManager.RemoveBalls();
             boardManger.SetMap(map);
             ballManager.CreateBalls(boardManger);
@@ -70,6 +67,11 @@ namespace Game
         {
             MoveCommand moveCommand = new MoveCommand(myBallType, ballSelection.first, ballSelection.end, CubeCoord.ConvertNumToDirection(direction));
             NetworkManager.instance.SendCommand(moveCommand);
+        }
+
+        public void SendStartGameCommand()
+        {
+            NetworkManager.instance.SendCommand(new GameStart());
         }
 
         public void myTurn()

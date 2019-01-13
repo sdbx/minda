@@ -30,7 +30,7 @@ namespace Game.Balls
 
         public void CreateBalls(BoardManager boardManager)
         {
-            ballObjects = BallCreator.createBalls(sizeOfBall, gameObject, boardManager.holeDistance, boardManager.GetBoard(), blackBallPrefab, whiteBallPrefab);
+            ballObjects = BallCreator.CreateBalls(sizeOfBall, gameObject, boardManager.holeDistance, boardManager.GetBoard(), blackBallPrefab, whiteBallPrefab);
             _ballSelector = new BallSelector(this, boardManager);
             this.boardManager = boardManager;
         }
@@ -68,14 +68,13 @@ namespace Game.Balls
             //State Selecting balls
             if (state == 1)
             {
-                _ballSelector.SelectingBalls();
+                _ballSelector.SelectingBalls(gameManager.myBallType);
                 if (_ballSelector._isSelected)
                 {
                     _ballSelection = _ballSelector.GetBallSelection();
                     state = 2;
                     _ballSelector._isSelected = false;
                     arrowsManager.ballSelection = _ballSelection;
-                    _ballSelector.SelectingBalls();
                 }
             }
             //State MovingBalls
@@ -98,6 +97,9 @@ namespace Game.Balls
 
                 if (!arrowsManager.selected)
                 {
+                    if(arrowsManager.pushingArrow==-1)
+                        return;
+                        
                     _movingBalls = GetMovingBalls(_ballSelection, arrowsManager.pushingArrow);
                     foreach (CubeCoord ballCoord in _movingBalls)
                     {
