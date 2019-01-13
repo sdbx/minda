@@ -21,7 +21,8 @@ namespace Game
         void Start()
         {
             boardManger.CreateBoard();
-            SendStartGameCommand();
+            var game  = NetworkManager.instance.game;
+            StartGame(game.board, game.turn);
             SetHandlers();
         }
 
@@ -33,14 +34,8 @@ namespace Game
         private void SetHandlers()
         {
             NetworkManager.instance.SetHandler<MoveEvent>(MoveHandler);
-            NetworkManager.instance.SetHandler<GameStartedEvent>(GameStartHandler);
         }
 
-        private void GameStartHandler(Events.Event e)
-        {
-            var game = (GameStartedEvent)e;
-            StartGame(game.board, game.turn);
-        }
 
         private void MoveHandler(Events.Event e)
         {
@@ -67,11 +62,6 @@ namespace Game
         {
             MoveCommand moveCommand = new MoveCommand(myBallType, ballSelection.first, ballSelection.end, CubeCoord.ConvertNumToDirection(direction));
             NetworkManager.instance.SendCommand(moveCommand);
-        }
-
-        public void SendStartGameCommand()
-        {
-            NetworkManager.instance.SendCommand(new GameStart());
         }
 
         public void myTurn()

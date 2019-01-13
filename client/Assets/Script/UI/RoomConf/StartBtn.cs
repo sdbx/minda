@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 using Scene;
+using Network;
+using Game;
 
 public class StartBtn : MonoBehaviour
 {
@@ -33,6 +35,6 @@ public class StartBtn : MonoBehaviour
     {
         if(!isActivated)
             return;
-        SceneChanger.instance.ChangeTo("Game");
+        NetworkManager.instance.SendCommand(new GameStart());
     }
 }

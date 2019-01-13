@@ -6,6 +6,7 @@ using Game.Events;
 using Models;
 using Network;
 using Newtonsoft.Json;
+using Scene;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -45,6 +46,7 @@ namespace Network
 
         private RoomState roomState;
         public Room connectedRoom;
+        public GameStartedEvent game;
 
         public Action myEnterCallBack;
         public Action<int> otherUserEnterCallBack;
@@ -213,6 +215,13 @@ namespace Network
         {
             var confed = (ConfedEvent)e;
             confedCallBack(confed.conf);
+        }
+
+        private void GameStartedCallBack(Game.Events.Event e)
+        {
+            var gameStarted = (GameStartedEvent)e;
+            game = gameStarted;
+            SceneChanger.instance.ChangeTo("Game");
         }
         
         public void EndConnection()
