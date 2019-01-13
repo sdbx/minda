@@ -62,6 +62,11 @@ namespace Game.Balls
             int s = boardManager.GetBoard().GetSide() - 1;
             return ballObjects[cubeCoord.x + s, cubeCoord.y + s];
         }
+        public Ball GetBallByCubeCoord(CubeCoord cubeCoord)
+        {
+            int s = boardManager.GetBoard().GetSide() - 1;
+            return ballObjects[cubeCoord.x + s, cubeCoord.y + s].GetComponent<Ball>();
+        }
 
         void Update()
         {
@@ -75,6 +80,7 @@ namespace Game.Balls
                     state = 2;
                     _ballSelector._isSelected = false;
                     arrowsManager.ballSelection = _ballSelection;
+                    _ballSelector.SelectingBalls(gameManager.myBallType);
                 }
             }
             //State MovingBalls
@@ -83,11 +89,28 @@ namespace Game.Balls
                 if (Input.GetKeyDown(KeyCode.Escape) || Input.GetMouseButtonDown(1))
                 {
                     arrowsManager.Reset();
-                    foreach (CubeCoord ballCoord in _movingBalls)
+
+                    if (arrowsManager.pushingArrow == -1)
                     {
-                        Ball currentBall = GetBallObjectByCubeCoord(ballCoord).GetComponent<Ball>();
-                        currentBall.StopPushing(true);
+                        GetBallByCubeCoord(_ballSelection.first).StopPushing(true);
+                        if (_ballSelection.count > 1)
+                        {
+                            GetBallByCubeCoord(_ballSelection.end).StopPushing(true);
+                        }
+                        if (_ballSelection.count == 3)
+                        {
+                            GetBallByCubeCoord(_ballSelection.GetMiddleBallCubeCoord()).StopPushing(true);
+                        }
                     }
+                    else
+                    {
+                        foreach (CubeCoord ballCoord in _movingBalls)
+                        {
+                            Ball currentBall = GetBallObjectByCubeCoord(ballCoord).GetComponent<Ball>();
+                            currentBall.StopPushing(true);
+                        }
+                    }
+
                     state = 1;
                     return;
                 }
@@ -208,7 +231,7 @@ namespace Game.Balls
                 }
                 if (ballSelection.count == 3)
                 {
-                    balls.Add(ballSelection.GetMiddleBall());
+                    balls.Add(ballSelection.GetMiddleBallCubeCoord());
                 }
             }
             return balls;

@@ -149,7 +149,7 @@ namespace Game.Boards
                 }
                 if (ballSelection.count == 3)
                 {
-                    currentcoord = ballSelection.GetMiddleBall() + dirCubeCoord;
+                    currentcoord = ballSelection.GetMiddleBallCubeCoord() + dirCubeCoord;
                     if (!CheckHoleIsEmptyOrOut(currentcoord))
                         return false;
                 }
