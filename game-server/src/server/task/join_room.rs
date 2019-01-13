@@ -1,4 +1,4 @@
-use model::JoinRoomResult;
+use model::LobbyRoomResult;
 use model::{UserId, RoomConf};
 use server::{Server, ServerEvent};
 use model::{Invite};
@@ -15,7 +15,7 @@ pub fn handle(server: &mut Server, user_id: UserId, room_id: &str) -> Result<Str
         key = invite.key.clone();
         server.invites.insert(invite.key.clone(), invite);
     }
-    let res = JoinRoomResult{
+    let res = LobbyRoomResult{
         invite: key,
         addr: server.real_addr.clone()
     };

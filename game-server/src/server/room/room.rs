@@ -26,24 +26,24 @@ impl Room {
         }
     }
 
-    pub fn add_user(&mut self, conn_id: Uuid, user: UserId, key: &str) {
+    pub fn add_user(&mut self, conn_id: Uuid, user_id: UserId, key: &str) {
         self.users.insert(conn_id.clone(), RoomUser {
             conn_id: conn_id,
             key: key.to_owned(),
-            user: user
+            user_id: user_id
         });
     }
 
-    pub fn exists_user(&self, user: UserId) -> bool {
-        match self.get_user(user) {
+    pub fn exists_user(&self, user_id: UserId) -> bool {
+        match self.get_user(user_id) {
             Some(_) => true,
             None => false
         }
     }
 
-    pub fn get_user(&self, user: UserId) -> Option<&RoomUser> {
+    pub fn get_user(&self, user_id: UserId) -> Option<&RoomUser> {
         for (_, u) in self.users.iter() {
-            if u.user == user {
+            if u.user_id == user_id {
                 return Some(u)
             }
         }
@@ -56,7 +56,7 @@ impl Room {
             created_at: self.created_at,
             conf: self.conf.clone(),
             users: self.users.iter().map(|(_,u)| {
-                u.user
+                u.user_id
             }).collect::<Vec<_>>()
         }
     }
@@ -65,5 +65,5 @@ impl Room {
 pub struct RoomUser {
     pub conn_id: Uuid,
     pub key: String,
-    pub user: UserId
+    pub user_id: UserId
 }

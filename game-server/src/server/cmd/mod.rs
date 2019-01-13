@@ -9,6 +9,7 @@ mod conf;
 mod chat;
 mod game;
 mod connect;
+mod start;
 
 pub fn handle(server: &mut Server, conn: &Connection, cmd: &Command) -> Result<(), Error> {
     match cmd {
@@ -23,6 +24,9 @@ pub fn handle(server: &mut Server, conn: &Connection, cmd: &Command) -> Result<(
         },
         Command::Move { start, end, dir } => {
             game::game_move(server, conn, *start, *end, *dir)
+        },
+        Command::Start { } => {
+            start::handle(server, conn)
         }
     }
 }

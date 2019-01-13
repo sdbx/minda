@@ -3,6 +3,7 @@ package middlewares
 import (
 	"lobby/models"
 	"lobby/servs/authserv"
+	"strconv"
 
 	"github.com/labstack/echo"
 )
@@ -11,16 +12,19 @@ type UserMiddleware struct {
 	Auth *authserv.AuthServ `dim:"on"`
 }
 
-func (a *UserMiddleware) Act(c echo.Context) error {
-	token := c.Request().Header.Get("Authorization")
-	if token == "" {
-		return echo.NewHTTPError(400, "No authorization header")
-	}
-	user, err := a.Auth.Authorize(token)
+func (u *UserMiddleware) Act(c2 echo.Context) error {
+	c := c2.(*models.Context)
+	tmp := c.Param("userid")
+	id, err := strconv.Atoi(tmp)
 	if err != nil {
-		return echo.NewHTTPError(403, "Invalid token")
+		return err
 	}
-	c2 := c.(*models.Context)
-	c2.User = user
+
+	user, err := u.Auth.GetUser(id)
+	if err != nil {
+		return err
+	}
+
+	c.UserParam = user
 	return nil
 }

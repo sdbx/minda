@@ -14,7 +14,9 @@ pub enum Task {
     #[serde(rename = "join-room")]
     JoinRoom { room_id: String, user_id: UserId },
     #[serde(rename = "kick-user")]
-    KickUser { room_id: String, user_id: UserId }
+    KickUser { room_id: String, user_id: UserId },
+    #[serde(rename = "delete-room")]
+    DeleteRoom { room_id: String }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -24,13 +26,7 @@ pub struct TaskResult {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct CreateRoomResult {
-    pub invite: String,
-    pub addr: String
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct JoinRoomResult {
+pub struct LobbyRoomResult {
     pub invite: String,
     pub addr: String
 }

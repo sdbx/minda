@@ -1,7 +1,9 @@
 package authserv
 
 import (
-	"github.com/golang/glog"
+	"go.uber.org/zap"
+	"lobby/utils"
+	"github.com/gobuffalo/pop/nulls"
 	"strconv"
 	"github.com/markbates/goth"
 	"lobby/servs/dbserv"
@@ -32,9 +34,31 @@ func (AuthServ) ConfigName() string {
 	return "auth"
 }
 
+func (a *AuthServ) Init() error {
+	size, err := a.DB.Count(&models.User{})
+	if err != nil {
+		return err
+	}
+	if size == 0 {
+		user := models.User {
+			Username: "admin",
+			Picture: nulls.String{Valid:false},
+			Permission: models.UserPermission {
+				Admin: true,
+			},
+		}
+		err := a.DB.Eager().Create(&user)
+		if err != nil {
+			return err
+		}
+		utils.Log.Info("Admin token", zap.String("token", a.CreateToken(user.ID)))
+	}
+	return nil
+}
+
 func (a *AuthServ) GetUser(id int) (models.User, error) {
 	user := models.User{}
-	err := a.DB.Q().Where("id = ?", id).First(&user)
+	err := a.DB.Eager().Q().Where("id = ?", id).First(&user)
 	return user, err
 }
 
@@ -43,11 +67,15 @@ func (a *AuthServ) CreateUserByOAuth(provider string, guser goth.User) (models.U
 	if username == "" {
 		username = guser.Name
 	}
+	picture := nulls.String{Valid:false}
+	if guser.AvatarURL != "" {
+		picture = nulls.NewString(guser.AvatarURL)
+	}
 	user := models.User{
 		Username: username,
-		Picture: guser.AvatarURL,
+		Picture: picture,
 	}
-	err := a.DB.Create(&user)
+	err := a.DB.Eager().Create(&user)
 	if err != nil {
 		return models.User{}, err
 	}
@@ -82,7 +110,7 @@ func (a *AuthServ) ParseToken(token string) (int, error) {
 func (a *AuthServ) CreateToken(id int) string {
 	str, err := encrypt(a.secret, strconv.Itoa(id))
 	if err != nil {
-		glog.Fatalf("Error while creating token %v", err)
+		utils.Log.Fatal("Error while creating token", zap.Error(err))
 	}
 	return str
 }

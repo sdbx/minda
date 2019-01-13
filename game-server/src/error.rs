@@ -21,6 +21,12 @@ quick_error! {
             display("redis error: {}", err)
             cause(err)
         }
+        GameStarted {
+            description("Game have benn started already")
+        }
+        RoomNotEmpty {
+            description("Room not empty")
+        }
         Internal {
             description("Internal error")
         }

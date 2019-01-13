@@ -16,7 +16,7 @@ type user struct {
 
 func (u *user) Register(d *dim.Group) {
 	d.RouteFunc("/me", func(d *dim.Group) {
-		d.Use(&middlewares.UserMiddleware{})
+		d.Use(&middlewares.AuthMiddleware{})
 		d.GET("/", u.me)
 	})
 	d.GET("/:id/", u.getUser)

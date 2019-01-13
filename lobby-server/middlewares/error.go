@@ -1,12 +1,12 @@
 package middlewares
 
 import (
+	"go.uber.org/zap"
 	"strconv"
 	"strings"
 	"lobby/servs/oauthserv"
 	"lobby/utils"
 
-	"github.com/golang/glog"
 	"github.com/labstack/echo"
 )
 
@@ -16,7 +16,7 @@ func ErrorMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		if err == nil {
 			return nil
 		}
-		glog.Errorf("Error in http handler %v", err)
+		utils.Log.Error("Error in http handler", zap.Error(err))
 		switch err.(type) {
 		case *echo.HTTPError:
 			return err

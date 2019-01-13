@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"go.uber.org/zap"
 	"errors"
 
 	"github.com/garyburd/redigo/redis"
@@ -10,6 +11,8 @@ var (
 	ErrNotExists    = errors.New("no such resource")
 	ErrNoGameServer = errors.New("no gameserver available")
 )
+
+var Log, _ = zap.NewProduction()
 
 func ListenPubSub(conn redis.Conn,
 	onStart func(),

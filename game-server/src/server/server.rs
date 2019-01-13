@@ -1,6 +1,9 @@
 use server::server::ServerEvent::Updated;
+use std::io::BufReader;
+use std::io::prelude::*;
 use model::UserId;
 use model::User;
+use rand::Rng;
 use server::task;
 use model::Event;
 use std::net::Shutdown;
@@ -120,7 +123,6 @@ impl Server {
                 self.streams.insert(conn_id, conn);
             },
             ServerEvent::Command { conn_id, cmd } => {
-                info!("client({}) command", conn_id);
                 let conn = { 
                     self.conns.get(&conn_id).unwrap().clone()
                 };
@@ -134,7 +136,7 @@ impl Server {
             ServerEvent::TaskRequest { task_request } => {
                 match task::handle(self, task_request.task) {
                     Ok(res) => {
-                        info!("task({}) was successful", task_request.id);
+                        info!("task({}) was successful: {}", task_request.id, res);
                         self.send_result(&task_request.id, &TaskResult{
                             error: None,
                             value: res
@@ -151,19 +153,56 @@ impl Server {
             },
             ServerEvent::Close { conn_id } => {
                 info!("client({}) disconnected", conn_id);
-                self.streams.remove(&conn_id);
-                {
+                let (room_id, user_id, user_len, conf) = {
                     let conn = self.conns.get(&conn_id)?;
                     let room_id = conn.room_id.as_ref()?;
+                    let user_id = conn.user_id;
                     let mut room = self.rooms.get_mut(room_id)?;
                     room.users.remove(&conn_id);
+
+                    let user_len = room.users.len();
+                    let old = room.conf.clone();
+                    if user_id == room.conf.king && user_len != 0 {
+                        let values = room.users.values().collect::<Vec<_>>();
+                        room.conf.king = rand::thread_rng().choose(&values).unwrap().user_id;
+                    }
+                    if user_id == room.conf.black {
+                        room.conf.black = UserId::empty;
+                    }
+                    if user_id == room.conf.white {
+                        room.conf.white = UserId::empty;
+                    }
+                    (room_id.clone(), user_id, user_len, if old != room.conf { Some(room.conf.clone()) } else { None })
+                };
+                if user_len == 0 {
+                    self.delete_room(&room_id)
+                } else {
+                    self.broadcast(&room_id, &Event::Left {
+                        user: user_id
+                    });
+                    if let Some(conf) = conf {
+                        self.broadcast(&room_id, &Event::Confed{
+                            conf: conf
+                        });
+                    }
                 }
+                self.streams.remove(&conn_id);
                 self.conns.remove(&conn_id);
                 self.update_discover()?;
-            },
-            _ => { }
+            }
         }
         Ok(())
+    }
+
+    pub fn delete_room(&mut self, room_id: &str) {
+        self.rooms.remove(&room_id.to_owned());
+        let keys = self.invites.iter()
+            .filter(|(_,x)| x.room_id == room_id)
+            .map(|(k,_)| k.clone())
+            .collect::<Vec<_>>();
+        keys.iter().for_each(|x| {
+            self.rooms.remove(x);
+        });
     }
 
     pub fn get_room(&self, conn: &Connection) -> Result<&Room, Error> {
@@ -201,7 +240,6 @@ impl Server {
 
     pub fn kick(&mut self, conn_id: Uuid) {
         if let Some(stream) = self.streams.get(&conn_id) {
-            info!("asdfa");
             stream.shutdown(Shutdown::Both);
         }
     }
@@ -216,19 +254,20 @@ impl Server {
         });
     }
 
-    fn handle_stream_loop(conn_id: Uuid, tx: &Sender<ServerEvent>, mut stream: TcpStream) {
-        let mut buffer = [0u8; 512];
+    fn handle_stream_loop(conn_id: Uuid, tx: &Sender<ServerEvent>, stream: TcpStream) {
+        let mut reader = BufReader::new(stream);
+        let mut msg = String::new();
         loop {
-            match stream.read(&mut buffer) {
+            match reader.read_line(&mut msg) {
                 Ok(size) => {
                     if size == 0 {
                         break;
                     }
-                    let msg = String::from_utf8_lossy(&buffer[..size]);
                     info!("client({}) sent msg: {}", conn_id, msg);
                     let t = parse_command(&msg.trim_matches('\0'));
+                    msg.clear(); 
                     if let Ok(cmd) = t {
-                        info!("{:?}", cmd);
+                        info!("client({}) command: {:?}", conn_id, cmd);
                         tx.send(ServerEvent::Command{
                             conn_id,
                             cmd

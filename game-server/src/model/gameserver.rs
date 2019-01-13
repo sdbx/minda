@@ -1,6 +1,6 @@
 use model::RoomConf;
 use super::{UserId, AxialCord, Room};
-use game::Stone;
+use game::{Stone, Game};
 use server::Server;
 use chrono::Utc;
 use chrono::DateTime;
@@ -39,7 +39,20 @@ pub enum Event {
     #[serde(rename = "chated")]
     Chated { user: UserId, content: String },
     #[serde(rename = "confed")]
-    Confed { conf: RoomConf }
+    Confed { conf: RoomConf },
+    #[serde(rename = "left")]
+    Left { user: UserId }
+}
+
+impl Event {
+    pub fn game_to_started(game: &Game) -> Self {
+        Event::Started {
+            board: game.board.raw(),
+            black: game.black,
+            white: game.white,
+            turn: game.turn.to_string()
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -52,7 +65,9 @@ pub enum Command {
     #[serde(rename = "chat")]
     Chat { content: String },
     #[serde(rename = "conf")]
-    Conf { conf: RoomConf }
+    Conf { conf: RoomConf },
+    #[serde(rename = "start")]
+    Start { },
 }
 
 pub fn parse_command(msg: &str) -> Result<Command, serde_json::Error> {

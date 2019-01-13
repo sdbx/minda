@@ -11,6 +11,14 @@ pub struct Game {
 }
 
 impl Game {
+    pub fn new(black: UserId, white: UserId, board: Board) -> Self {
+        Self {
+            board: board,
+            black: black,
+            white: white,
+            turn: Player::Black
+        }
+    }
     pub fn run_move(&mut self, id: UserId, start: AxialCord, end: AxialCord, dir: AxialCord) -> Result<(), Error> {
         let player = self.get_turn(id)?;
 

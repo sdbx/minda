@@ -1,5 +1,6 @@
 import { Immute } from "../types/deepreadonly"
 import { TimerID, WebpackTimer } from "../webpacktimer"
+import { MindaCredit } from "./mdcredit"
 import { extractContent, reqGet, reqPost } from "./mdrequest"
 import { MindaRoom } from "./mdroom"
 import { MSRoom, MSRoomConf, MSRoomServer } from "./structure/msroom"
@@ -20,8 +21,12 @@ export class MindaClient {
      * 새로운 민다-클라를 생성합니다.
      * @param token `MindaCredit`으로 얻은 토큰
      */
-    public constructor(token:string) {
-        this.token = token
+    public constructor(token:string | MindaCredit) {
+        if (typeof token === "string") {
+            this.token = token
+        } else {
+            this.token = token.token
+        }
     }
     /**
      * 방 목록을 불러옵니다.

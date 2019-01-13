@@ -26,12 +26,7 @@ pub fn handle(server: &mut Server, conn: &Connection, key: &str) -> Result<(), E
         room.add_user(conn.conn_id, invite.user_id, &key);
 
         if let Some(ref game) = room.game {
-            (mroom, invite.clone(), Some(Event::Started{
-                black: room.conf.black,
-                white: room.conf.white,
-                board: game.board.raw().clone(),
-                turn: { if game.turn == Black { "black".to_owned() } else { "white".to_owned() } }
-            }))
+            (mroom, invite.clone(), Some(Event::game_to_started(game)))
         } else {
             (mroom, invite.clone(), None)
         }

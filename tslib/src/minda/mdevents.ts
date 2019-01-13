@@ -3,6 +3,9 @@ import { MSRoom, MSRoomConf } from "./structure/msroom"
 export interface ConnectInfo extends TypedInfo<MdEvents.connect> {
     room:MSRoom,
 }
+export interface ConfInfo extends TypedInfo<MdEvents.confed> {
+    conf:MSRoomConf,
+}
 export interface ChatInfo extends EuserInfo<MdEvents.chat> {
     content:string,
 }
@@ -26,4 +29,5 @@ export enum MdEvents {
     chat = "chated",
     enter = "entered",
     connect = "connected",
+    confed = "confed"
 }

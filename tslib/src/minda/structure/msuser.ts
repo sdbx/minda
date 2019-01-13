@@ -1,6 +1,9 @@
-export type MSUser = number
-/*
+import { MSPerm } from "./msperm"
+
 export interface MSUser {
-    userID:number,
+    id:number,
+    username:string,
+    // nullable
+    picture?:string,
+    permission:MSPerm,
 }
-*/
