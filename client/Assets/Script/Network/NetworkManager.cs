@@ -81,6 +81,7 @@ namespace Network
             SetHandler<EnteredEvent>(UserEnteredHandler);
             SetHandler<LeftEvent>(UserLeftCallBack);
             SetHandler<ConfedEvent>(ConfedCallBack);
+            SetHandler<GameStartedEvent>(GameStartedCallBack);
         }
 
         private void Update()

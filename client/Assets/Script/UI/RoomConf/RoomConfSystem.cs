@@ -36,14 +36,18 @@ namespace UI
                 var room = NetworkManager.instance.connectedRoom;
 
                 room.Users.Add(me.id);
+
+                if(room.conf.king != me.id)
+                    return;
+                    
                 if (room.conf.black == -1)
                 {
                     room.conf.black = me.id;
                     NetworkManager.instance.UpdateConf();
                 }
-                else if (room.conf.black == -1)
+                else if (room.conf.white == -1)
                 {
-                    room.conf.black = me.id;
+                    room.conf.white = me.id;
                     NetworkManager.instance.UpdateConf();
                 }
                 else
@@ -62,7 +66,7 @@ namespace UI
                 return;
 
             var me = NetworkManager.instance.loggedInUser;
-            if (GetOpponentId(me.id) == -1)
+            if (room.conf.king == me.id && GetOpponentId(me.id) == -1)
             {
                 if (IdUtils.GetBallType(me.id) == BallType.Black)
                     room.conf.white = userId;

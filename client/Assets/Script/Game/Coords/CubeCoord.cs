@@ -63,6 +63,16 @@ namespace Game.Coords
             return (x == a.x) && (y == a.y) && (z == a.z);
         }
 
+        public static bool operator ==(CubeCoord a, CubeCoord b)
+        {
+            return (a.x == b.x) && (a.y == b.y) && (a.z == b.z);
+        }
+
+        public static bool operator !=(CubeCoord a, CubeCoord b)
+        {
+            return !(a==b);
+        }
+
         public Vector2 GetPixelPoint(float distance)
         {
             return new Vector2(x * distance + y * distance / 2, -y * Mathf.Sqrt(3) * distance / 2);
@@ -77,7 +87,7 @@ namespace Game.Coords
         {
             for(int i = 0;i<6;i++)
             {
-                if(direction == _directions[i])
+                if(direction.isSame(_directions[i]))
                 {
                     return i;
                 }
