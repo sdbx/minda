@@ -53,7 +53,7 @@ namespace UI
 
         void Start()
         {
-            NetworkManager.instance.Get<Room[]>("/rooms/",CreateRoomList);
+            RefreshRoomList();
         }
 
         private void CreateRoomList(Room[] rooms, string err)
@@ -71,6 +71,16 @@ namespace UI
             }
         }
         
+        public void RefreshRoomList()
+        {
+            foreach (var room in _roomList)
+            {
+                Destroy(room.gameObject);
+            }
+            _roomList.Clear();
+            NetworkManager.instance.Get<Room[]>("/rooms/",CreateRoomList);
+        }
+
         public void EnterRoom(Room room)
         {
             NetworkManager.instance.Put("/rooms/" + room.id + "/", "", (JoinRoomResult joinRoomResult, string err) =>
