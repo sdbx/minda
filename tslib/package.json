@@ -50,8 +50,10 @@
     "node": ">=8.9"
   },
   "dependencies": {
+    "@types/deep-diff": "^1.0.0",
     "@types/node-fetch": "^2.1.4",
     "@types/request-promise-native": "^1.0.15",
+    "deep-diff": "^1.0.2",
     "node-fetch": "^2.3.0",
     "querystring": "^0.2.0",
     "request": "^2.88.0",

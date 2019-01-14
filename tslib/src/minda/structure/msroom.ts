@@ -1,5 +1,5 @@
 import { SerializeObject } from "../../types/serializable"
-import { MSGameConf } from "./msgame"
+import { MSGameConf } from "./msgameconf"
 import { MSUser } from "./msuser"
 
 export interface MSRoom extends SerializeObject {

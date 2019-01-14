@@ -2,45 +2,48 @@ import { DeepReadonly } from "../types/deepreadonly"
 import { Serializable } from "../types/serializable"
 import { MindaClient } from "./mdclient"
 import { MindaCredit } from "./mdcredit"
+import { MindaError } from "./mderror"
 import { extractContent, reqGet, reqPost } from "./mdrequest"
+import { MSGameServer } from "./structure/msgameserver"
 import { MSPerm } from "./structure/msperm"
 import { MSUser } from "./structure/msuser"
-
+/**
+ * 관리자 토큰을 이용하여 서버를 관리합니다.
+ */
 export class MindaAdmin extends MindaClient {
+    /**
+     * [어드민] 유저 목록
+     */
     public users:DeepReadonly<MSUser[]> = []
     public constructor(token:string | MindaCredit) {
         super(token)
     }
     /**
-     * 유저 목록을 불러옵니다.
+     * [어드민] 유저 목록을 불러옵니다.
      */
-    public async listUser() {
+    public async listUsers() {
         const res = await extractContent<MSUser[]>(reqGet("GET", "/admin/users/", this.token))
         res.sort((a, b) => a.id - b.id)
-        this.users = res
-        console.log(JSON.stringify(res, null, 4))
+        this.users = [...res]
         return res
     }
     /**
-     * 유저를 생성합니다.
+     * [어드민] 현재 인식된 게임서버들의 리스트를 불러옵니다.
+     */
+    public async listGameServers() {
+        const res = await extractContent<MSGameServer[]>(reqGet("GET", "/admin/gameservers/", this.token))
+        return res
+    }
+    /**
+     * [어드민] 유저를 생성합니다.
      * @param user 맨들 유저
+     * @returns 맨들어진 유저
      */
     public async createUser(user:MakeUser, uid?:number) {
-        const users = await this.listUser()
-        let id:number = users.length + 1
-        if (uid != null) {
-            id = uid
-        } else {
-            for (let i = 1; i <= users.length; i += 1) {
-                if (users[i - 1].id !== i) {
-                    id = i
-                    break
-                }
-            }
-        }
-        const sID = uid != null
-        const res = await reqPost(sID ? "PUT" : "POST", `/admin/users/${sID ? id + "/" : ""}`, this.token, {
-            id,
+        const orgUsers = (await this.listUsers()).map((v) => v.id)
+        const hasID = uid != null
+        const res = await reqPost(hasID ? "PUT" : "POST",`/admin/users/${hasID ? uid + "/" : ""}`, this.token, {
+            uid,
             picture: null,
             ...user,
             permission: {
@@ -48,36 +51,62 @@ export class MindaAdmin extends MindaClient {
             }
         })
         if (res.ok) {
-            await this.listUser()
+            const users = await this.listUsers()
+            return users.find((v) => orgUsers.findIndex((vi) => vi === v.id) < 0)
+        } else {
+            throw new MindaError(res)
         }
+        return null
     }
     /**
-     * 유저를 삭제합니다. (닉네임을 가진 **모든** 유저)
-     * @param username 유저 이름
+     * [어드민] 유저를 제거합니다.
+     * @param user 유저
      */
-    public async deleteUsersByName(username:string) {
-        const users = (await this.listUser()).filter((v) => v.username === username)
-        for (const user of users) {
-            await this.deleteUserById(user.id, false)
+    public async removeUser(user:string | number | MSUser) {
+        let users:number[]
+        if (typeof user === "string") {
+            users = this.users.filter((v) => v.username === user).map((v) => v.id)
+        } else if (typeof user === "number") {
+            users = [user]
+        } else {
+            users = [user.id]
         }
-        await this.listUser()
+        return this.deleteUsersById(users)
     }
     /**
-     * 유저를 삭제합니다.
+     * [어드민] 유저의 토큰을 가져옵니다.
+     * @param id 유-저
+     */
+    public async getTokenOfUser(user:string | number | MSUser) {
+        const res = await extractContent<string>(
+            reqPost("POST", `/admin/users/${this.getUser(user)}/token/`, this.token))
+        return res
+    }
+    /**
+     * [내부] 다양한 타입으로부터 유저ID를 가져옵니다.
+     * @param user 유-저
+     */
+    protected getUser(user:string | number | MSUser) {
+        if (typeof user === "string") {
+            return this.users.find((v) => v.username === user).id
+        } else if (typeof user === "number") {
+            return user
+        } else {
+            return user.id
+        }
+    }
+    /**
+     * [내부] 유저를 삭제합니다.
      * @param id 유저 ID
      */
-    public async deleteUserById(id:number, sync = true) {
-        const res = await reqGet("DELETE", `/admin/users/${id}/`, this.token)
-        if (res.ok) {
-            if (sync) {
-                await this.listUser()
+    protected async deleteUsersById(ids:number[]) {
+        for (const id of ids) {
+            const res = await reqGet("DELETE", `/admin/users/${id}/`, this.token)
+            if (!res.ok) {
+                throw new MindaError(res)
             }
-        } else {
-            throw new Error("Operation Rejected.")
         }
-    }
-    public async getTokenOfUser(id:number) {
-        
+        await this.listUsers()
     }
 }
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>

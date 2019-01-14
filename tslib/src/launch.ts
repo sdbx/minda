@@ -1,5 +1,4 @@
-import { MindaAdmin } from "./minda/mdadmin"
-import { MindaClient } from "./minda/mdclient"
+import { MindaAdmin, MindaClient, MindaCredit, MindaRoom } from "./index"
 
 async function run() {
     /*
@@ -13,17 +12,19 @@ async function run() {
     })
     */
     const aClient = new MindaAdmin("black")
-    await aClient.listUser()
-    /*
-    await aClient.addUser({
+    await new Promise((res, rej) => {
+        aClient.onReady.one(() => res())
+    })
+    const u = await aClient.createUser({
         username: "끼로",
         admin: false,
         picture: "kkiro.png",
-    })*/
-    const findU = (await aClient.listUser()).find((v) => v.permission.admin)
-    console.log(JSON.stringify(findU, null, 2))
-    await aClient.deleteUsersByName("끼로")
-    await aClient.listUser()
+    })
+    console.log(u)
+    console.log(aClient.me)
+    console.log(await aClient.getTokenOfUser(u))
+    console.log(JSON.stringify(await aClient.listGameServers(), null, 4))
+    await aClient.removeUser(u)
 }
 
 run()
