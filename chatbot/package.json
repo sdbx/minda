@@ -37,7 +37,9 @@
     "node": ">=8.9"
   },
   "dependencies": {
-    "sha.js": "^2.4.11"
+    "discord.js": "^11.4.2",
+    "sha.js": "^2.4.11",
+    "typeorm": "^0.2.11"
   },
   "devDependencies": {
     "ava": "1.0.0-beta.7",
