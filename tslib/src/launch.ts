@@ -11,7 +11,7 @@ async function run() {
         rule: "",
     })
     */
-    const aClient = new MindaAdmin("black")
+    const aClient = new MindaAdmin("WU7htx_4_helo4FO3Im44pU=")
     await new Promise((res, rej) => {
         aClient.onReady.one(() => res())
     })
