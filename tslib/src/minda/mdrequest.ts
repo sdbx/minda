@@ -2,6 +2,7 @@ import fetch, { Response } from "node-fetch"
 import querystring from "querystring"
 import { Serializable, SerializeObject } from "../types/serializable"
 import { mdserver, mdversion } from "./mdconst"
+import { MindaError } from "./mderror"
 type GetType = "GET" | "DELETE"
 type PostType = "POST" | "PUT"
 /**
@@ -33,7 +34,7 @@ export async function reqPost(type:PostType, suffix:string, token?:string,
 export async function extractContent<T>(r:Promise<Response> | Response) {
     const rp = await r
     if (!rp.ok) {
-        throw new Error(`${rp.url} / ${rp.status} : ${rp.statusText}`)
+        throw new MindaError(rp)
     }
     return await rp.json() as T
 }

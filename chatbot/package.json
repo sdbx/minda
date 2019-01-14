@@ -1,11 +1,11 @@
 {
-  "name": "minda-ts",
+  "name": "minda-chatbot",
   "version": "1.0.0",
-  "description": "Minda Library",
+  "description": "Minda Chatbot",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
   "module": "build/module/index.js",
-  "repository": "https://github.com/craftingmod/minda-ts",
+  "repository": "https://github.com/craftingmod/minda-chatbot",
   "license": "MIT",
   "keywords": [],
   "scripts": {
@@ -15,23 +15,10 @@
     "fix": "run-s fix:*",
     "fix:prettier": "prettier \"src/**/*.ts\" --write",
     "fix:tslint": "tslint --fix --project .",
-    "test": "run-s build test:*",
-    "test:lint": "tslint --project . && prettier \"src/**/*.ts\" --list-different",
-    "test:unit": "nyc --silent ava",
     "watch": "run-s clean build:main && run-p \"build:main -- -w\" \"test:unit -- --watch\"",
-    "cov": "run-s build test:unit cov:html && opn coverage/index.html",
-    "cov:html": "nyc report --reporter=html",
-    "cov:send": "nyc report --reporter=lcov > coverage.lcov && codecov",
-    "cov:check": "nyc report && nyc check-coverage --lines 100 --functions 100 --branches 100",
-    "doc": "run-s doc:html && opn build/docs/index.html",
-    "doc:html": "typedoc src/ --exclude **/*.spec.ts --target ES6 --mode file --out build/docs",
-    "doc:json": "typedoc src/ --exclude **/*.spec.ts --target ES6 --mode file --json build/docs/typedoc.json",
-    "doc:publish": "gh-pages -m \"[ci skip] Updates\" -d build/docs",
     "version": "standard-version",
     "reset": "git clean -dfx && git reset --hard && npm i",
-    "clean": "trash build test",
-    "all": "run-s reset test cov:check doc:html",
-    "prepare-release": "run-s all version doc:publish"
+    "clean": "trash build test"
   },
   "scripts-info": {
     "info": "Display information about the package scripts",
@@ -50,16 +37,9 @@
     "node": ">=8.9"
   },
   "dependencies": {
-    "@types/deep-diff": "^1.0.0",
-    "@types/node-fetch": "^2.1.4",
-    "@types/request-promise-native": "^1.0.15",
-    "deep-diff": "^1.0.2",
-    "node-fetch": "^2.3.0",
-    "querystring": "^0.2.0",
-    "request": "^2.88.0",
-    "request-promise-native": "^1.0.5",
+    "discord.js": "^11.4.2",
     "sha.js": "^2.4.11",
-    "strongly-typed-events": "^1.4.10"
+    "typeorm": "^0.2.11"
   },
   "devDependencies": {
     "ava": "1.0.0-beta.7",
