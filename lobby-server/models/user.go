@@ -17,6 +17,12 @@ type User struct {
 	Permission UserPermission `has_one:"user_permission" json:"permission"`
 }
 
+type UserMap struct {
+	ID     uuid.UUID `db:"id" json:"-"`
+	UserID int       `db:"user_id" json:"user_id"`
+	MapID  int
+}
+
 type UserPermission struct {
 	ID     uuid.UUID `db:"id" json:"-"`
 	UserID int       `db:"user_id" json:"-"`
@@ -33,4 +39,9 @@ type OAuthUser struct {
 
 func (o OAuthUser) TableName() string {
 	return "oauth_users"
+}
+
+type AuthRequest struct {
+	Token *string `json:"token"`
+	First bool    `json:"first"`
 }

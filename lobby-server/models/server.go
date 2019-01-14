@@ -24,3 +24,9 @@ type RoomConf struct {
 	Black int    `json:"black"`
 	White int    `json:"white"`
 }
+
+type Alert struct {
+	ID    int    `json:"id"`
+	Level string `json:"level"`
+	Msg   string `json:"msg"`
+}
