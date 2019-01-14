@@ -52,3 +52,4 @@ Assets/StreamingAssets/crashlytics-build.properties
 /lobby-server/lobby
 
 /tslib/node_modules/
+/chatbot/node_modules/
