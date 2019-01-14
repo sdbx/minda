@@ -1,7 +1,10 @@
 package oauthserv
 
 import (
-	"lobby/utils"
+	"encoding/json"
+	"github.com/garyburd/redigo/redis"
+	"fmt"
+	"lobby/models"
 	"errors"
 	"encoding/base64"
 	"github.com/gofrs/uuid"
@@ -21,12 +24,10 @@ var (
 	ErrNotAuthorized = errors.New("not authorized")
 )
 
-type OAuthServ struct {
-	Auth *authserv.AuthServ `dim:"on"`
-	Redis *redisserv.RedisServ `dim:"on"`
-	secret []byte
-	reqs map[string]*string
-}
+const (
+	redisAuthRequestTmpl = "auth_request_%s"
+	authRequestTimeout = 180
+)
 
 type oauthProvier struct {
 	Key    string `yaml:"key"`
@@ -39,6 +40,12 @@ type OAuthServConf struct {
 	Naver       *oauthProvier `yaml:"naver"`
 	Discord     *oauthProvier `yaml:"discord"`
 	Google      *oauthProvier `yaml:"google"`
+}
+
+type OAuthServ struct {
+	Auth *authserv.AuthServ `dim:"on"`
+	Redis *redisserv.RedisServ `dim:"on"`
+	secret []byte
 }
 
 func Provide(conf OAuthServConf) *OAuthServ {
@@ -55,7 +62,6 @@ func Provide(conf OAuthServConf) *OAuthServ {
 	goth.UseProviders(providers...)
 	return &OAuthServ{
 		secret: []byte(conf.Secret),
-		reqs: make(map[string]*string),
 	}
 }
 
@@ -81,23 +87,39 @@ func (a *OAuthServ) List() []string {
 	return out
 }
 
-func (a *OAuthServ) GetReq(reqid string) (string, error) {
-	tok, ok := a.reqs[reqid]
-	if !ok {
-		return "", utils.ErrNotExists
+func (a *OAuthServ) GetRequest(reqid string) (models.AuthRequest, error) {
+	buf, err := redis.Bytes(a.Redis.Conn().Do("GET", redisAuthRequest(reqid)))
+	if err != nil {
+		return models.AuthRequest{}, err
 	}
-	if tok == nil {
-		return "", ErrNotAuthorized
-	}
-	delete(a.reqs, reqid)
-	return *tok, nil
+	var out models.AuthRequest
+	err = json.Unmarshal(buf, &out)
+	return out, err
 }
 
-func (a *OAuthServ) MakeReq() string {
+func (a *OAuthServ) CreateRequest() (string, error) {
 	id, _ := uuid.NewV4()
 	reqid := base64.URLEncoding.EncodeToString(id.Bytes())
-	a.reqs[reqid] = nil
-	return reqid
+	err := a.setRequest(reqid, models.AuthRequest{})
+	return reqid, err
+}
+
+func (a *OAuthServ) existsRequest(reqid string) (bool, error) {
+	return redis.Bool(a.Redis.Conn().Do("EXISTS", redisAuthRequest(reqid)))
+}
+
+func (a *OAuthServ) setRequest(reqid string, req models.AuthRequest) error {
+	buf, err := json.Marshal(req)
+	if err != nil {
+		return err
+	}
+
+	_, err = a.Redis.Conn().Do("SET", redisAuthRequest(reqid), buf)
+	if err != nil {
+		return err
+	}
+	_, err = a.Redis.Conn().Do("EXPIRE", redisAuthRequest(reqid), authRequestTimeout)
+	return err
 }
 
 func (a *OAuthServ) CompleteAuth(c echo.Context, provider string) error {
@@ -107,7 +129,11 @@ func (a *OAuthServ) CompleteAuth(c echo.Context, provider string) error {
     r.URL.RawQuery = q.Encode()
 	reqid := q.Get("state")
 
-	if _, ok := a.reqs[reqid]; !ok {
+	exists, err := a.existsRequest(reqid)
+	if err != nil {
+		return err
+	}
+	if !exists {
 		return echo.NewHTTPError(http.StatusBadRequest)
 	}
 
@@ -116,9 +142,11 @@ func (a *OAuthServ) CompleteAuth(c echo.Context, provider string) error {
 		return err
 	}
 
+	var first bool
 	user, err := a.Auth.GetUserByOAuth(provider, guser.UserID)
 	if err == authserv.ErrNotFound {
 		user, err = a.Auth.CreateUserByOAuth(provider, guser)
+		first = true
 		if err != nil {
 			return err
 		}
@@ -127,13 +155,23 @@ func (a *OAuthServ) CompleteAuth(c echo.Context, provider string) error {
 	}
 
 	tok := a.Auth.CreateToken(user.ID)
-	a.reqs[reqid] = &tok
+	err = a.setRequest(reqid, models.AuthRequest{
+		Token: &tok,
+		First: first,
+	})
+	if err != nil {
+		return err
+	}
 
 	return c.JSON(200, user)
 }
 
 func (a *OAuthServ) BeginAuth(c echo.Context, provider string, reqid string) error {
-	if _, ok := a.reqs[reqid]; !ok {
+	exists, err := a.existsRequest(reqid)
+	if err != nil {
+		return err
+	}
+	if !exists {
 		return echo.NewHTTPError(http.StatusBadRequest)
 	}
 
@@ -149,4 +187,8 @@ func (a *OAuthServ) BeginAuth(c echo.Context, provider string, reqid string) err
 	}
 
 	return c.Redirect(302, u)
+}
+
+func redisAuthRequest(reqid string) string {
+    return fmt.Sprintf(redisAuthRequestTmpl, reqid)
 }
