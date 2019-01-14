@@ -24,23 +24,22 @@ func (a *auth) listOauth(c echo.Context) error {
 }
 
 func (a *auth) getReq(c echo.Context) error {
-	tok, err := a.OAuth.GetReq(c.Param("reqid"))
+	req, err := a.OAuth.GetRequest(c.Param("reqid"))
 	if err != nil {
 		return err
 	}
-	return c.JSONPretty(200, struct{
-		Token string `json:"token"`
-	}{
-		Token:tok,
-	}, "\t")
+	return c.JSONPretty(200, req, "\t")
 }
 
 func (a *auth) postReq(c echo.Context) error {
-	reqid := a.OAuth.MakeReq()
-	return c.JSONPretty(201, struct{
+	reqid, err := a.OAuth.CreateRequest()
+	if err != nil {
+		return err
+	}
+	return c.JSONPretty(201, struct {
 		ReqID string `json:"req_id"`
 	}{
-		ReqID:reqid,
+		ReqID: reqid,
 	}, "\t")
 }
 
