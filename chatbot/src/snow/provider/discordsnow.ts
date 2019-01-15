@@ -1,22 +1,64 @@
 import Discord from "discord.js"
 import SnowChannel, { ConfigDepth } from "../snowchannel"
 import SnowMessage from "../snowmessage"
+import { SnowPerm } from "../snowperm"
 import SnowUser from "../snowuser"
 import { getFirst } from "../snowutil"
 
 export default class DiscordSnowCh extends SnowChannel {
     public provider = "discord"
     public supportFile = true
-    protected channel:Discord.TextChannel | Discord.DMChannel
+    protected channel:Discord.TextChannel | Discord.DMChannel | Discord.GroupDMChannel
     public constructor(channel:Discord.TextChannel | Discord.DMChannel) {
         super()
         this.channel = channel
     }
-    public async send(text:string, image?:string | Buffer):Promise<SnowMessage> {
+    public async send(text:string, image?:string | Buffer) {
         return this._send(text, image == null ? [] : [image])
     }
-    public async sendFiles(files:Array<string | Buffer>, text?:string):Promise<SnowMessage> {
+    public async sendFiles(files:Array<string | Buffer>, text?:string) {
         return this._send(text, files)
+    }
+    public async user(id:string) {
+        const users = await this.userList()
+        return users.find((v) => v.id === id)
+    }
+    public async userList() {
+        let users:SnowUser[] = []
+        if (this.channel instanceof Discord.TextChannel) {
+            users = this.channel.guild.members.array().map((v) => userToSnow(v))
+        } else if (this.channel instanceof Discord.GroupDMChannel) {
+            users = this.channel.recipients.array().map((v) => userToSnow(v))
+        } else if (this.channel instanceof Discord.DMChannel) {
+            users = [userToSnow(this.channel.recipient)]
+        }
+        return users
+    }
+    public async permissions(user?:string | SnowUser):Promise<SnowPerm> {
+        if (user == null) {
+            user = this.channel.client.user.id
+        }
+        if (typeof user === "object") {
+            user = user.id
+        }
+        if (this.channel instanceof Discord.TextChannel) {
+            const perms = this.channel.permissionsFor(user)
+            return {
+                view: perms.has("READ_MESSAGES"),
+                viewHistory: perms.has("READ_MESSAGE_HISTORY"),
+                edit: perms.has("SEND_MESSAGES"),
+                send: perms.has("SEND_MESSAGES"),
+                deleteOther: perms.has("MANAGE_MESSAGES"),
+            }
+        } else {
+            return {
+                view: true,
+                viewHistory: true,
+                edit: true,
+                send: true,
+                deleteOther: false,
+            }
+        }
     }
     public async getConfig(depth:ConfigDepth, key:string):Promise<unknown> {
         throw new Error("Method not implemented.")
