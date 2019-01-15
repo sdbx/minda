@@ -1,4 +1,6 @@
 import SnowMessage from "./snowmessage"
+import { SnowPerm } from "./snowperm"
+import SnowUser from "./snowuser"
 
 export default abstract class SnowChannel {
     /**
@@ -25,6 +27,20 @@ export default abstract class SnowChannel {
      * @returns sended message if success, null if fail (not Promise.reject!)
      */
     public abstract async sendFiles(files:Array<Buffer | string>, text?:string):Promise<SnowMessage>
+    /**
+     * Get user from id
+     * @param id ID
+     */
+    public abstract async user(id:string):Promise<SnowUser>
+    /**
+     * Get all users from this channel
+     */
+    public abstract async userList():Promise<SnowUser[]>
+    /**
+     * Get Permisson from this channel for me
+     */
+    public abstract async permissions(user?:string | SnowUser):Promise<SnowPerm>
+
     public abstract async getConfig(depth:ConfigDepth, key:string):Promise<unknown>
 }
 export enum ConfigDepth {
