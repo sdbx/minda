@@ -2,7 +2,8 @@ namespace Game
 {
     public enum BallType
     {
-        Black = 1,
+        None,
+        Black,
         White,
     }
     public enum HoleState

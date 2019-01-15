@@ -17,8 +17,13 @@ namespace UI
         [SerializeField]
         private StartBtn startBtn;
         
-        public bool isSpectator = false;
         private bool isWaitingForOppenent = false;
+
+        public bool IsSpectator() {
+            var me = NetworkManager.instance.loggedInUser;
+            var room = NetworkManager.instance.connectedRoom;
+            return room.conf.black != me.id && room.conf.white != me.id;
+        }
 
         void Start()
         {
@@ -37,22 +42,18 @@ namespace UI
 
                 room.Users.Add(me.id);
 
-                if(room.conf.king != me.id)
-                    return;
-                    
-                if (room.conf.black == -1)
+                if(room.conf.king == me.id) 
                 {
-                    room.conf.black = me.id;
-                    NetworkManager.instance.UpdateConf();
-                }
-                else if (room.conf.white == -1)
-                {
-                    room.conf.white = me.id;
-                    NetworkManager.instance.UpdateConf();
-                }
-                else
-                {
-                    isSpectator = true;
+                    if (room.conf.black == -1)
+                    {
+                        room.conf.black = me.id;
+                        NetworkManager.instance.UpdateConf();
+                    }
+                    else if (room.conf.white == -1)
+                    {
+                        room.conf.white = me.id;
+                        NetworkManager.instance.UpdateConf();
+                    }
                 }
                 IdentifyAndSetInfo();
             });
@@ -61,18 +62,20 @@ namespace UI
         private void UserEnter(int userId)
         {
             var room = NetworkManager.instance.connectedRoom;
-
-            if (isSpectator)
-                return;
-
             var me = NetworkManager.instance.loggedInUser;
-            if (room.conf.king == me.id && GetOpponentId(me.id) == -1)
+
+            if (room.conf.king == me.id) 
             {
-                if (IdUtils.GetBallType(me.id) == BallType.Black)
+                if (room.conf.black == -1)
+                {
+                    room.conf.black = userId;
+                    NetworkManager.instance.UpdateConf();
+                }
+                else if (room.conf.white == -1)
+                {
                     room.conf.white = userId;
-                else room.conf.black = userId;
-                NetworkManager.instance.UpdateConf();
-                startBtn.Active();
+                    NetworkManager.instance.UpdateConf();
+                }
             }
 
             IdentifyAndSetInfo();
@@ -85,16 +88,19 @@ namespace UI
 
         private void ConfedCallBack(RoomSettings conf)
         {
+            var room = NetworkManager.instance.connectedRoom;
+            room.conf = conf;
             UpdateAllConf();
         }
 
         private void IdentifyAndSetInfo()
         {
             var room = NetworkManager.instance.connectedRoom;
+            var me = NetworkManager.instance.loggedInUser;
             int player2Id;
             int player1Id;
 
-            if(!isSpectator)
+            if(!IsSpectator())
             {
                 player2Id = NetworkManager.instance.loggedInUser.id;
                 player1Id = GetOpponentId(player2Id);
@@ -149,6 +155,15 @@ namespace UI
                     player2InfoDisplay.user = user;
                     player2InfoDisplay.Display();
                 });
+            }
+
+            if (room.conf.king == me.id && room.conf.black != -1 && room.conf.white != -1)
+            {
+                startBtn.Active();
+            } 
+            else 
+            {
+                startBtn.UnActive();
             }
         }
 
