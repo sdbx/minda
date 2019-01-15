@@ -14,7 +14,7 @@ public class StartBtn : MonoBehaviour
     private float duration;
     private bool isActivated = false;
 
-    void Start()
+    void Awake()
     {
         gameObject.GetComponent<Button>().onClick.AddListener(OnClicked);
     }

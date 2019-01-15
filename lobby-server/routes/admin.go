@@ -2,15 +2,16 @@ package routes
 
 import (
 	"lobby/middlewares"
+
 	"github.com/sunho/dim"
 )
 
 type admin struct {
 }
 
-func (a *admin) Register(g *dim.Group) {
-	g.Use(&middlewares.AuthMiddleware{})
-	g.Use(&middlewares.AdminMiddleware{})
-	g.Route("/users", &adminUser{})
-	g.Route("/gameservers", &gameServer{})
+func (a *admin) Register(d *dim.Group) {
+	d.Use(&middlewares.AuthMiddleware{})
+	d.Use(&middlewares.AdminMiddleware{})
+	d.Route("/users", &adminUser{})
+	d.Route("/gameservers", &gameServer{})
 }

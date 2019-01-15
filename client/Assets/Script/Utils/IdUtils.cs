@@ -10,9 +10,13 @@ public class IdUtils
             {
                 return BallType.Black;
             }
-            else
+            else if(id == room.conf.white)
             {
                 return BallType.White;
-            }      
+            }
+            else
+            {
+                return BallType.None;
+            }
         }
 }

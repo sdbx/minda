@@ -1,9 +1,19 @@
 package models
 
+import validator "gopkg.in/go-playground/validator.v9"
+
 type Validator struct {
-	vaildator *vaildator.Validate
+	validate *validator.Validate
 }
 
-func (v *Validator) Validate(i interface{}) bool {
-	
+func NewValidator() *Validator {
+	validate := validator.New()
+	validate.RegisterCustomTypeFunc(validateMapString, MapString(""))
+	return &Validator{
+		validate: validate,
+	}
+}
+
+func (v *Validator) Validate(i interface{}) error {
+	return v.validate.Struct(i)
 }
