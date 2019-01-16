@@ -39,8 +39,10 @@
   "dependencies": {
     "@types/msgpack5": "^3.4.1",
     "discord.js": "^11.4.2",
+    "fs-extra": "^7.0.1",
     "msgpack5": "^4.2.1",
     "sha.js": "^2.4.11",
+    "strongly-typed-events": "^1.4.10",
     "typeorm": "^0.2.11"
   },
   "devDependencies": {

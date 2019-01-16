@@ -1,146 +1,30 @@
 import Discord from "discord.js"
-import SnowChannel, { ConfigDepth } from "../snowchannel"
+import { EventDispatcher } from "strongly-typed-events"
+import SnowChannel from "../snowchannel"
 import SnowMessage from "../snowmessage"
-import { SnowPerm } from "../snowperm"
-import SnowUser from "../snowuser"
-import { getFirst } from "../snowutil"
+import DiscordSnowCh, { messageToSnow } from "./discordsnowch"
+import { SnowProvider } from "./snowprovider"
 
-export default class DiscordSnowCh extends SnowChannel {
-    public provider = "discord"
-    public supportFile = true
-    protected channel:Discord.TextChannel | Discord.DMChannel | Discord.GroupDMChannel
-    public constructor(channel:Discord.TextChannel | Discord.DMChannel) {
+export default class DiscordSnow extends SnowProvider {
+    protected client:Discord.Client
+    protected channels:Map<string, SnowChannel>
+    public constructor(token:string) {
         super()
-        this.channel = channel
+        this.token = token
+        this.channels = new Map()
     }
-    public async send(text:string, image?:string | Buffer) {
-        return this._send(text, image == null ? [] : [image])
+    public async init() {
+        await super.init()
+        this.client = new Discord.Client()
+        this.client.on("message", (m) => this.handleMessage(m))
+        this.client.on("ready", () => this.onReady.dispatch())
+        await this.client.login(this.token)
     }
-    public async sendFiles(files:Array<string | Buffer>, text?:string) {
-        return this._send(text, files)
-    }
-    public async user(id:string) {
-        const users = await this.userList()
-        return users.find((v) => v.id === id)
-    }
-    public async userList() {
-        let users:SnowUser[] = []
-        if (this.channel instanceof Discord.TextChannel) {
-            users = this.channel.guild.members.array().map((v) => userToSnow(v))
-        } else if (this.channel instanceof Discord.GroupDMChannel) {
-            users = this.channel.recipients.array().map((v) => userToSnow(v))
-        } else if (this.channel instanceof Discord.DMChannel) {
-            users = [userToSnow(this.channel.recipient)]
+    protected handleMessage(msg:Discord.Message) {
+        const ch = msg.channel
+        if (!this.channels.has(ch.id)) {
+            this.channels.set(ch.id, new DiscordSnowCh(ch))
         }
-        return users
+        this.onMessage.dispatchAsync(this.channels.get(ch.id), messageToSnow(msg))
     }
-    public async permissions(user?:string | SnowUser):Promise<SnowPerm> {
-        if (user == null) {
-            user = this.channel.client.user.id
-        }
-        if (typeof user === "object") {
-            user = user.id
-        }
-        if (this.channel instanceof Discord.TextChannel) {
-            const perms = this.channel.permissionsFor(user)
-            return {
-                view: perms.has("READ_MESSAGES"),
-                viewHistory: perms.has("READ_MESSAGE_HISTORY"),
-                edit: perms.has("SEND_MESSAGES"),
-                send: perms.has("SEND_MESSAGES"),
-                deleteOther: perms.has("MANAGE_MESSAGES"),
-            }
-        } else {
-            return {
-                view: true,
-                viewHistory: true,
-                edit: true,
-                send: true,
-                deleteOther: false,
-            }
-        }
-    }
-    public async getConfig(depth:ConfigDepth, key:string):Promise<unknown> {
-        throw new Error("Method not implemented.")
-    }
-    protected async _send(text:string, files:Array<string | Buffer>) {
-        if (this.channel instanceof Discord.TextChannel) {
-            const sendable = this.channel.permissionsFor(this.channel.client.user).has("SEND_MESSAGES")
-            if (!sendable) {
-                return null
-            }
-        }
-        const message = getFirst(await this.channel.send(text, {
-            files,
-        }))
-        if (message != null) {
-            return messageToSnow(message)
-        }
-        return null
-    }
-}
-/**
- * Discord Message -> SnowMessage (Partial)
- * @param msg Discord Message
- */
-export function messageToSnow(msg:Discord.Message) {
-    const images:string[] = []
-    const files:string[] = []
-    if (msg.attachments.size >= 1) {
-        for (const attach of  msg.attachments.array()) {
-            if (attach.width >= 1 && attach.height >= 1) {
-                images.push(attach.url)
-            } else {
-                files.push(attach.url)
-            }
-        }
-    }
-    const snowM = new SnowMessage()
-    snowM.content = msg.content
-    snowM.fields = []
-    if (images.length >= 1) {
-        snowM.image = images.splice(0, 1)[0]
-        if (images.length >= 1) {
-            for (const i of images) {
-                snowM.fields.push({
-                    type: "image",
-                    data: i, 
-                })
-            }
-        }
-    }
-    if (files.length >= 1) {
-        for (const f of files) {
-            snowM.fields.push({
-                type: "file",
-                data: f,
-            })
-        }
-    }
-    snowM.id = BigInt(msg.id)
-    snowM.author = userToSnow(msg.member == null ? msg.author : msg.member)
-    return snowM
-}
-/**
- * Discord user -> SnowUser
- * @param user User
- */
-export function userToSnow(user:Discord.GuildMember | Discord.User) {
-    const snowU = new SnowUser()
-    snowU.id = user.id
-    if (user instanceof Discord.GuildMember) {
-        snowU.nickname = user.nickname == null ? user.user.username : user.nickname
-    } else {
-        snowU.nickname = user.username
-    }
-    snowU.platform = "discord"
-    const uImage = (u:Discord.User) => {
-        if (u.displayAvatarURL != null) {
-            return u.displayAvatarURL
-        } else {
-            return u.defaultAvatarURL
-        }
-    }
-    snowU.profileImage = uImage((user instanceof Discord.GuildMember) ? user.user : user)
-    return snowU
 }

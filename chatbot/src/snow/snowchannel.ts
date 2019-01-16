@@ -40,6 +40,7 @@ export default abstract class SnowChannel {
      * Get Permisson from this channel for me
      */
     public abstract async permissions(user?:string | SnowUser):Promise<SnowPerm>
+    public abstract async decodeArgs(args:string[]):Promise<Array<string | SnowUser | SnowChannel>>
 
     public abstract async getConfig(depth:ConfigDepth, key:string):Promise<unknown>
 }
