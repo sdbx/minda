@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"lobby/middlewares"
 	"lobby/models"
 	"lobby/servs/dbserv"
 	"strconv"
@@ -10,20 +11,21 @@ import (
 )
 
 type mapr struct {
-	DB *dbserv.DBServ
+	DB *dbserv.DBServ `dim:"on"`
 }
 
 func (m *mapr) Register(d *dim.Group) {
+	d.Use(&middlewares.AuthMiddleware{})
 	d.GET("/", m.getMaps)
 	d.POST("/", m.postMap)
-	d.DELETE("/:mapid/", m.postMap)
+	d.DELETE("/:mapid/", m.deleteMap)
 }
 
 func (m *mapr) getMaps(c2 echo.Context) error {
-	c := c2.(models.Context)
+	c := c2.(*models.Context)
 	var out []models.Map
 	err := m.DB.Q().
-		Join("maps", "maps.id = user_maps.map_id").
+		InnerJoin("user_maps", "maps.id = user_maps.map_id").
 		Where("user_maps.user_id = ?", c.User.ID).All(&out)
 	if err != nil {
 		return err
@@ -32,14 +34,14 @@ func (m *mapr) getMaps(c2 echo.Context) error {
 }
 
 func (m *mapr) postMap(c2 echo.Context) error {
-	c := c2.(models.Context)
+	c := c2.(*models.Context)
 	var item models.Map
 	err := c.Bind(&item)
 	if err != nil {
 		return err
 	}
 
-	err = c.Validate(&item)
+	err = models.Validate.Struct(&item)
 	if err != nil {
 		return err
 	}
@@ -49,7 +51,6 @@ func (m *mapr) postMap(c2 echo.Context) error {
 	if err != nil {
 		return err
 	}
-
 	err = m.DB.Create(&models.UserMap{
 		UserID: c.User.ID,
 		MapID:  item.ID,
@@ -62,7 +63,7 @@ func (m *mapr) postMap(c2 echo.Context) error {
 }
 
 func (m *mapr) deleteMap(c2 echo.Context) error {
-	c := c2.(models.Context)
+	c := c2.(*models.Context)
 	tmp := c.Param("mapid")
 	mapid, err := strconv.Atoi(tmp)
 	if err != nil {

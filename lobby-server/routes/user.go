@@ -42,7 +42,7 @@ func (u *user) getUser(c echo.Context) error {
 }
 
 func (u *user) putMe(c2 echo.Context) error {
-	c := c2.(models.Context)
+	c := c2.(*models.Context)
 	var item models.User
 	err := c.Bind(&item)
 	if err != nil {

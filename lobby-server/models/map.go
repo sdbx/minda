@@ -9,14 +9,14 @@ import (
 )
 
 type Map struct {
-	ID      int       `json:"id"`
-	Name    string    `json:"name"`
-	Payload MapString `json:"payload"`
-	Public  bool      `json:"-"`
+	ID      int       `db:"id" json:"id"`
+	Name    string    `db:"name" json:"name"`
+	Payload MapString `db:"payload" json:"payload"`
+	Public  bool      `db:"public" json:"-"`
 }
 
 type UserMap struct {
-	ID     uuid.UUID `db:"id" json:"-"`
+	ID     uuid.UUID `db:"id"`
 	UserID int       `db:"user_id"`
 	MapID  int       `db:"map_id"`
 }
