@@ -14,6 +14,7 @@ export default class DiscordSnow extends SnowProvider {
         this.channels = new Map()
     }
     public async init() {
+        await super.init()
         this.client = new Discord.Client()
         this.client.on("message", (m) => this.handleMessage(m))
         this.client.on("ready", () => this.onReady.dispatch())
