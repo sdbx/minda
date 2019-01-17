@@ -1,7 +1,6 @@
 package oauthserv
 
 import (
-	"lobby/utils"
 	"encoding/json"
 	"github.com/garyburd/redigo/redis"
 	"fmt"
