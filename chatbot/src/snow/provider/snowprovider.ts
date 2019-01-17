@@ -7,19 +7,23 @@ export abstract class SnowProvider {
     public readonly onMessage = new EventDispatcher<SnowChannel, SnowMessage>() 
     public readonly onReady:SignalDispatcher = new SignalDispatcher()
     protected token:string
+    protected prefix:string = "!"
     protected commands:Array<SnowCommand<any[], any>> = []
     public async init() {
         this.onMessage.sub((ch, msg) => this.parseCommand(ch, msg))
     }
-    public addCommand() {
-        
+    public addCommand(command:SnowCommand<any[], any>) {
+        this.commands.push(command)
     }
     protected async parseCommand(channel:SnowChannel, msg:SnowMessage) {
+        if (!msg.content.startsWith(this.prefix)) {
+            return
+        }
         const splitContents = msg.content.match(/[^\s"]+|"([^"]*)"/ig)
         if (splitContents == null) {
             return
         }
-        const commandName = splitContents[0]
+        const commandName = splitContents[0].substr(1)
         for (let i = 0; i < splitContents.length; i += 1) {
             const content = splitContents[i]
             if (content.startsWith(`"`) && content.endsWith(`"`)) {

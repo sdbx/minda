@@ -1,4 +1,4 @@
-import { SnowPlugin } from "../snow/bot/snowplugin"
+import { SnowPlugin } from "../snow/bot/snowcommand"
 import SnowChannel from "../snow/snowchannel"
 import SnowMessage from "../snow/snowmessage"
 
