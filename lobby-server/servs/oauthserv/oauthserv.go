@@ -96,7 +96,7 @@ func (a *OAuthServ) GetRequest(reqid string) (models.AuthRequest, error) {
 	var out models.AuthRequest
 	err = json.Unmarshal(buf, &out)
 	if out.Token == nil {
-		return models.AuthRequest{}, utils.ErrNotExists
+		return models.AuthRequest{}, ErrNotAuthorized
 	}
 	return out, err
 }
