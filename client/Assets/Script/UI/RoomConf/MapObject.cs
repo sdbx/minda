@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.IO;
 using SFB;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -8,7 +9,7 @@ using UnityEngine.UI;
 
 namespace UI
 {
-    public class MapObject : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
+    public class MapObject : MonoBehaviour
     {
         public bool isDirectorySelectBtn;
         public string mapName;
@@ -17,65 +18,28 @@ namespace UI
         [SerializeField]
         private RawImage background;
 
-        public MapPreview mapPreview;
-
-        private bool isSelected;
-        private bool loaded;
-        [SerializeField]
-        private Color focusedColor;
-        [SerializeField]
-        private Color selectedColor;
-        private Color originColor;
+        public MapSelector mapSelector;
 
         public int[,] map;
 
         private bool selected;
 
-        private void Start()
+        private void Awake()
         {
-            originColor = background.color;
+            gameObject.GetComponent<Button>().onClick.AddListener(OnClick);
             nameText.text = mapName;
         }
 
-        public void OnPointerEnter(PointerEventData eventData)
-        {
-            if (!isSelected)
-                background.color = focusedColor;
-        }
-
-        public void OnPointerExit(PointerEventData eventData)
-        {
-             if (!isSelected)
-                background.color = originColor;
-        }
-
-        public void OnPointerClick(PointerEventData eventData)
+        public void OnClick()
         {
             if (isDirectorySelectBtn)
             {
-                mapPreview.SelectMapInList(this);
                 OpenFileDirectory();
-            }
-            else if (isSelected)
-            {
-                if(loaded)
-                    return;
-                mapPreview.SetMap(map);
-                loaded = true;
             }
             else
             {
-                mapPreview.SelectMapInList(this);
-                isSelected = true;
-                background.color = selectedColor;
+                mapSelector.SelectMapInList(this);
             }
-        }
-
-        public void UnSelect()
-        {
-            isSelected = false;
-            loaded = false;
-            background.color = originColor;
         }
 
         public void OpenFileDirectory()
@@ -88,7 +52,8 @@ namespace UI
                     try
                     {
                         Debug.Log("맵 로드 중 : " + url);
-                        mapPreview.SetMap(Game.Boards.Board.GetMapFromString(map));
+                        var newMapObject = mapSelector.AddMapElement(Path.GetFileName(url), Game.Boards.Board.GetMapFromString(map));
+                        mapSelector.SelectMapInList(newMapObject);
                     }
                     catch (Exception e)
                     {

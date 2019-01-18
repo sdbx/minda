@@ -38,7 +38,7 @@ namespace Game
     public class ConfCommand : Command
     {
         public string type = "conf";
-        public RoomSettings conf;
+        public Conf conf;
     }
 
     public class GameStart : Command 

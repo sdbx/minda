@@ -9,7 +9,7 @@ namespace Models
         public string id = "";
         [JsonProperty("crearted_at")]
         public string createdAt;
-        public RoomSettings conf;
+        public Conf conf;
         public List<int> Users;
         public bool ingame;
     }

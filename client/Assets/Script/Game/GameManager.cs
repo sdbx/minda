@@ -21,8 +21,10 @@ namespace Game
         void Start()
         {
             boardManger.CreateBoard();
-            var game  = NetworkManager.instance.game;
-            StartGame(game.board, game.turn);
+            //var game  = NetworkManager.instance.game;
+           // StartGame(game.board, game.turn);
+           StartGame(Board.GetMapFromString("0@0@0@0@0@0@0@1@1#0@0@0@0@0@0@0@1@1#0@0@0@0@0@0@1@1@1#0@2@0@0@0@0@1@1@1#2@2@2@0@0@0@1@1@1#2@2@2@0@0@0@0@1@0#2@2@2@0@0@0@0@0@0#2@2@0@0@0@0@0@0@0#2@2@0@0@0@0@0@0@0"),BallType.Black);
+
             SetHandlers();
         }
 
@@ -33,7 +35,7 @@ namespace Game
 
         private void SetHandlers()
         {
-            NetworkManager.instance.SetHandler<MoveEvent>(MoveHandler);
+           // NetworkManager.instance.SetHandler<MoveEvent>(MoveHandler);
         }
 
 
@@ -48,7 +50,7 @@ namespace Game
 
         public void StartGame(int[,] map, BallType turn)
         {
-            myBallType = IdUtils.GetBallType(NetworkManager.instance.loggedInUser.id);
+            //myBallType = IdUtils.GetBallType(NetworkManager.instance.loggedInUser.id);
             ballManager.RemoveBalls();
             boardManger.SetMap(map);
             ballManager.CreateBalls(boardManger);
@@ -61,7 +63,7 @@ namespace Game
         public void SendBallMoving(BallSelection ballSelection, int direction)
         {
             MoveCommand moveCommand = new MoveCommand(myBallType, ballSelection.first, ballSelection.end, CubeCoord.ConvertNumToDirection(direction));
-            NetworkManager.instance.SendCommand(moveCommand);
+            //NetworkManager.instance.SendCommand(moveCommand);
         }
 
         public void myTurn()

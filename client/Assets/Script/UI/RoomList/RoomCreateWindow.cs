@@ -31,39 +31,34 @@ public class RoomCreateWindow : MonoBehaviour
 
     public void Create()
     {
-        NetworkManager.instance.RefreshLoggedInUser(() =>
+        var me = LobbyServer.instance.loginUser;
+        if (nameText.text == "")
         {
-            var me = NetworkManager.instance.loggedInUser;
-            if (nameText.text == "")
-            {
-                nameText.text = $"{me.username}'s room";
-            }
-
-            NetworkManager.instance.Post<JoinRoomResult>("/rooms/", ToJson(me) , (JoinRoomResult result, string err)=>
-            {
-                if(err!=null)
-                {
-                    Debug.Log(err);
-                    return;
-                }
-                var Addr = result.addr.Split(':');
-                SceneChanger.instance.ChangeTo("RoomConfigure");
-                NetworkManager.instance.EnterRoom(Addr[0],int.Parse(Addr[1]), result.invite);
-            });
-
-        });
+            nameText.text = $"{me.username}'s room";
+        }
+        LobbyServer.instance.Post<JoinRoomResult>("/rooms/", ToJson(), (JoinRoomResult result, string err) =>
+        {
+           if (err != null)
+           {
+               Debug.Log(err);
+               return;
+           }
+           var Addr = result.addr.Split(':');
+           SceneChanger.instance.ChangeTo("RoomConfigure");
+           GameServer.instance.EnterRoom(Addr[0], int.Parse(Addr[1]), result.invite);
+       });
     }
 
-    public string ToJson(User me)
+    public string ToJson()
     {
-        Models.RoomSettings roomSett = new RoomSettings{
+        Conf conf = new Conf{
             name = nameText.text,
-            king = me.id,
-            black = me.id,
+            king = -1,
+            black = -1,
             white = -1
         };
 
-        return JsonConvert.SerializeObject(roomSett);
+        return JsonConvert.SerializeObject(conf);
     }
 
     public void Cancel()
