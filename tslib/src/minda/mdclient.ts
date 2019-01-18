@@ -8,7 +8,7 @@ import { MindaRoom } from "./mdroom"
 import { MSRoom, MSRoomConf, MSRoomServer } from "./structure/msroom"
 import { MSUser } from "./structure/msuser"
 /**
- * 민다 서버 방 목록
+ * 민다 로비 클라이언트
  */
 export class MindaClient {
     /**
@@ -133,17 +133,17 @@ export class MindaClient {
         return this.connectRoom(roomServer)
     }
     /**
+     * [내부] 자신 스스로의 프로필을 가져옵니다.
+     */
+    public async getMyself() {
+        const myself = await extractContent<MSUser>(reqGet("GET", "/users/me/", this.token))
+        this.me = myself
+    }
+    /**
      * [내부] 동기화합니다.
      */
     protected async sync() {
         await this.fetchRoom()
-    }
-    /**
-     * [내부] 자신 스스로의 프로필을 가져옵니다.
-     */
-    protected async getMyself() {
-        const myself = await extractContent<MSUser>(reqGet("GET", "/users/me/", this.token))
-        this.me = myself
     }
     /**
      * [내부] 방에 연결합니다

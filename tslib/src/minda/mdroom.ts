@@ -1,25 +1,79 @@
 import { Socket } from "net"
 import { SignalDispatcher, SimpleEventDispatcher } from "strongly-typed-events"
 import { Immute } from "../types/deepreadonly"
-import { ChatInfo, ConnectInfo, EnterInfo, MdEvents, MdEventTypes } from "./mdevents"
-import { MSRoom, MSRoomServer } from "./structure/msroom"
+import { ChatInfo, ConfInfo, ConnectInfo, EnterInfo, LeaveInfo, MdEvents, MdEventTypes, StartInfo } from "./mdevents"
+import { MSGrid } from "./structure/msgrid"
+import { MSRoom, MSRoomConf, MSRoomServer } from "./structure/msroom"
 
 export class MindaRoom {
     /* public events */
     public onClose = new SignalDispatcher()
-    public onConnect = new SignalDispatcher()
+    /**
+     * 방에 접속을 성공했을때 발생합니다.
+     */
+    public onConnect = new SimpleEventDispatcher<MSRoom>()
+    /**
+     * 방에 누군가 들어왔을 때 발생합니다.
+     */
     public onEnter = new SimpleEventDispatcher<EnterInfo>()
+    /**
+     * 방에서 누군가가 채팅을 했을 때 발생합니다.
+     */
     public onChat = new SimpleEventDispatcher<ChatInfo>()
+    /**
+     * 방설정 값이 변경되었을 때 발생합니다.
+     * `conf`는 새로운 방설정 값을 의미합니다.
+     */
+    public onConf = new SimpleEventDispatcher<ConfInfo>()
+    /**
+     * 게임이 시작됐거나 이미 시작된 상태에서
+     * 방에 들어왔을때 발생합니다.
+     */
+    public onStart = new SimpleEventDispatcher<StartInfo>()
+    /**
+     * 유저가 게임서버를 뿅 나왔을때
+     * 발생합니다.
+     */
+    public onLeave = new SimpleEventDispatcher<LeaveInfo>()
     /* Access Helper */
+    /**
+     * 방 ID
+     */
     public get id() {
         return this.info.id
     }
+    /**
+     * 유저 목록
+     */
     public get users() {
         if (this.info.users == null) {
             return []
         }
         return [...this.info.users]
     }
+    /**
+     * 방 설정
+     */
+    public get config() {
+        return {
+            ...this.info.conf
+        } as MSRoomConf
+    }
+    /**
+     * 검은 돌 유저ID
+     */
+    public get black() {
+        return this.info.conf.black
+    }
+    /**
+     * 하얀 돌 유저ID
+     */
+    public get white() {
+        return this.info.conf.white
+    }
+    /* values */
+    public turn:"black" | "white"
+    public board:MSGrid
     /* etc */
     public connected = false
     /* protectes */
@@ -109,11 +163,46 @@ export class MindaRoom {
                         ...this.info,
                         ...connect.room,
                     }
-                    this.onConnect.dispatch()
+                    this.onConnect.dispatch(connect.room)
                 } break
                 case MdEvents.chat: {
                     const chatE = event as ChatInfo
                     this.onChat.dispatch(chatE)
+                } break
+                case MdEvents.conf: {
+                    const confE = event as ConfInfo
+                    this.info = {
+                        ...this.info,
+                        conf: confE.conf,
+                    }
+                    this.onConf.dispatch(confE)
+                } break
+                case MdEvents.start: {
+                    const startE = event as StartInfo
+                    this.info = {
+                        ...this.info,
+                        conf: {
+                            ...this.info.conf,
+                            black: startE.black,
+                            white: startE.white,
+                        }
+                    }
+                    this.turn = startE.turn
+                    this.board = startE.board
+                    this.onStart.dispatch(startE)
+                } break
+                case MdEvents.leave: {
+                    const leaveE = event as LeaveInfo
+                    const users = this.users
+                    const index = users.findIndex((v) => v === leaveE.user)
+                    if (index >= 0) {
+                        users.splice(index, 1)
+                        this.info = {
+                            ...this.info,
+                            users,
+                        }
+                    }
+                    this.onLeave.dispatch(leaveE)
                 } break
                 default: {
                     console.log(type + " / " + JSON.stringify(event, null, 2))
