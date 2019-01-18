@@ -25,8 +25,7 @@ type RoomConf struct {
 	White int    `json:"white"`
 }
 
-type Alert struct {
-	ID    int    `json:"id"`
-	Level string `json:"level"`
-	Msg   string `json:"msg"`
+type Picture struct {
+	ID      int    `db:"id"`
+	Payload []byte `db:"payload"`
 }

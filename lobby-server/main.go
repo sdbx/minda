@@ -1,15 +1,16 @@
 package main
 
 import (
-	"lobby/servs/dbserv"
-	"lobby/servs/oauthserv"
-	"time"
-	"math/rand"
 	"lobby/routes"
 	"lobby/servs/authserv"
+	"lobby/servs/dbserv"
 	"lobby/servs/discserv"
+	"lobby/servs/oauthserv"
+	"lobby/servs/picserv"
 	"lobby/servs/redisserv"
 	"lobby/servs/taskserv"
+	"math/rand"
+	"time"
 
 	"github.com/sunho/dim"
 )
@@ -17,7 +18,7 @@ import (
 func main() {
 	rand.Seed(time.Now().Unix())
 	d := dim.New()
-	d.Provide(authserv.Provide, redisserv.Provide, discserv.Provide, taskserv.Provide, oauthserv.Provide, dbserv.Provide)
+	d.Provide(authserv.Provide, redisserv.Provide, discserv.Provide, taskserv.Provide, oauthserv.Provide, dbserv.Provide, picserv.Provide)
 	d.Init("")
 	d.Register(routes.Register)
 	d.Start(":8080")
