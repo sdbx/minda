@@ -91,6 +91,31 @@ export default class SnowCommand<P extends AllowDecode[], R> {
         }
         return true
     }
+    /**
+     * 기존 파라메터를 변환하여 타입에 맞게 출력합니다.
+     * @param params 기존 파라메터
+     */
+    public convertParam(params:Array<string | number | boolean | SnowUser | SnowChannel>) {
+        const out:AllowEncode[] = []
+        for (let i = 0; i < params.length; i += 1) {
+            const param = params[i]
+            const thisType = this.paramTypes[i]
+            if (thisType === "string" && (typeof param === "number" || typeof param === "boolean")) {
+                out.push(param.toString())
+            } else if (typeof param === "object") {
+                if (param instanceof SnowUser && thisType === "SnowUser") {
+                    out.push(param)
+                }
+            } else if (typeof param === thisType) {
+                out.push(param)
+            }
+        }
+        return out
+    }
+    public async execute(context:SnowContext,params:Array<string | number | boolean | SnowUser | SnowChannel>) {
+        const result = await this.func(context, ...this.convertParam(params) as any)
+        console.log("Executed")
+    }
     /*
     public bindProvider(prov:SnowProvider) {
         prov.onMessage.sub((ch, msg) => this.handleMessage(ch, msg))

@@ -24,6 +24,7 @@ export abstract class SnowProvider {
             return
         }
         const commandName = splitContents[0].substr(1)
+        splitContents.splice(0, 1)
         for (let i = 0; i < splitContents.length; i += 1) {
             const content = splitContents[i]
             if (content.startsWith(`"`) && content.endsWith(`"`)) {
@@ -32,7 +33,7 @@ export abstract class SnowProvider {
         }
         const typedContents = await channel.decodeArgs(splitContents).then((v) => v.map((str) => {
             if (typeof str === "string") {
-                if (/^\d+{1,16}$/i.test(str)) {
+                if (/^\d{1,16}$/i.test(str)) {
                     return Number.parseInt(str)
                 } else if (str === "true" || str === "false") {
                     return str === "true"
@@ -43,5 +44,13 @@ export abstract class SnowProvider {
                 return str
             }
         }))
+        for (const command of this.commands) {
+            if (command.name === commandName && command.checkParam(typedContents)) {
+                await command.execute({
+                    channel,
+                    message: msg,
+                }, typedContents)
+            }
+        }
     }
 }
