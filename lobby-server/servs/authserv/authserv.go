@@ -1,14 +1,16 @@
 package authserv
 
 import (
-	"go.uber.org/zap"
-	"lobby/utils"
-	"github.com/gobuffalo/pop/nulls"
-	"strconv"
-	"github.com/markbates/goth"
-	"lobby/servs/dbserv"
 	"errors"
 	"lobby/models"
+	"lobby/servs/dbserv"
+	"lobby/servs/picserv"
+	"lobby/utils"
+	"strconv"
+
+	"github.com/gobuffalo/pop/nulls"
+	"github.com/markbates/goth"
+	"go.uber.org/zap"
 )
 
 var (
@@ -16,7 +18,8 @@ var (
 )
 
 type AuthServ struct {
-	DB *dbserv.DBServ `dim:"on"`
+	DB     *dbserv.DBServ   `dim:"on"`
+	Pic    *picserv.PicServ `dim:"on"`
 	secret []byte
 }
 
@@ -40,10 +43,10 @@ func (a *AuthServ) Init() error {
 		return err
 	}
 	if size == 0 {
-		user := models.User {
+		user := models.User{
 			Username: "admin",
-			Picture: nulls.String{Valid:false},
-			Permission: models.UserPermission {
+			Picture:  nulls.Int{Valid: false},
+			Permission: models.UserPermission{
 				Admin: true,
 			},
 		}
@@ -62,27 +65,40 @@ func (a *AuthServ) GetUser(id int) (models.User, error) {
 	return user, err
 }
 
+func (a *AuthServ) uploadImg(url string) (int, error) {
+	img, err := a.Pic.DownloadImage(url)
+	if err != nil {
+		return 0, err
+	}
+	return a.Pic.UploadImage(img)
+}
+
 func (a *AuthServ) CreateUserByOAuth(provider string, guser goth.User) (models.User, error) {
 	username := guser.NickName
 	if username == "" {
 		username = guser.Name
 	}
-	picture := nulls.String{Valid:false}
+	picture := nulls.Int{Valid: false}
 	if guser.AvatarURL != "" {
-		picture = nulls.NewString(guser.AvatarURL)
+		id, err := a.uploadImg(guser.AvatarURL)
+		if err != nil {
+			utils.Log.Error("Error while uploading image", zap.Error(err))
+		} else {
+			picture = nulls.NewInt(id)
+		}
 	}
 	user := models.User{
 		Username: username,
-		Picture: picture,
+		Picture:  picture,
 	}
 	err := a.DB.Eager().Create(&user)
 	if err != nil {
 		return models.User{}, err
 	}
-	ouser := models.OAuthUser {
+	ouser := models.OAuthUser{
 		Provider: provider,
-		ID: guser.UserID,
-		UserID: user.ID,
+		ID:       guser.UserID,
+		UserID:   user.ID,
 	}
 	err = a.DB.Create(&ouser)
 	return user, err
@@ -129,7 +145,7 @@ func (a *AuthServ) Authorize(token string) (models.User, error) {
 		}, nil
 	}
 
-	id, err := a.ParseToken(token) 
+	id, err := a.ParseToken(token)
 	if err != nil {
 		return models.User{}, err
 	}
