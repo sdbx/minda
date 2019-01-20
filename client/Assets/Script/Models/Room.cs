@@ -7,8 +7,7 @@ namespace Models
     public class Room
     {
         public string id = "";
-        [JsonProperty("crearted_at")]
-        public string createdAt;
+        public DateTime created_at;
         public Conf conf;
         public List<int> Users;
         public bool ingame;

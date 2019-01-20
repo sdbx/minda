@@ -17,6 +17,8 @@ namespace UI
         private Text nameText;
         [SerializeField]
         private RawImage background;
+        [SerializeField]
+        public ElementDisplaySetter displaySetter;
 
         public MapSelector mapSelector;
 
@@ -27,6 +29,10 @@ namespace UI
         private void Awake()
         {
             gameObject.GetComponent<Button>().onClick.AddListener(OnClick);
+        }
+
+        private void Start() 
+        {
             nameText.text = mapName;
         }
 
@@ -38,8 +44,19 @@ namespace UI
             }
             else
             {
-                mapSelector.SelectMapInList(this);
+                Select();
             }
+        }
+
+        public void Select()
+        {
+            mapSelector.SelectMapInList(this);
+            displaySetter.Select();
+        }
+
+        public void UnSelect()
+        {
+            displaySetter.UnSelect();
         }
 
         public void OpenFileDirectory()
@@ -53,7 +70,8 @@ namespace UI
                     {
                         Debug.Log("맵 로드 중 : " + url);
                         var newMapObject = mapSelector.AddMapElement(Path.GetFileName(url), Game.Boards.Board.GetMapFromString(map));
-                        mapSelector.SelectMapInList(newMapObject);
+                        newMapObject.Select();
+                        mapSelector.ScorllBottom();
                     }
                     catch (Exception e)
                     {

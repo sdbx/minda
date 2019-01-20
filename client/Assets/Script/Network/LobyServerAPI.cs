@@ -44,6 +44,11 @@ namespace Network
             }
         }
 
+        public static void GetMyMaps(Action<Map[], string> callback)
+        {
+            LobbyServer.instance.Get<Map[]>("/maps/",callback);
+        }
+
 
     }
 }

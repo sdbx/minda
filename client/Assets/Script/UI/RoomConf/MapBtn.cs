@@ -16,11 +16,11 @@ namespace UI
         private float speed = 0.01f;
         private bool isMouseEnter;
         [SerializeField]
-        private MapSelectorToggler mapList;
+        private MapSelectorToggler mapListToggler;
 
         void Update()
         {
-            if (isMouseEnter && gameObject.transform.localScale.x < maxScale)
+            if (isMouseEnter && mapListToggler.isUnActivated && gameObject.transform.localScale.x < maxScale)
             {
                 var transform = gameObject.transform;
                 float value = transform.localScale.x + speed;
@@ -46,7 +46,7 @@ namespace UI
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            mapList.ToggleActivation();
+            mapListToggler.ToggleActivation();
         }
     }
 

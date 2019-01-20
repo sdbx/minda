@@ -24,7 +24,7 @@ namespace UI
         private MapObject selectedMap;
 
 
-        void Start()
+        void Awake()
         {
             board = new Board(5);
         }

@@ -7,7 +7,7 @@ namespace UI
 {
     public class MapSelectorToggler : MonoBehaviour
     {
-        private enum State
+        public enum State
         {
             UnActivated,
             Activating,
@@ -17,7 +17,11 @@ namespace UI
         [SerializeField]
         private GameObject mapSelector;
         private Vector3 originPosition;
+        
         private State state = State.UnActivated;
+        public bool isActivated { get { return state == State.Activated; } }
+        public bool isUnActivated { get { return state == State.UnActivated; } }
+
         [SerializeField]
         private float duration = 0.3f;
         private Vector3 unActivatedScale = new Vector3(0f, 0f, 1);
@@ -60,9 +64,9 @@ namespace UI
             {
                 canvasGroup.alpha = 1;
                 mapSelector.SetActive(true);
-                //mapSelector.transform.localScale = unActivatedScale;
+                mapSelector.transform.localScale = unActivatedScale;
                 state = State.Activating;
-                mapSelector.transform.DOScale(new Vector3(0.1f,0.1f,1), duration).OnComplete(() =>
+                mapSelector.transform.DOScale(new Vector3(1f,1f,1), duration).OnComplete(() =>
                 {
                     state = State.Activated;
                 });
