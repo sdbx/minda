@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 using Network;
 using Models;
 using Scene;
+using System;
 
 namespace UI
 {
@@ -36,6 +37,7 @@ namespace UI
             roomObject.roomListManger = this;
             roomObject.index = _roomList.Count;
             _roomList.Add(roomObject);
+            roomObject.Refresh();
         }
 
         private void CreateRoomList(Room[] rooms, string err)
@@ -47,6 +49,8 @@ namespace UI
             }
             if(rooms==null)
                 return;
+
+            Array.Sort(rooms, Sorter.SortRoomWithDateTime);
             for(int i = 0;i<rooms.Length;i++)
             {
                 Add(rooms[i]);
