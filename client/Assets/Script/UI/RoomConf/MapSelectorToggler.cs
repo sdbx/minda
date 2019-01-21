@@ -14,6 +14,7 @@ namespace UI
             Activated,
             UnActivating,
         }
+
         [SerializeField]
         private GameObject mapSelector;
         private Vector3 originPosition;
@@ -50,7 +51,7 @@ namespace UI
             if (state == State.Activated)
             {
                 state = State.UnActivating;
-                mapSelector.transform.DOScale(unActivatedScale,duration).SetEase(Ease.InCirc).OnComplete(()=>
+                mapSelector.transform.DOScale(unActivatedScale,duration).SetEase(Ease.InQuart).OnComplete(()=>
                 {
                     mapSelector.SetActive(false);
                     state = State.UnActivated;
@@ -66,7 +67,7 @@ namespace UI
                 mapSelector.SetActive(true);
                 mapSelector.transform.localScale = unActivatedScale;
                 state = State.Activating;
-                mapSelector.transform.DOScale(new Vector3(1f,1f,1), duration).SetEase(Ease.InOutSine).OnComplete(() =>
+                mapSelector.transform.DOScale(new Vector3(1f,1f,1), duration).SetEase(Ease.OutQuart).OnComplete(() =>
                 {
                     state = State.Activated;
                 });
