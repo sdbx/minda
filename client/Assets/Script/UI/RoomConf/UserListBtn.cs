@@ -26,11 +26,6 @@ namespace UI
             userListRectTransfom = userList.GetComponent<RectTransform>();
         }
 
-        void Update()
-        {
-
-        }
-
         public void OnPointerEnter(PointerEventData eventData)
         {
             if(!Activated)
@@ -45,13 +40,25 @@ namespace UI
 
         public void OnPointerClick(PointerEventData eventData)
         {
+            Active();
+        }
+
+        public void Active()
+        {
             Activated = true;
             rectTransform.DOPivotX(1,duration/2).OnComplete(()=>
             {
                 rectTransform.DOPivotX(0,duration);
                 userListRectTransfom.DOPivotX(1,duration*2).SetEase(Ease.InOutSine);
             });
-            
+        }
+
+        public void UnActive()
+        {
+            userListRectTransfom.DOPivotX(0,duration*2).SetEase(Ease.InOutSine).OnComplete(()=>
+            {
+                rectTransform.DOPivotX(originPivot.x,duration).OnComplete(()=>{Activated = false;});
+            });
         }
     }
 }
