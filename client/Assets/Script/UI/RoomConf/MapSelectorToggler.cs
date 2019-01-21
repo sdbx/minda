@@ -50,7 +50,7 @@ namespace UI
             if (state == State.Activated)
             {
                 state = State.UnActivating;
-                mapSelector.transform.DOScale(unActivatedScale,duration).OnComplete(()=>
+                mapSelector.transform.DOScale(unActivatedScale,duration).SetEase(Ease.InCirc).OnComplete(()=>
                 {
                     mapSelector.SetActive(false);
                     state = State.UnActivated;
@@ -66,7 +66,7 @@ namespace UI
                 mapSelector.SetActive(true);
                 mapSelector.transform.localScale = unActivatedScale;
                 state = State.Activating;
-                mapSelector.transform.DOScale(new Vector3(1f,1f,1), duration).OnComplete(() =>
+                mapSelector.transform.DOScale(new Vector3(1f,1f,1), duration).SetEase(Ease.InOutSine).OnComplete(() =>
                 {
                     state = State.Activated;
                 });

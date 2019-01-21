@@ -12,9 +12,11 @@ namespace UI
     {
         //player2 가 본인
         [SerializeField]
-        private UserInfoDisplay player1InfoDisplay;
+        private UserList userList;
         [SerializeField]
-        private UserInfoDisplay player2InfoDisplay;
+        private PlayerInfoDisplay player1InfoDisplay;
+        [SerializeField]
+        private PlayerInfoDisplay player2InfoDisplay;
         [SerializeField]
         private StartBtn startBtn;
 
@@ -27,6 +29,12 @@ namespace UI
 
         private void UserEnter(int id, BallType ballType)
         {
+            if(LobbyServer.instance.loginUser.id == id)
+                userList.Create(GameServer.instance.connectedRoom.Users.ToArray());
+            else
+            {
+                userList.Add(id);
+            }
             UpdateAllConf();
         }
 
