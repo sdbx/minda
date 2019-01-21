@@ -2,11 +2,13 @@ import { Socket } from "net"
 import { EventDispatcher, SignalDispatcher, SimpleEventDispatcher } from "strongly-typed-events"
 import { Immute } from "../types/deepreadonly"
 import { Serializable, SerializeObject } from "../types/serializable"
+import { WebpackTimer } from "../webpacktimer"
 import { ChatInfo, ConfInfo, ConnectInfo, EnterInfo,
     ErrorInfo, LeaveInfo, MdCommands, MdEvents,
     MdEventTypes, StartInfo } from "./mdevents"
 import { MSGrid } from "./structure/msgrid"
 import { MSRoom, MSRoomConf, MSRoomServer } from "./structure/msroom"
+import { MSUser } from "./structure/msuser"
 
 /**
  * 민다룸 백앤드 (방목록 동기화)
@@ -30,6 +32,18 @@ class MindaRoomBase implements MSRoom {
      */
     public get white() {
         return this.conf.white
+    }
+    /**
+     * 방의 관리자
+     */
+    public get owner() {
+        return this.conf.king
+    }
+    /**
+     * 방의 이름
+     */
+    public get name() {
+        return this.conf.name
     }
     /* Value implements */
     /**
@@ -114,9 +128,17 @@ class MindaRoomBase implements MSRoom {
             })
         })
     }
+    /**
+     * 소켓 강제 종료
+     */
     public close() {
-
+        this.socket.destroy()
     }
+    /**
+     * 웹소켓 패킷을 관리합니다.
+     * @param type 이벤트 타입
+     * @param event 이벤트 파라메터
+     */
     protected async handleRoomPacket(type:MdEvents, event:unknown) {
         switch (type) {
             case MdEvents.chat: {
@@ -166,7 +188,7 @@ class MindaRoomBase implements MSRoom {
                 this.onLeave.dispatch(leaveE)
             } break
             case MdEvents.move: {
-                // @TODO 몬가..
+                // @TODO 언젠가 합시다
             } break
             case MdEvents.start: {
                 const startE = event as StartInfo
@@ -227,21 +249,157 @@ class MindaRoomBase implements MSRoom {
         }
     }
 }
+/**
+ * 민다의 게임하는 방을 관리합니다.
+ * 
+ * 모든 명령어는 불가능할시 false, 가능할시 true를 반환합니다.
+ */
 export class MindaRoom extends MindaRoomBase {
-    public constructor(serverInfo:MSRoomServer) {
+    protected readonly me:MSUser
+    public constructor(serverInfo:MSRoomServer,myid:MSUser) {
         super(serverInfo)
+        this.me = {
+            ...myid
+        }
     }
     /**
      * 채팅을 보냅니다.
      * @param chat 글자
      */
-    public sendChat(chat:string) {
+    public sendChat(msg:string) {
         if (!this.connected) {
-            return
+            return false
         }
         this.send("chat", {
-            content: chat,
+            content: msg,
         })
+        return true
+    }
+    /**
+     * `방이름`을 바꿉니다.
+     * @param name 바꿀 방이름
+     */
+    public setName(name:string) {
+        return this.setConfig({
+            name,
+        })
+    }
+    /**
+     * `검은팀`을 바꿉니다.
+     * @param user 검은팀으로 갈 유저이름
+     */
+    public setBlack(user:number | MSUser) {
+        return this.setConfig({
+            black: this.getIdOfUser(user),
+        })
+    }
+    /**
+     * `하얀팀`을 바꿉니다.
+     * @param user 하얀팀으로 갈 유저이름
+     */
+    public setWhite(user:number | MSUser) {
+        return this.setConfig({
+            white: this.getIdOfUser(user),
+        })
+    }
+    /**
+     * `방장`을 바꿉니다.
+     * 
+     * **방장을 잃습니다**
+     * @param user 방장 위임할 유저이름 
+     */
+    public async setOwner(user:number | MSUser) {
+        if (this.isOwner(this.me) &&
+            this.getIdOfUser(user) === this.me.id) {
+            // no need to handle
+            return true
+        }
+        return this.setConfig({
+            king: this.getIdOfUser(user),
+        })
+    }
+    /**
+     * `방설정`을 바꿉니다.
+     * @param cfg 방설정
+     */
+    public async setConfig(cfg:Partial<MSRoomConf>) {
+        if (!this.connected || !this.isOwner(this.me)) {
+            return false
+        }
+        if (this.ingame) {
+            return false
+        }
+        const modified = {
+            ...this.conf,
+            ...cfg,
+        }
+        this.send("conf", {
+            conf: modified,
+        })
+        return new Promise<boolean>((res, rej) => {
+            let revoke:() => void
+            WebpackTimer.setTimeout(() => {
+                revoke()
+                rej("Timeout")
+            }, 1000)
+            revoke = this.onConf.sub((conf) => {
+                let diff = false
+                for (const key of Object.keys(conf)) {
+                    if (conf.hasOwnProperty(key)) {
+                        if (conf[key] !== modified[key]) {
+                            diff = true
+                            break
+                        }
+                    }
+                }
+                if (!diff) {
+                    res(true)
+                }
+            })
+        })
+        return true
+    }
+    /**
+     * 게임을 시작합니다.
+     * 
+     * `방설정`이 제대로 됐는지 확인해주세요.
+     */
+    public startGame() {
+        if (!this.connected || !this.isOwner(this.me)) {
+            return false
+        }
+        if (this.black >= 0 && this.white >= 0) {
+            this.send("start")
+            return true
+        }
+        return false
+    }
+    /**
+     * **빠른 서렌**칩니다.
+     * `정치`하는데 편합니다.
+     */
+    public giveUp() {
+        if (!this.connected || !this.ingame) {
+            return false
+        }
+        if (this.white === this.me.id || this.black === this.me.id) {
+            this.send("gg")
+            return true
+        }
+        return false
+    }
+    /**
+     * 방장인지 확인합니다.
+     * @param id 유-저
+     */
+    protected isOwner(id:number | MSUser) {
+        return this.owner === this.getIdOfUser(id)
+    }
+    protected getIdOfUser(id:number | MSUser) {
+        if (typeof id === "object") {
+            id = id.id
+        }
+        return id
     }
 }
 class MindaEventDispatcher<T> extends SimpleEventDispatcher<Exclude<T, "type">> {}

@@ -1,5 +1,5 @@
 import { DeepReadonly } from "../types/deepreadonly"
-import { Serializable } from "../types/serializable"
+import { Serializable, Serializify } from "../types/serializable"
 import { MindaClient } from "./mdclient"
 import { MindaCredit } from "./mdcredit"
 import { MindaError } from "./mderror"
@@ -39,17 +39,17 @@ export class MindaAdmin extends MindaClient {
      * @param user 맨들 유저
      * @returns 맨들어진 유저
      */
-    public async createUser(user:MakeUser, uid?:number) {
+    public async createUser(name:string, isAdmin:boolean, uid?:number) {
         const orgUsers = (await this.listUsers()).map((v) => v.id)
         const hasID = uid != null
         const res = await reqPost(hasID ? "PUT" : "POST",`/admin/users/${hasID ? uid + "/" : ""}`, this.token, {
             uid,
-            picture: null,
-            ...user,
+            picture: -1,
+            username: name,
             permission: {
-                ...user,
+                admin: isAdmin,
             }
-        })
+        } as Serializify<Omit<MSUser, "id">>)
         if (res.ok) {
             const users = await this.listUsers()
             return users.find((v) => orgUsers.findIndex((vi) => vi === v.id) < 0)

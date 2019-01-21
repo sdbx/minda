@@ -40,7 +40,8 @@ export interface MdCommands {
          * @type 벡터 (Delta)
          */
         dir:MSCords,
-    }
+    };
+    gg:{};
 }
 /**
  * 연결됐을 때
