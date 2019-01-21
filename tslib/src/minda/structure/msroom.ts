@@ -2,7 +2,7 @@ import { SerializeObject } from "../../types/serializable"
 import { MSGameConf } from "./msgameconf"
 import { MSUser } from "./msuser"
 
-export interface MSRoom extends SerializeObject {
+export interface MSRoom {
     /**
      * 아이디
      */
@@ -24,7 +24,7 @@ export interface MSRoom extends SerializeObject {
      */
     ingame:boolean,
 }
-export interface MSRoomConf extends SerializeObject {
+export interface MSRoomConf {
     /**
      * 방이름
      */
@@ -33,10 +33,10 @@ export interface MSRoomConf extends SerializeObject {
      * 방장
      */
     king:number,
-    /**
+    /*
      * 게임 규칙
      */
-    rule:string,
+    // rule:string,
     /**
      * 흑돌 유저
      */
@@ -46,7 +46,7 @@ export interface MSRoomConf extends SerializeObject {
      */
     white:number,
 }
-export interface MSRoomServer extends SerializeObject {
+export interface MSRoomServer {
     invite:string,
     addr:string,
 }

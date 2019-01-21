@@ -12,19 +12,13 @@ async function run() {
     })
     */
     const aClient = new MindaAdmin("WU7htx_4_helo4FO3Im44pU=")
-    await new Promise((res, rej) => {
-        aClient.onReady.one(() => res())
-    })
-    const u = await aClient.createUser({
-        username: "끼로",
-        admin: false,
-        picture: "kkiro.png",
-    })
-    console.log(u)
-    console.log(aClient.me)
-    console.log(await aClient.getTokenOfUser(u))
-    console.log(JSON.stringify(await aClient.listGameServers(), null, 4))
-    await aClient.removeUser(u)
+    await aClient.init()
+    const black = new MindaClient("black")
+    await black.init()
+    const white = new MindaClient("white")
+    await white.init()
+    const room = await black.createRoom("맞짱1")
+    white.joinRoom(room)
 }
 
 run()

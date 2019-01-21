@@ -51,7 +51,7 @@ export class MindaClient {
         } else {
             this.token = token.token
         }
-        this.init().then(() => this.onReady.dispatch())
+        // this.init().then(() => this.onReady.dispatch())
     }
     /**
      * 기초적인 비동기적 설정을 합니다.
@@ -59,6 +59,7 @@ export class MindaClient {
     public async init() {
         await this.getMyself()
         await this.fetchRoom()
+        await this.sync()
         this.autoSync()
     }
     /**
@@ -116,9 +117,14 @@ export class MindaClient {
      * @param roomConf 방설정
      * @returns 방 혹은 null (실패)
      */
-    public async createRoom(roomConf:MSRoomConf) {
+    public async createRoom(name:string) {
         const roomServer = await extractContent<MSRoomServer>(
-            reqPost("POST", `/rooms/`, this.token, roomConf))
+            reqPost("POST", `/rooms/`, this.token, {
+                name,
+                king: this.me.id,
+                black: -1,
+                white: -1,
+            }))
         return this.connectRoom(roomServer)
     }
     /**
