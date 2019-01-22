@@ -5,8 +5,7 @@ use server::server::Server;
 use error::Error;
 
 pub fn game_move(server: &mut Server, conn: &Connection, start: AxialCord, end: AxialCord, dir: AxialCord) -> Result<(), Error> {
-    let (room, event) = {
-        let room = server.get_room(&conn)?;
+    let event = {
         let game = server.get_game_mut(&conn)?;
         let turn = match game.get_turn(conn.user_id) {
             Ok(x) => x,
@@ -14,18 +13,25 @@ pub fn game_move(server: &mut Server, conn: &Connection, start: AxialCord, end: 
         };
 
         game.run_move(conn.user_id, start, end, dir)?;
-        (room.id.clone(), Event::Moved {
+        Event::Moved {
             player: turn.to_string(),
             start: start,
             end: end,
             dir: dir
-        })
+        }
     };
 
-    server.broadcast(&room, &event);
+    server.broadcast(&conn.room_id.unwrap(), &event);
     Ok(())
 }
 
 pub fn game_gg(server: &mut Server, conn: &Connection) -> Result<(), Error> {
-
+    let event = {
+        let game = server.get_game_mut(&conn)?;
+        if game.black == conn.user_id {
+            Event::Ended {
+                
+            }
+        }
+    }
 }

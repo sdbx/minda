@@ -1,3 +1,5 @@
+use std::cmp::min;
+use std::cmp::max;
 use std::collections::VecDeque;
 use std::iter::FromIterator;
 use std::fmt::{self, Display, Formatter};
@@ -56,18 +58,6 @@ impl Player {
         match self {
             Player::White => "white".to_owned(),
             Player::Black => "black".to_owned()
-        }
-    }
-}
-
-pub struct Game {
-    pub board: Board,
-}
-
-impl Game {
-    pub fn new(board: Board) -> Self {
-        Self {
-            board: board
         }
     }
 }
@@ -148,6 +138,25 @@ impl Board {
         let (i, j) = self.to_axial(cord);
         self.payload[i][j] = stone;
         Ok(())
+    }
+
+    // (black, white)
+    pub fn count_stones(&self) -> (usize, usize) {
+        let N = self.side();
+        let mut black = 0;
+        let mut white = 0;
+        for x in -N..N+1 {
+            for y in max(-N, -x-N)..min(N, -x+N)+1 {
+                let z = -x-y;
+                let stone = self.get(Cord(x,y,z)).unwrap();
+                match stone {
+                    Stone::Black => { black += 1; },
+                    Stone::White => { white += 1; },
+                    _ => { },
+                }
+            }
+        }
+        (black, white)
     }
 
     fn validate(&self, cord: Cord) -> bool {

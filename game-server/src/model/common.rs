@@ -68,5 +68,13 @@ pub struct RoomConf {
     pub king: UserId,
     pub black: UserId,
     pub white: UserId,
-    pub map: String
+    pub map: String,
+    pub game_rule: GameRule
+}
+
+#[derive(Serialize, PartialEq, Deserialize, Debug, Clone)]
+pub struct GameRule {
+    pub defeat_lost_stones: usize,
+    pub turn_timeout: usize,
+    pub game_timeout: usize
 }
