@@ -1,6 +1,6 @@
 namespace Models
 {
-    public class RoomSettings
+    public class Conf
     {
         public string name;
         public int king;

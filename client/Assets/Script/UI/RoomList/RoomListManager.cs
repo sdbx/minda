@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 using Network;
 using Models;
 using Scene;
+using System;
 
 namespace UI
 {
@@ -18,12 +19,15 @@ namespace UI
         private ScrollRect scrollRect;
         private Transform content;
         private List<RoomObject> _roomList = new List<RoomObject>();
-        
-        private int _selectedRoomIndex = -1;
 
         private void Awake()
         {
             content = scrollRect.transform.GetChild(0).GetChild(0);
+        }
+
+        void Start()
+        {
+            RefreshRoomList();
         }
 
         public void Add(Room room)
@@ -33,38 +37,20 @@ namespace UI
             roomObject.roomListManger = this;
             roomObject.index = _roomList.Count;
             _roomList.Add(roomObject);
-        }
-
-        public void SelectRoom(int index)
-        {
-            Debug.Log(index);
-            UnSelectRoom();
-            _roomList[index].Select();
-            _selectedRoomIndex = index;
-        }
-
-        public void UnSelectRoom()
-        {
-            if(_selectedRoomIndex==-1)
-                return;
-            _roomList[_selectedRoomIndex].UnSelect();
-            _selectedRoomIndex = -1;
-        }
-
-        void Start()
-        {
-            RefreshRoomList();
+            roomObject.Refresh();
         }
 
         private void CreateRoomList(Room[] rooms, string err)
         {
             if(err!=null)
             {
-                Debug.Log("방 목록 받아오기 실패 " + err);
+                Debug.LogError("방 목록 받아오기 실패 " + err);
                 return;
             }
             if(rooms==null)
                 return;
+
+            Array.Sort(rooms, Sorter.SortRoomWithDateTime);
             for(int i = 0;i<rooms.Length;i++)
             {
                 Add(rooms[i]);
@@ -78,24 +64,23 @@ namespace UI
                 Destroy(room.gameObject);
             }
             _roomList.Clear();
-            NetworkManager.instance.Get<Room[]>("/rooms/",CreateRoomList);
+            LobbyServer.instance.Get<Room[]>("/rooms/", CreateRoomList);
         }
 
         public void EnterRoom(Room room)
         {
-            NetworkManager.instance.Put("/rooms/" + room.id + "/", "", (JoinRoomResult joinRoomResult, string err) =>
+            LobbyServer.instance.Put("/rooms/" + room.id + "/", "", (JoinRoomResult joinRoomResult, string err) =>
             {
                 if (err != null)
                 {
-                    Debug.Log(err);
+                    Debug.LogError(err);
                     return;
                 }
-                Debug.Log(joinRoomResult.addr);
                 var Addr = joinRoomResult.addr.Split(':');
                 SceneChanger.instance.ChangeTo("RoomConfigure");
-                NetworkManager.instance.EnterRoom(Addr[0], int.Parse(Addr[1]), joinRoomResult.invite);
+                GameServer.instance.EnterRoom(Addr[0], int.Parse(Addr[1]), joinRoomResult.invite);
             });
         }
-    }
 
+    }
 }

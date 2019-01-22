@@ -4,6 +4,6 @@ export interface MSUser {
     id:number,
     username:string,
     // nullable
-    picture?:string,
+    picture?:number,
     permission:MSPerm,
 }

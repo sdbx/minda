@@ -14,17 +14,17 @@ namespace Network
         CONNECTED
     }
 
-    public class AsyncCallbackClient
+    public class SocketClient
     {
         public Queue<string> dataQueue = new Queue<string>();
         public Queue<string> logQueue = new Queue<string>();
-        public Action connectedCallback;
+        private Action connectedCallback;
         public ClientState state = ClientState.DISCONNECTED;
 
         private Socket client;
         private byte[] receiveByte;
 
-        public void Connect(string ip, int port)
+        public void Connect(string ip, int port, Action callback)
         {
             try
             {
@@ -33,6 +33,7 @@ namespace Network
                 client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 IPEndPoint remoteEP = new IPEndPoint(ipAddress, port);
                 client.BeginConnect(remoteEP, new AsyncCallback(ConnectCallback), client);
+                connectedCallback = callback;
             }
             catch (Exception e)
             {

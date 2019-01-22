@@ -1,9 +1,11 @@
 import Diff from "deep-diff"
+import fetch from "node-fetch"
 import { SignalDispatcher, SimpleEventDispatcher } from "strongly-typed-events"
 import { Immute } from "../types/deepreadonly"
 import { TimerID, WebpackTimer } from "../webpacktimer"
+import { defaultProfile } from "./mdconst"
 import { MindaCredit } from "./mdcredit"
-import { extractContent, reqGet, reqPost } from "./mdrequest"
+import { extractContent, reqBinary, reqGet, reqPost } from "./mdrequest"
 import { MindaRoom } from "./mdroom"
 import { MSRoom, MSRoomConf, MSRoomServer } from "./structure/msroom"
 import { MSUser } from "./structure/msuser"
@@ -15,7 +17,7 @@ export class MindaClient {
      * 방 목록 (immutable)
      */
     public rooms:Immute<MSRoom[]> = []
-    public me:Immute<MSUser>
+    public me:MSUser
     /**
      * 방목록 동기화 및 프로필을 불러왔을때
      */
@@ -40,6 +42,10 @@ export class MindaClient {
      * 인증 토큰
      */
     protected token:string
+    /**
+     * 기본 프로필 이미지
+     */
+    protected defaultPicture:Buffer
     protected syncer:TimerID
     /**
      * 새로운 민다-클라를 생성합니다.
@@ -51,14 +57,16 @@ export class MindaClient {
         } else {
             this.token = token.token
         }
-        this.init().then(() => this.onReady.dispatch())
+        // this.init().then(() => this.onReady.dispatch())
     }
     /**
      * 기초적인 비동기적 설정을 합니다.
      */
     public async init() {
+        this.defaultPicture = await fetch(defaultProfile).then((v) => v.buffer())
         await this.getMyself()
-        await this.fetchRoom()
+        await this.fetchRooms()
+        await this.sync()
         this.autoSync()
     }
     /**
@@ -78,7 +86,7 @@ export class MindaClient {
     /**
      * 방 목록을 불러옵니다.
      */
-    public async fetchRoom() {
+    public async fetchRooms() {
         const rooms = await extractContent<MSRoom[]>(reqGet("GET", "/rooms/", this.token))
         rooms.sort((a,b) => a.created_at - b.created_at)
         if (this.rooms != null) {
@@ -116,9 +124,14 @@ export class MindaClient {
      * @param roomConf 방설정
      * @returns 방 혹은 null (실패)
      */
-    public async createRoom(roomConf:MSRoomConf) {
+    public async createRoom(name:string) {
         const roomServer = await extractContent<MSRoomServer>(
-            reqPost("POST", `/rooms/`, this.token, roomConf))
+            reqPost("POST", `/rooms/`, this.token, {
+                name,
+                king: this.me.id,
+                black: -1,
+                white: -1,
+            }))
         return this.connectRoom(roomServer)
     }
     /**
@@ -133,6 +146,38 @@ export class MindaClient {
         return this.connectRoom(roomServer)
     }
     /**
+     * 유저의 프로필 이미지를 불러옵니다.
+     * @param id 유저의 이미지 ID 혹은 유저
+     */
+    public async getUserImage(id:number | MSUser) {
+        if (typeof id === "object") {
+            id = id.picture
+        }
+        if (id < 0) {
+            return this.defaultPicture
+        }
+        const buf = await reqBinary("GET", `/pics/${id}/`, this.token)
+        if (buf.ok) {
+            return buf.buffer()
+        } else {
+            return this.defaultPicture
+        }
+    }
+    /**
+     * 자신의 프로필 이미지를 설정합니다.
+     * @param image 이미지(Buffer)
+     */
+    public async setProfileImage(image:Buffer) {
+        const result = await reqBinary("POST", "/pics/", this.token, image)
+        if (result.ok) {
+            await this.getMyself()
+            return extractContent<{pic_id:number}>(result)
+                .then((v) => v.pic_id)
+        } else {
+            return -1
+        }
+    }
+    /**
      * [내부] 자신 스스로의 프로필을 가져옵니다.
      */
     public async getMyself() {
@@ -143,7 +188,7 @@ export class MindaClient {
      * [내부] 동기화합니다.
      */
     protected async sync() {
-        await this.fetchRoom()
+        await this.fetchRooms()
     }
     /**
      * [내부] 방에 연결합니다
@@ -151,7 +196,7 @@ export class MindaClient {
      */
     protected async connectRoom(roomServer:MSRoomServer) {
         try {
-            const mindaRoom = new MindaRoom(roomServer)
+            const mindaRoom = new MindaRoom(roomServer, this.me)
             return new Promise<MindaRoom>((res, rej) => {
                 let timer:TimerID
                 const fn = mindaRoom.onConnect.one(() => {

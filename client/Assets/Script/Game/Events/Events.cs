@@ -38,6 +38,11 @@ namespace Game.Events
 
     public class ConfedEvent : Event
     {
-        public RoomSettings conf;
+        public Conf conf;
+    }
+
+    public class ErrorEvent : Event
+    {
+        public string msg;
     }
 }

@@ -35,6 +35,6 @@ public class StartBtn : MonoBehaviour
     {
         if(!isActivated)
             return;
-        NetworkManager.instance.SendCommand(new GameStart());
+        GameServer.instance.SendCommand(new GameStart());
     }
 }

@@ -1,18 +1,24 @@
+using Game;
+
 namespace Models
 {
     public class User
     {
-        public static User waiting
-        {
-            get{return new User{
-                    id = -1,
-                    username = "Waiting.."
-                    };
-                }
-        }
-
         public int id = -1;
         public string username = "";
         public string picture = "";
+    }
+    public class InGameUser
+    {
+        public User user;
+        public BallType ballType = BallType.None;
+        public bool isSpectator
+        {
+            get
+            {
+                return ballType == BallType.None;
+            }
+        }
+        public bool isKing = false;
     }
 }

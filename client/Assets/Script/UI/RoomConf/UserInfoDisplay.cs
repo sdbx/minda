@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using Game;
+using Models;
 using Network;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,50 +10,45 @@ namespace UI
 {
     public class UserInfoDisplay : MonoBehaviour
     {
-        public Models.User user;
+        private int UserId;
+        private BallType ballType = BallType.Black;
 
-        public bool isKing;
         [SerializeField]
         private RawImage profileImage;
         [SerializeField]
-        private RawImage backGround;
-        [SerializeField]
         private Text usernameText;
         [SerializeField]
-        private Text informationText;
-        [SerializeField]
-        private Texture backgroundBlack;
-        [SerializeField]
-        private Texture backgroundWhite;
+        private Text imformationText;
         [SerializeField]
         private GameObject kingIcon;
-        public BallType ballType = BallType.White;
+        private Texture placeHolder;
 
-        public void Display()
+        private void Start() 
         {
-            if(ballType == BallType.Black)
+            placeHolder = UISettings.instance.placeHolder;
+        }
+
+        public void display(int id)
+        {
+            UserId = id;
+
+            GameServer.instance.GetInGameUser(id, (InGameUser inGameUser)=>
             {
-                backGround.texture = backgroundBlack;
-                usernameText.color = Color.white;
-                informationText.color = Color.white;
-            }
-            else
-            {
-                backGround.texture = backgroundWhite;
-                usernameText.color = Color.black;
-                informationText.color = Color.black;
-            }
-            kingIcon.SetActive(isKing);
-            if(user.picture != null)
-            {
-                NetworkManager.instance.DownloadImage(user.picture, (Texture texture) =>
+                usernameText.text = inGameUser.user.username;
+                imformationText.text = "gorani 53";
+                kingIcon.SetActive(inGameUser.isKing);
+                
+                if(inGameUser.user.picture != null)
                 {
-                    Debug.Log(texture);
-                    profileImage.texture = texture;
-                });
-            }
-            usernameText.text = user.username;
-            informationText.text = "LV.53 MP.500";
+                    GameServer.instance.GetProfileTexture(id, SetProfileImage);
+                }
+                else SetProfileImage(placeHolder);
+            });
+        }
+
+        private void SetProfileImage(Texture texture)
+        {
+            profileImage.texture = (texture == null ? placeHolder : texture);
         }
         
     }
