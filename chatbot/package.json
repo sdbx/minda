@@ -43,6 +43,7 @@
     "minda-ts": "file:../tslib",
     "msgpack5": "^4.2.1",
     "sha.js": "^2.4.11",
+    "sqlite3": "^4.0.6",
     "strongly-typed-events": "^1.4.10",
     "typeorm": "^0.2.11"
   },

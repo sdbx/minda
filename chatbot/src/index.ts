@@ -1,12 +1,14 @@
 import * as Minda from "minda-ts"
 import { MindaClient, MindaCredit } from "minda-ts"
 import { EventDispatcher, SimpleEventDispatcher } from "strongly-typed-events"
+import { Column, Entity } from "typeorm"
 import SnowCommand, { SnowContext } from "./snow/bot/snowcommand"
-import SnowConfig from "./snow/config/snowconfig"
+import BaseGuildCfg from "./snow/config/baseguildcfg"
+import SnowConfig, { debugPath } from "./snow/config/snowconfig"
 import DiscordSnow from "./snow/provider/discordsnow"
 import { bindFn } from "./util"
 
-async function run() {
+async function run2() {
     const tokens = await SnowConfig.getTokens()
     if (tokens["discord"] != null) {
         const t = tokens["discord"]
@@ -26,8 +28,21 @@ async function run() {
         )
     }
 }
+async function run1() {
+    const config = new SnowConfig(TestSchema,
+        `${debugPath}/config/guild.sqlite`)
+    await config.connect()
+    console.log(await config.getValue(2018, "discord", "babu"))
+}
 
-run()
+@Entity()
+class TestSchema extends BaseGuildCfg {
+    @Column("boolean", {
+        default: false,
+    })
+    public babu:boolean
+}
+run1()
 
 class AuthMinda {
     public onReady = new SimpleEventDispatcher<string>()

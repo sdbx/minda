@@ -45,6 +45,7 @@
     "indent": [true, "spaces", 4],
     "semicolon": [true, "never", "ignore-interfaces"],
     "radix": false,
-    "linebreak-style": [true, "LF"]
+    "linebreak-style": [true, "LF"],
+    "ban-types": false,
   }
 }
