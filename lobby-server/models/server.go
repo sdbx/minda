@@ -23,6 +23,7 @@ type RoomConf struct {
 	King  int    `json:"king"`
 	Black int    `json:"black"`
 	White int    `json:"white"`
+	Map   string `json:"room"`
 }
 
 type Picture struct {

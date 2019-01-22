@@ -27,6 +27,12 @@ pub fn handle(server: &mut Server, conn: &Connection, cmd: &Command) -> Result<(
         },
         Command::Start { } => {
             start::handle(server, conn)
+        },
+        Command::Gg { } => {
+
+        },
+        Command::Ban { user } => {
+
         }
     }
 }

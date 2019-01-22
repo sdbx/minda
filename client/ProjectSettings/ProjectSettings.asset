@@ -674,10 +674,10 @@ PlayerSettings:
   facebookXfbml: 0
   facebookFrictionlessRequests: 1
   apiCompatibilityLevel: 3
-  cloudProjectId: b4935ead-fe6a-42cf-b681-e93ba76d6fba
+  cloudProjectId: 7d53d9ab-efa6-4b28-aee9-ec35f95f3cb0
   framebufferDepthMemorylessMode: 0
-  projectName: Abalone (1)
-  organizationId: choco03
+  projectName: Minda
+  organizationId: sunhokim
   cloudEnabled: 0
   enableNativePlatformBackendsForNewInputSystem: 0
   disableOldInputManagerSupport: 0

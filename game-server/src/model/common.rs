@@ -59,7 +59,8 @@ pub struct RoomConf {
     pub name: String,
     pub king: UserId,
     pub black: UserId,
-    pub white: UserId 
+    pub white: UserId,
+    pub map: String
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

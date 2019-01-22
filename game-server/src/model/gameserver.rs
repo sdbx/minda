@@ -1,3 +1,8 @@
+use serde::Deserialize;
+use serde::Deserializer;
+use serde::Serializer;
+use serde::de::Error;
+use serde::Serialize;
 use model::RoomConf;
 use super::{UserId, AxialCord, Room};
 use game::{Stone, Game};
@@ -23,6 +28,40 @@ impl Invite {
     }
 }
 
+#[derive(Clone, Debug)]
+pub enum EndedCause {
+    Timeout,
+    Gg,
+    LostStones
+}
+
+impl Serialize for EndedCause {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where S: Serializer
+    {
+        serializer.serialize_str(match *self {
+            EndedCause::Timeout => "timeout",
+            EndedCause::Gg => "gg",
+            EndedCause::LostStones => "lost all stones",
+        })
+    }
+}
+
+impl<'de> Deserialize<'de> for EndedCause {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+        where D: Deserializer<'de>
+    {
+        let s = String::deserialize(deserializer)?;
+        let out = match s.as_str() {
+            "timeout" => EndedCause::Timeout,
+            "gg" => EndedCause::Gg,
+            "lost all stones" => EndedCause::LostStones,
+            _ => return Err(D::Error::custom("Invalid ended cause"))
+        };
+        Ok(out)
+    }
+}
+
 #[derive(Clone, Serialize, Deserialize, Debug)]
 #[serde(tag = "type")]
 pub enum Event {
@@ -41,7 +80,9 @@ pub enum Event {
     #[serde(rename = "confed")]
     Confed { conf: RoomConf },
     #[serde(rename = "left")]
-    Left { user: UserId }
+    Left { user: UserId },
+    #[serde(rename = "ended")]
+    Ended { winner: UserId, color: String, cause: EndedCause },
 }
 
 impl Event {
@@ -68,6 +109,10 @@ pub enum Command {
     Conf { conf: RoomConf },
     #[serde(rename = "start")]
     Start { },
+    #[serde(rename = "ban")]
+    Ban { user: UserId },
+    #[serde(rename = "gg")]
+    Gg { }
 }
 
 pub fn parse_command(msg: &str) -> Result<Command, serde_json::Error> {
