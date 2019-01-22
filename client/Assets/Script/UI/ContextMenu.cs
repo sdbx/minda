@@ -15,30 +15,46 @@ public class ContextMenu
         public UnityAction action;
     }
 
+    public Vector2 pivot;
     public List<Menu> menus = new List<Menu>();
 
-    public ContextMenu()
+    public ContextMenu(Vector2 pivot)
     {
-
+        this.pivot = pivot;
     }
 
-    public ContextMenu(Menu[] menus)
+    public ContextMenu(Vector2 pivot, Menu[] menus)
     {
         AddRange(menus);
+        this.pivot = pivot;
     }
 
-    public void Add(string name, UnityAction action)
+    public ContextMenu Add(string name, UnityAction action)
     {
         Add(new Menu(name,action));
+        return this;
     }
 
-    public void Add(Menu menu)
+    public ContextMenu Add(Menu menu)
     {
-        Add(menu);
+        menus.Add(menu);
+        return this;
     }
 
-    public void AddRange(Menu[] menus)
+    public ContextMenu AddRange(IEnumerable<Menu> menus)
     {
         this.menus.AddRange(menus);
+        return this;
+    }
+
+    public ContextMenu SetPivot(Vector2 pivot)
+    {
+        this.pivot = pivot;
+        return this;
+    }
+
+    public static ContextMenu operator +(ContextMenu a, ContextMenu b)
+    {
+        return new ContextMenu(a.pivot).AddRange(a.menus).AddRange(b.menus);
     }
 }

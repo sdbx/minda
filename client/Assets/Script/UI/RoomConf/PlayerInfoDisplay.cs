@@ -4,13 +4,16 @@ using Game;
 using Models;
 using Network;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace UI
 {
-    public class PlayerInfoDisplay : MonoBehaviour
+    public class PlayerInfoDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
     {
         private int UserId;
+        private InGameUser inGameUser;
+
         private BallType ballType = BallType.Black;
 
         [SerializeField]
@@ -27,6 +30,12 @@ namespace UI
         private Texture backgroundWhite;
         [SerializeField]
         private GameObject kingIcon;
+        [SerializeField]
+        private DisplayChanger displayChanger;
+        [SerializeField]
+        private Vector3 offset;
+        [SerializeField]
+        private Vector2 pivot;
 
         private Texture placeHolder;
 
@@ -44,11 +53,13 @@ namespace UI
                 imformationText.text = "";
                 SetColor(ballType);
                 kingIcon.SetActive(false);     
+                inGameUser = null;
                 return;
             }
 
             GameServer.instance.GetInGameUser(id, (InGameUser inGameUser)=>
             {
+                this.inGameUser = inGameUser;
                 usernameText.text = inGameUser.user.username;
                 imformationText.text = "gorani 53";
                 SetColor(inGameUser.ballType);
@@ -81,7 +92,47 @@ namespace UI
                 imformationText.color = Color.black;
             }
         }
+
+        private void CreateContextMenu()
+        {
+            ContextMenu contextMenu = new ContextMenu(pivot);
+
+            //king menu
+            if(GameServer.instance.connectedRoom.conf.king == LobbyServer.instance.loginUser.id)
+            {
+                if(inGameUser.ballType != BallType.White)
+                {
+                    contextMenu.Add("Change to White",()=>{Debug.Log("화이트로 변경");});
+                }
+                if(inGameUser.ballType != BallType.Black)
+                {
+                    contextMenu.Add("Change to Black",()=>{Debug.Log("검은색으로 변경");});
+                }
+                
+            }
+            contextMenu.Add("Whisper",()=>{Debug.Log("귓속말");});
+
+            ContextMenuCreater.instance.Create(transform.position + offset, contextMenu);
+        }
         
+        //user menucontext
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            displayChanger.SetMode("Hightlighed");
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            displayChanger.SetOrigin();
+        }
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            if(inGameUser != null)
+            {
+                CreateContextMenu();
+            }
+        }
     }
 
 }

@@ -165,7 +165,7 @@ GameObject:
   - component: {fileID: 827182415952097928}
   - component: {fileID: 4517272786654254212}
   - component: {fileID: 5263760054832813473}
-  - component: {fileID: 8677159790016228934}
+  - component: {fileID: 8436632313269556092}
   m_Layer: 5
   m_Name: MapObjectPrefab
   m_TagString: Untagged
@@ -230,7 +230,7 @@ MonoBehaviour:
   mapName: 
   nameText: {fileID: 8449273374604465175}
   background: {fileID: 2567117045742194059}
-  displaySetter: {fileID: 8677159790016228934}
+  displayChanger: {fileID: 8436632313269556092}
   mapSelector: {fileID: 0}
 --- !u!114 &5263760054832813473
 MonoBehaviour:
@@ -274,7 +274,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
---- !u!114 &8677159790016228934
+--- !u!114 &8436632313269556092
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -290,4 +290,32 @@ MonoBehaviour:
   - element: {fileID: 4282287381839777917}
     type: 1
     origin: {r: 0, g: 0, b: 0, a: 0}
-    selected: {r: 0.8490566, g: 0.8490566, b: 0.8490566, a: 1}
+    colors:
+      reorderableList:
+        canAdd: 1
+        canRemove: 1
+        draggable: 1
+        expandable: 1
+        multipleSelection: 1
+        isExpanded: 1
+        label:
+          m_Text: Keys
+          m_Image: {fileID: 0}
+          m_Tooltip: 
+        headerHeight: 18
+        footerHeight: 13
+        slideEasing: 0.15
+        verticalSpacing: 2
+        showDefaultBackground: 1
+        elementDisplayType: 0
+        elementNameProperty: 
+        elementNameOverride: 
+        elementIcon: {fileID: 0}
+      reqReferences: {fileID: 0}
+      isExpanded: 1
+      _keyValues:
+      - Selected
+      _keys:
+      - Selected
+      _values:
+      - {r: 0.745283, g: 0.745283, b: 0.745283, a: 1}
