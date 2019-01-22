@@ -118,6 +118,10 @@ impl Board {
         Some(out)
     }
 
+    pub fn side(&self) -> isize {
+        return self.side
+    }
+
     pub fn test_board() -> Self {
         let mut board = Board::new(5);
         board.set(Cord(0,0,0), Stone::Black);

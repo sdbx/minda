@@ -81,10 +81,53 @@ impl Server {
         }
     }
 
+    pub fn get_room(&self, conn: &Connection) -> Result<&Room, Error> {
+        let room_id = match conn.room_id {
+            Some(ref x) => x,
+            None => return Err(Error::Permission)
+        };
+        Ok(self.rooms.get(room_id)?)
+    }
+
+    pub fn get_room_mut(&mut self, conn: &Connection) -> Result<&mut Room, Error> {
+        let room_id = match conn.room_id {
+            Some(ref x) => x,
+            None => return Err(Error::Permission)
+        };
+        Ok(self.rooms.get_mut(room_id)?)
+    }
+    
+    pub fn get_game(&self, conn: &Connection) -> Result<&Game, Error> {
+        let room = self.get_room(&conn)?;
+        Ok(&room.game?)
+    }
+
+    pub fn get_game_mut(&self, conn: &Connection) -> Result<&mut Game, Error> {
+        let room = self.get_room_mut(&conn)?;
+        Ok(&mut room.game?)
+    }
+
+    pub fn delete_room(&mut self, room_id: &str) {
+        self.rooms.remove(&room_id.to_owned());
+        let keys = self.invites.iter()
+            .filter(|(_,x)| x.room_id == room_id)
+            .map(|(k,_)| k.clone())
+            .collect::<Vec<_>>();
+        keys.iter().for_each(|x| {
+            self.rooms.remove(x);
+        });
+    }
+
     pub fn get_invite_of_user(&self, user_id: UserId, room_id: &str) -> Option<Invite> {
         match self.invites.iter().find(|(_, x)| x.user_id == user_id && x.room_id == room_id) {
             Some((_, x)) => Some(x.clone()),
             None => None
+        }
+    }
+
+    pub fn serve(mut self) {
+        for event in self.listen().iter() {
+            self.handle_event(event);
         }
     }
 
@@ -96,18 +139,26 @@ impl Server {
         Ok(())
     }
 
-    pub fn tx(&self) -> &Sender<ServerEvent> {
-        self.tx.as_ref().unwrap()
+    pub fn dispatch(&mut self, conn_id: Uuid, event: &Event) {
+        if let Some(stream) = self.streams.get_mut(&conn_id) {
+            let msg = serde_json::to_string(&event).unwrap() + "\n";
+            info!("client({}) will receive msg: {}", conn_id, msg);
+            stream.write(msg.as_bytes());
+            stream.flush();
+        }
     }
 
-    pub fn make_tx(&self) -> Sender<ServerEvent> {
-        let tx = self.tx.as_ref().unwrap();
-        tx.clone()
+    pub fn broadcast(&mut self, room_id: &str, event: &Event) {
+        let conn_ids = {
+            let room = self.rooms.get(room_id).unwrap();
+            room.users.iter().map(|t| t.1.conn_id.clone()).collect::<Vec<_>>()
+        };
+        conn_ids.iter().for_each(|conn_id| self.dispatch(*conn_id, &event));
     }
 
-    pub fn serve(mut self) {
-        for event in self.listen().iter() {
-            self.handle_event(event);
+    pub fn kick(&mut self, conn_id: Uuid) {
+        if let Some(stream) = self.streams.get(&conn_id) {
+            stream.shutdown(Shutdown::Both);
         }
     }
 
@@ -158,23 +209,31 @@ impl Server {
                     let room_id = conn.room_id.as_ref()?;
                     let user_id = conn.user_id;
                     let mut room = self.rooms.get_mut(room_id)?;
+
                     room.users.remove(&conn_id);
 
                     let user_len = room.users.len();
                     let old = room.conf.clone();
+                    //designate a new king randomly
                     if user_id == room.conf.king && user_len != 0 {
                         let values = room.users.values().collect::<Vec<_>>();
                         room.conf.king = rand::thread_rng().choose(&values).unwrap().user_id;
                     }
-                    if user_id == room.conf.black {
-                        room.conf.black = UserId::empty;
+                    //empty black or white if not ingame
+                    if room.game.is_none() {
+                        if user_id == room.conf.black {
+                            room.conf.black = UserId::empty;
+                        }
+                        if user_id == room.conf.white {
+                            room.conf.white = UserId::empty;
+                        }
                     }
-                    if user_id == room.conf.white {
-                        room.conf.white = UserId::empty;
-                    }
+
                     (room_id.clone(), user_id, user_len, if old != room.conf { Some(room.conf.clone()) } else { None })
                 };
+
                 if user_len == 0 {
+                    //delete empty room
                     self.delete_room(&room_id)
                 } else {
                     self.broadcast(&room_id, &Event::Left {
@@ -193,55 +252,25 @@ impl Server {
         }
         Ok(())
     }
-
-    pub fn delete_room(&mut self, room_id: &str) {
-        self.rooms.remove(&room_id.to_owned());
-        let keys = self.invites.iter()
-            .filter(|(_,x)| x.room_id == room_id)
-            .map(|(k,_)| k.clone())
-            .collect::<Vec<_>>();
-        keys.iter().for_each(|x| {
-            self.rooms.remove(x);
-        });
+    
+    fn make_tx(&self) -> Sender<ServerEvent> {
+        let tx = self.tx.as_ref().unwrap();
+        tx.clone()
     }
 
-    pub fn get_room(&self, conn: &Connection) -> Result<&Room, Error> {
-        let room_id = match conn.room_id {
-            Some(ref x) => x,
-            None => return Err(Error::Permission)
-        };
-        Ok(self.rooms.get(room_id)?)
-    }
-
-    pub fn get_room_mut(&mut self, conn: &Connection) -> Result<&mut Room, Error> {
-        let room_id = match conn.room_id {
-            Some(ref x) => x,
-            None => return Err(Error::Permission)
-        };
-        Ok(self.rooms.get_mut(room_id)?)
+    fn send_result(&self, id: &str, res: &TaskResult) -> Result<(), Error> {
+        let conn = self.redis.get_connection()?;
+        let buf = serde_json::to_string(&res)?;
+        Ok(conn.rpush(redis_result_channel(id), buf)?)
     }
     
-    pub fn dispatch(&mut self, conn_id: Uuid, event: &Event) {
-        if let Some(stream) = self.streams.get_mut(&conn_id) {
-            let msg = serde_json::to_string(&event).unwrap() + "\n";
-            info!("client({}) will receive msg: {}", conn_id, msg);
-            stream.write(msg.as_bytes());
-            stream.flush();
-        }
-    }
-
-    pub fn broadcast(&mut self, room_id: &str, event: &Event) {
-        let conn_ids = {
-            let room = self.rooms.get(room_id).unwrap();
-            room.users.iter().map(|t| t.1.conn_id.clone()).collect::<Vec<_>>()
-        };
-        conn_ids.iter().for_each(|conn_id| self.dispatch(*conn_id, &event));
-    }
-
-    pub fn kick(&mut self, conn_id: Uuid) {
-        if let Some(stream) = self.streams.get(&conn_id) {
-            stream.shutdown(Shutdown::Both);
-        }
+    fn listen(&mut self) -> Receiver<ServerEvent> {
+        let (tx, rx) = channel();
+        self.tx = Some(tx.clone());
+        self.listen_socket();
+        self.listen_task().unwrap();
+        self.ping_update();
+        rx
     }
 
     fn ping_update(&self) {
@@ -251,6 +280,33 @@ impl Server {
             for _ in Ticker::new(0.., Duration::from_secs(5)) {
                 tx.send(Updated);
             }
+        });
+    }
+
+    fn listen_socket(&mut self) {
+        let tx = self.make_tx();
+        let listener = TcpListener::bind(&self.addr).unwrap();
+        thread::spawn(move || {
+            for t in listener.incoming() {
+                if let Ok(mut stream) = t {
+                    Server::handle_stream(stream, tx.clone());
+                }
+            }
+        });
+   }
+
+    fn handle_stream(mut stream: TcpStream, tx: Sender<ServerEvent>) {
+        let conn_id = Uuid::new_v4();
+        tx.send(ServerEvent::Connect{
+            conn_id: conn_id,
+            conn: stream.try_clone().unwrap()
+        });
+        
+        thread::spawn(move || {
+            Server::handle_stream_loop(conn_id, &tx, stream);
+            tx.send(ServerEvent::Close{
+                conn_id
+            });
         });
     }
 
@@ -281,48 +337,6 @@ impl Server {
             }
         }
     }
-
-    fn send_result(&self, id: &str, res: &TaskResult) -> Result<(), Error> {
-        let conn = self.redis.get_connection()?;
-        let buf = serde_json::to_string(&res)?;
-        Ok(conn.rpush(redis_result_channel(id), buf)?)
-    }
-    
-    fn handle_stream(mut stream: TcpStream, tx: Sender<ServerEvent>) {
-        let conn_id = Uuid::new_v4();
-        tx.send(ServerEvent::Connect{
-            conn_id: conn_id,
-            conn: stream.try_clone().unwrap()
-        });
-        
-        thread::spawn(move || {
-            Server::handle_stream_loop(conn_id, &tx, stream);
-            tx.send(ServerEvent::Close{
-                conn_id
-            });
-        });
-    }
-
-    fn listen(&mut self) -> Receiver<ServerEvent> {
-        let (tx, rx) = channel();
-        self.tx = Some(tx.clone());
-        self.listen_socket();
-        self.listen_task().unwrap();
-        self.ping_update();
-        rx
-    }
-
-    fn listen_socket(&mut self) {
-        let tx = self.make_tx();
-        let listener = TcpListener::bind(&self.addr).unwrap();
-        thread::spawn(move || {
-            for t in listener.incoming() {
-                if let Ok(mut stream) = t {
-                    Server::handle_stream(stream, tx.clone());
-                }
-            }
-        });
-   }
 
    fn listen_task(&mut self) -> Result<(), Error> {
         let conn = self.redis.get_connection()?;

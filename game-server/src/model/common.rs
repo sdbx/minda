@@ -4,7 +4,7 @@ use game::Cord;
 use chrono::Utc;
 use chrono::DateTime;
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct UserId(isize);
 
 impl UserId {
@@ -54,6 +54,14 @@ pub struct User {
     pub username: String
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Room {
+    pub id: String,
+    pub created_at: DateTime<Utc>,
+    pub conf: RoomConf,
+    pub users: Vec<UserId>
+}
+
 #[derive(Serialize, PartialEq, Deserialize, Debug, Clone)]
 pub struct RoomConf {
     pub name: String,
@@ -61,12 +69,4 @@ pub struct RoomConf {
     pub black: UserId,
     pub white: UserId,
     pub map: String
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Room {
-    pub id: String,
-    pub created_at: DateTime<Utc>,
-    pub conf: RoomConf,
-    pub users: Vec<UserId>
 }

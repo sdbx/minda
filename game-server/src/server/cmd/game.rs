@@ -6,16 +6,11 @@ use error::Error;
 
 pub fn game_move(server: &mut Server, conn: &Connection, start: AxialCord, end: AxialCord, dir: AxialCord) -> Result<(), Error> {
     let (room, event) = {
-        let room = server.get_room_mut(&conn)?;
-
-        let game = match room.game {
-            Some(ref mut x) => x,
-            None => { return Err(Error::InvalidCommand) }
-        };
-
+        let room = server.get_room(&conn)?;
+        let game = server.get_game_mut(&conn)?;
         let turn = match game.get_turn(conn.user_id) {
             Ok(x) => x,
-            Err(_) => { return Err(Error::InvalidCommand) }
+            Err(_) => { return Err(Error::InvalidState) }
         };
 
         game.run_move(conn.user_id, start, end, dir)?;
@@ -29,4 +24,8 @@ pub fn game_move(server: &mut Server, conn: &Connection, start: AxialCord, end: 
 
     server.broadcast(&room, &event);
     Ok(())
+}
+
+pub fn game_gg(server: &mut Server, conn: &Connection) -> Result<(), Error> {
+
 }

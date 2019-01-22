@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use chrono::Utc;
 use chrono::DateTime;
 use game::Game;
@@ -12,6 +13,7 @@ pub struct Room {
     pub created_at: DateTime<Utc>,
     pub conf: RoomConf,
     pub users: HashMap<Uuid, RoomUser>,
+    pub banned_users: HashSet<UserId>,
     pub game: Option<Game>
 }
 
@@ -22,6 +24,7 @@ impl Room {
             created_at: Utc::now(),
             conf: conf.clone(),
             users: HashMap::new(),
+            banned_users: HashSet::new(),
             game: None
         }
     }

@@ -33,8 +33,8 @@ quick_error! {
         InvalidParm {
             description("Invalid parameters")
         }
-        InvalidCommand {
-            description("Invalid command")
+        InvalidState {
+            description("Invalid state")
         }
         InvalidCord {
             description("Invalid coordinates")
