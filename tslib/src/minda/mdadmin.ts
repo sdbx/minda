@@ -43,8 +43,7 @@ export class MindaAdmin extends MindaClient {
         const orgUsers = (await this.listUsers()).map((v) => v.id)
         const hasID = uid != null
         const res = await reqPost(hasID ? "PUT" : "POST",`/admin/users/${hasID ? uid + "/" : ""}`, this.token, {
-            uid,
-            picture: -1,
+            picture: null,
             username: name,
             permission: {
                 admin: isAdmin,
@@ -52,7 +51,11 @@ export class MindaAdmin extends MindaClient {
         } as Serializify<Omit<MSUser, "id">>)
         if (res.ok) {
             const users = await this.listUsers()
-            return users.find((v) => orgUsers.findIndex((vi) => vi === v.id) < 0)
+            const u = users.find((v) => orgUsers.findIndex((vi) => vi === v.id) < 0)
+            return {
+                ...u,
+                token: await this.getTokenOfUser(u),
+            } as MSUser & {token:string}
         } else {
             throw new MindaError(res)
         }

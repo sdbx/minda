@@ -3,12 +3,13 @@ import fetch from "node-fetch"
 import { SignalDispatcher, SimpleEventDispatcher } from "strongly-typed-events"
 import { Immute } from "../types/deepreadonly"
 import { TimerID, WebpackTimer } from "../webpacktimer"
-import { defaultProfile } from "./mdconst"
+import { defaultProfile, mdtimeout } from "./mdconst"
 import { MindaCredit } from "./mdcredit"
 import { extractContent, reqBinary, reqGet, reqPost } from "./mdrequest"
 import { MindaRoom } from "./mdroom"
 import { MSRoom, MSRoomConf, MSRoomServer } from "./structure/msroom"
 import { MSUser } from "./structure/msuser"
+import awaitEvent from "./util/timeout"
 /**
  * 민다 로비 클라이언트
  */
@@ -97,7 +98,8 @@ export class MindaClient {
             for (const room of rooms) {
                 const orgI = orgRoom.findIndex((v) => v.id === room.id)
                 if (orgI >= 0) {
-                    if (Diff.diff(orgRoom[orgI], room).length >= 1) {
+                    const diff = Diff.diff(orgRoom[orgI], room)
+                    if (diff != null && diff.length >= 1) {
                         updated.push(room)
                     }
                     orgRoom.splice(orgI, 1)
@@ -153,7 +155,7 @@ export class MindaClient {
         if (typeof id === "object") {
             id = id.picture
         }
-        if (id < 0) {
+        if (id == null || id < 0) {
             return this.defaultPicture
         }
         const buf = await reqBinary("GET", `/pics/${id}/`, this.token)
@@ -197,17 +199,9 @@ export class MindaClient {
     protected async connectRoom(roomServer:MSRoomServer) {
         try {
             const mindaRoom = new MindaRoom(roomServer, this.me)
-            return new Promise<MindaRoom>((res, rej) => {
-                let timer:TimerID
-                const fn = mindaRoom.onConnect.one(() => {
-                    WebpackTimer.clearTimeout(timer)
-                    this.connectedRooms.set(mindaRoom.id, mindaRoom)
-                    res(mindaRoom)
-                })
-                timer = WebpackTimer.setTimeout(() => {
-                    mindaRoom.onConnect.unsub(fn)
-                    rej(new Error("TIMEOUT"))
-                }, 5000)
+            return awaitEvent(mindaRoom.onConnect, mdtimeout, () => {
+                this.connectedRooms.set(mindaRoom.id, mindaRoom)
+                return mindaRoom
             })
         } catch (err) {
             console.error(err)

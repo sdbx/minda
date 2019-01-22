@@ -50,7 +50,6 @@ export async function reqBinary(type:"POST" | "GET", suffix:string, token?:strin
 export async function extractContent<T>(r:Promise<Response> | Response) {
     const rp = await r
     if (!rp.ok) {
-        console.log(await rp.text())
         throw new MindaError(rp)
     }
     return await rp.json() as T
@@ -71,7 +70,6 @@ async function req(type:GetType | PostType, isPost:boolean, suffix:string, token
     const qs = querystring.stringify(getParam, "&", "="/* ,{encodeURIComponent: (v:string) => }*/)
     // const post = querystring.stringify(postParam, "&", "=")
     const url = `${suffix}${qs.length >= 1 ? ("?" + qs) : ""}`
-    console.log("url: " + url)
     const response = await fetch(url, {
         method: type,
         body: isPost ? (postParam == null ? undefined : JSON.stringify(postParam, null, 2)) : undefined,

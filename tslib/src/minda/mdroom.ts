@@ -3,12 +3,14 @@ import { EventDispatcher, SignalDispatcher, SimpleEventDispatcher } from "strong
 import { Immute } from "../types/deepreadonly"
 import { Serializable, SerializeObject } from "../types/serializable"
 import { WebpackTimer } from "../webpacktimer"
+import { mdtimeout } from "./mdconst"
 import { ChatInfo, ConfInfo, ConnectInfo, EnterInfo,
     ErrorInfo, LeaveInfo, MdCommands, MdEvents,
     MdEventTypes, StartInfo } from "./mdevents"
 import { MSGrid } from "./structure/msgrid"
 import { MSRoom, MSRoomConf, MSRoomServer } from "./structure/msroom"
 import { MSUser } from "./structure/msuser"
+import awaitEvent from "./util/timeout"
 
 /**
  * 민다룸 백앤드 (방목록 동기화)
@@ -118,8 +120,11 @@ class MindaRoomBase implements MSRoom {
         this.socket.on("error", (error:Error) => this.onSocketError.dispatch(error))
         this.socket.on("data", (arraybuffer:ArrayBuffer) => this.onSocketData.dispatch(arraybuffer))
         this.socket.on("close", () => this.onSocketClose.dispatch())
-        // debug
+        // listen events
         this.onSocketData.sub(this.onRawPacket.bind(this))
+        this.onEvents.sub((key, msg) => {
+            this.handleRoomPacket(key, msg)
+        })
         this.socket.connect(Number.parseInt(port), ip, () => {
             this.connected = true
             this.cache = ""
@@ -336,12 +341,15 @@ export class MindaRoom extends MindaRoomBase {
         this.send("conf", {
             conf: modified,
         })
+        return awaitEvent(this.onConf, mdtimeout, () => true)
+            .catch(() => false)
+        /*
         return new Promise<boolean>((res, rej) => {
             let revoke:() => void
-            WebpackTimer.setTimeout(() => {
+            const timerID = WebpackTimer.setTimeout(() => {
                 revoke()
-                rej("Timeout")
-            }, 1000)
+                rej("TIMEOUT")
+            }, mdtimeout)
             revoke = this.onConf.sub((conf) => {
                 let diff = false
                 for (const key of Object.keys(conf)) {
@@ -353,24 +361,27 @@ export class MindaRoom extends MindaRoomBase {
                     }
                 }
                 if (!diff) {
+                    WebpackTimer.clearTimeout(timerID)
                     res(true)
                 }
             })
         })
         return true
+        */
     }
     /**
      * 게임을 시작합니다.
      * 
      * `방설정`이 제대로 됐는지 확인해주세요.
      */
-    public startGame() {
-        if (!this.connected || !this.isOwner(this.me)) {
+    public async startGame() {
+        if (!this.connected || !this.isOwner(this.me) || this.ingame) {
             return false
         }
         if (this.black >= 0 && this.white >= 0) {
             this.send("start")
-            return true
+            return awaitEvent(this.onStart, mdtimeout, () => true)
+                .catch(() => false)
         }
         return false
     }
@@ -378,13 +389,14 @@ export class MindaRoom extends MindaRoomBase {
      * **빠른 서렌**칩니다.
      * `정치`하는데 편합니다.
      */
-    public giveUp() {
+    public async giveUp() {
         if (!this.connected || !this.ingame) {
             return false
         }
         if (this.white === this.me.id || this.black === this.me.id) {
             this.send("gg")
-            return true
+            return awaitEvent(this.onConf, mdtimeout, () => true)
+                .catch(() => false)
         }
         return false
     }
