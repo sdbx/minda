@@ -19,7 +19,7 @@ type adminUser struct {
 func (a *adminUser) Register(d *dim.Group) {
 	d.GET("/", a.listUser)
 	d.POST("/", a.postUser)
-	d.RouteFunc("/:userid", func(g *dim.Group) {
+	d.RouteFunc("/:userid", func(d *dim.Group) {
 		d.Use(&middlewares.UserMiddleware{})
 		d.PUT("/", a.putUser)
 		d.DELETE("/", a.deleteUser)
