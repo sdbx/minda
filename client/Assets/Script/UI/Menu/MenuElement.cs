@@ -10,11 +10,11 @@ public class MenuElement : MonoBehaviour
     [SerializeField]
     GameObject content;
     public bool isSelected { get; private set; } = true;
-    private ElementDisplaySetter displaySetter;
+    private DisplayChanger displayChanger;
 
     private void Awake()
     {
-        displaySetter = gameObject.GetComponent<ElementDisplaySetter>();     
+        displayChanger = gameObject.GetComponent<DisplayChanger>();     
     }
 
     private void Start()
@@ -26,7 +26,7 @@ public class MenuElement : MonoBehaviour
     {
         if (isSelected)
             return;
-        displaySetter.Select();
+        displayChanger.SetMode("Selected");
         isSelected = true;
         content.SetActive(true);
     }
@@ -35,7 +35,7 @@ public class MenuElement : MonoBehaviour
     {
         if (!isSelected)
             return;
-        displaySetter.UnSelect();
+        displayChanger.SetOrigin();
         isSelected = false;
         content.SetActive(false);
     }

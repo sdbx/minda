@@ -3,22 +3,29 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using RotaryHeart.Lib.SerializableDictionary;
 
-public class ElementDisplaySetter : MonoBehaviour
+public class DisplayChanger : MonoBehaviour
 {
     private enum ElementType
     {
         Text,
         RawImage,
     }
+
+    [Serializable]
+    public class ColorSettings : SerializableDictionaryBase<string, Color> { }
+
     [Serializable]
     private class setting
     {
         public GameObject element;
         public ElementType type;
         [HideInInspector]
+        private MonoBehaviour component;
+        [HideInInspector]
         public Color origin;
-        public Color selected;
+        public ColorSettings colors = new ColorSettings();
     }
 
     [SerializeField]
@@ -48,22 +55,24 @@ public class ElementDisplaySetter : MonoBehaviour
         }
     }
 
-    public void Select()
+    public void SetMode(string mode)
     {
-        foreach (var sett in settings)
+        foreach (var setting in settings)
         {
-            switch (sett.type)
+            switch (setting.type)
             {
 
                 case ElementType.Text:
-                    {
-                        sett.element.GetComponent<Text>().color = sett.selected;
+                    {   
+                        if(setting.colors.ContainsKey(mode))
+                            setting.element.GetComponent<Text>().color = setting.colors[mode];
                         break;
                     }
 
                 case ElementType.RawImage:
                     {
-                        sett.element.GetComponent<RawImage>().color = sett.selected;
+                        if (setting.colors.ContainsKey(mode))
+                            setting.element.GetComponent<RawImage>().color = setting.colors[mode];
                         break;
                     }
 
@@ -71,7 +80,7 @@ public class ElementDisplaySetter : MonoBehaviour
         }
     }
 
-    public void UnSelect()
+    public void SetOrigin()
     {
         foreach (var sett in settings)
         {

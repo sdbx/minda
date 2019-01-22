@@ -18,7 +18,7 @@ namespace UI
         [SerializeField]
         private RawImage background;
         [SerializeField]
-        public ElementDisplaySetter displaySetter;
+        public DisplayChanger displayChanger;
 
         public MapSelector mapSelector;
 
@@ -51,12 +51,12 @@ namespace UI
         public void Select()
         {
             mapSelector.SelectMapInList(this);
-            displaySetter.Select();
+            displayChanger.SetMode("Selected");
         }
 
         public void UnSelect()
         {
-            displaySetter.UnSelect();
+            displayChanger.SetOrigin();
         }
 
         public void OpenFileDirectory()
