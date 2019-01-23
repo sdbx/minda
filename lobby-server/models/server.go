@@ -19,11 +19,18 @@ type Room struct {
 }
 
 type RoomConf struct {
-	Name  string `json:"name"`
-	King  int    `json:"king"`
-	Black int    `json:"black"`
-	White int    `json:"white"`
-	Map   string `json:"room"`
+	Name     string   `json:"name"`
+	King     int      `json:"king"`
+	Black    int      `json:"black"`
+	White    int      `json:"white"`
+	Map      string   `json:"map"`
+	GameRule GameRule `json:"game_rule"`
+}
+
+type GameRule struct {
+	DefeatLostStones int `json:"defeat_lost_stones"`
+	TurnTimeout      int `json:"turn_timeout"`
+	GameTimeout      int `json:"game_timeout"`
 }
 
 type Picture struct {

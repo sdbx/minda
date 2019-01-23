@@ -1,8 +1,9 @@
 package utils
 
 import (
-	"go.uber.org/zap"
 	"errors"
+
+	"go.uber.org/zap"
 
 	"github.com/garyburd/redigo/redis"
 )
@@ -62,4 +63,8 @@ func ListenQueue(conn redis.Conn, onMessage func(buf []byte), name string) error
 		}
 	}()
 	return <-done
+}
+
+func NewString(str string) *string {
+	return &str
 }
