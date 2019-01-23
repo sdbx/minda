@@ -8,7 +8,8 @@ public class ContextMenuElement : MonoBehaviour
     [SerializeField]
     private Text nameText;
     [SerializeField]
-    private Button button;
+    public Button button;
+    public SizeMatcher sizeMatcher;
 
     private void Awake() 
     {
@@ -20,5 +21,11 @@ public class ContextMenuElement : MonoBehaviour
         nameText.text = menu.name;
         button.onClick.RemoveAllListeners();
         button.onClick.AddListener(menu.action);
+        button.onClick.AddListener(UnActiveParent);
+    }
+
+    private void UnActiveParent()
+    {
+        transform.parent.gameObject.SetActive(false);
     }
 }

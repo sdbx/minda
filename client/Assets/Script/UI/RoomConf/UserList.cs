@@ -13,12 +13,7 @@ public class UserList : MonoBehaviour
     [SerializeField]
     private UserInfoDisplay prefab;
     private int[] users;
-    private UserInfoDisplay[] userInfoDisplays;
-
-    private void Awake()
-    {
-        
-    }
+    private Dictionary<int, UserInfoDisplay> userInfoDisplays = new Dictionary<int, UserInfoDisplay>();
 
     public void Create(int[] users)
     {
@@ -34,6 +29,24 @@ public class UserList : MonoBehaviour
     {
         var userInfoDisplay = Instantiate<UserInfoDisplay>(prefab, content);
         userInfoDisplay.display(user);
+        userInfoDisplays.Add(user,userInfoDisplay);
         return userInfoDisplay;
+    }
+
+    public void Remove(int user)
+    {
+        if(userInfoDisplays.ContainsKey(user))
+        {
+            Destroy(userInfoDisplays[user].gameObject);
+            userInfoDisplays.Remove(user);
+        }
+    }
+
+    public void RefreshAll()
+    {
+        foreach (var pair in userInfoDisplays)
+        {
+            ((UserInfoDisplay)pair.Value).Refresh();
+        }
     }
 }

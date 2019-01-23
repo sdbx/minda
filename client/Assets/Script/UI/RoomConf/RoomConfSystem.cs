@@ -42,6 +42,7 @@ namespace UI
         private void UserLeft(int user)
         {
             UpdateAllConf();
+            userList.Remove(user);
         }
 
         private void ConfedCallBack(Conf conf)
@@ -57,15 +58,15 @@ namespace UI
             int player2Id;
             int player1Id;
 
-            if(!isSpectator)
-            {
-                player2Id = me.id;
-                player1Id = GetOpponentId(me.id);
-            }
-            else
+            if(isSpectator)
             {
                 player2Id = conf.black;
                 player1Id = conf.white;
+            }
+            else
+            {
+                player2Id = me.id;
+                player1Id = GetOpponentId(me.id);
             }
 
             if(player1Id == -1 && player2Id == -1)
@@ -106,6 +107,7 @@ namespace UI
         private void UpdateAllConf()
         {
             SetPlayerInfo(GameServer.instance.connectedRoom.conf);
+            userList.RefreshAll();
         }
 
         private int GetOpponentId(int myId)

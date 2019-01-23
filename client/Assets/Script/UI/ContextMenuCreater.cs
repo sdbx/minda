@@ -13,6 +13,8 @@ public class ContextMenuCreater : MonoBehaviour
     private List<ContextMenuElement> contextMenuElements = new List<ContextMenuElement>();
     public static ContextMenuCreater instance;
 
+    private bool isSizeUpdated;
+
     void Awake()
     {
         //singleton
@@ -31,9 +33,11 @@ public class ContextMenuCreater : MonoBehaviour
 
     public void Create(Vector2 pos, ContextMenu contextMenu)
     {
+        parent.gameObject.SetActive(true);
+        parent.position = new Vector3(0,0,-10);
         parent.pivot = contextMenu.pivot;
+
         var menus = contextMenu.menus;
-        parent.sizeDelta = new Vector2(prefabSize.x, prefabSize.y*menus.Count);
 
         for (int i = 0; i < Mathf.Max(contextMenuElements.Count, menus.Count); i++)
         {
@@ -57,9 +61,46 @@ public class ContextMenuCreater : MonoBehaviour
                 current = Instantiate<ContextMenuElement>(prefab,parent);
                 contextMenuElements.Add(current);
             }
-            
+            current.sizeMatcher.forceSetMode = false;
             current.ResetMenu(menus[i]);
         }
-        parent.position = pos;
+
+        
+        StartCoroutine(UpdateSizeAndPosition(pos));
     }
+
+    private IEnumerator UpdateSizeAndPosition(Vector2 pos) 
+    {
+        //2프레임 뒤
+        yield return 0;
+        yield return 0;
+
+        foreach (var element in contextMenuElements)
+        {
+            if (element.isActiveAndEnabled)
+            {
+                element.sizeMatcher.ForceSet(new Vector2(parent.rect.width, -1));
+            }
+        }
+        parent.localPosition = new Vector3(pos.x,pos.y,0);
+    }
+
+    private void Update() 
+    {
+        HideIfClickedOutsideOrWheel(parent.gameObject);
+    }
+
+    private void HideIfClickedOutsideOrWheel(GameObject panel)
+    {
+        if (Input.GetAxis("Mouse ScrollWheel")!=0 || 
+            Input.GetMouseButton(0) && panel.activeSelf &&
+            !RectTransformUtility.RectangleContainsScreenPoint(
+                panel.GetComponent<RectTransform>(),
+                Input.mousePosition,
+                Camera.main))
+        {
+            panel.SetActive(false);
+        }
+    }
+    
 }
