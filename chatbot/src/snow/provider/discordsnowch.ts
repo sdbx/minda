@@ -4,14 +4,23 @@ import SnowMessage from "../snowmessage"
 import { SnowPerm } from "../snowperm"
 import SnowUser from "../snowuser"
 import { getFirst } from "../snowutil"
+import { GidType } from "../config/baseguildcfg";
 
 export default class DiscordSnowCh extends SnowChannel {
-    public provider = "discord"
+    public readonly provider = "discord"
+    public readonly id:GidType
+    public readonly groupId:GidType
     public supportFile = true
     protected channel:Discord.TextChannel | Discord.DMChannel | Discord.GroupDMChannel
     public constructor(channel:Discord.TextChannel | Discord.DMChannel | Discord.GroupDMChannel) {
         super()
         this.channel = channel
+        this.id = channel.id
+        if (channel instanceof Discord.TextChannel) {
+            this.groupId = channel.guild.id
+        } else {
+            this.groupId = this.id
+        }
     }
     public async send(text:string, image?:string | Buffer) {
         return this._send(text, image == null ? [] : [image])

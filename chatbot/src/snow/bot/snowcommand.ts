@@ -1,11 +1,13 @@
 import { SnowProvider } from "../provider/snowprovider"
-import SnowChannel from "../snowchannel"
+import SnowChannel, { ConfigDepth } from "../snowchannel"
 import SnowMessage from "../snowmessage"
 import SnowUser from "../snowuser"
+import { SnowConfigSimple, SnowSchema } from "../config/snowconfig";
+import BaseGuildCfg from "../config/baseguildcfg";
 
 // const test:FilteredKeys<[1,"a",true],[1,"a"]> = []
 
-export default class SnowCommand<P extends AllowDecode[], R> {
+export default class SnowCommand<C extends object, P extends AllowDecode[], R> {
     /**
      * 명령어 이름
      */
@@ -29,7 +31,7 @@ export default class SnowCommand<P extends AllowDecode[], R> {
     /**
      * 실행할 함수
      */
-    protected func:(context:SnowContext, ...args:ParamDecodeAll<P>) => R | Promise<R>
+    protected func:(context:SnowContext<C>, ...args:ParamDecodeAll<P>) => R | Promise<R>
     /**
      * 커맨드 리시버를 생성합니다.
      * @param commandName 명령어 이름
@@ -39,7 +41,7 @@ export default class SnowCommand<P extends AllowDecode[], R> {
      */
     public constructor(
         commandName:string,
-        commander:(context:SnowContext, ...args:ParamDecodeAll<P>) => R | Promise<R>,
+        commander:(context:SnowContext<C>, ...args:ParamDecodeAll<P>) => R | Promise<R>,
         ...typeInfo:P
         ) {
         this.name = commandName
@@ -112,8 +114,10 @@ export default class SnowCommand<P extends AllowDecode[], R> {
         }
         return out
     }
-    public async execute(context:SnowContext,params:Array<string | number | boolean | SnowUser | SnowChannel>) {
+    public async execute(context:SnowContext<C>,params:Array<string | number | boolean | SnowUser | SnowChannel>) {
         const result = await this.func(context, ...this.convertParam(params) as any)
+        await context.updateGroupConfig()
+        await context.updateChannelConfig()
         console.log("Executed")
     }
     /*
@@ -149,9 +153,13 @@ export default class SnowCommand<P extends AllowDecode[], R> {
     }
     */
 }
-export interface SnowContext {
+export interface SnowContext<C extends object> {
     channel:SnowChannel,
     message:SnowMessage,
+    configChannel:SnowSchema<C>,
+    configGroup:SnowSchema<C>,
+    updateChannelConfig:() => Promise<void>,
+    updateGroupConfig:() => Promise<void>,
 }
 
 /**
@@ -166,10 +174,10 @@ type ParamEncode<T extends AllowEncode> =
     T extends Function ? never :
     T extends SnowUser ? "SnowUser" :
     never
-type ParamEncodeAll<T extends AllowEncode[]> = {
+export type ParamEncodeAll<T extends AllowEncode[]> = {
     [K in keyof T]: T[K] extends AllowEncode ? ParamEncode<T[K]> : never
 }
-type ParamDecodeAll<T extends AllowDecode[]> = {
+export type ParamDecodeAll<T extends AllowDecode[]> = {
     [K in keyof T]: T[K] extends AllowDecode ? ParamDecode<T[K]> : never
 }
 type ParamDecode<T extends AllowDecode> =

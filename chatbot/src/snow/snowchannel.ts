@@ -1,6 +1,7 @@
 import SnowMessage from "./snowmessage"
 import { SnowPerm } from "./snowperm"
 import SnowUser from "./snowuser"
+import { GidType } from "./config/baseguildcfg";
 
 export default abstract class SnowChannel {
     /**
@@ -11,6 +12,14 @@ export default abstract class SnowChannel {
      * Does this provider support sending & receiving file?
      */
     public abstract readonly supportFile:boolean
+    /**
+     * Channel of id (Ex. 10007122)
+     */
+    public abstract readonly id:GidType
+    /**
+     * Parent of channel's id
+     */
+    public abstract readonly groupId:GidType
     /**
      * Send Text or Image (or both if support.)
      * @param text Text of message
