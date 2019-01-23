@@ -584,6 +584,7 @@ PlayerSettings:
   webGLThreadsSupport: 0
   scriptingDefineSymbols:
     1: RHSD
+    13: RHSD
   platformArchitecture: {}
   scriptingBackend: {}
   il2cppCompilerConfiguration: {}
