@@ -183,7 +183,7 @@ impl Server {
             },
             Event::Ended {
                 loser: user,
-                color: loser.to_string(),
+                player: loser.to_string(),
                 cause: cause.clone()
             })
         };
