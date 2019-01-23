@@ -85,6 +85,8 @@ pub enum Event {
     Ended { loser: UserId, color: String, cause: EndedCause },
     #[serde(rename = "banned")]
     Banned { user: UserId },
+    #[serde(rename = "ticked")]
+    Ticked { black_time: usize, white_time: usize, current_time: usize },
 }
 
 impl Event {

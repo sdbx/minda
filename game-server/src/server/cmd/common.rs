@@ -47,7 +47,7 @@ pub fn connect(server: &mut Server, conn: &Connection, key: &str) -> Result<(), 
     };
 
     server.invites.remove(&invite.key);
-    server.update_discover();
+    server.update_discover()?;
 
     server.dispatch(conn.conn_id, &Event::Connected{ room: room });
 

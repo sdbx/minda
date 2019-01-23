@@ -20,6 +20,7 @@ pub fn handle(server: &mut Server, task: Task) -> Result<String, Error> {
         },
         Task::DeleteRoom { room_id } => {
             delete_room::handle(server, &room_id)
-        }
+        },
+        _ => { Err(Error::Internal) }
     }
 }

@@ -1,3 +1,4 @@
+use model::AxialCord;
 use std::cmp::min;
 use std::cmp::max;
 use std::collections::VecDeque;
@@ -33,7 +34,7 @@ impl Display for Stone {
     }
 }
 
-#[derive(PartialEq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy)]
 pub enum Player {
     White,
     Black
@@ -62,14 +63,7 @@ impl Player {
     }
 }
 
-pub struct Move {
-    pub player: Player,
-    pub from: Cord,
-    pub to: Cord,
-    pub dir: Cord
-}
-
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Board {
     payload: Vec<Vec<Stone>>,
     side: isize
@@ -273,7 +267,7 @@ impl Board {
         Ok(())
     }
 
-    fn push_internal(&mut self, player: Player, from: Cord, to: Cord, dir: Cord) -> Result<(), Error> {
+    pub fn push(&mut self, player: Player, from: Cord, to: Cord, dir: Cord) -> Result<(), Error> {
         if !self.validate(from) || !self.validate(to) {
             return Err(Error::InvalidCord)
         }
@@ -300,9 +294,5 @@ impl Board {
         } else {
             return self.push_sideways(player, from, to, dir)
         }
-    }
-
-    pub fn push(&mut self, m: Move) -> Result<(), Error> {
-        self.push_internal(m.player, m.from, m.to, m.dir)
     }
 }
