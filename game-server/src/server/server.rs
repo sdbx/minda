@@ -96,16 +96,6 @@ impl Server {
         };
         Ok(self.rooms.get_mut(room_id)?)
     }
-    
-    pub fn get_game(&self, conn: &Connection) -> Result<&Game, Error> {
-        let room = self.get_room(&conn)?;
-        Ok(&room.game?)
-    }
-
-    pub fn get_game_mut(&self, conn: &Connection) -> Result<&mut Game, Error> {
-        let room = self.get_room_mut(&conn)?;
-        Ok(&mut room.game?)
-    }
 
     pub fn delete_room(&mut self, room_id: &str) {
         self.rooms.remove(&room_id.to_owned());

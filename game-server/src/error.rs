@@ -30,6 +30,9 @@ quick_error! {
         Internal {
             description("Internal error")
         }
+        Banned {
+            description("You're banned")
+        }
         InvalidParm {
             description("Invalid parameters")
         }
