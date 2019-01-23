@@ -1,11 +1,17 @@
 package models
 
 import (
-	"reflect"
+	"errors"
 	"strconv"
 	"strings"
 
 	"github.com/gobuffalo/uuid"
+)
+
+const (
+	StoneBlank = iota
+	StoneBlack
+	StoneWhite
 )
 
 type Map struct {
@@ -23,27 +29,41 @@ type UserMap struct {
 
 type MapString string
 
-func validateMapString(field reflect.Value) interface{} {
-	if str, ok := field.Interface().(MapString); ok {
-		tmp := strings.Split(string(str), "#")
-		var arr [][]int
-		for i := range tmp {
-			tmp2 := strings.Split(tmp[i], "@")
-			if i != 0 && len(arr[0]) != len(tmp2) {
-				return nil
-			}
-
-			var tmp3 []int
-			for j := range tmp2 {
-				n, err := strconv.Atoi(tmp2[j])
-				if err != nil {
-					return nil
-				}
-				tmp3 = append(tmp3, n)
-			}
-			arr = append(arr, tmp3)
+func (str MapString) Parse() ([][]int, error) {
+	tmp := strings.Split(string(str), "#")
+	var arr [][]int
+	for i := range tmp {
+		tmp2 := strings.Split(tmp[i], "@")
+		if i != 0 && len(arr[0]) != len(tmp2) {
+			return nil, errors.New("invalid map string")
 		}
-		return arr
+
+		var tmp3 []int
+		for j := range tmp2 {
+			n, err := strconv.Atoi(tmp2[j])
+			if err != nil {
+				return nil, errors.New("invalid map string")
+			}
+			tmp3 = append(tmp3, n)
+		}
+		arr = append(arr, tmp3)
 	}
-	return nil
+	if len(arr) != 5 {
+		return nil, errors.New("invalid map string")
+	}
+	return arr, nil
+}
+
+// black, white
+func countStones(board [][]int) (black int, white int) {
+	for _, i := range board {
+		for _, j := range i {
+			if j == StoneBlack {
+				black++
+			} else if j == StoneWhite {
+				white++
+			}
+		}
+	}
+	return
 }

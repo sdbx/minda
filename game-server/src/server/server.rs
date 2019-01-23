@@ -1,4 +1,4 @@
-use server::server::ServerEvent::Updated;
+use model::EndedCause;
 use std::io::BufReader;
 use std::io::prelude::*;
 use model::UserId;
@@ -30,7 +30,8 @@ use server::cmd;
 pub enum ServerEvent {
     Connect{ conn_id: Uuid, conn: TcpStream },
     Close { conn_id: Uuid },
-    Updated,
+    DiscoverUpdated,
+    TimeUpdated { dt: usize },
     Command { conn_id: Uuid, cmd: Command },
     TaskRequest { task_request: TaskRequest }
 }
@@ -57,6 +58,7 @@ pub struct Server {
 const redis_server_hash: &'static str = "game_server_hash";
 const redis_result_pubsub: &'static str = "task_result_pub_sub";
 const redis_lobby_queue: &'static str = "task_lobby_queue";
+const result_timeout: usize = 5;
 
 fn redis_game_queue(server: &str) -> String {
     format!("task_game_queue_{}", server)
@@ -95,16 +97,6 @@ impl Server {
             None => return Err(Error::Permission)
         };
         Ok(self.rooms.get_mut(room_id)?)
-    }
-    
-    pub fn get_game(&self, conn: &Connection) -> Result<&Game, Error> {
-        let room = self.get_room(&conn)?;
-        Ok(&room.game?)
-    }
-
-    pub fn get_game_mut(&self, conn: &Connection) -> Result<&mut Game, Error> {
-        let room = self.get_room_mut(&conn)?;
-        Ok(&mut room.game?)
     }
 
     pub fn delete_room(&mut self, room_id: &str) {
@@ -162,6 +154,61 @@ impl Server {
         }
     }
 
+    pub fn complete_game(&mut self, room_id: &str, loser: Player, cause: &EndedCause) -> Result<(), Error> {
+        let (task, event) = {
+            let room = match self.rooms.get_mut(room_id) {
+                Some(x) => x,
+                None => return Err(Error::Internal)
+            };
+            let game = match room.game.as_ref() {
+                Some(x) => x.clone(),
+                None => return Err(Error::Internal)
+            };
+            room.game = None;
+
+            let user = if loser == Player::Black {
+                game.black
+            } else {
+                game.white
+            };
+            
+            (Task::CompleteGame {
+                black: game.black,
+                white: game.white,
+                loser: loser.to_string(),
+                cause: cause.clone(),
+                map: game.map,
+                game_rule: game.rule,
+                moves: game.history
+            },
+            Event::Ended {
+                loser: user,
+                player: loser.to_string(),
+                cause: cause.clone()
+            })
+        };
+        self.broadcast(&room_id, &event);
+        self.request_task(&task)?;
+        Ok(())
+    }
+
+    pub fn request_task(&mut self, task: &Task) -> Result<String, Error> {
+        let conn = self.redis.get_connection()?;
+        let id = Uuid::new_v4().to_string();
+        let buf = serde_json::to_string(&TaskRequest {
+            id: id.clone(),
+            task: task.clone()
+        })?;
+        conn.rpush(redis_game_queue(redis_lobby_queue), &buf)?;
+        let buf: String = conn.blpop(redis_result_channel(&id), result_timeout)?;
+        let res: TaskResult = serde_json::from_str(&buf)?;
+        if let Some(error) = res.error {
+            Err(Error::TaskError(error))
+        } else {
+            Ok(res.value)
+        }
+    }
+
     fn handle_event(&mut self, event: ServerEvent) -> Result<(), Error> {
         match event {
             ServerEvent::Connect { conn_id, conn } => {
@@ -181,8 +228,32 @@ impl Server {
                     self.dispatch(conn_id, &Event::Error{message: format!("{}", err)});
                 };
             },
-            ServerEvent::Updated => {
+            ServerEvent::DiscoverUpdated => {
                 self.update_discover()?;
+            },
+            ServerEvent::TimeUpdated { dt }=> {
+                let mut events: Vec<(String, Event)> = Vec::new();
+                let mut completes: Vec<(String, Player, EndedCause)> = Vec::new();
+                for (_, room) in self.rooms.iter_mut() {
+                    if let Some(game) = room.game.as_mut() {
+                        if game.time_update(dt) {
+                            events.push((room.id.clone(), Event::Ticked {
+                                black_time: game.black_time / 1000,
+                                white_time: game.white_time / 1000,
+                                current_time: game.current_time / 1000
+                            }));
+                        }
+                        if let Some((loser, cause)) = game.get_lose() {
+                            completes.push((room.id.clone(), loser, cause));
+                        }
+                    }
+                }
+                for (room_id, event) in events.iter() {
+                    self.broadcast(&room_id, &event);
+                }
+                for (room_id, loser, cause) in completes.iter() {
+                    self.complete_game(&room_id, *loser, &cause);
+                }
             },
             ServerEvent::TaskRequest { task_request } => {
                 match task::handle(self, task_request.task) {
@@ -270,15 +341,26 @@ impl Server {
         self.listen_socket();
         self.listen_task().unwrap();
         self.ping_update();
+        self.time_update(100);
         rx
     }
 
     fn ping_update(&self) {
         let tx = self.make_tx();
         thread::spawn(move || {
-            tx.send(Updated);
+            tx.send(ServerEvent::DiscoverUpdated);
             for _ in Ticker::new(0.., Duration::from_secs(5)) {
-                tx.send(Updated);
+                tx.send(ServerEvent::DiscoverUpdated);
+            }
+        });
+    }
+
+    fn time_update(&self, dt: usize) {
+        let tx = self.make_tx();
+        thread::spawn(move || {
+            tx.send(ServerEvent::TimeUpdated{dt});
+            for _ in Ticker::new(0.., Duration::from_millis(dt as u64)) {
+                tx.send(ServerEvent::TimeUpdated{dt});
             }
         });
     }

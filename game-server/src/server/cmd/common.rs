@@ -29,14 +29,16 @@ pub fn connect(server: &mut Server, conn: &Connection, key: &str) -> Result<(), 
         if room.users.len() == 0 && invite.user_id != room.conf.king {
             return Err(Error::Permission)
         }
+        if room.banned_users.contains(&invite.user_id) {
+            return Err(Error::Banned)
+        } 
 
         let conn = server.conns.get_mut(&conn.conn_id).unwrap();
         conn.user_id = invite.user_id;
         conn.room_id = Some(invite.room_id.clone());
 
-        room.add_user(conn.conn_id, invite.user_id, &key);
-
         let mroom = room.to_model();
+        room.add_user(conn.conn_id, invite.user_id, &key);
         if let Some(ref game) = room.game {
             (mroom, invite.clone(), Some(Event::game_to_started(game)))
         } else {
@@ -45,7 +47,8 @@ pub fn connect(server: &mut Server, conn: &Connection, key: &str) -> Result<(), 
     };
 
     server.invites.remove(&invite.key);
-    server.update_discover();
+    server.update_discover()?;
+
     server.dispatch(conn.conn_id, &Event::Connected{ room: room });
 
     if let Some(event) = gameevent {

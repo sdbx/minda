@@ -1,32 +1,32 @@
 package taskserv
 
 import (
-	"go.uber.org/zap"
-	"github.com/garyburd/redigo/redis"
-	"github.com/gobuffalo/uuid"
-	"fmt"
-	"errors"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"lobby/models"
-	"lobby/servs/redisserv"
 	"lobby/servs/discserv"
+	"lobby/servs/redisserv"
 	"lobby/utils"
 	"sync"
+
+	"github.com/garyburd/redigo/redis"
+	"github.com/gobuffalo/uuid"
+	"go.uber.org/zap"
 )
 
 const (
-	redisGameQueueTmpl = "task_game_queue_%s"
-	redisLobbyQueue = "task_lobby_queue"
+	redisGameQueueTmpl     = "task_game_queue_%s"
+	redisLobbyQueue        = "task_lobby_queue"
 	redisResultChannelTmpl = "task_result_chan_%s"
-	resultTimeout = 5
+	resultTimeout          = 5
 )
 
 type TaskServ struct {
-	Redis *redisserv.RedisServ `dim:"on"`
-	Disc *discserv.DiscoverServ `dim:"on"`
+	Redis *redisserv.RedisServ   `dim:"on"`
+	Disc  *discserv.DiscoverServ `dim:"on"`
 
 	resMu sync.RWMutex
-	res   map[string]chan models.Result
 }
 
 func Provide() *TaskServ {
@@ -69,10 +69,6 @@ func (t *TaskServ) onQueueMessage(buf []byte) {
 	}
 }
 
-func (t *TaskServ) Excecute(task models.Task) models.Result {
-	return models.Result{}
-}
-
 func redisGameQueue(server string) string {
 	return fmt.Sprintf(redisGameQueueTmpl, server)
 }
@@ -90,14 +86,13 @@ func (t *TaskServ) Request(server string, task models.Task) (interface{}, error)
 	id := id2.String()
 
 	taskReq := models.TaskRequest{
-		ID: id,
+		ID:   id,
 		Task: task,
 	}
 	buf, err := json.Marshal(taskReq)
 	if err != nil {
 		return nil, err
 	}
-
 
 	_, err = t.Redis.Conn().Do("RPUSH", redisGameQueue(server), buf)
 	if err != nil {
@@ -109,7 +104,7 @@ func (t *TaskServ) Request(server string, task models.Task) (interface{}, error)
 		return nil, err
 	}
 
-	res := models.Result{}
+	res := models.TaskResult{}
 	err = json.Unmarshal(buf2[1], &res)
 	if err != nil {
 		return nil, err

@@ -42,7 +42,7 @@ impl Serialize for EndedCause {
         serializer.serialize_str(match *self {
             EndedCause::Timeout => "timeout",
             EndedCause::Gg => "gg",
-            EndedCause::LostStones => "lost all stones",
+            EndedCause::LostStones => "lost stones",
         })
     }
 }
@@ -55,7 +55,7 @@ impl<'de> Deserialize<'de> for EndedCause {
         let out = match s.as_str() {
             "timeout" => EndedCause::Timeout,
             "gg" => EndedCause::Gg,
-            "lost all stones" => EndedCause::LostStones,
+            "lost stones" => EndedCause::LostStones,
             _ => return Err(D::Error::custom("Invalid ended cause"))
         };
         Ok(out)
@@ -82,7 +82,11 @@ pub enum Event {
     #[serde(rename = "left")]
     Left { user: UserId },
     #[serde(rename = "ended")]
-    Ended { winner: UserId, color: String, cause: EndedCause },
+    Ended { loser: UserId, player: String, cause: EndedCause },
+    #[serde(rename = "banned")]
+    Banned { user: UserId },
+    #[serde(rename = "ticked")]
+    Ticked { black_time: usize, white_time: usize, current_time: usize },
 }
 
 impl Event {

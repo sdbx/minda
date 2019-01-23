@@ -1,37 +1,58 @@
 use model::AxialCord;
 use model::Event;
+use model::EndedCause;
+use game::Player;
 use server::server::Connection;
 use server::server::Server;
 use error::Error;
 
 pub fn game_move(server: &mut Server, conn: &Connection, start: AxialCord, end: AxialCord, dir: AxialCord) -> Result<(), Error> {
-    let event = {
-        let game = server.get_game_mut(&conn)?;
+    let (event, lose) = {
+        let room = server.get_room_mut(&conn)?;
+        let game_opt = room.game.as_mut();
+        let game = match game_opt {
+            Some(x) => x,
+            None => return Err(Error::InvalidState)
+        };
         let turn = match game.get_turn(conn.user_id) {
             Ok(x) => x,
             Err(_) => { return Err(Error::InvalidState) }
         };
 
         game.run_move(conn.user_id, start, end, dir)?;
-        Event::Moved {
+        (Event::Moved {
             player: turn.to_string(),
             start: start,
             end: end,
             dir: dir
-        }
+        },
+        game.get_lose())
     };
-
-    server.broadcast(&conn.room_id.unwrap(), &event);
+    let room_id = conn.room_id.as_ref().unwrap();
+    server.broadcast(&room_id, &event);
+    if let Some((loser, cause)) = lose {
+        server.complete_game(&room_id, loser, &cause);
+    }
     Ok(())
 }
 
 pub fn game_gg(server: &mut Server, conn: &Connection) -> Result<(), Error> {
-    let event = {
-        let game = server.get_game_mut(&conn)?;
-        if game.black == conn.user_id {
-            Event::Ended {
-                
-            }
+    let loser = {
+        let room = server.get_room(&conn)?;
+        let game = match room.game.as_ref() {
+            Some(x) => x,
+            None => return Err(Error::InvalidState)
+        };
+        if game.black != conn.user_id && game.white != conn.user_id {
+            return Err(Error::Permission)
         }
-    }
+        if game.black == conn.user_id {
+            Player::White
+        } else {
+            Player::Black
+        }
+    };
+    server.complete_game(conn.room_id.as_ref().unwrap(), loser, &EndedCause::Gg)?;
+    server.update_discover()?;
+    Ok(())
 }

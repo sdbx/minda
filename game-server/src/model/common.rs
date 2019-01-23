@@ -1,4 +1,5 @@
 use std::ops::Deref;
+use game::Board;
 use serde::{Serialize, Serializer, Deserialize, Deserializer};
 use game::Cord;
 use chrono::Utc;
@@ -77,4 +78,19 @@ pub struct GameRule {
     pub defeat_lost_stones: usize,
     pub turn_timeout: usize,
     pub game_timeout: usize
+}
+
+impl GameRule {
+    pub fn verify(&self, board: &Board) -> bool {
+        //TODO 
+        let (black, white) = board.count_stones();
+        if black != white ||
+            self.defeat_lost_stones == 0 || self.defeat_lost_stones > black ||
+            self.turn_timeout == 0 ||
+            self.game_timeout == 0 {
+            false
+        } else {
+            true
+        }
+    }
 }

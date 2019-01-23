@@ -6,7 +6,7 @@ use std::collections::VecDeque;
 use std::cmp::max;
 use std::ops;
 
-#[derive(Copy, Clone, PartialEq, Debug)]
+#[derive(Serialize, Deserialize, Copy, Clone, PartialEq, Debug)]
 pub struct Cord(pub isize, pub isize, pub isize);
 
 impl Cord {
@@ -56,7 +56,6 @@ impl Cord {
                 Cord::lerp(self.1, other.1, t),
                 Cord::lerp(self.2, other.2, t))
     }
-
 }
 
 impl ops::Add<Cord> for Cord{

@@ -5,7 +5,7 @@ import (
 	"errors"
 )
 
-type Result struct {
+type TaskResult struct {
 	Error *string `json:"error"`
 	Value string  `json:"value"`
 }
@@ -16,10 +16,11 @@ type TaskRequest struct {
 }
 
 const (
-	CreateRoomKind = "create-room"
-	JoinRoomKind   = "join-room"
-	KickUserKind   = "kick-user"
-	DeleteRoomKind = "delete-room"
+	CreateRoomKind   = "create-room"
+	JoinRoomKind     = "join-room"
+	KickUserKind     = "kick-user"
+	DeleteRoomKind   = "delete-room"
+	CompleteGameKind = "complete-game"
 )
 
 type Task interface {
@@ -55,6 +56,8 @@ func (r *TaskRequest) UnmarshalJSON(b []byte) error {
 		r.Task = &JoinRoomTask{}
 	case KickUserKind:
 		r.Task = &KickUserTask{}
+	case CompleteGameKind:
+		r.Task = &CompleteGameTask{}
 	default:
 		return errors.New("unknown task kind")
 	}
@@ -140,6 +143,26 @@ func (DeleteRoomTask) Kind() string {
 }
 
 func (DeleteRoomTask) sealedTask() {}
+
+type CompleteGameTask struct {
+	Black    int      `json:"black"`
+	White    int      `json:"white"`
+	Loser    string   `json:"loser"`
+	Cause    string   `json:"cause"`
+	Map      string   `json:"map"`
+	GameRule GameRule `json:"game_rule"`
+	Moves    []Move   `json:"moves"`
+}
+
+func (CompleteGameTask) Out() interface{} {
+	return &UnitResult{}
+}
+
+func (CompleteGameTask) Kind() string {
+	return CompleteGameKind
+}
+
+func (CompleteGameTask) sealedTask() {}
 
 type LobbyRoomResult struct {
 	Invite string `json:"invite"`

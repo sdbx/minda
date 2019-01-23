@@ -44,21 +44,22 @@ type AuthRequest struct {
 }
 
 type History struct {
-	ID        int           `db:"id"`
-	CreatedAt time.Time     `db:"created_at"`
-	UpdatedAt time.Time     `db:"updated_at"`
-	Black     int           `db:"black"`
-	White     int           `db:"white"`
-	Map       string        `db:"map"`
-	Moves     []HistoryMove `db:"moves" has_many:"history_moves" order_by:"seq asc"`
+	ID        int       `db:"id"`
+	CreatedAt time.Time `db:"created_at"`
+	UpdatedAt time.Time `db:"updated_at"`
+	Black     int       `db:"black"`
+	White     int       `db:"white"`
+	Map       string    `db:"map"`
+	Moves     []Move    `db:"moves" has_many:"history_moves" order_by:"seq asc"`
 }
 
-type HistoryMove struct {
+type Move struct {
 	ID        int  `db:"id" json:"-"`
 	HistoryID int  `db:"history_id" json:"-"`
 	Player    int  `db:"player" json:"player"`
-	From      Cord `db:"from" json:"from"`
-	To        Cord `db:"to" json:"to"`
+	Start     Cord `db:"start" json:"start"`
+	End       Cord `db:"end" json:"end"`
+	Dir       Cord `db:"dir" json:"dir"`
 }
 
 type Cord struct {

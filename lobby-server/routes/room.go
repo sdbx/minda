@@ -1,19 +1,20 @@
 package routes
 
 import (
-	"lobby/utils"
 	"lobby/middlewares"
-	"math/rand"
-	"lobby/servs/taskserv"
 	"lobby/models"
 	"lobby/servs/discserv"
+	"lobby/servs/taskserv"
+	"lobby/utils"
+	"math/rand"
+	"net/http"
 
 	"github.com/labstack/echo"
 	"github.com/sunho/dim"
 )
 
 type room struct {
-	Task *taskserv.TaskServ `dim:"on"`
+	Task *taskserv.TaskServ     `dim:"on"`
 	Disc *discserv.DiscoverServ `dim:"on"`
 }
 
@@ -52,7 +53,7 @@ func (r *room) postRoom(c2 echo.Context) error {
 				if err != nil {
 					return err
 				}
-			} else { 
+			} else {
 				_, err = r.Task.Request(room.Server, &models.KickUserTask{
 					UserID: user.ID,
 					RoomID: room.ID,
@@ -63,7 +64,7 @@ func (r *room) postRoom(c2 echo.Context) error {
 			}
 		}
 	}
-	
+
 	servers, err := r.Disc.ListGameServers()
 	if err != nil {
 		return err
@@ -75,8 +76,23 @@ func (r *room) postRoom(c2 echo.Context) error {
 	conf.White = -1
 	conf.Black = -1
 	conf.King = user.ID
+	if conf.Map == "" {
+		conf.Map = "0@0@0@0@0@0@0@2@2#0@0@0@0@0@0@0@2@2#0@0@0@0@0@0@2@2@2#0@1@0@0@0@0@2@2@2#1@1@1@0@0@0@2@2@2#1@1@1@0@0@0@0@2@0#1@1@1@0@0@0@0@0@0#1@1@0@0@0@0@0@0@0#1@1@0@0@0@0@0@0@0"
+	}
+	if conf.GameRule.GameTimeout == 0 {
+		conf.GameRule.GameTimeout = 600
+	}
+	if conf.GameRule.TurnTimeout == 0 {
+		conf.GameRule.TurnTimeout = 20
+	}
+	if conf.GameRule.DefeatLostStones == 0 {
+		conf.GameRule.DefeatLostStones = 6
+	}
+	if !conf.Validate() {
+		return echo.NewHTTPError(400, http.StatusBadRequest)
+	}
 	res, err := r.Task.Request(servers[rand.Intn(len(servers))].Name, &models.CreateRoomTask{
-		Conf: conf,
+		Conf:   conf,
 		UserID: user.ID,
 	})
 	if err != nil {

@@ -21,6 +21,10 @@ quick_error! {
             display("redis error: {}", err)
             cause(err)
         }
+        TaskError(error: String) {
+            description("Task error")
+            display("task error: {}", error)
+        }
         GameStarted {
             description("Game have benn started already")
         }
@@ -29,6 +33,9 @@ quick_error! {
         }
         Internal {
             description("Internal error")
+        }
+        Banned {
+            description("You're banned")
         }
         InvalidParm {
             description("Invalid parameters")
