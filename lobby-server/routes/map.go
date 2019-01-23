@@ -41,7 +41,7 @@ func (m *mapr) postMap(c2 echo.Context) error {
 		return err
 	}
 
-	err = models.Validate.Struct(&item)
+	_, err = item.Payload.Parse()
 	if err != nil {
 		return err
 	}
