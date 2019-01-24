@@ -36,9 +36,8 @@ export default class Snow<C extends BaseGuildCfg> {
      * Add command to snow runtime
      * @param command Command
      */
-    public addCommand<P extends any[]>(command:SnowCommand<C, P>) {
+    public addCommand(command:SnowCommand<C>) {
         this.commands.push(command)
-        return command
     }
     /**
      * Remove command from snow runtime
