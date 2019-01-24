@@ -1,10 +1,10 @@
 import Discord from "discord.js"
+import { GidType } from "../config/baseguildcfg"
 import SnowChannel, { ConfigDepth } from "../snowchannel"
 import SnowMessage from "../snowmessage"
 import { SnowPerm } from "../snowperm"
 import SnowUser from "../snowuser"
 import { getFirst } from "../snowutil"
-import { GidType } from "../config/baseguildcfg";
 
 export default class DiscordSnowCh extends SnowChannel {
     public readonly provider = "discord"

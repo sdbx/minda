@@ -4,37 +4,31 @@ import { EventDispatcher, SimpleEventDispatcher } from "strongly-typed-events"
 import { Column, Entity } from "typeorm"
 import SnowCommand, { SnowContext } from "./snow/bot/snowcommand"
 import BaseGuildCfg from "./snow/config/baseguildcfg"
+import JsonConfig from "./snow/config/jsonconfig"
 import SnowConfig, { debugPath } from "./snow/config/snowconfig"
+import TokenStore from "./snow/config/tokenstore"
 import DiscordSnow from "./snow/provider/discordsnow"
+import Snow from "./snow/snow"
 import { bindFn } from "./util"
 
 async function run2() {
-    const tokens = await SnowConfig.getTokens()
-    if (tokens["discord"] != null) {
-        const t = tokens["discord"]
-        const config = new SnowConfig(TestSchema,
-            `${debugPath}/config/discord.sqlite`)
-        await config.connect()
-        const snowD = new DiscordSnow(t, config)
-        await snowD.init()
-        const authCmd = new AuthMinda()
-
-        const cmd = snowD.createCommand("ping", async (context, arg1, arg2) => {
-            const {channel, configChannel} = context
+    const tokenStore = new JsonConfig(TokenStore, `${debugPath}/config/token.json5`).ro
+    const snow = new Snow(tokenStore, `${debugPath}/config`, TestSchema)
+    console.log(await snow.login())
+    snow.addCommand(new SnowCommand({
+        name: "ping",
+        func: async (context, arg1, arg2) => {
+            const { channel, configChannel } = context
             if (arg1 === "get") {
                 await channel.send("쪼리핑! " + configChannel.jjoa)
             } else if (arg1 === "set") {
                 configChannel.jjoa = arg2
-                await context.updateChannelConfig()
+                // await context.updateChannelConfig()
             }
-        }, "string", "string")
-            .withRequires(2)
-            .withHelp("핑핑 쪼리핑을 날립니다", "시간", "날짜")
-        snowD.addCommand(cmd)
-        snowD.addCommand(
-            new SnowCommand("authminda", bindFn(authCmd, "authMinda"), "string").withHelp("인증", "공급자")
-        )
-    }
+        },
+        paramNames: ["쪼리", "핑"],
+        description: "핑을 날립니다.",
+    }, "string", "string"))
 }
 async function run1() {
     const config = new SnowConfig(TestSchema,

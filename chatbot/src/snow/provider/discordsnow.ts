@@ -1,11 +1,11 @@
 import Discord from "discord.js"
 import { EventDispatcher } from "strongly-typed-events"
+import BaseGuildCfg from "../config/baseguildcfg"
+import SnowConfig from "../config/snowconfig"
 import SnowChannel from "../snowchannel"
 import SnowMessage from "../snowmessage"
 import DiscordSnowCh, { messageToSnow } from "./discordsnowch"
 import { SnowProvider } from "./snowprovider"
-import SnowConfig from "../config/snowconfig";
-import BaseGuildCfg from "../config/baseguildcfg";
 
 export default class DiscordSnow<C extends BaseGuildCfg> extends SnowProvider<C> {
     protected token:string
@@ -17,7 +17,6 @@ export default class DiscordSnow<C extends BaseGuildCfg> extends SnowProvider<C>
         this.channels = new Map()
     }
     public async init() {
-        await super.init()
         this.client = new Discord.Client()
         this.client.on("message", (m) => this.handleMessage(m))
         this.client.on("ready", () => this.onReady.dispatch())

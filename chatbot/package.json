@@ -37,9 +37,15 @@
     "node": ">=8.9"
   },
   "dependencies": {
+    "@types/debug": "0.0.31",
+    "@types/json5": "0.0.30",
     "@types/msgpack5": "^3.4.1",
+    "clone-deep": "^4.0.1",
+    "debug": "^4.1.1",
+    "deepmerge": "^3.1.0",
     "discord.js": "^11.4.2",
     "fs-extra": "^7.0.1",
+    "json5": "^2.1.0",
     "minda-ts": "file:../tslib",
     "msgpack5": "^4.2.1",
     "sha.js": "^2.4.11",

@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column } from "typeorm"
+import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm"
 
 export type GidType = string
 @Entity()

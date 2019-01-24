@@ -1,23 +1,16 @@
 import fs from "fs-extra"
+import { DeepReadonly } from "minda-ts/build/main/types/deepreadonly"
 import path from "path"
-import { Connection, ConnectionOptions, createConnection, EntitySchema, Repository, FindConditions, DeepPartial } from "typeorm"
+import { Connection, ConnectionOptions, createConnection,
+    DeepPartial, EntitySchema, FindConditions, Repository } from "typeorm"
 import BaseGuildCfg, { GidType } from "./baseguildcfg"
-import { DeepReadonly } from "minda-ts/build/main/types/deepreadonly";
 export const debugPath = path.resolve(__dirname, `../../../${(__dirname.indexOf("build") >= 0) ? "../" : ""}`)
 
 export type SnowSchema<T> = Pick<T, Exclude<keyof T, keyof BaseGuildCfg>>
+/**
+ * Per Group / Channel Settings
+ */
 export default class SnowConfig<T extends BaseGuildCfg> {
-    public static async getTokens():Promise<{[k in string]:string}> {
-        try {
-            const buf = await fs.readFile(`${debugPath}/config/token.json`)
-            return JSON.parse(buf.toString("utf8"))
-        } catch {
-            await fs.writeFile(`${debugPath}/config/token.json`, JSON.stringify({
-                example: "5353",
-            }, null, 4))
-            return {}
-        }
-    }
     protected schema:new () => T
     protected repo:Repository<T>
     protected dbpath:string
@@ -54,7 +47,7 @@ export default class SnowConfig<T extends BaseGuildCfg> {
         const schema = await this.getConfig(gid, prov)
         return schema[key]
     }
-    public async setConfig(conf: SnowSchema<T>, gid?:GidType, prov?:string) {
+    public async setConfig(conf:SnowSchema<T>, gid?:GidType, prov?:string) {
         if (gid != null) {
             conf["gid"] = gid
         }

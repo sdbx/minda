@@ -1,7 +1,7 @@
+import { GidType } from "./config/baseguildcfg"
 import SnowMessage from "./snowmessage"
 import { SnowPerm } from "./snowperm"
 import SnowUser from "./snowuser"
-import { GidType } from "./config/baseguildcfg";
 
 export default abstract class SnowChannel {
     /**
