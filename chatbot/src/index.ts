@@ -2,6 +2,9 @@ import * as Minda from "minda-ts"
 import { MindaClient, MindaCredit } from "minda-ts"
 import { EventDispatcher, SimpleEventDispatcher } from "strongly-typed-events"
 import { Column, Entity } from "typeorm"
+import AuthFactory from "./chatbot/authfactory"
+import GlobalConfig from "./chatbot/globalcfg"
+import BotConfig from "./chatbot/guildcfg"
 import SnowCommand, { SnowContext } from "./snow/bot/snowcommand"
 import BaseGuildCfg from "./snow/config/baseguildcfg"
 import JsonConfig from "./snow/config/jsonconfig"
@@ -12,9 +15,12 @@ import Snow from "./snow/snow"
 import { bindFn } from "./util"
 
 async function run2() {
-    const tokenStore = new JsonConfig(TokenStore, `${debugPath}/config/token.json5`).ro
-    const snow = new Snow(tokenStore, `${debugPath}/config`, TestSchema)
+    const tokenStore = new JsonConfig(GlobalConfig, `${debugPath}/config/token.json5`).ro
+    const snow = new Snow(tokenStore, `${debugPath}/config`, BotConfig)
+    const authF = new AuthFactory(`${debugPath}/config`)
+    await authF.init()
     console.log(await snow.login())
+    snow.addCommands(authF.commands)
     snow.addCommand(new SnowCommand({
         name: "ping",
         func: async (context, arg1, arg2) => {
@@ -30,41 +36,7 @@ async function run2() {
         description: "핑을 날립니다.",
     }, "string", "string"))
 }
-async function run1() {
-    const config = new SnowConfig(TestSchema,
-        `${debugPath}/config/guild.sqlite`)
-    await config.connect()
-    const cfg = await config.getConfig("2018", "discord")
-    console.log(JSON.stringify(cfg, null, 2))
-    cfg.babu = false
-    cfg.jjoa = "Dukjjji"
-    cfg.kkiro = 53
-    await config.setConfig(cfg, "2015", "discord")
-}
 
-@Entity()
-class TestSchema extends BaseGuildCfg {
-    @Column("boolean", {
-        default: false,
-    })
-    public babu:boolean
-    @Column({
-        default: "dontlike",
-    })
-    public jjoa:string
-    @Column("bigint", {
-        default: 53,
-    })
-    public kkiro:number
-    @Column({
-        default: "death",
-    })
-    public deasu:string
-    @Column({
-        default: "IhateKkiro",
-    })
-    public iLikeKkiro:string
-}
 run2()
 
 class AuthMinda {
@@ -81,20 +53,6 @@ class AuthMinda {
     }
     public async authMinda(context:SnowContext<{}>, provider:string) {
         const {channel, message} = context
-        const proves = await this.credit.getProviders()
-        if (proves.indexOf(provider) < 0) {
-            await channel.send(provider + "(이)라는 공급자가 없습니다!" + "\n공급자 목록: " + proves.join(","))
-            return            
-        }
-        const url = await this.credit.genOAuth(provider)
-        await channel.send("oAuth: " + url)
-        this.credit.watchLogin()
-        if (this.subs != null) {
-            this.subs()
-        }
-        this.subs = this.credit.onLogin.one((token) => {
-            channel.send("인증 완료!")
-            this.onReady.dispatch(token)
-        })
+
     }
 }

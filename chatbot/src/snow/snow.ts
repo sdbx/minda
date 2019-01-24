@@ -40,6 +40,15 @@ export default class Snow<C extends BaseGuildCfg> {
         this.commands.push(command)
     }
     /**
+     * Add command**s**
+     * @param commands Commands
+     */
+    public addCommands(commands:Array<SnowCommand<C>>) {
+        for (const c of commands) {
+            this.commands.push(c)
+        }
+    }
+    /**
      * Remove command from snow runtime
      * @param cmdNames Command name
      */
