@@ -144,14 +144,11 @@ impl Board {
 
     // (black, white)
     pub fn count_stones(&self) -> (usize, usize) {
-        let N = self.side();
         let mut black = 0;
         let mut white = 0;
-        for x in -N..N+1 {
-            for y in max(-N, -x-N)..min(N, -x+N)+1 {
-                let z = -x-y;
-                let stone = self.get(Cord(x,y,z)).unwrap();
-                match stone {
+        for i in self.payload.iter() {
+            for j in i {
+                match j {
                     Stone::Black => { black += 1; },
                     Stone::White => { white += 1; },
                     _ => { },
