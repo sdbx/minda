@@ -1,5 +1,6 @@
 import { SerializeObject } from "../../types/serializable"
 import { MSGameConf } from "./msgameconf"
+import { MSGameRule } from "./msgamerule"
 import { MSUser } from "./msuser"
 
 export interface MSRoom {
@@ -45,6 +46,14 @@ export interface MSRoomConf {
      * 백돌 유저
      */
     white:number,
+    /**
+     * 공개방 여부
+     */
+    open:boolean,
+    /**
+     * 게임 규칙
+     */
+    game_rule:MSGameRule,
 }
 export interface MSRoomServer {
     invite:string,

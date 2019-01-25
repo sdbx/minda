@@ -1,1 +1,2 @@
-export type MSGrid = string[][]
+export type MSGrid = number[][]
+export type MSMapString = never

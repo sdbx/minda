@@ -4,9 +4,9 @@ import { Immute } from "../types/deepreadonly"
 import { Serializable, SerializeObject } from "../types/serializable"
 import { WebpackTimer } from "../webpacktimer"
 import { mdtimeout } from "./mdconst"
-import { ChatInfo, ConfInfo, ConnectInfo, EnterInfo,
-    ErrorInfo, LeaveInfo, MdCommands, MdEvents,
-    MdEventTypes, StartInfo } from "./mdevents"
+import { BanInfo, ChatInfo, ConfInfo, ConnectInfo,
+    EndInfo, EnterInfo, ErrorInfo, LeaveInfo,
+    MdCommands, MdEventTypes, MoveInfo, MSEvents, StartInfo, TickInfo } from "./structure/msevents"
 import { MSGrid } from "./structure/msgrid"
 import { MSRoom, MSRoomConf, MSRoomServer } from "./structure/msroom"
 import { MSUser } from "./structure/msuser"
@@ -47,20 +47,59 @@ class MindaRoomBase implements MSRoom {
     public get name() {
         return this.conf.name
     }
+    /**
+     * 한 턴당 사용가능한 시간. (초)
+     */
+    public get turnTimeout() {
+        return this.conf.game_rule.turn_timeout
+    }
+    /**
+     * 한 게임당 사용가능한 총 시간. (초)
+     */
+    public get gameTimeout() {
+        return this.conf.game_rule.game_timeout
+    }
+    /**
+     * 패배 조건 - 떨궈진 돌의 갯수
+     */
+    public get loseStones() {
+        return this.conf.game_rule.default_lost_stones
+    }
     /* Value implements */
     /**
      * 채팅의 메시지들 입니다.
      */
     public messages:string[] = []
     /**
-     * @todo 이차원 배열이라고 하는데 난 몰라
+     * 이게 뭐지~
      */
-    public board:string[][] = []
+    public board:never
     /**
      * 누구의 턴인가
      */
     public turn:"black" | "white"
+    /**
+     * 흑돌의 남은 시간
+     */
+    public leftBlack:number = -1
+    /**
+     * 백돌의 남은 시간
+     */
+    public leftWhite:number = -1
+    /**
+     * 게임의 남은 시간
+     */
+    public leftGame:number = -1
+    /* Custom event implements */
+    /**
+     * [커스텀] 자신이 밴당했을 때 발생합니다. 소켓을 닫습니다.
+     */
+    public onSelfBanned = new SignalDispatcher() 
     /* Public events implements */
+    /**
+     * 방에서 누군가가 밴당했을 때 발생합니다. 자신도 되구요.
+     */
+    public onBan = new SimpleEventDispatcher<number>()
     /**
      * 방에 접속을 성공했을때 발생합니다.
      */
@@ -75,10 +114,10 @@ class MindaRoomBase implements MSRoom {
      */
     public onConf = new SimpleEventDispatcher<MSRoomConf>()
     /**
-     * 게임이 시작됐거나 이미 시작된 상태에서
-     * 방에 들어왔을때 발생합니다.
+     * 게임의 승부가 결정됐을 때 발생합니다.
+     * 왜 지는 유저아이디만 주는지는 모릅니다.
      */
-    public onStart = new MindaEventDispatcher<StartInfo>()
+    public onEnd = new MindaEventDispatcher<EndInfo>()
     /**
      * 방에 누군가 들어왔을 때 발생합니다.
      */
@@ -89,6 +128,21 @@ class MindaRoomBase implements MSRoom {
      */
     public onLeave = new MindaEventDispatcher<LeaveInfo>()
     /**
+     * 유저가 돌을 옮길때 발생합니다.
+     * 자세한 사항은 미구현.
+     */
+    public onMove = new MindaEventDispatcher<MoveInfo>()
+    /**
+     * 게임이 시작됐거나 이미 시작된 상태에서
+     * 방에 들어왔을때 발생합니다.
+     */
+    public onStart = new MindaEventDispatcher<StartInfo>()
+    /**
+     * 게임 중 일정 주기로 시간에 대한 정보를
+     * 알려줍니다.
+     */
+    public onTick = new MindaEventDispatcher<TickInfo>()
+    /**
      * 보낸 명령에 문제가 있을 시에 발생합니다.
      */
     public onMindaError = new SimpleEventDispatcher<string>()
@@ -98,7 +152,7 @@ class MindaRoomBase implements MSRoom {
      */
     public connected = false
     /* protected events */
-    protected onEvents = new EventDispatcher<MdEvents, unknown>()
+    protected onEvents = new EventDispatcher<MSEvents, unknown>()
     protected onSocketOpen = new SignalDispatcher()
     protected onSocketDrain = new SignalDispatcher()
     protected onSocketError = new SimpleEventDispatcher<Error>()
@@ -134,29 +188,45 @@ class MindaRoomBase implements MSRoom {
         })
     }
     /**
-     * 소켓 강제 종료
+     * 소켓 종료
      */
     public close() {
         this.socket.destroy()
+        this.socket.removeAllListeners()
+        for (const key of Object.keys(this)) {
+            if (this.hasOwnProperty(key)) {
+                const obj:unknown = this[key]
+                if (obj instanceof EventDispatcher || 
+                    obj instanceof SimpleEventDispatcher ||
+                    obj instanceof SignalDispatcher) {
+                    obj.clear()
+                }
+            }
+        }
     }
     /**
      * 웹소켓 패킷을 관리합니다.
      * @param type 이벤트 타입
      * @param event 이벤트 파라메터
      */
-    protected async handleRoomPacket(type:MdEvents, event:unknown) {
+    protected async handleRoomPacket(type:MSEvents, event:unknown) {
         switch (type) {
-            case MdEvents.chat: {
+            case MSEvents.ban: {
+                const banE = event as BanInfo
+                const id = banE.user
+                this.onBan.dispatch(id)
+            } break
+            case MSEvents.chat: {
                 const chatE = event as ChatInfo
                 this.messages.push(chatE.content)
                 this.onChat.dispatch(chatE)
             } break
-            case MdEvents.conf: {
+            case MSEvents.conf: {
                 const confE = event as ConfInfo
                 this.conf = confE.conf
                 this.onConf.dispatch(confE.conf)
             } break
-            case MdEvents.connect: {
+            case MSEvents.connect: {
                 const connect = event as ConnectInfo
                 const room = connect.room
                 this.id = room.id
@@ -168,7 +238,11 @@ class MindaRoomBase implements MSRoom {
                     ...connect.room
                 })
             } break
-            case MdEvents.enter: {
+            case MSEvents.end: {
+                const end = event as EndInfo
+                this.onEnd.dispatch(end)
+            } break
+            case MSEvents.enter: {
                 const enter = event as EnterInfo
                 const users = [...this.users]
                 if (users.find((v) => v === enter.user) == null) {
@@ -177,12 +251,12 @@ class MindaRoomBase implements MSRoom {
                 }
                 this.onEnter.dispatch(enter)
             } break
-            case MdEvents.error: {
+            case MSEvents.error: {
                 const errorE = event as ErrorInfo
                 this.onMindaError.dispatch(errorE.msg)
                 console.error(`MindaError: ${errorE.msg}`)
             } break
-            case MdEvents.leave: {
+            case MSEvents.leave: {
                 const leaveE = event as LeaveInfo
                 const users = [...this.users]
                 const index = users.findIndex((v) => v === leaveE.user)
@@ -192,16 +266,30 @@ class MindaRoomBase implements MSRoom {
                 }
                 this.onLeave.dispatch(leaveE)
             } break
-            case MdEvents.move: {
+            case MSEvents.move: {
+                const moveE = event as MoveInfo
+                this.onMove.dispatch(moveE)
                 // @TODO 언젠가 합시다
             } break
-            case MdEvents.start: {
+            case MSEvents.start: {
                 const startE = event as StartInfo
                 this.conf.black = startE.black
                 this.conf.white = startE.white
+                this.conf.game_rule = {
+                    ...this.conf.game_rule,
+                    ...startE.rule,
+                }
                 this.turn = startE.turn
-                this.board = startE.board
                 this.onStart.dispatch(startE)
+            } break
+            case MSEvents.tick: {
+                const tickE = event as TickInfo
+                this.leftBlack = tickE.black_time
+                this.leftWhite = tickE.white_time
+                this.leftGame = this.gameTimeout -
+                    ((this.turnTimeout - tickE.black_time) +
+                    (this.turnTimeout - tickE.white_time))
+                this.onTick.dispatch(tickE)
             } break
             default: {
                 console.log(type + " / " + JSON.stringify(event, null, 2))
@@ -266,6 +354,12 @@ export class MindaRoom extends MindaRoomBase {
         this.me = {
             ...myid
         }
+        this.onBan.sub((id) => {
+            if (id === this.me.id) {
+                this.onSelfBanned.dispatch()
+                this.close()
+            }
+        })
     }
     /**
      * 채팅을 보냅니다.
@@ -322,6 +416,51 @@ export class MindaRoom extends MindaRoomBase {
         return this.setConfig({
             king: this.getIdOfUser(user),
         })
+    }
+    /**
+     * `턴 제한시간`을 바꿉니다.
+     * @param sec 제한시간 (초)
+     */
+    public async setTurnTimeout(sec:number) {
+        if (sec > 0) {
+            return this.setConfig({
+                game_rule: {
+                    ...this.conf.game_rule,
+                    turn_timeout: sec,
+                }
+            })
+        }
+        return false
+    }
+    /**
+     * `게임 제한시간`을 바꿉니다.
+     * @param sec 제한시간 (초)
+     */
+    public async setGameTimeout(sec:number) {
+        if (sec > 0) {
+            return this.setConfig({
+                game_rule: {
+                    ...this.conf.game_rule,
+                    game_timeout: sec,
+                }
+            })
+        }
+        return false
+    }
+    /**
+     * `돌 패배 조건`을 정합니다.
+     * @param stones 돌 갯수
+     */
+    public async setLostStones(stones:number) {
+        if (stones > 0) {
+            return this.setConfig({
+                game_rule: {
+                    ...this.conf.game_rule,
+                    default_lost_stones: stones,
+                }
+            })
+        }
+        return false
     }
     /**
      * `방설정`을 바꿉니다.
