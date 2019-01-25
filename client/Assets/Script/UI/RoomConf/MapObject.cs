@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.IO;
 using SFB;
+using UI.Toast;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Networking;
@@ -75,6 +76,7 @@ namespace UI
                     }
                     catch (Exception e)
                     {
+                        ToastManager.instance.Add("Map load error","Error");
                         Debug.Log("맵 로드 오류 : " + e);
                     }
                 }));
