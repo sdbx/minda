@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using Game;
 using Models;
 using Newtonsoft.Json;
+using UI.Toast;
 using UnityEngine;
 
 namespace Network
@@ -22,8 +23,7 @@ namespace Network
 
         public static LobbyServer instance;
 
-        [SerializeField]
-        private string address = "http://minda.games:8080";
+        public string address = "http://minda.games:8080";
         LobbyServerRequestor requestor;
 
         public string token;
@@ -35,6 +35,7 @@ namespace Network
         private float loginTimeLeft = 0;
 
         public User loginUser = null;
+
 
         private void Awake() 
         {
@@ -78,8 +79,11 @@ namespace Network
             loginCallback();
             loginCallback = null;
             loginState = LoginState.Login;
-            RefreshLoginUser();
+            RefreshLoginUser((User user)=>{
+                ToastManager.instance.Add($"{user.username}님 ㅎㅇ프구바부","Success");
+            });
             Debug.Log("로그인 성공");
+            
         }
         
         public void login(string service,Action callback)
