@@ -70,7 +70,7 @@ export default class DiscordSnowCh extends SnowChannel {
     public async decodeArgs(args:string[]) {
         const out:Array<string | SnowChannel | SnowUser> = []
         for (const arg of args) {
-            if (/^<@!\d+>$/i.test(arg)) {
+            if (/^<@!?\d+>$/i.test(arg)) {
                 const id = arg.match(/\d+/i)[0]
                 const u = await this.user(id)
                 if (u != null) {

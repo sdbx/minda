@@ -20,6 +20,11 @@ export default function awaitEvent<E extends STE, R>(
             if (!nullAsContinue || r !== null) {
                 fn()
                 res(r)
+            } else {
+                timer = WebpackTimer.setTimeout(() => {
+                    fn()
+                    rej(new Error("TIMEOUT"))
+                }, timeout)
             }
         })
         timer = WebpackTimer.setTimeout(() => {
