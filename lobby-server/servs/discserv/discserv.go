@@ -84,7 +84,7 @@ func (g *DiscoverServ) FetchRooms(empty bool, private bool) (Rooms, error) {
 	rooms := Rooms{}
 	for _, server := range servers {
 		for _, room := range server.Rooms {
-			if len(room.Users) != 0 || empty && room.Conf.Public || private {
+			if (len(room.Users) != 0 || empty) && (room.Conf.Open || private) {
 				rooms = append(rooms, room)
 			}
 		}

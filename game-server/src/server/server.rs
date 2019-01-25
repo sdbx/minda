@@ -29,6 +29,7 @@ use server::cmd;
 
 pub enum ServerEvent {
     Connect{ conn_id: Uuid, conn: TcpStream },
+    Dispatch { conn_id: Uuid, event: Event },
     Close { conn_id: Uuid },
     DiscoverUpdated,
     TimeUpdated { dt: usize },
@@ -319,6 +320,9 @@ impl Server {
                 self.streams.remove(&conn_id);
                 self.conns.remove(&conn_id);
                 self.update_discover()?;
+            },
+            ServerEvent::Dispatch { conn_id, event } => {
+                self.dispatch(conn_id, &event);
             }
         }
         Ok(())
@@ -409,6 +413,13 @@ impl Server {
                         tx.send(ServerEvent::Command{
                             conn_id,
                             cmd
+                        });
+                    } else {
+                        tx.send(ServerEvent::Dispatch {
+                            conn_id,
+                            event: Event::Error {
+                                message: "json format error".to_owned()
+                            }
                         });
                     }
                 },
