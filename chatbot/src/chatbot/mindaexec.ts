@@ -79,16 +79,29 @@ export default class MindaExec {
             return `${noAuth.join(", ")} 유저가 민다에 없습니다.`
         }
         const room = await this.admin.createRoom(`[${channel.name()}] ${user1.nickname} vs ${user2.nickname}`)
+        const roomFind = (await this.admin.fetchRooms()).find((v) => v.id === room.id)
+        if (roomFind == null) {
+            return `방 생성에 실패했습니다.`
+        }
+        await channel.send("방 이름: " + roomFind.conf.name)
         this.playingQueue.set(user1.getUID(), room)
         this.playingQueue.set(user2.getUID(), room)
-        awaitEvent(room.onEnter, 20000, async (info) => {
+        room.onChat.sub((ch) => {
+            const n = this.admin.users.find((v) => v.id === ch.user).username
+            channel.send(`${n} : ${ch.content}`)
+        })
+        awaitEvent(room.onEnter, 60000, async (info) => {
             if (info.user === minda1.id) {
                 if (await room.setBlack(minda1)) {
                     await room.sendChat(`흑돌 선수 ${minda1.username}님이 입장합니다.`)   
+                } else {
+                    channel.send("흑돌을 설정하는데 실패했습니다.")
                 }
             } else if (info.user === minda2.id) {
                 if (await room.setWhite(minda2)) {
                     await room.sendChat(`백돌 선수 ${minda2.username}님이 입장합니다.`)
+                } else {
+                    channel.send("백돌을 설정하는데 실패했습니다.")
                 }
             }
             if (room.black >= 0 && room.white >= 0) {
@@ -98,8 +111,9 @@ export default class MindaExec {
                 }
             }
             return null
-        }, true).catch(() => {
+        }, true).catch(async () => {
             room.close()
+            await channel.send("유저가 접속을 안하여 방이 닫혔습니다.")
         })
         return null
     }

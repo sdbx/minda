@@ -1,17 +1,25 @@
+import chalk from "chalk"
+import enquirer, { prompt } from "enquirer"
 import { MindaAdmin, MindaClient, MindaCredit, MindaRoom } from "./index"
 import { reqPost } from "./minda/mdrequest"
 
-async function run() {
-    /*
-    const client = new MindaClient("black")
-    await client.createRoom({
-        name: "hello",
-        black:-1,
-        white:-1,
-        king:-1,
-        rule: "",
+async function login() {
+    const credit = new MindaCredit(20000)
+    const provs = await credit.getProviders()
+    const selectProv = await prompt<{provider:string}>({
+        type: "select",
+        name: "provider",
+        message: "oAuth 공급자를 선택해주세요.",
+        choices: provs,
     })
-    */
+    console.log("인증을 시작합니다. 아래 링크를 눌러주세요.")
+    const oAuth = await credit.genOAuth(selectProv.provider)
+    console.log(oAuth)
+    credit.watchLogin()
+}
+async function run() {
+    await login()
+    return
     const aClient = new MindaAdmin("WU7htx_4_helo4FO3Im44pU=")
     await aClient.init()
 
