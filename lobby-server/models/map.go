@@ -48,7 +48,7 @@ func (str MapString) Parse() ([][]int, error) {
 		}
 		arr = append(arr, tmp3)
 	}
-	if len(arr) != 5 {
+	if len(arr) != 9 {
 		return nil, errors.New("invalid map string")
 	}
 	return arr, nil
