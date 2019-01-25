@@ -131,10 +131,9 @@ func (g *DiscoverServ) CreateRoomID() (string, error) {
 	}
 L:
 	for {
-		var id []byte
 		uid, _ := uuid.NewV4()
-		base64.StdEncoding.Encode(id, uid.Bytes())
-		out := string(id[:6])
+		str := base64.StdEncoding.EncodeToString(uid.Bytes())
+		out := string(str[:6])
 		for _, room := range rooms {
 			if room.ID == out {
 				continue L

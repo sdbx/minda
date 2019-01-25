@@ -31,14 +31,14 @@ type MapString string
 
 func (str MapString) Parse() ([][]int, error) {
 	tmp := strings.Split(string(str), "#")
-	var arr [][]int
+	arr := [][]int{}
 	for i := range tmp {
 		tmp2 := strings.Split(tmp[i], "@")
 		if i != 0 && len(arr[0]) != len(tmp2) {
 			return nil, errors.New("invalid map string")
 		}
 
-		var tmp3 []int
+		tmp3 := []int{}
 		for j := range tmp2 {
 			n, err := strconv.Atoi(tmp2[j])
 			if err != nil {
