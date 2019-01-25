@@ -1,0 +1,3 @@
+# minda-ts
+
+Minda Library
