@@ -46,7 +46,7 @@ pub fn conf(server: &mut Server, conn: &Connection, conf: &RoomConf) -> Result<(
         }
         let board = Board::from_string(&conf.map)?;
         //TODO make this configurable
-        if board.side() != 5 || conf.game_rule.verify(&board) {
+        if board.side() != 5 || !conf.game_rule.verify(&board) {
             return Err(Error::InvalidParm)
         }
 
