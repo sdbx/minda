@@ -1,3 +1,4 @@
+use model::GameRule;
 use serde::Deserialize;
 use serde::Deserializer;
 use serde::Serializer;
@@ -68,7 +69,7 @@ pub enum Event {
     #[serde(rename = "connected")]
     Connected { room: Room },
     #[serde(rename = "started")]
-    Started { board: Vec<Vec<Stone>>, black: UserId, white: UserId, turn: String },
+    Started { map: String, black: UserId, white: UserId, turn: String, rule: GameRule },
     #[serde(rename = "entered")]
     Entered { user: UserId },
     #[serde(rename = "error")]
@@ -92,10 +93,11 @@ pub enum Event {
 impl Event {
     pub fn game_to_started(game: &Game) -> Self {
         Event::Started {
-            board: game.board.raw(),
+            map: game.board.to_string(),
             black: game.black,
             white: game.white,
-            turn: game.turn.to_string()
+            turn: game.turn.to_string(),
+            rule: game.rule.clone()
         }
     }
 }

@@ -27,9 +27,9 @@ impl Display for Stone {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         use self::Stone::*;
         match *self {
-            Blank => write!(f, "O"),
-            Black => write!(f, "B"),
-            White => write!(f, "W")
+            Blank => write!(f, "0"),
+            Black => write!(f, "1"),
+            White => write!(f, "2")
         }
     }
 }
@@ -100,6 +100,14 @@ impl Board {
             }
         }
         Some(out)
+    }
+
+    pub fn to_string(&self) -> String {
+        self.payload.iter().map(|i| {
+            i.iter().map(|s|{
+                s.to_string()
+            }).collect::<Vec<_>>().as_slice().join("@")
+        }).collect::<Vec<_>>().as_slice().join("#")
     }
 
     pub fn side(&self) -> isize {
