@@ -2,6 +2,8 @@ package utils
 
 import (
 	"errors"
+	"math/rand"
+	"time"
 
 	"go.uber.org/zap"
 
@@ -14,6 +16,10 @@ var (
 )
 
 var Log, _ = zap.NewProduction()
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
 
 func ListenPubSub(conn redis.Conn,
 	onStart func(),
@@ -67,4 +73,14 @@ func ListenQueue(conn redis.Conn, onMessage func(buf []byte), name string) error
 
 func NewString(str string) *string {
 	return &str
+}
+
+const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+func RandString(n int) string {
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = letterBytes[rand.Intn(len(letterBytes))]
+	}
+	return string(b)
 }

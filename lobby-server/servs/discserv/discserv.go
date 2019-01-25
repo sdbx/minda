@@ -1,14 +1,12 @@
 package discserv
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"lobby/models"
 	"lobby/servs/redisserv"
+	"lobby/utils"
 	"sort"
 	"time"
-
-	"github.com/gobuffalo/uuid"
 
 	"github.com/garyburd/redigo/redis"
 )
@@ -131,9 +129,7 @@ func (g *DiscoverServ) CreateRoomID() (string, error) {
 	}
 L:
 	for {
-		uid, _ := uuid.NewV4()
-		str := base64.StdEncoding.EncodeToString(uid.Bytes())
-		out := string(str[:6])
+		out := utils.RandString(6)
 		for _, room := range rooms {
 			if room.ID == out {
 				continue L
