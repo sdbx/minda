@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ContextMenuCreater : MonoBehaviour
+public class ContextMenuManager : MonoBehaviour
 {
     [SerializeField]
     private ContextMenuElement prefab;
@@ -11,7 +11,7 @@ public class ContextMenuCreater : MonoBehaviour
     private RectTransform parent;
 
     private List<ContextMenuElement> contextMenuElements = new List<ContextMenuElement>();
-    public static ContextMenuCreater instance;
+    public static ContextMenuManager instance;
 
     private bool isSizeUpdated;
 
