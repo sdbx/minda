@@ -111,7 +111,7 @@ func (r *room) postRoom(c2 echo.Context) error {
 func (r *room) putRoom(c2 echo.Context) error {
 	c := c2.(*models.Context)
 	id := c.Param("roomid")
-	rooms, err := r.Disc.FetchRooms(false, false)
+	rooms, err := r.Disc.FetchRooms(false, true)
 	if err != nil {
 		return err
 	}
