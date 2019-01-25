@@ -42,7 +42,12 @@ namespace Game.Events
                 case "confed":
                     item = new ConfedEvent();
                     break;
-
+                case "error":
+                    item = new ErrorEvent();
+                    break;
+                case "ended":
+                    item = new EndedEvent();
+                    break;
                 default:
                     throw new NotImplementedException();
             }

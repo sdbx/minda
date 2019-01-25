@@ -138,7 +138,7 @@ namespace UI
             rectTransform.GetLocalCorners(corners);
 
             var position = corners[corner] + rectTransform.localPosition;
-            ContextMenuCreater.instance.Create(new Vector2(position.x,position.y), contextMenu);
+            ContextMenuManager.instance.Create(new Vector2(position.x,position.y), contextMenu);
         }
         
         //user menucontext

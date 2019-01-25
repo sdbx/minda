@@ -126,7 +126,7 @@ namespace UI
             rectTransform.GetLocalCorners(corners);
             
             Vector2 pos = PositionUtils.WorldPosToLocalRectPos(transform.position, rootRectTransform);
-            ContextMenuCreater.instance.Create(new Vector2(corners[corner].x+pos.x,corners[corner].y+pos.y), contextMenu);
+            ContextMenuManager.instance.Create(new Vector2(corners[corner].x+pos.x,corners[corner].y+pos.y), contextMenu);
         }
         
         //user menucontext

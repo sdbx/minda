@@ -7,6 +7,7 @@ using Game.Events;
 using Game.Coords;
 using Game.Balls;
 using Game.Boards;
+using Utils;
 
 namespace Game
 {
@@ -21,25 +22,20 @@ namespace Game
         void Start()
         {
             boardManger.CreateBoard();
-            //var game  = NetworkManager.instance.game;
-           // StartGame(game.board, game.turn);
-           StartGame(Board.GetMapFromString("0@0@0@0@0@0@0@1@1#0@0@0@0@0@0@0@1@1#0@0@0@0@0@0@1@1@1#0@2@0@0@0@0@1@1@1#2@2@2@0@0@0@1@1@1#2@2@2@0@0@0@0@1@0#2@2@2@0@0@0@0@0@0#2@2@0@0@0@0@0@0@0#2@2@0@0@0@0@0@0@0"),BallType.Black);
+            var game = GameServer.instance.gamePlaying;
+            StartGame(Board.GetMapFromString(game.map), game.turn);
 
-            SetHandlers();
+            InitHandlers();
         }
 
-        void Update()
+        private void InitHandlers()
         {
-
-        }
-
-        private void SetHandlers()
-        {
-           // NetworkManager.instance.SetHandler<MoveEvent>(MoveHandler);
+            GameServer.instance.AddHandler<MoveEvent>(OnMoved);
+            GameServer.instance.AddHandler<EndedEvent>(OnEnded);
         }
 
 
-        private void MoveHandler(Events.Event e)
+        private void OnMoved(Events.Event e)
         {
             var move = (MoveEvent)e;
             if (move.player != myBallType)
@@ -48,9 +44,15 @@ namespace Game
             }
         }
 
+        public void OnEnded(Game.Events.Event e)
+        {
+            var Ended = (EndedEvent)e;
+
+        }
+
         public void StartGame(int[,] map, BallType turn)
         {
-            //myBallType = IdUtils.GetBallType(NetworkManager.instance.loggedInUser.id);
+            myBallType = RoomUtils.GetBallType(LobbyServer.instance.loginUser.id);
             ballManager.RemoveBalls();
             boardManger.SetMap(map);
             ballManager.CreateBalls(boardManger);
@@ -63,7 +65,7 @@ namespace Game
         public void SendBallMoving(BallSelection ballSelection, int direction)
         {
             MoveCommand moveCommand = new MoveCommand(myBallType, ballSelection.first, ballSelection.end, CubeCoord.ConvertNumToDirection(direction));
-            //NetworkManager.instance.SendCommand(moveCommand);
+            GameServer.instance.SendCommand(moveCommand);
         }
 
         public void myTurn()

@@ -9,7 +9,8 @@ namespace Game.Events
     public class GameStartedEvent : Event
     {
         public int black, white;
-        public int[,] board;
+        public string map;
+        public GameRule rule;
         public BallType turn;
     }
 
@@ -43,6 +44,13 @@ namespace Game.Events
 
     public class ErrorEvent : Event
     {
-        public string msg;
+        public string message;
+    }
+
+    public class EndedEvent : Event
+    {
+        public int loser;
+        public BallType player;
+        public string cause;
     }
 }

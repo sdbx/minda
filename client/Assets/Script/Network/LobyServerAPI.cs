@@ -24,9 +24,9 @@ namespace Network
             });
         }
         
-        public static void DownloadImage(string imgUrl, Action<Texture> callBack)
+        public static void DownloadImage(int picId, Action<Texture> callBack)
         {
-            LobbyServer.instance.StartCoroutine(GetTexture(imgUrl,callBack));
+            LobbyServer.instance.StartCoroutine(GetTexture(LobbyServer.instance.address+"/pics/"+picId+"/",callBack));
         }
 
         private static IEnumerator GetTexture(string imgUrl, Action<Texture> callBack)

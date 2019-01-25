@@ -7,7 +7,9 @@ using Game;
 using Game.Events;
 using Models;
 using Newtonsoft.Json;
+using UI.Toast;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Utils;
 
 namespace Network
@@ -35,6 +37,8 @@ namespace Network
         public Room connectedRoom;
         private Dictionary<int, User> users = new Dictionary<int, User>();
         private Dictionary<int, Texture> profileImages = new Dictionary<int, Texture>();
+        
+        public GameStartedEvent gamePlaying;
 
         private void Awake()
         {
@@ -51,10 +55,7 @@ namespace Network
             DontDestroyOnLoad(gameObject);
             eventJsonSettings.Converters.Add(new EventConverter());
 
-            AddHandler<ConnectedEvent>(OnConnected);
-            AddHandler<EnteredEvent>(OnEntered);
-            AddHandler<LeftEvent>(OnLeft);
-            AddHandler<ConfedEvent>(OnConfed);
+            InitHandlers();
         }
 
         private void Update()
@@ -157,6 +158,16 @@ namespace Network
                  
         }
         //EventHandlers
+        private void InitHandlers()
+        {
+            AddHandler<ConnectedEvent>(OnConnected);
+            AddHandler<EnteredEvent>(OnEntered);
+            AddHandler<LeftEvent>(OnLeft);
+            AddHandler<ConfedEvent>(OnConfed);
+            AddHandler<ErrorEvent>(OnError);
+            AddHandler<GameStartedEvent>(OnGameStarted);
+        }
+
         private void OnConnected(Game.Events.Event e)
         {
             var connected = (ConnectedEvent)e;
@@ -207,7 +218,11 @@ namespace Network
 
             GetInGameUser(id, (InGameUser inGameUser)=>
             {
-                LobbyServerAPI.DownloadImage(inGameUser.user.picture,(Texture texture)=>
+                if(inGameUser.user.picture==null)
+                {
+                    return;
+                }
+                LobbyServerAPI.DownloadImage(inGameUser.user.picture.Value,(Texture texture)=>
                 {
                     if(!profileImages.ContainsKey(id))
                         profileImages.Add(id,texture);
@@ -228,9 +243,22 @@ namespace Network
         {
             var confed = (ConfedEvent)e;
             var myId = LobbyServer.instance.loginUser.id;
-            isSpectator = (connectedRoom.conf.black != myId && connectedRoom.conf.white != myId);
             connectedRoom.conf = confed.conf;
+            isSpectator = (confed.conf.black != myId && confed.conf.white != myId);
             ConfedEvent?.Invoke(confed.conf);
+        }
+
+        public void OnGameStarted(Game.Events.Event e)
+        {
+            var gameStarted = (GameStartedEvent)e;
+            gamePlaying = gameStarted;
+            SceneManager.LoadScene("Game",LoadSceneMode.Single);
+        }
+
+        public void OnError(Game.Events.Event e)
+        {
+            var error = (ErrorEvent)e;
+            ToastManager.instance.Add(error.message,"Error");
         }
 
         public void EnterRoom(string ip, int port, string invite)
@@ -298,6 +326,12 @@ namespace Network
         public void ChangeKingTo(int id)
         {
             connectedRoom.conf.king = id;
+            UpdateConf();
+        }
+
+        public void ChangeMapTo(string map)
+        {
+            connectedRoom.conf.map = map;
             UpdateConf();
         }
     }

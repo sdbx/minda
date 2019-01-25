@@ -6,7 +6,12 @@ namespace Models
     {
         public int id = -1;
         public string username = "";
-        public string picture = "";
+        public int? picture;
+        Premissions permissions;
+    }
+    public class Premissions
+    {
+        public bool admin;
     }
     public class InGameUser
     {
