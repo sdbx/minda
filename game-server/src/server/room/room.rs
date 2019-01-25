@@ -18,9 +18,9 @@ pub struct Room {
 }
 
 impl Room {
-    pub fn new(conf: &RoomConf) -> Self {
+    pub fn new(id: &str, conf: &RoomConf) -> Self {
         Self {
-            id: Uuid::new_v4().to_string(),
+            id: id.to_owned(),
             created_at: Utc::now(),
             conf: conf.clone(),
             users: HashMap::new(),

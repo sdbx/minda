@@ -6,7 +6,7 @@ import (
 	"lobby/utils"
 )
 
-func (t *TaskServ) Excecute(task models.Task) models.TaskResult {
+func (t *TaskServ) Execute(task models.Task) models.TaskResult {
 	switch task := task.(type) {
 	case *models.CompleteGameTask:
 		fmt.Println(task)

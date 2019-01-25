@@ -69,6 +69,7 @@ pub struct RoomConf {
     pub king: UserId,
     pub black: UserId,
     pub white: UserId,
+    pub public: bool,
     pub map: String,
     pub game_rule: GameRule
 }

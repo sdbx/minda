@@ -23,6 +23,7 @@ type RoomConf struct {
 	King     int       `json:"king"`
 	Black    int       `json:"black"`
 	White    int       `json:"white"`
+	Public   bool      `json:"public"`
 	Map      MapString `json:"map"`
 	GameRule GameRule  `json:"game_rule"`
 }

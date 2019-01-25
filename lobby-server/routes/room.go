@@ -39,7 +39,7 @@ func (r *room) postRoom(c2 echo.Context) error {
 		return err
 	}
 
-	rooms, err := r.Disc.FetchRooms(true)
+	rooms, err := r.Disc.FetchRooms(true, true)
 	if err != nil {
 		return err
 	}
@@ -91,7 +91,13 @@ func (r *room) postRoom(c2 echo.Context) error {
 	if !conf.Validate() {
 		return echo.NewHTTPError(400, http.StatusBadRequest)
 	}
+
+	id, err := r.Disc.CreateRoomID()
+	if err != nil {
+		return err
+	}
 	res, err := r.Task.Request(servers[rand.Intn(len(servers))].Name, &models.CreateRoomTask{
+		RoomID: id,
 		Conf:   conf,
 		UserID: user.ID,
 	})
@@ -105,7 +111,7 @@ func (r *room) postRoom(c2 echo.Context) error {
 func (r *room) putRoom(c2 echo.Context) error {
 	c := c2.(*models.Context)
 	id := c.Param("roomid")
-	rooms, err := r.Disc.FetchRooms(false)
+	rooms, err := r.Disc.FetchRooms(false, false)
 	if err != nil {
 		return err
 	}

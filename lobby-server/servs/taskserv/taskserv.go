@@ -58,7 +58,7 @@ func (t *TaskServ) onQueueMessage(buf []byte) {
 		return
 	}
 
-	res := t.Excecute(taskReq.Task)
+	res := t.Execute(taskReq.Task)
 
 	buf, _ = json.Marshal(res)
 

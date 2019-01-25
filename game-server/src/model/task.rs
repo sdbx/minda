@@ -13,7 +13,7 @@ pub struct TaskRequest {
 #[serde(tag = "kind")]
 pub enum Task {
     #[serde(rename = "create-room")]
-    CreateRoom { conf: RoomConf, user_id: UserId },
+    CreateRoom { room_id: String, conf: RoomConf, user_id: UserId },
     #[serde(rename = "join-room")]
     JoinRoom { room_id: String, user_id: UserId },
     #[serde(rename = "kick-user")]

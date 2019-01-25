@@ -1,11 +1,14 @@
 package discserv
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"lobby/models"
 	"lobby/servs/redisserv"
 	"sort"
 	"time"
+
+	"github.com/gobuffalo/uuid"
 
 	"github.com/garyburd/redigo/redis"
 )
@@ -30,7 +33,7 @@ func (r Rooms) Len() int {
 	return len(r)
 }
 
-func(r Rooms) Get(id string) *models.Room {
+func (r Rooms) Get(id string) *models.Room {
 	for key := range r {
 		if r[key].ID == id {
 			return &r[key]
@@ -65,7 +68,7 @@ func (g *DiscoverServ) update() {
 					g.Redis.Conn().Do("HDEL", redisServerHash, server.Name)
 				}
 			}
-			rooms, err := g.FetchRooms(false)
+			rooms, err := g.FetchRooms(false, false)
 			if err == nil {
 				g.rooms = rooms
 			}
@@ -73,7 +76,7 @@ func (g *DiscoverServ) update() {
 	}
 }
 
-func (g *DiscoverServ) FetchRooms(empty bool) (Rooms, error){
+func (g *DiscoverServ) FetchRooms(empty bool, private bool) (Rooms, error) {
 	servers, err := g.ListGameServers()
 	if err != nil {
 		return nil, err
@@ -81,7 +84,7 @@ func (g *DiscoverServ) FetchRooms(empty bool) (Rooms, error){
 	rooms := Rooms{}
 	for _, server := range servers {
 		for _, room := range server.Rooms {
-			if len(room.Users) != 0 || empty {
+			if len(room.Users) != 0 || empty && room.Conf.Public || private {
 				rooms = append(rooms, room)
 			}
 		}
@@ -119,4 +122,24 @@ func (g *DiscoverServ) ListGameServers() ([]models.GameServer, error) {
 func (g *DiscoverServ) ExistsGameServer(name string) (bool, error) {
 	conn := g.Redis.Conn()
 	return redis.Bool(conn.Do("HEXISTS", redisServerHash, name))
+}
+
+func (g *DiscoverServ) CreateRoomID() (string, error) {
+	rooms, err := g.FetchRooms(true, true)
+	if err != nil {
+		return "", err
+	}
+L:
+	for {
+		var id []byte
+		uid, _ := uuid.NewV4()
+		base64.StdEncoding.Encode(id, uid.Bytes())
+		out := string(id[:6])
+		for _, room := range rooms {
+			if room.ID == out {
+				continue L
+			}
+		}
+		return out, nil
+	}
 }
