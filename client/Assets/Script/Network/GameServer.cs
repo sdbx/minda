@@ -227,6 +227,8 @@ namespace Network
         private void OnConfed(Game.Events.Event e)
         {
             var confed = (ConfedEvent)e;
+            var myId = LobbyServer.instance.loginUser.id;
+            isSpectator = (connectedRoom.conf.black != myId && connectedRoom.conf.white != myId);
             connectedRoom.conf = confed.conf;
             ConfedEvent?.Invoke(confed.conf);
         }
@@ -244,6 +246,59 @@ namespace Network
         {
             ConfCommand command = new ConfCommand { conf = connectedRoom.conf };
             SendCommand(command);
+        }
+
+        public void ChangeUserRole(int id, BallType ballType)
+        {
+            var originBallType = RoomUtils.GetBallType(id);
+
+            //기존에 관전자일시
+            if (originBallType == BallType.None)
+            {
+                if(ballType == BallType.Black)
+                {
+                    connectedRoom.conf.black = id;
+                }
+                if(ballType == BallType.White)
+                {
+                    connectedRoom.conf.white = id;
+                }
+            }
+            //기존이 블랙일시
+            else if(originBallType == BallType.Black)
+            {
+                if(ballType == BallType.None)
+                {
+                    connectedRoom.conf.black = -1;
+                }
+                if(ballType == BallType.White)
+                {
+                    var white = connectedRoom.conf.white;
+                    connectedRoom.conf.white = id;
+                    connectedRoom.conf.black = white;
+                }
+            }
+            //기존이 화이트일시
+            else
+            {
+                if(ballType == BallType.None)
+                {
+                    connectedRoom.conf.white = -1;
+                }
+                if(ballType == BallType.Black)
+                {
+                    var black = connectedRoom.conf.black;
+                    connectedRoom.conf.black = id;
+                    connectedRoom.conf.white = black;
+                }
+            }
+            UpdateConf();
+        }
+
+        public void ChangeKingTo(int id)
+        {
+            connectedRoom.conf.king = id;
+            UpdateConf();
         }
     }
 }

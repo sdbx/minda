@@ -1,6 +1,7 @@
-import SnowMessage from "./snowmessage"
-import { SnowPerm } from "./snowperm"
-import SnowUser from "./snowuser"
+import { GidType } from "../config/baseguildcfg"
+import SnowMessage from "../snowmessage"
+import { SnowPerm } from "../snowperm"
+import SnowUser from "../snowuser"
 
 export default abstract class SnowChannel {
     /**
@@ -11,6 +12,14 @@ export default abstract class SnowChannel {
      * Does this provider support sending & receiving file?
      */
     public abstract readonly supportFile:boolean
+    /**
+     * Channel of id (Ex. 10007122)
+     */
+    public abstract readonly id:GidType
+    /**
+     * Parent of channel's id
+     */
+    public abstract readonly groupId:GidType
     /**
      * Send Text or Image (or both if support.)
      * @param text Text of message
@@ -40,9 +49,21 @@ export default abstract class SnowChannel {
      * Get Permisson from this channel for me
      */
     public abstract async permissions(user?:string | SnowUser):Promise<SnowPerm>
+    /**
+     * Get direct-message channel for the user
+     * @param user User ID
+     */
+    public abstract async dm(user:string | SnowUser):Promise<SnowChannel>
+    /**
+     * Mention user (if support.. anyway?)
+     * @param user User ID
+     */
+    public abstract mention(user:string | SnowUser):string
+    /**
+     * This channel's name
+     */
+    public abstract name():string
     public abstract async decodeArgs(args:string[]):Promise<Array<string | SnowUser | SnowChannel>>
-
-    public abstract async getConfig(depth:ConfigDepth, key:string):Promise<unknown>
 }
 export enum ConfigDepth {
     GUILD = 1,

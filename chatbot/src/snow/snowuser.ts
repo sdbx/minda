@@ -22,4 +22,7 @@ export default class SnowUser {
      */
     @Column()
     public profileImage:string
+    public getUID() {
+        return `${this.platform}#${this.id}`
+    }
 }

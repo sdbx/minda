@@ -46,6 +46,6 @@
     "semicolon": [true, "never", "ignore-interfaces"],
     "radix": false,
     "linebreak-style": [true, "LF"],
-    "ban-types": false,
+    "ban-types": false
   }
 }

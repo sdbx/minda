@@ -1,17 +1,28 @@
 import Discord from "discord.js"
-import SnowChannel, { ConfigDepth } from "../snowchannel"
+import { GidType } from "../config/baseguildcfg"
 import SnowMessage from "../snowmessage"
 import { SnowPerm } from "../snowperm"
 import SnowUser from "../snowuser"
 import { getFirst } from "../snowutil"
+import SnowChannel, { ConfigDepth } from "./snowchannel"
 
 export default class DiscordSnowCh extends SnowChannel {
-    public provider = "discord"
+    public readonly provider = "discord"
+    public readonly id:GidType
+    public readonly groupId:GidType
     public supportFile = true
     protected channel:Discord.TextChannel | Discord.DMChannel | Discord.GroupDMChannel
+    protected client:Discord.Client
     public constructor(channel:Discord.TextChannel | Discord.DMChannel | Discord.GroupDMChannel) {
         super()
         this.channel = channel
+        this.client = channel.client
+        this.id = channel.id
+        if (channel instanceof Discord.TextChannel) {
+            this.groupId = channel.guild.id
+        } else {
+            this.groupId = this.id
+        }
     }
     public async send(text:string, image?:string | Buffer) {
         return this._send(text, image == null ? [] : [image])
@@ -33,6 +44,28 @@ export default class DiscordSnowCh extends SnowChannel {
             users = [userToSnow(this.channel.recipient)]
         }
         return users
+    }
+    public async dm(user:string | SnowUser) {
+        const id = typeof user === "object" ? user.id : user
+        const nativeU = this.client.users.find((v) => v.id === id)
+        if (nativeU != null) {
+            const ch = await nativeU.createDM()
+            return new DiscordSnowCh(ch)
+        }
+        return null
+    }
+    public mention(user:string | SnowUser) {
+        const id = typeof user === "object" ? user.id : user
+        return `<@!${id}>`
+    }
+    public name() {
+        if (this.channel instanceof Discord.TextChannel) {
+            return `${this.channel.guild.name} #${this.channel.name}`
+        } else if (this.channel instanceof Discord.DMChannel) {
+            return `${this.channel.recipient.username}`
+        } else {
+            return this.channel.recipients.map((v) => v.username).join(", ")
+        }
     }
     public async decodeArgs(args:string[]) {
         const out:Array<string | SnowChannel | SnowUser> = []

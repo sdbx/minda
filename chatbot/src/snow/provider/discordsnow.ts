@@ -1,20 +1,22 @@
 import Discord from "discord.js"
 import { EventDispatcher } from "strongly-typed-events"
-import SnowChannel from "../snowchannel"
+import DiscordSnowCh, { messageToSnow } from "../channel/discordsnowch"
+import SnowChannel from "../channel/snowchannel"
+import BaseGuildCfg from "../config/baseguildcfg"
+import SnowConfig from "../config/snowconfig"
 import SnowMessage from "../snowmessage"
-import DiscordSnowCh, { messageToSnow } from "./discordsnowch"
 import { SnowProvider } from "./snowprovider"
 
-export default class DiscordSnow extends SnowProvider {
+export default class DiscordSnow<C extends BaseGuildCfg> extends SnowProvider<C> {
+    protected token:string
     protected client:Discord.Client
     protected channels:Map<string, SnowChannel>
-    public constructor(token:string) {
-        super()
+    public constructor(token:string, store:SnowConfig<C>) {
+        super(store)
         this.token = token
         this.channels = new Map()
     }
     public async init() {
-        await super.init()
         this.client = new Discord.Client()
         this.client.on("message", (m) => this.handleMessage(m))
         this.client.on("ready", () => this.onReady.dispatch())

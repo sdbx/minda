@@ -6,6 +6,7 @@ using Network;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using static UnityEngine.Camera;
 
 namespace UI
 {
@@ -14,8 +15,7 @@ namespace UI
         private int UserId;
         private InGameUser inGameUser;
 
-        private BallType ballType = BallType.Black;
-
+        private RectTransform rectTransform;
         [SerializeField]
         private RawImage profileImage;
         [SerializeField]
@@ -33,15 +33,16 @@ namespace UI
         [SerializeField]
         private DisplayChanger displayChanger;
         [SerializeField]
-        private Vector3 offset;
+        private int corner;
         [SerializeField]
-        private Vector2 pivot;
+        private Vector2 contextMenuPivot;
 
         private Texture placeHolder;
 
         private void Awake()
         {
             placeHolder = UISettings.instance.placeHolder;
+            rectTransform = gameObject.GetComponent<RectTransform>();
         }
         
         public void display(int id, BallType ballType = BallType.None)
@@ -50,9 +51,9 @@ namespace UI
             if(id == -1)
             {
                 usernameText.text = "Waiting..";
-                imformationText.text = "";
+                imformationText.text = "gorani 8253";
                 SetColor(ballType);
-                kingIcon.SetActive(false);     
+                kingIcon.SetActive(false);
                 inGameUser = null;
                 return;
             }
@@ -61,7 +62,7 @@ namespace UI
             {
                 this.inGameUser = inGameUser;
                 usernameText.text = inGameUser.user.username;
-                imformationText.text = "gorani 53";
+                imformationText.text = "gorani";
                 SetColor(inGameUser.ballType);
                 kingIcon.SetActive(inGameUser.isKing);
                 if(inGameUser.user.picture != null)
@@ -95,30 +96,58 @@ namespace UI
 
         private void CreateContextMenu()
         {
-            ContextMenu contextMenu = new ContextMenu(pivot);
-
+            ContextMenu contextMenu = new ContextMenu(contextMenuPivot);
+            var gameServer = GameServer.instance;
+            var myId = LobbyServer.instance.loginUser.id;
             //king menu
-            if(GameServer.instance.connectedRoom.conf.king == LobbyServer.instance.loginUser.id)
+            if(gameServer.connectedRoom.conf.king == myId)
             {
                 if(inGameUser.ballType != BallType.White)
                 {
-                    contextMenu.Add("Change to White",()=>{Debug.Log("화이트로 변경");});
+                    contextMenu.Add("To White",()=>
+                    {
+                        gameServer.ChangeUserRole(UserId, BallType.White);
+                    });
                 }
                 if(inGameUser.ballType != BallType.Black)
                 {
-                    contextMenu.Add("Change to Black",()=>{Debug.Log("검은색으로 변경");});
+                    contextMenu.Add("To Black",()=>
+                    {
+                        gameServer.ChangeUserRole(UserId, BallType.Black);
+                    });
                 }
-                
+                if(inGameUser.ballType != BallType.None)
+                {
+                    contextMenu.Add("To Spectator",()=>
+                    {
+                        gameServer.ChangeUserRole(UserId, BallType.None);
+                    });
+                }
+                if(UserId != myId)
+                {
+                    contextMenu.Add("Give King", () =>
+                     {
+                         gameServer.ChangeKingTo(UserId);
+                     });
+                }
             }
-            contextMenu.Add("Whisper",()=>{Debug.Log("귓속말");});
 
-            ContextMenuCreater.instance.Create(transform.position + offset, contextMenu);
+            contextMenu.Add("Whisper",()=>{Debug.Log("귓속말");});
+            
+            Vector3[] corners = new Vector3[4];
+            rectTransform.GetLocalCorners(corners);
+
+            var position = corners[corner] + rectTransform.localPosition;
+            ContextMenuCreater.instance.Create(new Vector2(position.x,position.y), contextMenu);
         }
         
         //user menucontext
         public void OnPointerEnter(PointerEventData eventData)
         {
-            displayChanger.SetMode("Hightlighed");
+            if(UserId == -1)
+                return;
+            //BlackHightlighed, WhiteHightlighed
+            displayChanger.SetMode(inGameUser.ballType + "Hightlighed");
         }
 
         public void OnPointerExit(PointerEventData eventData)

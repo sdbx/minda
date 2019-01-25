@@ -1,11 +1,10 @@
-import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column } from "typeorm"
+import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm"
 
+export type GidType = string
 @Entity()
 export default class BaseGuildCfg {
-    @PrimaryGeneratedColumn()
-    public id:number
     @PrimaryColumn()
-    public gid:number
+    public gid:GidType
     @PrimaryColumn()
     public provider:string
 }

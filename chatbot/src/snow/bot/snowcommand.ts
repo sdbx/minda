@@ -1,11 +1,17 @@
+import debug from "debug"
+import SnowChannel, { ConfigDepth } from "../channel/snowchannel"
+import BaseGuildCfg from "../config/baseguildcfg"
+import { SnowConfigSimple, SnowSchema } from "../config/snowconfig"
 import { SnowProvider } from "../provider/snowprovider"
-import SnowChannel from "../snowchannel"
 import SnowMessage from "../snowmessage"
 import SnowUser from "../snowuser"
+import { logFn } from "../snowutil"
 
 // const test:FilteredKeys<[1,"a",true],[1,"a"]> = []
+const log = logFn("SnowCommand")
 
-export default class SnowCommand<P extends AllowDecode[], R> {
+export default class SnowCommand<
+    C extends object, P extends AllowDecode[] = any[]> implements CommandConstructor<C, P> {
     /**
      * 명령어 이름
      */
@@ -13,39 +19,33 @@ export default class SnowCommand<P extends AllowDecode[], R> {
     /**
      * 필요 파라메터 수
      */
-    protected reqLength:number
+    public reqLength:number
     /**
      * 파라메터 이름
      */
-    protected fieldsName:string[]
+    public paramNames:{[K in keyof P]:string}
     /**
      * 명령어 설명
      */
-    protected description:string
+    public description:string
     /**
      * 파라메터 타입
      */
-    protected paramTypes:AllowDecode[]
+    public readonly paramTypes:P
     /**
      * 실행할 함수
      */
-    protected func:(context:SnowContext, ...args:ParamDecodeAll<P>) => R | Promise<R>
+    public readonly func:(context:SnowContext<C>, ...args:ParamDecodeAll<P>) => unknown
     /**
-     * 커맨드 리시버를 생성합니다.
-     * @param commandName 명령어 이름
-     * @param requireParams 필요 파라메터 수
-     * @param commander 실행할 함수
-     * @param typeInfo 타입 정보
+     * Create command Receiver
      */
-    public constructor(
-        commandName:string,
-        commander:(context:SnowContext, ...args:ParamDecodeAll<P>) => R | Promise<R>,
-        ...typeInfo:P
-        ) {
-        this.name = commandName
-        this.func = commander
-        this.paramTypes = typeInfo
-        this.withRequires(typeInfo.length)
+    public constructor(instance:CommandConstructor<C, P>, ...pType:P) {
+        this.name = instance.name
+        this.reqLength = instance.reqLength != null ? instance.reqLength : pType.length
+        this.paramNames = instance.paramNames
+        this.description = instance.description
+        this.paramTypes = pType
+        this.func = instance.func
     }
     /**
      * 필수 파라메터의 갯수를 정합니다.
@@ -62,14 +62,14 @@ export default class SnowCommand<P extends AllowDecode[], R> {
      */
     public withHelp(desc:string, ...paramName:{[K in keyof P]:string}) {
         this.description = desc
-        this.fieldsName = paramName
+        this.paramNames = paramName
         return this
     }
     /**
      * 파라메터의 형식이 올바른지 체크합니다.
      * @param params 
      */
-    public checkParam(params:Array<string | number | boolean | SnowUser | SnowChannel>) {
+    public checkParam(params:AvaiableParams[]) {
         if (params.length < this.reqLength) {
             return false
         }
@@ -95,7 +95,7 @@ export default class SnowCommand<P extends AllowDecode[], R> {
      * 기존 파라메터를 변환하여 타입에 맞게 출력합니다.
      * @param params 기존 파라메터
      */
-    public convertParam(params:Array<string | number | boolean | SnowUser | SnowChannel>) {
+    public convertParam(params:AvaiableParams[]) {
         const out:AllowEncode[] = []
         for (let i = 0; i < params.length; i += 1) {
             const param = params[i]
@@ -112,9 +112,12 @@ export default class SnowCommand<P extends AllowDecode[], R> {
         }
         return out
     }
-    public async execute(context:SnowContext,params:Array<string | number | boolean | SnowUser | SnowChannel>) {
+    public async execute(context:SnowContext<C>,params:ParamDecodeAll<P>) {
         const result = await this.func(context, ...this.convertParam(params) as any)
-        console.log("Executed")
+        await context.updateGroupConfig()
+        await context.updateChannelConfig()
+        log("Executed Command.")
+        return result
     }
     /*
     public bindProvider(prov:SnowProvider) {
@@ -149,14 +152,44 @@ export default class SnowCommand<P extends AllowDecode[], R> {
     }
     */
 }
-export interface SnowContext {
+/**
+ * Command constructor params
+ */
+export interface CommandConstructor<C extends object, P extends AllowDecode[] = any[]> {
+    /**
+     * Name of command
+     */
+    name:string;
+    /**
+     * Exec function
+     */
+    func:(context:SnowContext<C>, ...args:ParamDecodeAll<P>) => unknown;
+    /**
+     * Parameter names
+     */
+    paramNames:{[K in keyof P]:string};
+    /**
+     * Command Description
+     */
+    description:string;
+    /**
+     * Require Length of parameter
+     */
+    reqLength?:number;
+}
+export interface SnowContext<C extends object> {
     channel:SnowChannel,
     message:SnowMessage,
+    configChannel:SnowSchema<C>,
+    configGroup:SnowSchema<C>,
+    updateChannelConfig:() => Promise<void>,
+    updateGroupConfig:() => Promise<void>,
 }
 
 /**
  * Types
  */
+export type AvaiableParams = string | number | boolean | SnowUser | SnowChannel
 type ParamEncode<T extends AllowEncode> =
     T extends string ? "string" :
     T extends number ? "number" :
@@ -165,11 +198,12 @@ type ParamEncode<T extends AllowEncode> =
     // tslint:disable-next-line
     T extends Function ? never :
     T extends SnowUser ? "SnowUser" :
+    T extends SnowChannel ? "SnowChannel" :
     never
-type ParamEncodeAll<T extends AllowEncode[]> = {
+export type ParamEncodeAll<T extends AllowEncode[]> = {
     [K in keyof T]: T[K] extends AllowEncode ? ParamEncode<T[K]> : never
 }
-type ParamDecodeAll<T extends AllowDecode[]> = {
+export type ParamDecodeAll<T extends AllowDecode[]> = {
     [K in keyof T]: T[K] extends AllowDecode ? ParamDecode<T[K]> : never
 }
 type ParamDecode<T extends AllowDecode> =
@@ -177,6 +211,7 @@ type ParamDecode<T extends AllowDecode> =
     T extends "number" ? number :
     T extends "boolean" ? boolean :
     T extends "SnowUser" ? SnowUser :
+    T extends "SnowChannel" ? SnowChannel :
     never
-export type AllowEncode = string | number | boolean | SnowUser
+type AllowEncode = AvaiableParams
 export type AllowDecode = ParamEncode<AllowEncode>
