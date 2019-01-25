@@ -107,6 +107,7 @@ namespace UI
         public void SetSelectedMap()
         {  
             MapPreviewInMain.SetMap(selectedMap.map);
+            GameServer.instance.ChangeMapTo(Board.GetStringFromMap(selectedMap.map));
         }
     }
 

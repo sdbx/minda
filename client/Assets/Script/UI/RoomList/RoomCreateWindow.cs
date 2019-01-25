@@ -55,7 +55,8 @@ public class RoomCreateWindow : MonoBehaviour
             name = nameText.text,
             king = -1,
             black = -1,
-            white = -1
+            white = -1,
+            open = true,
         };
 
         return JsonConvert.SerializeObject(conf);
