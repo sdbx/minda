@@ -1,10 +1,10 @@
 import Discord from "discord.js"
 import { EventDispatcher } from "strongly-typed-events"
+import DiscordSnowCh, { messageToSnow } from "../channel/discordsnowch"
+import SnowChannel from "../channel/snowchannel"
 import BaseGuildCfg from "../config/baseguildcfg"
 import SnowConfig from "../config/snowconfig"
-import SnowChannel from "../snowchannel"
 import SnowMessage from "../snowmessage"
-import DiscordSnowCh, { messageToSnow } from "./discordsnowch"
 import { SnowProvider } from "./snowprovider"
 
 export default class DiscordSnow<C extends BaseGuildCfg> extends SnowProvider<C> {

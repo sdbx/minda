@@ -2,9 +2,9 @@ import * as Minda from "minda-ts"
 import { MindaClient, MindaCredit } from "minda-ts"
 import { EventDispatcher, SimpleEventDispatcher } from "strongly-typed-events"
 import { Column, Entity } from "typeorm"
-import AuthFactory from "./chatbot/authfactory"
 import GlobalConfig from "./chatbot/globalcfg"
 import BotConfig from "./chatbot/guildcfg"
+import MindaExec from "./chatbot/mindaexec"
 import SnowCommand, { SnowContext } from "./snow/bot/snowcommand"
 import BaseGuildCfg from "./snow/config/baseguildcfg"
 import JsonConfig from "./snow/config/jsonconfig"
@@ -17,7 +17,7 @@ import { bindFn } from "./util"
 async function run2() {
     const tokenStore = new JsonConfig(GlobalConfig, `${debugPath}/config/token.json5`).ro
     const snow = new Snow(tokenStore, `${debugPath}/config`, BotConfig)
-    const authF = new AuthFactory(`${debugPath}/config`)
+    const authF = new MindaExec(tokenStore.minda, `${debugPath}/config`)
     await authF.init()
     console.log(await snow.login())
     snow.addCommands(authF.commands)

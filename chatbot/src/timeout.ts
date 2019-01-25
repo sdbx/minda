@@ -10,13 +10,17 @@ type STE = EventDispatcher<any, any> | SimpleEventDispatcher<any> | SignalDispat
  */
 export default function awaitEvent<E extends STE, R>(
     event:E, timeout:number,
-    executor:(...args:EventParam<E>) => R | Promise<R>):Promise<R> {
+    executor:(...args:EventParam<E>) => R | Promise<R>,
+    nullAsContinue = false):Promise<R> {
     return new Promise<R>((res, rej) => {
         let timer:TimerID
-        const fn = event.one(async (...args:Array<unknown>) => {
+        const fn = event.sub(async (...args:Array<unknown>) => {
             WebpackTimer.clearTimeout(timer)
             const r = await executor(...args as EventParam<E>)
-            res(r)
+            if (!nullAsContinue || r !== null) {
+                fn()
+                res(r)
+            }
         })
         timer = WebpackTimer.setTimeout(() => {
             fn()

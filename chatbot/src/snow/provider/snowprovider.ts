@@ -1,8 +1,8 @@
 import { EventDispatcher, SignalDispatcher } from "strongly-typed-events"
 import SnowCommand, { AllowDecode, AvaiableParams, ParamDecodeAll, SnowContext } from "../bot/snowcommand"
+import SnowChannel from "../channel/snowchannel"
 import BaseGuildCfg from "../config/baseguildcfg"
 import SnowConfig, { SnowConfigSimple, SnowSchema } from "../config/snowconfig"
-import SnowChannel from "../snowchannel"
 import SnowMessage from "../snowmessage"
 
 type ArgumentsType<T> = T extends (...args:infer A) => any ? A : never
