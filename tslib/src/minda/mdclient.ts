@@ -7,6 +7,7 @@ import { defaultProfile, mdtimeout } from "./mdconst"
 import { MindaCredit } from "./mdcredit"
 import { extractContent, reqBinary, reqGet, reqPost } from "./mdrequest"
 import { MindaRoom } from "./mdroom"
+import { MSGameRule } from "./structure/msgamerule"
 import { MSRoom, MSRoomConf, MSRoomServer } from "./structure/msroom"
 import { MSUser } from "./structure/msuser"
 import awaitEvent from "./util/timeout"
@@ -126,13 +127,14 @@ export class MindaClient {
      * @param roomConf 방설정
      * @returns 방 혹은 null (실패)
      */
-    public async createRoom(name:string) {
+    public async createRoom(name:string, open = true) {
         const roomServer = await extractContent<MSRoomServer>(
             reqPost("POST", `/rooms/`, this.token, {
                 name,
                 king: this.me.id,
                 black: -1,
                 white: -1,
+                open,
             }))
         return this.connectRoom(roomServer)
     }
