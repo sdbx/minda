@@ -589,20 +589,25 @@ PolygonCollider2D:
       - {x: 0.004863739, y: -1.6144121}
       - {x: -0.004863739, y: -1.5688233}
       - {x: 10.47903, y: -1.5449109}
---- !u!4 &1670742515
-Transform:
+--- !u!224 &1670742515
+RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1670742513}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -5.2321224, y: -1.5148373, z: 18.338688}
+  m_LocalPosition: {x: 0, y: 0, z: 18.338688}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -5.2321224, y: -1.5148373}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!50 &1670742516
 Rigidbody2D:
   serializedVersion: 4
