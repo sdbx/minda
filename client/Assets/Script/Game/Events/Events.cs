@@ -47,6 +47,13 @@ namespace Game.Events
         public string message;
     }
 
+    public class TickedEvent : Event
+    {
+        public int black_time;
+        public int white_time;
+        public int current_time;
+    }
+
     public class EndedEvent : Event
     {
         public int loser;

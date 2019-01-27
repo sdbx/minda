@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
 using Network;
+using Scene;
 using Game.Events;
 using Game.Coords;
 using Game.Balls;
@@ -18,6 +19,9 @@ namespace Game
         public BallType myBallType;
 
         public Text turnText;
+        public Text blackTimeText;
+        public Text whiteTimeText;
+        public Text currentTimeText;
 
         void Start()
         {
@@ -32,8 +36,15 @@ namespace Game
         {
             GameServer.instance.AddHandler<MoveEvent>(OnMoved);
             GameServer.instance.AddHandler<EndedEvent>(OnEnded);
+            GameServer.instance.AddHandler<TickedEvent>(OnTicked);
         }
 
+        private void OnDestroy()
+        {
+            GameServer.instance.RemoveHandler<MoveEvent>(OnMoved);
+            GameServer.instance.RemoveHandler<EndedEvent>(OnEnded);
+            GameServer.instance.RemoveHandler<TickedEvent>(OnTicked);
+        }
 
         private void OnMoved(Events.Event e)
         {
@@ -46,8 +57,15 @@ namespace Game
 
         public void OnEnded(Game.Events.Event e)
         {
-            var Ended = (EndedEvent)e;
+            var end = (EndedEvent)e;
+            SceneChanger.instance.ChangeTo("RoomConfigure");
+        }
 
+        public void OnTicked(Game.Events.Event e) {
+            var tick = (TickedEvent)e;
+            whiteTimeText.text = "Remaining time for the white:" + tick.white_time + " seconds";
+            blackTimeText.text = "Remaining time for the black:" + tick.black_time + " seconds";
+            currentTimeText.text = "Remaining time for this turn:" + tick.current_time + " seconds";
         }
 
         public void StartGame(int[,] map, BallType turn)
@@ -58,7 +76,7 @@ namespace Game
             ballManager.CreateBalls(boardManger);
             if (turn == myBallType)
             {
-                myTurn();
+                MyTurn();
             }
         }
 
@@ -68,7 +86,7 @@ namespace Game
             GameServer.instance.SendCommand(moveCommand);
         }
 
-        public void myTurn()
+        public void MyTurn()
         {
             ballManager.state = 1;
             turnText.text = "My turn";
@@ -77,7 +95,7 @@ namespace Game
         public void OppenetMovement(BallSelection ballSelection, int direction)
         {
             ballManager.PushBalls(ballSelection, direction);
-            myTurn();
+            MyTurn();
         }
     }
 }

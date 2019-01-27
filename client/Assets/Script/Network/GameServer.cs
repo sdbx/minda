@@ -130,7 +130,7 @@ namespace Network
             handlers[type].Add(handler);
         }
 
-        public void removeHandler<T>(GameEventHandler handler)
+        public void RemoveHandler<T>(GameEventHandler handler)
         {
             Type type = typeof(T);
             handlers[type].Remove(handler);

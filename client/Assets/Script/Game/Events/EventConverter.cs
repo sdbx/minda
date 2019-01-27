@@ -45,6 +45,9 @@ namespace Game.Events
                 case "error":
                     item = new ErrorEvent();
                     break;
+                case "ticked":
+                    item = new TickedEvent();
+                    break;
                 case "ended":
                     item = new EndedEvent();
                     break;

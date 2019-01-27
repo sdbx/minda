@@ -26,15 +26,21 @@ namespace UI
             GameServer.instance.UserLeftEvent += UserLeft;
             GameServer.instance.ConfedEvent += ConfedCallBack;
         }
+        
+        private void Start()
+        {
+            UpdateAllConf();
+        }
+
+        private void OnDestroy()
+        {
+            GameServer.instance.UserEnteredEvent -= UserEnter;
+            GameServer.instance.UserLeftEvent -= UserLeft;
+            GameServer.instance.ConfedEvent -= ConfedCallBack;
+        }
 
         private void UserEnter(int id, BallType ballType)
         {
-            if(LobbyServer.instance.loginUser.id == id)
-                userList.Create(GameServer.instance.connectedRoom.Users.ToArray());
-            else
-            {
-                userList.Add(id);
-            }
             UpdateAllConf();
         }
 
@@ -42,7 +48,6 @@ namespace UI
         private void UserLeft(int user)
         {
             UpdateAllConf();
-            userList.Remove(user);
         }
 
         private void ConfedCallBack(Conf conf)
@@ -106,8 +111,11 @@ namespace UI
 
         private void UpdateAllConf()
         {
-            SetPlayerInfo(GameServer.instance.connectedRoom.conf);
-            userList.RefreshAll();
+            if (GameServer.instance.connectedRoom != null) 
+            {
+                SetPlayerInfo(GameServer.instance.connectedRoom.conf);
+                userList.Load(GameServer.instance.connectedRoom.Users.ToArray());
+            }
         }
 
         private int GetOpponentId(int myId)

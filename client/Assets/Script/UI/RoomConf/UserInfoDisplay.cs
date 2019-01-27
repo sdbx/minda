@@ -12,7 +12,7 @@ namespace UI
 {
     public class UserInfoDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
     {
-        private int UserId;
+        public int UserId;
         private InGameUser inGameUser;
         private BallType ballType = BallType.Black;
         private RectTransform rectTransform;
@@ -34,46 +34,40 @@ namespace UI
         [SerializeField]
         private int corner;
 
+        private bool destroyed;
+
         private Texture placeHolder;
         
         private void Awake() 
         {
+            destroyed = false;
             rectTransform = gameObject.GetComponent<RectTransform>();
             rootRectTransform = transform.root.GetComponent<RectTransform>();
+        }
+
+        private void OnDestroy()
+        {
+            destroyed = true;
         }
 
         private void Start() 
         {
             placeHolder = UISettings.instance.placeHolder;
-        }
-
-        public void display(int id)
-        {
-            UserId = id;
-
-            GameServer.instance.GetInGameUser(id, (InGameUser inGameUser)=>
-            {
-                this.inGameUser = inGameUser;
-                usernameText.text = inGameUser.user.username;
-                imformationText.text = "gorani 53";
-                kingIcon.SetActive(inGameUser.isKing);
-                
-                if(inGameUser.user.picture != null)
-                {
-                    GameServer.instance.GetProfileTexture(id, SetProfileImage);
-                }
-                else SetProfileImage(placeHolder);
-            });
-        }
-        
-        public void Refresh()
-        {
             GameServer.instance.GetInGameUser(UserId, (InGameUser inGameUser)=>
             {
-                this.inGameUser = inGameUser;
-                usernameText.text = inGameUser.user.username;
-                imformationText.text = "gorani 53";
-                kingIcon.SetActive(inGameUser.isKing);
+                if (!destroyed)
+                {
+                    this.inGameUser = inGameUser;
+                    usernameText.text = inGameUser.user.username;
+                    imformationText.text = "gorani 53";
+                    kingIcon.SetActive(inGameUser.isKing);
+                    
+                    if(inGameUser.user.picture != null)
+                    {
+                        GameServer.instance.GetProfileTexture(UserId, SetProfileImage);
+                    }
+                    else SetProfileImage(placeHolder);
+                }
             });
         }
 
