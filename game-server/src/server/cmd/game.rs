@@ -7,7 +7,7 @@ use server::server::Server;
 use error::Error;
 
 pub fn game_move(server: &mut Server, conn: &Connection, start: AxialCord, end: AxialCord, dir: AxialCord) -> Result<(), Error> {
-    let (event, lose) = {
+    let (event1, event2, lose) = {
         let room = server.get_room_mut(&conn)?;
         let game_opt = room.game.as_mut();
         let game = match game_opt {
@@ -26,10 +26,16 @@ pub fn game_move(server: &mut Server, conn: &Connection, start: AxialCord, end: 
             end: end,
             dir: dir
         },
+        Event::Ticked {
+            white_time: game.white_time / 1000,
+            black_time: game.black_time / 1000,
+            current_time: game.current_time / 1000
+        },
         game.get_lose())
     };
     let room_id = conn.room_id.as_ref().unwrap();
-    server.broadcast(&room_id, &event);
+    server.broadcast(&room_id, &event1);
+    server.broadcast(&room_id, &event2);
     if let Some((loser, cause)) = lose {
         server.complete_game(&room_id, loser, &cause);
     }
