@@ -63,7 +63,7 @@ impl Game {
             dir: dir
         });
         self.board.push(player, start.to_cord(), end.to_cord(), dir.to_cord())?;
-        self.current_time = self.rule.turn_timeout;
+        self.current_time = self.rule.turn_timeout * 1000;
         self.turn = self.turn.opp();
         Ok(())
     }
