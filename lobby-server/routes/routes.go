@@ -21,4 +21,5 @@ func Register(d *dim.Group) {
 	d.Route("/admin", &admin{})
 	d.Route("/maps", &mapr{})
 	d.Route("/pics", &pic{})
+	d.Route("/histories", &history{})
 }
