@@ -1,5 +1,4 @@
 import { SerializeObject } from "../../types/serializable"
-import { MSGameConf } from "./msgameconf"
 import { MSGameRule } from "./msgamerule"
 import { MSUser } from "./msuser"
 
@@ -21,9 +20,9 @@ export interface MSRoom {
      */
     users:number[],
     /**
-     * 게임중인가?
+     * 게임이 시작했는가?
      */
-    ingame:boolean,
+    ingame?:boolean,
 }
 export interface MSRoomConf {
     /**

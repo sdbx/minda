@@ -1,5 +1,5 @@
 import { EventDispatcher, SignalDispatcher, SimpleEventDispatcher } from "strongly-typed-events"
-import { TimerID, WebpackTimer } from "../../webpacktimer"
+import { TimerID, WebpackTimer } from "./webpacktimer"
 
 type STE = EventDispatcher<any, any> | SimpleEventDispatcher<any> | SignalDispatcher
 /**
@@ -10,13 +10,22 @@ type STE = EventDispatcher<any, any> | SimpleEventDispatcher<any> | SignalDispat
  */
 export default function awaitEvent<E extends STE, R>(
     event:E, timeout:number,
-    executor:(...args:EventParam<E>) => R | Promise<R>):Promise<R> {
+    executor:(...args:EventParam<E>) => R | Promise<R>,
+    nullAsContinue = false):Promise<R> {
     return new Promise<R>((res, rej) => {
         let timer:TimerID
-        const fn = event.one(async (...args:Array<unknown>) => {
+        const fn = event.sub(async (...args:Array<unknown>) => {
             WebpackTimer.clearTimeout(timer)
             const r = await executor(...args as EventParam<E>)
-            res(r)
+            if (!nullAsContinue || r !== null) {
+                fn()
+                res(r)
+            } else {
+                timer = WebpackTimer.setTimeout(() => {
+                    fn()
+                    rej(new Error("TIMEOUT"))
+                }, timeout)
+            }
         })
         timer = WebpackTimer.setTimeout(() => {
             fn()
@@ -25,7 +34,7 @@ export default function awaitEvent<E extends STE, R>(
     })
 }
 type EventParam<T extends STE> =
-    T extends EventDispatcher<infer P,infer R> ? [P, R] :
+    T extends EventDispatcher<infer P, infer R> ? [P, R] :
     T extends SimpleEventDispatcher<infer S> ? [S] :
     T extends SignalDispatcher ? [] :
     never
