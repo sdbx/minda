@@ -53,6 +53,10 @@ impl Room {
         None
     }
 
+    pub fn get_users(&self, user_id: UserId) -> Vec<&RoomUser> {
+        self.users.iter().filter(|(_, u)| u.user_id == user_id).map(|(_, u)| u).collect()
+    }
+
     pub fn to_model(&self) -> MRoom {
         MRoom {
             id: self.id.clone(),
