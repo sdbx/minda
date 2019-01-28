@@ -13,7 +13,7 @@ namespace Network
 {
     public class LobbyServer : MonoBehaviour
     {
-        private enum LoginState
+        public enum LoginState
         {
             Logout,
             SendReq,
@@ -27,7 +27,7 @@ namespace Network
         LobbyServerRequestor requestor;
 
         public string token;
-        private LoginState loginState = LoginState.Logout;
+        public LoginState loginState{private set; get;} = LoginState.Logout;
         private Action loginCallback;
         private string loginReqid;
         [SerializeField]
@@ -88,10 +88,6 @@ namespace Network
         
         public void login(string service,Action callback)
         {
-            if(loginState != LoginState.Logout)
-            {
-                return;
-            }
             loginState = LoginState.SendReq;
             loginCallback = callback;
             Post("/auth/reqs/","",(Reqid reqid, string err)=>{
