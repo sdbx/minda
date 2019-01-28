@@ -1,3 +1,4 @@
+use tool::print_err;
 use model::EndedCause;
 use std::io::BufReader;
 use std::io::prelude::*;
@@ -57,7 +58,6 @@ pub struct Server {
 }
 
 const redis_server_hash: &'static str = "game_server_hash";
-const redis_result_pubsub: &'static str = "task_result_pub_sub";
 const redis_lobby_queue: &'static str = "task_lobby_queue";
 const result_timeout: usize = 5;
 
@@ -120,7 +120,7 @@ impl Server {
 
     pub fn serve(mut self) {
         for event in self.listen().iter() {
-            self.handle_event(event);
+            print_err(self.handle_event(event));
         }
     }
 
@@ -136,8 +136,8 @@ impl Server {
         if let Some(stream) = self.streams.get_mut(&conn_id) {
             let msg = serde_json::to_string(&event).unwrap() + "\n";
             info!("client({}) will receive msg: {}", conn_id, msg);
-            stream.write(msg.as_bytes());
-            stream.flush();
+            print_err(stream.write(msg.as_bytes()));
+            print_err(stream.flush());
         }
     }
 
@@ -151,7 +151,7 @@ impl Server {
 
     pub fn kick(&mut self, conn_id: Uuid) {
         if let Some(stream) = self.streams.get(&conn_id) {
-            stream.shutdown(Shutdown::Both);
+            print_err(stream.shutdown(Shutdown::Both));
         }
     }
 
@@ -200,9 +200,9 @@ impl Server {
             id: id.clone(),
             task: task.clone()
         })?;
-        conn.rpush(redis_game_queue(redis_lobby_queue), &buf)?;
-        let buf: String = conn.blpop(redis_result_channel(&id), result_timeout)?;
-        let res: TaskResult = serde_json::from_str(&buf)?;
+        conn.rpush(redis_lobby_queue, &buf)?;
+        let buf: Vec<String> = conn.blpop(redis_result_channel(&id), result_timeout)?;
+        let res: TaskResult = serde_json::from_str(buf.get(1)?)?;
         if let Some(error) = res.error {
             Err(Error::TaskError(error))
         } else {
@@ -253,24 +253,24 @@ impl Server {
                     self.broadcast(&room_id, &event);
                 }
                 for (room_id, loser, cause) in completes.iter() {
-                    self.complete_game(&room_id, *loser, &cause);
+                    print_err(self.complete_game(&room_id, *loser, &cause));
                 }
             },
             ServerEvent::TaskRequest { task_request } => {
                 match task::handle(self, task_request.task) {
                     Ok(res) => {
                         info!("task({}) was successful: {}", task_request.id, res);
-                        self.send_result(&task_request.id, &TaskResult{
+                        print_err(self.send_result(&task_request.id, &TaskResult{
                             error: None,
                             value: res
-                        });
+                        }));
                     },
                     Err(e) => {
                         info!("task({}) encounterd an error: {}", task_request.id, e);
-                        self.send_result(&task_request.id, &TaskResult{
+                        print_err(self.send_result(&task_request.id, &TaskResult{
                             error: Some(format!("{}", e)),
                             value: "".to_owned()
-                        });
+                        }));
                     }
                 };
             },
@@ -352,9 +352,9 @@ impl Server {
     fn ping_update(&self) {
         let tx = self.make_tx();
         thread::spawn(move || {
-            tx.send(ServerEvent::DiscoverUpdated);
+            print_err(tx.send(ServerEvent::DiscoverUpdated));
             for _ in Ticker::new(0.., Duration::from_secs(5)) {
-                tx.send(ServerEvent::DiscoverUpdated);
+                print_err(tx.send(ServerEvent::DiscoverUpdated));
             }
         });
     }
@@ -362,9 +362,9 @@ impl Server {
     fn time_update(&self, dt: usize) {
         let tx = self.make_tx();
         thread::spawn(move || {
-            tx.send(ServerEvent::TimeUpdated{dt});
+            print_err(tx.send(ServerEvent::TimeUpdated{dt}));
             for _ in Ticker::new(0.., Duration::from_millis(dt as u64)) {
-                tx.send(ServerEvent::TimeUpdated{dt});
+                print_err(tx.send(ServerEvent::TimeUpdated{dt}));
             }
         });
     }
@@ -383,16 +383,16 @@ impl Server {
 
     fn handle_stream(mut stream: TcpStream, tx: Sender<ServerEvent>) {
         let conn_id = Uuid::new_v4();
-        tx.send(ServerEvent::Connect{
+        print_err(tx.send(ServerEvent::Connect{
             conn_id: conn_id,
             conn: stream.try_clone().unwrap()
-        });
+        }));
         
         thread::spawn(move || {
             Server::handle_stream_loop(conn_id, &tx, stream);
-            tx.send(ServerEvent::Close{
+            print_err(tx.send(ServerEvent::Close{
                 conn_id
-            });
+            }));
         });
     }
 
@@ -410,17 +410,17 @@ impl Server {
                     msg.clear(); 
                     if let Ok(cmd) = t {
                         info!("client({}) command: {:?}", conn_id, cmd);
-                        tx.send(ServerEvent::Command{
+                        print_err(tx.send(ServerEvent::Command{
                             conn_id,
                             cmd
-                        });
+                        }));
                     } else {
-                        tx.send(ServerEvent::Dispatch {
+                        print_err(tx.send(ServerEvent::Dispatch {
                             conn_id,
                             event: Event::Error {
                                 message: "json format error".to_owned()
                             }
-                        });
+                        }));
                     }
                 },
                 Err(e) => {
@@ -446,7 +446,7 @@ impl Server {
                     Err(e) => { error!("{}", e); continue }
                 };
                 info!("task({}) arrived: {:?}", task_request.id, task_request.task);
-                tx.send(ServerEvent::TaskRequest { task_request });
+                print_err(tx.send(ServerEvent::TaskRequest { task_request }));
             }
         });
         Ok(())
