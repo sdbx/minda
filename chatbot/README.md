@@ -1,3 +1,0 @@
-# minda-chatbot
-
-Minda Chatbot
