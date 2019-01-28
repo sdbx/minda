@@ -8,7 +8,7 @@ import { mdtimeout } from "./mdconst"
 import { BanInfo, ChatInfo, ConfInfo, ConnectInfo,
     EndInfo, EnterInfo, ErrorInfo, LeaveInfo,
     MdCommands, MdEventTypes, MoveInfo, MSEvents, StartInfo, TickInfo } from "./structure/msevents"
-import { MSGrid } from "./structure/msgrid"
+import { MSGrid, MSGridEncode } from "./structure/msgrid"
 import { MSRoom, MSRoomConf, MSRoomServer } from "./structure/msroom"
 import { MSUser } from "./structure/msuser"
 
@@ -65,6 +65,12 @@ class MindaRoomBase implements MSRoom {
     public get loseStones() {
         return this.conf.game_rule.default_lost_stones
     }
+    /**
+     * 판때기 모양새
+     */
+    public get gameMap() {
+        return new MSGrid(this.conf.map)
+    }
     /* Value implements */
     /**
      * 채팅의 메시지들 입니다.
@@ -73,7 +79,7 @@ class MindaRoomBase implements MSRoom {
     /**
      * 이게 뭐지~
      */
-    public board:never
+    public board:MSGrid
     /**
      * 누구의 턴인가
      */
@@ -232,6 +238,7 @@ class MindaRoomBase implements MSRoom {
                 this.id = room.id
                 this.created_at = room.created_at
                 this.conf = room.conf
+                const test = this.gameMap
                 this.users = room.users
                 this.ingame = false
                 this.onConnect.dispatch({
@@ -370,7 +377,7 @@ export class MindaRoom extends MindaRoomBase {
     public ban(user:number | MSUser) {
         const id = typeof user === "number" ? user : user.id
         this.send("ban", {user: id})
-        return awaitEvent(this.onBan, 5000, (banid) => {
+        return awaitEvent(this.onBan, mdtimeout, (banid) => {
             if (banid === id) {
                 return true
             } else {

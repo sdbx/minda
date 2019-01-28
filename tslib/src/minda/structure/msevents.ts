@@ -1,6 +1,6 @@
 import { MSCords } from "./mscords"
 import { MSGameRule } from "./msgamerule"
-import { MSGrid, MSMapString } from "./msgrid"
+import { MSGridEncode } from "./msgrid"
 import { MSLoseCause } from "./mslosecause"
 import { MSRoom, MSRoomConf } from "./msroom"
 
@@ -83,11 +83,12 @@ export interface MoveInfo extends TypedInfo<MSEvents.move> {
     start:MSCords,
     end:MSCords,
     dir:MSCords,
+    map:MSGridEncode,
 }
 export interface StartInfo extends TypedInfo<MSEvents.start> {
     black:number,
     white:number,
-    map:MSMapString,
+    map:MSGridEncode,
     rule:MSGameRule,
     turn:"black" | "white",
 }

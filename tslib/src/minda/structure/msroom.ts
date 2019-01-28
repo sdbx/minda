@@ -1,5 +1,6 @@
 import { SerializeObject } from "../../types/serializable"
 import { MSGameRule } from "./msgamerule"
+import { MSGridEncode } from "./msgrid"
 import { MSUser } from "./msuser"
 
 export interface MSRoom {
@@ -45,6 +46,10 @@ export interface MSRoomConf {
      * 백돌 유저
      */
     white:number,
+    /**
+     * 맵 스트링
+     */
+    map:MSGridEncode,
     /**
      * 공개방 여부
      */
