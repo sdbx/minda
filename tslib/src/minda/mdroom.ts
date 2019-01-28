@@ -1,5 +1,6 @@
 import { Socket } from "net"
 import { EventDispatcher, SignalDispatcher, SimpleEventDispatcher } from "strongly-typed-events"
+import awaitEvent from "../timeout"
 import { Immute } from "../types/deepreadonly"
 import { Serializable, SerializeObject } from "../types/serializable"
 import { WebpackTimer } from "../webpacktimer"
@@ -10,7 +11,6 @@ import { BanInfo, ChatInfo, ConfInfo, ConnectInfo,
 import { MSGrid } from "./structure/msgrid"
 import { MSRoom, MSRoomConf, MSRoomServer } from "./structure/msroom"
 import { MSUser } from "./structure/msuser"
-import awaitEvent from "./util/timeout"
 
 /**
  * 민다룸 백앤드 (방목록 동기화)
@@ -233,13 +233,14 @@ class MindaRoomBase implements MSRoom {
                 this.created_at = room.created_at
                 this.conf = room.conf
                 this.users = room.users
-                this.ingame = room.ingame
+                this.ingame = false
                 this.onConnect.dispatch({
                     ...connect.room
                 })
             } break
             case MSEvents.end: {
                 const end = event as EndInfo
+                this.ingame = false
                 this.onEnd.dispatch(end)
             } break
             case MSEvents.enter: {
@@ -279,6 +280,7 @@ class MindaRoomBase implements MSRoom {
                     ...this.conf.game_rule,
                     ...startE.rule,
                 }
+                this.ingame = true
                 this.turn = startE.turn
                 this.onStart.dispatch(startE)
             } break
@@ -302,7 +304,7 @@ class MindaRoomBase implements MSRoom {
      * @param type 명령 타입
      * @param param 명령 파라메터
      */
-    protected async send<T extends keyof MdCommands>(type:T, param?:MdCommands[T]) {
+    protected send<T extends keyof MdCommands>(type:T, param?:MdCommands[T]) {
         if (param == null) {
             param = {}
         }
@@ -313,7 +315,7 @@ class MindaRoomBase implements MSRoom {
      * @param type 명령 타입
      * @param param 명령 파라메터
      */
-    protected async sendRaw(type:string, param:object = {}) {
+    protected sendRaw(type:string, param:object = {}) {
         if (!this.connected) {
             return
         }
@@ -360,6 +362,21 @@ export class MindaRoom extends MindaRoomBase {
                 this.close()
             }
         })
+    }
+    /**
+     * 너 **밴**
+     * @param user 유-저 
+     */
+    public ban(user:number | MSUser) {
+        const id = typeof user === "number" ? user : user.id
+        this.send("ban", {user: id})
+        return awaitEvent(this.onBan, 5000, (banid) => {
+            if (banid === id) {
+                return true
+            } else {
+                return null
+            }
+        }, true)
     }
     /**
      * 채팅을 보냅니다.

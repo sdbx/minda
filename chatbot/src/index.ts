@@ -47,7 +47,7 @@ class AuthMinda {
     public constructor() {
         this.onReady.sub(async (token) => {
             this.client = new MindaClient(token)
-            await this.client.init()
+            await this.client.login()
             console.log(this.client.me)
         })
     }

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"lobby/models"
+	"lobby/servs/dbserv"
 	"lobby/servs/discserv"
 	"lobby/servs/redisserv"
 	"lobby/utils"
@@ -25,6 +26,7 @@ const (
 type TaskServ struct {
 	Redis *redisserv.RedisServ   `dim:"on"`
 	Disc  *discserv.DiscoverServ `dim:"on"`
+	DB    *dbserv.DBServ         `dim:"on"`
 
 	resMu sync.RWMutex
 }
@@ -35,13 +37,10 @@ func Provide() *TaskServ {
 
 func (t *TaskServ) Init() error {
 	go func() {
-		err := utils.ListenQueue(t.Redis.Conn(),
+		utils.ListenQueue(t.Redis.Conn(),
 			t.onQueueMessage,
 			redisLobbyQueue,
 		)
-		if err != nil {
-			utils.Log.Error("Error while listening queue", zap.Error(err))
-		}
 	}()
 	return nil
 }

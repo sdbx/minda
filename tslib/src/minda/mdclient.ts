@@ -1,6 +1,7 @@
 import Diff from "deep-diff"
 import fetch from "node-fetch"
 import { SignalDispatcher, SimpleEventDispatcher } from "strongly-typed-events"
+import awaitEvent from "../timeout"
 import { Immute } from "../types/deepreadonly"
 import { TimerID, WebpackTimer } from "../webpacktimer"
 import { defaultProfile, mdtimeout } from "./mdconst"
@@ -10,7 +11,6 @@ import { MindaRoom } from "./mdroom"
 import { MSGameRule } from "./structure/msgamerule"
 import { MSRoom, MSRoomConf, MSRoomServer } from "./structure/msroom"
 import { MSUser } from "./structure/msuser"
-import awaitEvent from "./util/timeout"
 /**
  * 민다 로비 클라이언트
  */
@@ -62,14 +62,20 @@ export class MindaClient {
         // this.init().then(() => this.onReady.dispatch())
     }
     /**
-     * 기초적인 비동기적 설정을 합니다.
+     * 토큰으로 방 목록 및 유저 정보를 불러옵니다.
      */
-    public async init() {
+    public async login() {
         this.defaultPicture = await fetch(defaultProfile).then((v) => v.buffer())
-        await this.getMyself()
-        await this.fetchRooms()
-        await this.sync()
-        this.autoSync()
+        try {
+            await this.getMyself()
+            await this.fetchRooms()
+            await this.sync()
+            this.autoSync()
+            return true
+        } catch (err) {
+            console.error(err)
+        }
+        return false
     }
     /**
      * 방 목록을 스스로 동기화하게 만듭니다.
@@ -166,6 +172,19 @@ export class MindaClient {
         } else {
             return this.defaultPicture
         }
+    }
+    /**
+     * 유저 정보를 불러옵니다.
+     * 
+     * 이미지는 `getProfileImage` 사용바람.
+     * @param id 유저 ID
+     */
+    public async user(id:number | MSUser) {
+        if (typeof id === "object") {
+            id = id.id
+        }
+        const user = await extractContent<MSUser>(reqGet("GET", `/users/${id}/`, this.token))
+        return user
     }
     /**
      * 자신의 프로필 이미지를 설정합니다.

@@ -41,7 +41,7 @@ export default class MindaExec {
     }
     public async init() {
         await this.userDB.connect()
-        await this.admin.init()
+        await this.admin.login()
     }
     protected async cmdFight(context:SnowContext<BotConfig>, otherUser:SnowUser) {
         const { channel, message } = context
@@ -64,7 +64,7 @@ export default class MindaExec {
         const user1 = message.author
         const user2 = otherUser
         const minda1 = await getMindaUser(user1)
-        const minda2 = await getMindaUser(user2)
+        const minda2 = await getMindaUser(user2) // this.admin.me // 
         if (this.playingQueue.has(user1.getUID()) || this.playingQueue.has(user2.getUID())) {
             return "이미 플레이 중입니다."
         }
@@ -84,11 +84,37 @@ export default class MindaExec {
             return `방 생성에 실패했습니다.`
         }
         await channel.send("방 이름: " + roomFind.conf.name)
+        /**
+         * Debug
+         */
+        // await room.setWhite(minda2)
         this.playingQueue.set(user1.getUID(), room)
         this.playingQueue.set(user2.getUID(), room)
         room.onChat.sub((ch) => {
             const n = this.admin.users.find((v) => v.id === ch.user).username
             channel.send(`${n} : ${ch.content}`)
+        })
+        room.onLeave.sub(async (lf) => {
+            if (room.ingame) {
+                if (lf.user === minda1.id) {
+                    await room.sendChat(`선수 ${minda1.username}이(가) 나갔습니다.`)
+                } else if (lf.user === minda2.id) {
+                    await room.sendChat(`선수 ${minda2.username}이(가) 나갔습니다.`)
+                }
+            }
+        })
+        room.onEnd.sub(async (event) => {
+            let winner:string
+            let color:"검은 돌" | "하얀 돌"
+            if (event.loser === room.black) {
+                winner = (await this.admin.user(room.white)).username
+                color = "하얀 돌"
+            } else {
+                winner = (await this.admin.user(room.black)).username
+                color = "검은 돌"
+            }
+            await channel.send(`${winner} (${color}) 승리!`)
+            room.close()
         })
         awaitEvent(room.onEnter, 60000, async (info) => {
             if (info.user === minda1.id) {
@@ -113,6 +139,8 @@ export default class MindaExec {
             return null
         }, true).catch(async () => {
             room.close()
+            this.playingQueue.delete(user1.getUID())
+            this.playingQueue.delete(user2.getUID())
             await channel.send("유저가 접속을 안하여 방이 닫혔습니다.")
         })
         return null
@@ -159,7 +187,7 @@ export default class MindaExec {
         credit.watchLogin()
         awaitEvent(credit.onLogin, 60000, async (token) => {
             const client = new MindaClient(token)
-            await client.init()
+            await client.login()
             await this.userDB.set(uid, "mindaId", client.me.id)
             await dm.send(`${channel.mention(user)} 로그인 완료 (ID:${client.me.id})`)
             this.authQueue.delete(user.getUID())

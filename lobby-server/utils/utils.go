@@ -56,19 +56,17 @@ func ListenPubSub(conn redis.Conn,
 	return <-done
 }
 
-func ListenQueue(conn redis.Conn, onMessage func(buf []byte), name string) error {
-	done := make(chan error, 1)
+func ListenQueue(conn redis.Conn, onMessage func(buf []byte), name string) {
 	go func() {
 		for {
-			buf, err := redis.Bytes(conn.Do("BLPOP", name, 0))
+			buf, err := redis.ByteSlices(conn.Do("BLPOP", name, 0))
 			if err != nil {
-				done <- err
-				return
+				Log.Error("Error while listening to queue", zap.Error(err))
+				continue
 			}
-			onMessage(buf)
+			onMessage(buf[1])
 		}
 	}()
-	return <-done
 }
 
 func NewString(str string) *string {
