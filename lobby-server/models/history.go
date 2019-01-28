@@ -13,8 +13,10 @@ type History struct {
 	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
 	Black     int       `db:"black" json:"black"`
 	White     int       `db:"white" json:"white"`
+	Loser     int       `db:"loser" json:"loser"`
+	Cause     string    `db:"cause" json:"cause"`
 	Map       string    `db:"map" json:"map"`
-	Moves     []Move    `json:"moves" has_many:"moves" order_by:"seq asc"`
+	Moves     []Move    `json:"moves" has_many:"moves" order_by:"id asc"`
 }
 
 func (h History) TableName() string {
@@ -50,6 +52,6 @@ func (c *Cord) Scan(i interface{}) error {
 	default:
 		return errors.New("Incompatible type for Cord")
 	}
-	_, err := fmt.Sscanf("%d=%d=%d", src, &c.X, &c.Y, &c.Z)
+	_, err := fmt.Sscanf(src, "%d=%d=%d", &c.X, &c.Y, &c.Z)
 	return err
 }

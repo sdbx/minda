@@ -8,6 +8,7 @@ import (
 	"lobby/utils"
 	"math/rand"
 	"net/http"
+	"strings"
 
 	"github.com/labstack/echo"
 	"github.com/sunho/dim"
@@ -19,14 +20,26 @@ type room struct {
 }
 
 func (r *room) Register(d *dim.Group) {
-	d.Use(&middlewares.AuthMiddleware{})
 	d.GET("/", r.listRoom)
-	d.POST("/", r.postRoom)
-	d.PUT("/:roomid/", r.putRoom)
+	d.RouteFunc("/", func(d *dim.Group) {
+		d.Use(&middlewares.AuthMiddleware{})
+		d.POST("", r.postRoom)
+		d.PUT(":roomid/", r.putRoom)
+	})
 }
 
 func (r *room) listRoom(c echo.Context) error {
-	return c.JSONPretty(200, r.Disc.GetRooms(), "\t")
+	rooms := r.Disc.GetRooms()
+	if name := c.QueryParam("name"); name != "" {
+		out := []models.Room{}
+		for _, room := range rooms {
+			if strings.Contains(room.Conf.Name, name) {
+				out = append(out, room)
+			}
+		}
+		return c.JSONPretty(200, out, "\t")
+	}
+	return c.JSONPretty(200, rooms, "\t")
 }
 
 func (r *room) postRoom(c2 echo.Context) error {
@@ -115,9 +128,9 @@ func (r *room) putRoom(c2 echo.Context) error {
 	if err != nil {
 		return err
 	}
+	user := c.User
 	for _, room := range rooms {
 		if room.ID == id {
-			user := c.User
 			res, err := r.Task.Request(room.Server, &models.JoinRoomTask{
 				UserID: user.ID,
 				RoomID: id,
