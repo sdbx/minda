@@ -1,0 +1,24 @@
+[submodule "tslib"]
+	path = tslib
+	url = git@github.com:minda-games/tslib.git
+	branch = master
+[submodule "ai"]
+	path = ai
+	url = git@github.com:minda-games/ai.git
+	branch = master
+[submodule "chatbot"]
+	path = chatbot
+	url = git@github.com:minda-games/chatbot.git
+	branch = master
+[submodule "lobbyserver"]
+	path = lobbyserver
+	url = git@github.com:minda-games/lobbyserver.git
+	branch = master
+[submodule "gameserver"]
+	path = gameserver
+	url = git@github.com:minda-games/gameserver.git
+	branch = master
+[submodule "client"]
+	path = client
+	url = git@github.com:minda-games/client.git
+	branch = master
