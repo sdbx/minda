@@ -7,8 +7,7 @@ public class ContextMenuManager : MonoBehaviour
     [SerializeField]
     private ContextMenuElement prefab;
     private Vector2 prefabSize;
-    [SerializeField]
-    private RectTransform parent;
+    private RectTransform rectTransform;
 
     private List<ContextMenuElement> contextMenuElements = new List<ContextMenuElement>();
     public static ContextMenuManager instance;
@@ -29,13 +28,14 @@ public class ContextMenuManager : MonoBehaviour
 
         DontDestroyOnLoad(gameObject);
         prefabSize = prefab.GetComponent<RectTransform>().rect.size;
+        rectTransform = gameObject.GetComponent<RectTransform>();
     }
 
     public void Create(Vector2 pos, ContextMenu contextMenu)
     {
-        parent.gameObject.SetActive(true);
-        parent.position = new Vector3(0,0,-10);
-        parent.pivot = contextMenu.pivot;
+        gameObject.SetActive(true);
+        transform.position = new Vector3(0,0,-10);
+        rectTransform.pivot = contextMenu.pivot;
 
         var menus = contextMenu.menus;
 
@@ -58,7 +58,7 @@ public class ContextMenuManager : MonoBehaviour
             //만들어진 메뉴가 부족하면 생성
             else //if(contextMenuElements.Count <= i)
             {
-                current = Instantiate<ContextMenuElement>(prefab,parent);
+                current = Instantiate<ContextMenuElement>(prefab,rectTransform);
                 contextMenuElements.Add(current);
             }
             current.sizeMatcher.forceSetMode = false;
@@ -79,15 +79,15 @@ public class ContextMenuManager : MonoBehaviour
         {
             if (element.isActiveAndEnabled)
             {
-                element.sizeMatcher.ForceSet(new Vector2(parent.rect.width, -1));
+                element.sizeMatcher.ForceSet(new Vector2(rectTransform.rect.width, -1));
             }
         }
-        parent.localPosition = new Vector3(pos.x,pos.y,0);
+        rectTransform.localPosition = new Vector3(pos.x,pos.y,0);
     }
 
     private void Update() 
     {
-        HideIfClickedOutsideOrWheel(parent.gameObject);
+        HideIfClickedOutsideOrWheel(rectTransform.gameObject);
     }
 
     private void HideIfClickedOutsideOrWheel(GameObject panel)
