@@ -31,8 +31,8 @@ type Task interface {
 
 func (r *TaskRequest) UnmarshalJSON(b []byte) error {
 	obj := struct {
-		ID   string `json:"id"`
-		Task []byte `json:"task"`
+		ID   string           `json:"id"`
+		Task *json.RawMessage `json:"task"`
 	}{}
 	err := json.Unmarshal(b, &obj)
 	if err != nil {
@@ -44,7 +44,11 @@ func (r *TaskRequest) UnmarshalJSON(b []byte) error {
 	obj2 := struct {
 		Kind string `json:"kind"`
 	}{}
-	err = json.Unmarshal(obj.Task, &obj2)
+	buf, err := obj.Task.MarshalJSON()
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(buf, &obj2)
 	if err != nil {
 		return err
 	}
@@ -62,7 +66,7 @@ func (r *TaskRequest) UnmarshalJSON(b []byte) error {
 		return errors.New("unknown task kind")
 	}
 
-	return json.Unmarshal(obj.Task, r.Task)
+	return json.Unmarshal(buf, r.Task)
 }
 
 func (r TaskRequest) MarshalJSON() ([]byte, error) {

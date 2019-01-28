@@ -75,7 +75,7 @@ pub enum Event {
     #[serde(rename = "error")]
     Error { message: String },
     #[serde(rename = "moved")]
-    Moved { player: String, start: AxialCord, end: AxialCord, dir: AxialCord },
+    Moved { player: String, start: AxialCord, end: AxialCord, dir: AxialCord, map: String },
     #[serde(rename = "chated")]
     Chated { user: UserId, content: String },
     #[serde(rename = "confed")]

@@ -12,7 +12,7 @@ use error::Error;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Move {
-    pub player: Player,
+    pub player: UserId,
     pub start: AxialCord,
     pub end: AxialCord,
     pub dir: AxialCord
@@ -56,13 +56,13 @@ impl Game {
     pub fn run_move(&mut self, id: UserId, start: AxialCord, end: AxialCord, dir: AxialCord) -> Result<(), Error> {
         let player = self.get_turn(id)?;
 
+        self.board.push(player, start.to_cord(), end.to_cord(), dir.to_cord())?;
         self.history.push(Move {
-            player: player,
+            player: id,
             start: start,
             end: end,
             dir: dir
         });
-        self.board.push(player, start.to_cord(), end.to_cord(), dir.to_cord())?;
         self.current_time = self.rule.turn_timeout * 1000;
         self.turn = self.turn.opp();
         Ok(())
@@ -92,10 +92,11 @@ impl Game {
         Game::sub_time(&mut self.current_time, dt);
         if self.turn == Player::Black {
             Game::sub_time(&mut self.black_time, dt);
+            self.current_time % 1000 == 0 || self.black_time % 1000 == 0
         } else {
             Game::sub_time(&mut self.white_time, dt);
+            self.current_time % 1000 == 0 || self.white_time % 1000 == 0
         }
-        self.current_time % 1000 == 0 || self.black_time % 1000 == 0 || self.white_time % 1000 == 0 
     }
 
     fn sub_time(time: &mut usize, dt: usize) {
