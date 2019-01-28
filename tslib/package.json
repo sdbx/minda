@@ -31,7 +31,8 @@
     "reset": "git clean -dfx && git reset --hard && npm i",
     "clean": "trash build test",
     "all": "run-s reset test cov:check doc:html",
-    "prepare-release": "run-s all version doc:publish"
+    "prepare-release": "run-s all version doc:publish",
+    "start": "node ./build/main/launch.js"
   },
   "scripts-info": {
     "info": "Display information about the package scripts",
@@ -51,11 +52,13 @@
   },
   "dependencies": {
     "@types/deep-diff": "^1.0.0",
+    "@types/inquirer": "0.0.43",
     "@types/node-fetch": "^2.1.4",
     "@types/request-promise-native": "^1.0.15",
     "chalk": "^2.4.2",
     "deep-diff": "^1.0.2",
     "enquirer": "^2.3.0",
+    "inquirer": "^6.2.1",
     "node-fetch": "^2.3.0",
     "querystring": "^0.2.0",
     "request": "^2.88.0",

@@ -118,7 +118,9 @@ export interface MdCommands {
     conf:{
         conf:MSRoomConf,
     };
-    ban:{};
+    ban:{
+        user:number,
+    };
     start:{};
     move:{
         /**
