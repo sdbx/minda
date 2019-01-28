@@ -1,3 +1,4 @@
+use tool::print_err;
 use model::AxialCord;
 use model::Event;
 use model::EndedCause;
@@ -24,7 +25,8 @@ pub fn game_move(server: &mut Server, conn: &Connection, start: AxialCord, end: 
             player: turn.to_string(),
             start: start,
             end: end,
-            dir: dir
+            dir: dir,
+            map: game.board.to_string()
         },
         Event::Ticked {
             white_time: game.white_time / 1000,
@@ -37,7 +39,7 @@ pub fn game_move(server: &mut Server, conn: &Connection, start: AxialCord, end: 
     server.broadcast(&room_id, &event1);
     server.broadcast(&room_id, &event2);
     if let Some((loser, cause)) = lose {
-        server.complete_game(&room_id, loser, &cause);
+        print_err(server.complete_game(&room_id, loser, &cause));
     }
     Ok(())
 }
@@ -58,7 +60,7 @@ pub fn game_gg(server: &mut Server, conn: &Connection) -> Result<(), Error> {
             Player::Black
         }
     };
-    server.complete_game(conn.room_id.as_ref().unwrap(), loser, &EndedCause::Gg)?;
+    print_err(server.complete_game(conn.room_id.as_ref().unwrap(), loser, &EndedCause::Gg));
     server.update_discover()?;
     Ok(())
 }
