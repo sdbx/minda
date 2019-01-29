@@ -1,7 +1,9 @@
+import fs from "fs-extra"
 import * as Minda from "minda-ts"
-import { MindaClient, MindaCredit } from "minda-ts"
+import { MindaClient, MindaCredit, MSGrid } from "minda-ts"
 import { EventDispatcher, SimpleEventDispatcher } from "strongly-typed-events"
 import { Column, Entity } from "typeorm"
+import { renderBoard } from "./chatbot/boardrender"
 import GlobalConfig from "./chatbot/globalcfg"
 import BotConfig from "./chatbot/guildcfg"
 import MindaExec from "./chatbot/mindaexec"
@@ -22,7 +24,16 @@ async function run2() {
     console.log(await snow.login())
     snow.addCommands(authF.commands)
 }
-
+async function run3() {
+    // tslint:disable-next-line
+    const map = "0@0@0@0@0@0@0@2@2#0@0@0@0@0@0@0@2@2#0@0@0@0@0@0@2@2@2#0@1@0@0@0@0@2@2@2#1@1@1@0@0@0@2@2@2#1@1@1@0@0@0@0@2@0#1@1@1@0@0@0@0@0@0#1@1@0@0@0@0@0@0@0#1@1@0@0@0@0@0@0@0"
+    const board = await renderBoard(new MSGrid(map),
+    "https://cdn.discordapp.com/emojis/471277517823803412.png?v=1",
+    "https://cdn.discordapp.com/emojis/506470672873160734.png?v=1",
+    "#777777")
+    await fs.writeFile(`${debugPath}/config/test.png`, board)
+}
+// run3()
 run2()
 
 class AuthMinda {
