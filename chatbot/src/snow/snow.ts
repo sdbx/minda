@@ -107,7 +107,7 @@ export default class Snow<C extends BaseGuildCfg> {
             switch (typeof r) {
                 case "string":
                 case "number":
-                case "bigint":
+                // case "bigint":
                 case "boolean": {
                     await context.channel.send(r.toString())
                 } break

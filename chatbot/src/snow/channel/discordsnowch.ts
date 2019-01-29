@@ -172,7 +172,7 @@ export function messageToSnow(msg:Discord.Message) {
             })
         }
     }
-    snowM.id = BigInt(msg.id)
+    snowM.id = msg.id
     snowM.author = userToSnow(msg.member == null ? msg.author : msg.member)
     return snowM
 }

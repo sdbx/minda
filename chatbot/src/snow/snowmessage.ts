@@ -3,9 +3,9 @@ import SnowUser from "./snowuser"
 export default class SnowMessage {
     /**
      * The id of message (mostly this is number. But sometimes bigint needs...
-     * So, let's use BigInt with `ESNEXT`)
+     * So, ~~let's use BigInt with `ESNEXT`~~ Just use string for now.
      */
-    public id:bigint
+    public id:string
     /**
      * The author of This message. 
      */
