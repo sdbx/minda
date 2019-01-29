@@ -28,6 +28,3 @@ if target == "chatbot":
 	push("chatbot", "git@github.com:minda-games/chatbot.git")
 if target == "tslib":
 	push("tslib", "git@github.com:minda-games/tslib.git")
-
-	User name,Password,Access key ID,Secret access key,Console login link
-minda-deploy,,AKIAJMU5ACKLUE7TJWDQ,stcY+iLZOo7P90XezIO8zO/ClhEKiqcZ/DZoJsVu,https://988167730400.signin.aws.amazon.com/console

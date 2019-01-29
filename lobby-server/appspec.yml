@@ -3,3 +3,15 @@ os: linux
 files:
   - source:  /
     destination: /home/ubuntu/build/lobbyserver/
+
+permissions:
+  - object: /
+    pattern: "**"
+    owner: ubuntu
+    group: ubuntu
+
+hooks:
+  ApplicationStart:
+    - location: deploy.sh
+      timeout: 60
+      runas: ubuntu

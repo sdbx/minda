@@ -29,12 +29,11 @@ async function run3() {
     const map = "0@0@0@0@0@0@0@2@2#0@0@0@0@0@0@0@2@2#0@0@0@0@0@0@2@2@2#0@1@0@0@0@0@2@2@2#1@1@1@0@0@0@2@2@2#1@1@1@0@0@0@0@2@0#1@1@1@0@0@0@0@0@0#1@1@0@0@0@0@0@0@0#1@1@0@0@0@0@0@0@0"
     const board = await renderBoard(new MSGrid(map),
     "https://cdn.discordapp.com/emojis/471277517823803412.png?v=1",
-    "https://cdn.discordapp.com/emojis/506470672873160734.png?v=1",
-    "#777777")
+    "https://cdn.discordapp.com/emojis/506470672873160734.png?v=1")
     await fs.writeFile(`${debugPath}/config/test.png`, board)
 }
-// run3()
-run2()
+run3()
+// run2()
 
 class AuthMinda {
     public onReady = new SimpleEventDispatcher<string>()
