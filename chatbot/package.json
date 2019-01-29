@@ -38,6 +38,7 @@
   },
   "dependencies": {
     "@types/debug": "0.0.31",
+    "@types/image-size": "^0.7.0",
     "@types/json5": "0.0.30",
     "@types/msgpack5": "^3.4.1",
     "@types/node-fetch": "^2.1.4",
@@ -50,6 +51,7 @@
     "emoji-unicode": "^1.0.10",
     "fs-extra": "^7.0.1",
     "hash.js": "^1.1.7",
+    "image-size": "^0.7.1",
     "json5": "^2.1.0",
     "minda-ts": "file:../tslib",
     "msgpack5": "^4.2.1",

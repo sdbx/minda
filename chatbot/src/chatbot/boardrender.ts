@@ -1,6 +1,7 @@
 import { createCanvas, Image, loadImage } from "canvas"
 import emojiUnicode from "emoji-unicode"
 import fs from "fs-extra"
+import sizeOf from "image-size"
 import { MSGrid, StoneType } from "minda-ts"
 import fetch from "node-fetch"
 import sharp from "sharp"
@@ -9,9 +10,9 @@ import awaitEvent from "../timeout"
 import { blank1_1, blank1_2, blank1_3, blank1_4, blank1_6, blankChar, blankChar2 } from "./cbconst"
 
 export async function renderBoard(board:MSGrid,
-    blackImage = emojiAsSVG("\u{26AB}"),
-    whiteImage = emojiAsSVG("\u{26AA}"),
-    noStoneImage = emojiAsSVG("\u{1F535}")) {
+    blackImage:string = "",
+    whiteImage:string = "",
+    noStoneImage:string = "") {
 
     const parseColor = (str:string, fault:string) => {
         if (str.startsWith("#") && /^#[0-9A-Fa-f]{6}$/ig.test(str)) {
@@ -23,7 +24,7 @@ export async function renderBoard(board:MSGrid,
     const colors = {
         black: parseColor(blackImage, "#eeeeee"),
         white: parseColor(whiteImage, "#111111"),
-        default: parseColor(noStoneImage, "#777777"),
+        default: parseColor(noStoneImage, "#f7deb4"),
     }
     const elSize = 1 / 3
     // the width of hexagon (l)
@@ -39,15 +40,16 @@ export async function renderBoard(board:MSGrid,
     // hexagon height
     // const hexaHeight = Math.ceil(Math.sqrt(3) * hexaLength / 2 + elementWidth)
     // canvas width
-    const canvasWidth = Math.ceil((hexaLength + elementWidth) * 1.335)
+    // 1.335 : 1.332
+    const canvasWidth = Math.ceil((hexaLength + elementWidth) * 1.2)
     // canvas height
-    const canvasHeight = Math.ceil(((Math.sqrt(3) * hexaLength / 2) + elementWidth) * 1.332)
+    const canvasHeight = Math.ceil(((Math.sqrt(3) * hexaLength / 2) + elementWidth) * 1.2)
     // the center point of hexagon
     const centerPoint = [canvasWidth / 2, canvasHeight / 2]
-
+    // layout 2: frame
     const frame = await sharp(
         await fs.readFile(`${debugPath}/board.png`))
-        .resize(canvasWidth, canvasHeight)
+        .resize(canvasWidth, canvasHeight, {fit: "inside"})
         .toBuffer().then((bf) => {
             return new Promise<Image>((res, rej) => {
                 const img = new Image()
@@ -62,6 +64,8 @@ export async function renderBoard(board:MSGrid,
         canvasHeight, "PDF")
     // context
     const ctx:CanvasRenderingContext2D = canvas.getContext("2d")
+    // draw circle
+    
     // draw background
     if (frame != null) {
         ctx.drawImage(frame, 0, 0)
@@ -143,7 +147,27 @@ export async function renderBoard(board:MSGrid,
         }
     }
     const buffer:Buffer = canvas.toBuffer()
-    return buffer
+    /**
+     * Background circle
+     */
+    const frameSize = sizeOf(buffer)
+    const frameImg = await new Promise<Image>((res, rej) => {
+        const img = new Image()
+        img.onload = () => res(img)
+        img.onerror = (err:any) => { res(null) }
+        img.src = buffer
+    })
+    const padSize = Math.floor(Math.max(frameSize.width, frameSize.height) * 1.05)
+    const outerCanvas = createCanvas(padSize, padSize, "PDF")
+    const outerCtx:CanvasRenderingContext2D = outerCanvas.getContext("2d")
+    outerCtx.beginPath()
+    const r = padSize / 2
+    outerCtx.arc(r, r, r, 0, 2 * Math.PI, false)
+    outerCtx.fillStyle = "#f9edca"
+    outerCtx.fill()
+    outerCtx.drawImage(frameImg, (padSize - frameSize.width) / 2, (padSize - frameSize.height) / 2)
+    const out = outerCanvas.toBuffer()
+    return out
 }
 export function emojiAsSVG(emoji:string) {
     return `https://cdnjs.cloudflare.com/ajax/libs/twemoji/11.2.0/2/svg/${
