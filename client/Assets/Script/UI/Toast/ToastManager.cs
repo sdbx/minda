@@ -57,13 +57,6 @@ namespace UI.Toast
             prefabSize = prefab.GetComponent<RectTransform>().rect.size;
         }
 
-        private void Start()
-        {
-            Add("test1", "Error");
-            Add("test1", "Error");
-            Add("test1", "Error");
-        }
-
         private void Update()
         {
             if (toastQueues.Count != 0 && !isMoving)
