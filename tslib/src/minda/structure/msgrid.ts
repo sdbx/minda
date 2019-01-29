@@ -1,7 +1,9 @@
+import { DeepReadonly } from "../../types/deepreadonly"
+
 export class MSGrid {
     public readonly centerPosition:number
     public readonly sqaureSize:number
-    protected decodedGrid:StoneType[][]
+    public readonly decodedGrid:DeepReadonly<StoneType[][]>
     protected grid:StoneType[][]
     public constructor(board:MSGridEncode) {
         this.grid = board.split("#").map((v) => v.split("@").map((v2) => Number.parseInt(v2)))
@@ -14,7 +16,7 @@ export class MSGrid {
         }
         this.sqaureSize = pastSize
         this.centerPosition = Math.floor(this.sqaureSize / 2)
-        this.decodedGrid = []
+        const dGrid:StoneType[][] = []
         for (let i = 0; i < this.sqaureSize; i += 1) {
             const row:StoneType[] = []
             for (let k = 0; k < this.sqaureSize; k += 1) {
@@ -25,8 +27,9 @@ export class MSGrid {
             } else if (i > this.centerPosition) {
                 row.splice(this.getWidth(i), this.sqaureSize - this.getWidth(i))
             }
-            this.decodedGrid.push(row)
+            dGrid.push(row)
         }
+        this.decodedGrid = dGrid
         console.log(this.decodedGrid)
     }
     public getRow(index:number, side:"black" | "white") {

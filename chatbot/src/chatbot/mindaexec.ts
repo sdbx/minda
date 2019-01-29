@@ -1,4 +1,4 @@
-import { MindaAdmin, MindaClient, MindaCredit, MindaRoom } from "minda-ts"
+import { MindaAdmin, MindaClient, MindaCredit, MindaRoom, MSGrid, StoneType } from "minda-ts"
 import path from "path"
 import { Column, Entity, PrimaryColumn } from "typeorm"
 import SnowCommand, { SnowContext } from "../snow/bot/snowcommand"
@@ -8,6 +8,7 @@ import SnowConfig from "../snow/config/snowconfig"
 import SnowUser from "../snow/snowuser"
 import awaitEvent from "../timeout"
 import { bindFn } from "../util"
+import { blank1_2, blank1_3, blank1_4, blank1_6, blankChar, blankChar2 } from "./cbconst"
 import BotConfig from "./guildcfg"
 
 export default class MindaExec {
@@ -64,7 +65,7 @@ export default class MindaExec {
         const user1 = message.author
         const user2 = otherUser
         const minda1 = await getMindaUser(user1)
-        const minda2 = await getMindaUser(user2) // this.admin.me // 
+        const minda2 = this.admin.me // await getMindaUser(user2)
         if (this.playingQueue.has(user1.getUID()) || this.playingQueue.has(user2.getUID())) {
             return "이미 플레이 중입니다."
         }
@@ -87,7 +88,8 @@ export default class MindaExec {
         /**
          * Debug
          */
-        // await room.setWhite(minda2)
+        await room.setWhite(minda2)
+
         this.playingQueue.set(user1.getUID(), room)
         this.playingQueue.set(user2.getUID(), room)
         room.onChat.sub((ch) => {
@@ -115,6 +117,11 @@ export default class MindaExec {
             }
             await channel.send(`${winner} (${color}) 승리!`)
             room.close()
+        })
+        room.onStart.sub(async (si) => {
+            const {blackStone, whiteStone} = context.configGroup
+            await channel.send(`게임 시작.\n${
+                await this.renderBoard(room.board, blackStone, whiteStone)}`)
         })
         awaitEvent(room.onEnter, 60000, async (info) => {
             if (info.user === minda1.id) {
@@ -196,6 +203,41 @@ export default class MindaExec {
             this.authQueue.delete(user.getUID())
         })
         return null
+    }
+    protected async renderBoard(board:MSGrid, blackChar = "\u{26AB}", whiteChar = "\u{26AA}", voidChar = "\u{1F535}") {
+        const grid = board.decodedGrid
+        let out = ""
+        for (let row = 0; row < grid.length; row += 1) {
+            out += blankChar2
+            console.log("Pad: " + Math.abs(board.centerPosition - row))
+            out += this.getFillString(blank1_2 + blank1_4, Math.abs(board.centerPosition - row))
+            for (let column = 0; column < grid[row].length; column += 1) {
+                const stone = grid[row][column]
+                let dol:string
+                switch (stone) {
+                    case StoneType.black:
+                        dol = blackChar; break
+                    case StoneType.white:
+                        dol = whiteChar; break
+                    // case StoneType.void:
+                    default:
+                        dol = voidChar; break
+                }
+                out += dol
+                if (column < board.sqaureSize - 1) {
+                    out += blank1_3
+                }
+            }
+            out += "\n"
+        }
+        return out
+    }
+    private getFillString(str:string, length:number) {
+        let s = ""
+        for (let i = 0; i < length;i += 1) {
+            s += str
+        }
+        return s
     }
 }
 @Entity()

@@ -3,6 +3,7 @@ import BaseGuildCfg from "../snow/config/baseguildcfg"
 
 @Entity()
 export default class BotConfig extends BaseGuildCfg {
+    /*
     @Column("boolean", {
         default: false,
     })
@@ -23,4 +24,13 @@ export default class BotConfig extends BaseGuildCfg {
         default: "IhateKkiro",
     })
     public iLikeKkiro:string
+    */
+    @Column({
+        default: "\u{26AA}", // ⚪
+    })
+    public whiteStone:string
+    @Column({
+        default: "\u{26AB}" // ⚫
+    })
+    public blackStone:string
 }

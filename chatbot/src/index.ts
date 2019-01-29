@@ -21,20 +21,6 @@ async function run2() {
     await authF.init()
     console.log(await snow.login())
     snow.addCommands(authF.commands)
-    snow.addCommand(new SnowCommand({
-        name: "ping",
-        func: async (context, arg1, arg2) => {
-            const { channel, configChannel } = context
-            if (arg1 === "get") {
-                await channel.send("쪼리핑! " + configChannel.jjoa)
-            } else if (arg1 === "set") {
-                configChannel.jjoa = arg2
-                // await context.updateChannelConfig()
-            }
-        },
-        paramNames: ["쪼리", "핑"],
-        description: "핑을 날립니다.",
-    }, "string", "string"))
 }
 
 run2()

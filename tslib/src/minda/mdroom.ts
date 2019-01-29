@@ -68,7 +68,7 @@ class MindaRoomBase implements MSRoom {
     /**
      * 판때기 모양새
      */
-    public get gameMap() {
+    public get defaultBoard() {
         return new MSGrid(this.conf.map)
     }
     /* Value implements */
@@ -77,7 +77,7 @@ class MindaRoomBase implements MSRoom {
      */
     public messages:string[] = []
     /**
-     * 이게 뭐지~
+     * 보드 판 (플레이 중인 보드 포함)
      */
     public board:MSGrid
     /**
@@ -228,17 +228,20 @@ class MindaRoomBase implements MSRoom {
                 this.onChat.dispatch(chatE)
             } break
             case MSEvents.conf: {
+                // dynamic config
                 const confE = event as ConfInfo
                 this.conf = confE.conf
+                this.board = new MSGrid(confE.conf.map)
                 this.onConf.dispatch(confE.conf)
             } break
             case MSEvents.connect: {
+                // init here
                 const connect = event as ConnectInfo
                 const room = connect.room
                 this.id = room.id
                 this.created_at = room.created_at
                 this.conf = room.conf
-                const test = this.gameMap
+                this.board = new MSGrid(room.conf.map)
                 this.users = room.users
                 this.ingame = false
                 this.onConnect.dispatch({
@@ -276,6 +279,7 @@ class MindaRoomBase implements MSRoom {
             } break
             case MSEvents.move: {
                 const moveE = event as MoveInfo
+                this.board = new MSGrid(moveE.map)
                 this.onMove.dispatch(moveE)
                 // @TODO 언젠가 합시다
             } break
