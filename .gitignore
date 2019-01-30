@@ -44,15 +44,13 @@ sysinfo.txt
 # Crashlytics generated file
 Assets/StreamingAssets/crashlytics-build.properties
 
-/tests/node_modules/
+**/node_modules/
 
 /lobby-server/database.yml
 /lobby-server/*.yaml
 /lobby-server/lobby.exe
 /lobby-server/lobby
 
-/tslib/node_modules/
-/chatbot/node_modules/
 /chatbot/config/
 
 # Byte-compiled / optimized / DLL files
