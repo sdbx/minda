@@ -409,6 +409,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: af8811ea47a8497468aba21acad1c087, type: 3}
+--- !u!114 &73120077 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6728865694360127314, guid: af8811ea47a8497468aba21acad1c087,
+    type: 3}
+  m_PrefabInstance: {fileID: 73120076}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b324aa1936d0024a9d57d1a85b1e4f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &127121600
 GameObject:
   m_ObjectHideFlags: 0
@@ -3182,10 +3194,10 @@ MonoBehaviour:
   m_Script: {fileID: 1980459831, guid: f70555f144d8491a825f0804e09c671c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
@@ -3396,9 +3408,9 @@ MonoBehaviour:
   player1InfoDisplay: {fileID: 1618815372}
   player2InfoDisplay: {fileID: 1557817087}
   startBtn: {fileID: 855254175}
-  defeatLostMarble: {fileID: 0}
-  turnTimeout: {fileID: 0}
-  gameTimeout: {fileID: 0}
+  defeatLostMarble: {fileID: 2069400955}
+  turnTimeout: {fileID: 73120077}
+  gameTimeout: {fileID: 1808618263}
 --- !u!4 &1515332047
 Transform:
   m_ObjectHideFlags: 0
@@ -3647,7 +3659,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   profileImage: {fileID: 1969749744}
   backGround: {fileID: 440298948}
-  usernameText: {fileID: 0}
+  usernameText: {fileID: 1422767365}
   imformationText: {fileID: 0}
   backgroundBlack: {fileID: 2800000, guid: 373b14e6967d62941b26759228341e63, type: 3}
   backgroundWhite: {fileID: 2800000, guid: 3ff7b05145f8a224e8325321d77557d4, type: 3}
@@ -3974,6 +3986,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: af8811ea47a8497468aba21acad1c087, type: 3}
+--- !u!114 &1808618263 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6728865694360127314, guid: af8811ea47a8497468aba21acad1c087,
+    type: 3}
+  m_PrefabInstance: {fileID: 1808618262}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b324aa1936d0024a9d57d1a85b1e4f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1812372713
 GameObject:
   m_ObjectHideFlags: 0
@@ -4194,7 +4218,7 @@ MonoBehaviour:
   m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 1920, y: 600}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
@@ -4744,6 +4768,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: af8811ea47a8497468aba21acad1c087, type: 3}
+--- !u!114 &2069400955 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6728865694360127314, guid: af8811ea47a8497468aba21acad1c087,
+    type: 3}
+  m_PrefabInstance: {fileID: 2069400954}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b324aa1936d0024a9d57d1a85b1e4f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2080142770
 GameObject:
   m_ObjectHideFlags: 0

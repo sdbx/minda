@@ -1,3 +1,5 @@
+using System;
+
 namespace Utils
 {
     public static class StringUtils
@@ -8,6 +10,10 @@ namespace Utils
             foreach (char c in str)
                 if (c == particularChar) count++;
             return count;
+        }
+        public static string ByteArrayToHexString(byte[] ba)
+        {
+            return BitConverter.ToString(ba).Replace("-", "");
         }
     }
 }

@@ -59,8 +59,6 @@ namespace Network
 
         }
 
-        
-
         //login
         private void CheckLoginasdf(LoginResult loginResult, int? err)
         {
