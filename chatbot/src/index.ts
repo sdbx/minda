@@ -1,6 +1,7 @@
+import { registerFont } from "canvas"
 import fs from "fs-extra"
-import * as Minda from "minda-ts"
 import { MindaClient, MindaCredit, MSGrid } from "minda-ts"
+import * as Minda from "minda-ts"
 import { EventDispatcher, SimpleEventDispatcher } from "strongly-typed-events"
 import { Column, Entity } from "typeorm"
 import { renderBoard } from "./chatbot/boardrender"
@@ -34,6 +35,7 @@ async function run3() {
 }
 run3()
 // run2()
+// console.log(debugPath)
 
 class AuthMinda {
     public onReady = new SimpleEventDispatcher<string>()
