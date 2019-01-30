@@ -11,6 +11,8 @@ namespace UI
         public static MessageBox instance;
 
         [SerializeField]
+        private WindowToggler windowToggler;
+        [SerializeField]
         private Text messageText;
         [SerializeField]
         private Button button1;
@@ -20,8 +22,6 @@ namespace UI
         private Text button1Text;
         [SerializeField]
         private Text button2Text;
-        [SerializeField]
-        private float duration;
 
         private Action<bool> callback;
         private CanvasGroup canvasGroup;
@@ -51,7 +51,7 @@ namespace UI
             {
                 return;
             }
-            Active();
+            windowToggler.Activate();
             messageText.text = message;
             button1.gameObject.SetActive(false);
             button2Text.text = buttonText;
@@ -64,7 +64,7 @@ namespace UI
             {
                 return;
             }
-            Active();
+            windowToggler.Activate();
             messageText.text = message;
             button1.gameObject.SetActive(true);
             button1Text.text = agree;
@@ -77,7 +77,8 @@ namespace UI
             if (callback == null)
                 return;
             callback(true);
-            UnActive();
+            messageText.text="";
+            windowToggler.UnActivate();
             callback = null;
         }
 
@@ -95,23 +96,8 @@ namespace UI
             {
                 callback(false);
             }
-            UnActive();
+            windowToggler.Activate();
             callback = null;
         }
-
-        private void Active()
-        {
-            gameObject.SetActive(true);
-            DOTween.To(() => canvasGroup.alpha, x => canvasGroup.alpha = x, 1, duration);
-        }
-
-        private void UnActive()
-        {
-            messageText.text="";
-            DOTween.To(() => canvasGroup.alpha, x => canvasGroup.alpha = x, 0, duration).OnComplete(()=>{gameObject.SetActive(false);});
-        }
-
-
-
     }
 }

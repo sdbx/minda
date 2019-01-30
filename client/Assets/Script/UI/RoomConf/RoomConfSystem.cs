@@ -20,13 +20,43 @@ namespace UI
         [SerializeField]
         private StartBtn startBtn;
 
+        [SerializeField]
+        private IntUpDown defeatLostMarble;
+        [SerializeField]
+        private IntUpDown turnTimeout;
+        [SerializeField]
+        private IntUpDown gameTimeout;
+
+        
         private void Awake()
         {
             GameServer.instance.UserEnteredEvent += UserEnter;
             GameServer.instance.UserLeftEvent += UserLeft;
             GameServer.instance.ConfedEvent += ConfedCallBack;
+
+            defeatLostMarble.ValueChanged += DefeatLostMarbleValueChanged;
+            turnTimeout.ValueChanged += TurnTimeoutValueChanged;
+            gameTimeout.ValueChanged += GameTimeoutValueChanged;
         }
         
+        private void DefeatLostMarbleValueChanged(int value)
+        {
+            GameServer.instance.connectedRoom.conf.game_rule.defeat_lost_stones = value;
+            GameServer.instance.UpdateConf();
+        }
+        private void TurnTimeoutValueChanged(int value)
+        {
+            GameServer.instance.connectedRoom.conf.game_rule.turn_timeout = value;
+            GameServer.instance.UpdateConf();
+        }
+        private void GameTimeoutValueChanged(int value)
+        {
+            Debug.Log(value*60);
+            turnTimeout.ChangeMax(value*60);
+            GameServer.instance.connectedRoom.conf.game_rule.game_timeout = value*60;
+            GameServer.instance.UpdateConf();
+        }
+
         private void Start()
         {
             UpdateAllConf();
@@ -111,10 +141,14 @@ namespace UI
 
         private void UpdateAllConf()
         {
-            if (GameServer.instance.connectedRoom != null) 
+            var room = GameServer.instance.connectedRoom;
+            if (room != null) 
             {
-                SetPlayerInfo(GameServer.instance.connectedRoom.conf);
-                userList.Load(GameServer.instance.connectedRoom.Users.ToArray());
+                SetPlayerInfo(room.conf);
+                userList.Load(room.Users.ToArray());
+                //맵에서의 흰돌과 흑돌 각각 갯수 중 작은 값
+                var max = Mathf.Min(StringUtils.ParticularCharCount(room.conf.map, '1'), StringUtils.ParticularCharCount(room.conf.map, '2'));
+                defeatLostMarble.ChangeMax(max);
             }
         }
 

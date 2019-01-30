@@ -6,9 +6,12 @@ using Network;
 using Newtonsoft.Json;
 using Models;
 using Scene;
+using UI;
 
 public class RoomCreateWindow : MonoBehaviour
 {
+    [SerializeField]
+    private WindowToggler windowToggler;
     [SerializeField]
     private InputField nameText;
     [SerializeField]
@@ -24,11 +27,6 @@ public class RoomCreateWindow : MonoBehaviour
         CreateBtn.onClick.AddListener(Create);
     }
 
-    public void Active()
-    {
-        gameObject.SetActive(true);
-    }
-
     public void Create()
     {
         var me = LobbyServer.instance.loginUser;
@@ -36,7 +34,7 @@ public class RoomCreateWindow : MonoBehaviour
         {
             nameText.text = $"{me.username}'s room";
         }
-        LobbyServer.instance.Post<JoinRoomResult>("/rooms/", ToJson(), (JoinRoomResult result, string err) =>
+        LobbyServer.instance.Post<JoinRoomResult>("/rooms/", ToJson(), (JoinRoomResult result, int? err) =>
         {
            if (err != null)
            {
@@ -54,8 +52,6 @@ public class RoomCreateWindow : MonoBehaviour
         Conf conf = new Conf{
             name = nameText.text,
             king = -1,
-            black = -1,
-            white = -1,
             open = true,
         };
 
@@ -65,6 +61,6 @@ public class RoomCreateWindow : MonoBehaviour
     public void Cancel()
     {
         nameText.text = "";
-        gameObject.SetActive(false);
+        windowToggler.UnActivate();
     }
 }

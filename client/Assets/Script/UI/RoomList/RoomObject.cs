@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using Models;
+using Network;
 
 namespace UI
 {
@@ -35,7 +36,10 @@ namespace UI
 
         private void onClick()
         {
-            roomListManger.EnterRoom(room);
+            LobbyServer.instance.EnterRoom(room.id,(bool success)=>
+            {
+                
+            });
         }
     }
 

@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
 using System.Text;
+using UI.Toast;
 
 namespace Network
 {
@@ -16,7 +17,7 @@ namespace Network
             this.Addr = Addr;
         }
 
-        public IEnumerator Post<T>(string endPoint, string data, string token, Action<T, string> callBack)
+        public IEnumerator Post<T>(string endPoint, string data, string token, Action<T, int?> callBack)
         {
             if (data == "")
                 data = "{}";
@@ -36,7 +37,7 @@ namespace Network
             }
         }
 
-        public IEnumerator Put<T>(string endPoint, string data, string token, Action<T, string> callBack)
+        public IEnumerator Put<T>(string endPoint, string data, string token, Action<T, int?> callBack)
         {
             byte[] body;
             if (data == "")
@@ -58,12 +59,12 @@ namespace Network
 
                 yield return www.SendWebRequest();
 
-                RequestCallBack(www.downloadHandler.text, callBack, www.error);
+                RequestCallBack(www.downloadHandler.text, callBack ,www.error);
                 Debug.Log(www.downloadHandler.text);
             }
         }
 
-        public IEnumerator Get<T>(string endPoint, string token, Action<T, string> callBack)
+        public IEnumerator Get<T>(string endPoint, string token, Action<T, int?> callBack)
         {
 
             using (UnityWebRequest www = UnityWebRequest.Get(Addr + endPoint))
@@ -80,9 +81,23 @@ namespace Network
             }
         }
 
-        private void RequestCallBack<T>(string data, Action<T, string> callBack, string err)
+        private void RequestCallBack<T>(string data, Action<T, int?> callBack, string err)
         {
-            callBack(JsonConvert.DeserializeObject<T>(data), err);
+           
+            if (err != null)
+            {
+                var errorCode = err.Split(' ')[1];
+                
+                if(int.TryParse(errorCode,out int parsedCode))
+                {
+                    
+                    callBack(default(T), parsedCode);
+                    return;
+                }
+                callBack(default(T), 500);
+                return;
+            }
+            callBack(JsonConvert.DeserializeObject<T>(data),null);
         }
     }
 }
