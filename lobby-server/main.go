@@ -8,6 +8,7 @@ import (
 	"lobby/servs/oauthserv"
 	"lobby/servs/picserv"
 	"lobby/servs/redisserv"
+	"lobby/servs/steamserv"
 	"lobby/servs/taskserv"
 	"math/rand"
 	"time"
@@ -18,7 +19,7 @@ import (
 func main() {
 	rand.Seed(time.Now().Unix())
 	d := dim.New()
-	d.Provide(authserv.Provide, redisserv.Provide, discserv.Provide, taskserv.Provide, oauthserv.Provide, dbserv.Provide, picserv.Provide)
+	d.Provide(authserv.Provide, redisserv.Provide, discserv.Provide, taskserv.Provide, oauthserv.Provide, dbserv.Provide, picserv.Provide, steamserv.Provide)
 	d.Init("")
 	d.Register(routes.Register)
 	d.Start(":8080")

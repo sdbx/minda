@@ -160,28 +160,17 @@ func (a *OAuthServ) CompleteAuth(c echo.Context, provider string) error {
 		return err
 	}
 
-	var first bool
-	user, err := a.Auth.GetUserByOAuth(provider, guser.UserID)
-	if err == authserv.ErrNotFound {
-		user, err = a.Auth.CreateUserByOAuth(provider, guser)
-		first = true
-		if err != nil {
-			return err
-		}
-	} else if err != nil{
-		return err
-	}
-
-	tok := a.Auth.CreateToken(user.ID)
-	err = a.setRequest(reqid, models.AuthRequest{
-		Token: &tok,
-		First: first,
-	})
+	req, err := a.Auth.AuthorizeByOAuth(provider, guser)
 	if err != nil {
 		return err
 	}
 
-	return c.JSON(200, user)
+	err = a.setRequest(reqid, req)
+	if err != nil {
+		return err
+	}
+
+	return c.NoContent(200)
 }
 
 func (a *OAuthServ) BeginAuth(c echo.Context, provider string, reqid string) error {
