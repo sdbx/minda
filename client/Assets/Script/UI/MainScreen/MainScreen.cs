@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Network;
 using UnityEngine;
 
 public class MainScreen : MonoBehaviour
@@ -26,19 +27,22 @@ public class MainScreen : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0)) Clicked = true;
-        if (Clicked)
+        if (LobbyServer.instance.loginState == LobbyServer.LoginState.Logout)
         {
-            title.localPosition = Vector3.SmoothDamp(title.localPosition, destination, ref buttonVelocity, smoothTime);
-            if (time > 0)
+            if (Input.GetMouseButtonDown(0)) Clicked = true;
+            if (Clicked)
             {
-                time -= Time.deltaTime;
-            }
-            if (time <=0)
-            {
-                time = 0;
-                clickToLogin.gameObject.SetActive(false);
-                socialLoginBtns.gameObject.SetActive(true);
+                title.localPosition = Vector3.SmoothDamp(title.localPosition, destination, ref buttonVelocity, smoothTime);
+                if (time > 0)
+                {
+                    time -= Time.deltaTime;
+                }
+                if (time <=0)
+                {
+                    time = 0;
+                    clickToLogin.gameObject.SetActive(false);
+                    socialLoginBtns.gameObject.SetActive(true);
+                }
             }
         }
     }

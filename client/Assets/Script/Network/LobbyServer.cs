@@ -1,6 +1,8 @@
+using Steamworks;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 using System.Net;
 using System.Net.Sockets;
 using Game;
@@ -29,11 +31,11 @@ namespace Network
 
         public string token;
         public LoginState loginState { private set; get; } = LoginState.Logout;
-        private Action loginCallback;
         private string loginReqid;
         [SerializeField]
         private float loginCheckInterval = 3;
 
+        private int steamRetries;
         public User loginUser = null;
 
 
@@ -54,39 +56,63 @@ namespace Network
             requestor = new LobbyServerRequestor(address);
         }
 
+        void Start()
+        {
+            if (SteamManager.isSteamVersion)
+            {
+                steamRetries = 10;
+                TrySteamLogin();
+            }
+        }
+
+        private void TrySteamLogin()
+        {
+            loginState = LoginState.GetReqid;
+            var (ticket, handle) = SteamManager.instance.GetAuthTicket();
+            Get("/auth/steam/?ticket="+ticket, (LoginResult loginResult, int? err) => 
+            {
+                SteamUser.CancelAuthTicket(handle);
+                if (err != null)
+                {
+                    loginState = LoginState.Logout;
+                    steamRetries --;
+                    if (steamRetries > 0)
+                    {
+                        TrySteamLogin();
+                    }
+                    Debug.Log($"로그인 실패 {err}");
+                    return;
+                }
+                HandleLoginResult(loginResult);
+            });
+        }
+
         private void Update()
         {
 
         }
 
         //login
-        private void CheckLoginasdf(LoginResult loginResult, int? err)
+        private void HandleLoginResult(LoginResult loginResult)
         {
-            if (err != null)
-            {
-                Debug.Log($"로그인 실패 {err}");
-                return;
-            }
             this.token = loginResult.token;
-            loginCallback();
-            loginCallback = null;
+            SceneManager.LoadSceneAsync("Menu", LoadSceneMode.Single);
             loginState = LoginState.Login;
             RefreshLoginUser((User user) =>
             {
                 ToastManager.instance.Add($"Hello, {user.username}", "Success");
             });
             Debug.Log("로그인 성공");
-
         }
 
-        public void login(string service, Action callback)
+        public void Login(string service)
         {
             loginState = LoginState.SendReq;
-            loginCallback = callback;
             Post("/auth/reqs/", "", (Reqid reqid, int? err) =>
             {
                 if (err != null)
                 {
+                    loginState = LoginState.Logout;
                     Debug.Log(err);
                     return;
                 }
@@ -116,20 +142,11 @@ namespace Network
                     ToastManager.instance.Add("Login Failed", "Error");
                     return;
                 }
-
-                //로그인 성공
-                this.token = loginResult.token;
-                loginCallback();
-                loginCallback = null;
-                loginState = LoginState.Login;
-                RefreshLoginUser((User user) =>
-                {
-                    ToastManager.instance.Add($"Hello, {user.username}", "Success");
-                });
+                HandleLoginResult(loginResult);
             });
         }
 
-        public void logout()
+        public void Logout()
         {
             token = "";
             loginState = LoginState.Logout;

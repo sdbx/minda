@@ -7,7 +7,7 @@ using System.Collections;
 using Steamworks;
 using Utils;
 using System;
-
+using System.Collections.Generic;
 
 class SteamManager : MonoBehaviour {
     #if !DISABLESTEAMWORKS
@@ -16,6 +16,7 @@ class SteamManager : MonoBehaviour {
     #if DISABLESTEAMWORKS
     public static bool isSteamVersion = false;
     #endif
+    public uint steamId;
     public static SteamManager instance;
     private bool initialized = false;
 
@@ -37,7 +38,7 @@ class SteamManager : MonoBehaviour {
         {
             try
             {
-                if (SteamAPI.RestartAppIfNecessary((AppId_t)1025230))
+                if (SteamAPI.RestartAppIfNecessary((AppId_t)steamId))
                 {
                     Application.Quit();
                     return;
@@ -62,18 +63,27 @@ class SteamManager : MonoBehaviour {
         SteamAPI.RunCallbacks();
     }
 
-    public string GetAuthTicket()
+    public (string, HAuthTicket) GetAuthTicket()
     {
         if (!initialized)
         {
-            return "";
+            return ("", default(HAuthTicket));
         }
 
         var authTicketBuffer = new byte[1024];
         uint authTicketSize;
-        SteamUser.GetAuthSessionTicket(authTicketBuffer, 1024, out authTicketSize);
+        var hticket = SteamUser.GetAuthSessionTicket(authTicketBuffer, 1024, out authTicketSize);
         var authTicket = new byte[authTicketSize];
         Array.Copy(authTicketBuffer, authTicket, authTicketSize);
-        return StringUtils.ByteArrayToHexString(authTicket);
+        return (StringUtils.ByteArrayToHexString(authTicket), hticket);
+    }
+
+    private void OnDestroy()
+    {
+        if (!initialized)
+        {
+            return;
+        }
+        SteamAPI.Shutdown();
     }
 }
