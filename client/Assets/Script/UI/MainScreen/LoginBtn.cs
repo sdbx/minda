@@ -62,11 +62,7 @@ namespace UI
 
         public void TryLogin()
         {
-            LobbyServer.instance.login(serviceName, () =>
-            {
-                SceneManager.LoadSceneAsync("Menu", LoadSceneMode.Single);
-                Debug.Log("로그인 완료");
-            });
+            LobbyServer.instance.Login(serviceName);
         }
     }
 

@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"lobby/servs/authserv"
 	"lobby/servs/oauthserv"
 
 	"github.com/labstack/echo"
@@ -9,6 +10,7 @@ import (
 
 type auth struct {
 	OAuth *oauthserv.OAuthServ `dim:"on"`
+	Auth  *authserv.AuthServ   `dim:"on"`
 }
 
 func (a *auth) Register(d *dim.Group) {
@@ -17,6 +19,7 @@ func (a *auth) Register(d *dim.Group) {
 	d.GET("/o/", a.listOauth)
 	d.GET("/o/:provider/:reqid/", a.oauth)
 	d.GET("/o/callback/:provider/", a.oauthCallback)
+	d.GET("/steam/", a.getSteam)
 }
 
 func (a *auth) listOauth(c echo.Context) error {
@@ -49,4 +52,17 @@ func (a *auth) oauth(c echo.Context) error {
 
 func (a *auth) oauthCallback(c echo.Context) error {
 	return a.OAuth.CompleteAuth(c, c.Param("provider"))
+}
+
+func (a *auth) getSteam(c echo.Context) error {
+	ticket := c.QueryParam("ticket")
+	if ticket == "" {
+		return echo.NewHTTPError(400, "Empty ticket")
+	}
+
+	req, err := a.Auth.AuthorizeBySteam(ticket)
+	if err != nil {
+		return err
+	}
+	return c.JSON(200, req)
 }

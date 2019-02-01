@@ -112,6 +112,49 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &20831474
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 20831476}
+  - component: {fileID: 20831475}
+  m_Layer: 0
+  m_Name: SteamManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &20831475
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 20831474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6bc9e35ca3501b43a801c63d843dbed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &20831476
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 20831474}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 9
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &100806903
 GameObject:
   m_ObjectHideFlags: 0
@@ -539,7 +582,7 @@ MonoBehaviour:
       draggable: 1
       expandable: 1
       multipleSelection: 1
-      isExpanded: 1
+      isExpanded: 0
       label:
         m_Text: Keys
         m_Image: {fileID: 0}
@@ -554,7 +597,7 @@ MonoBehaviour:
       elementNameOverride: 
       elementIcon: {fileID: 0}
     reqReferences: {fileID: 0}
-    isExpanded: 1
+    isExpanded: 0
     _keyValues:
     - Info
     - Warning
@@ -582,6 +625,7 @@ MonoBehaviour:
   animationDuration: 0.5
   lifeTime: 2
   elementSpace: 15
+  limit: 3
 --- !u!1 &263386344
 GameObject:
   m_ObjectHideFlags: 0
@@ -869,6 +913,144 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &617172917
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 617172919}
+  - component: {fileID: 617172918}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &617172918
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 617172917}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1c0662f7bb58e7439856b9fa8414d6c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  applicationID: 540303533811957760
+  steamID: 
+  targetPipe: -1
+  logLevel: 1
+  registerUriScheme: 0
+  active: 1
+  _currentUser:
+    _username: Clyde
+    _discriminator: 1
+    _snowflake: 0
+    _avatarHash: 
+    _avatar: {fileID: 0}
+    _cacheSize: 128
+    _cacheFormat: 0
+    _cdnEndpoint: cdn.discordapp.com
+    e_foldout: 1
+  _currentSubscription: 0
+  _currentPresence:
+    details: Playing a game
+    state: In Game
+    startTime:
+      timestamp: 0
+    endTime:
+      timestamp: 0
+    smallAsset:
+      image: 
+      tooltip: 
+      snowflake: 0
+    largeAsset:
+      image: base
+      tooltip: 
+      snowflake: 0
+    party:
+      identifer: 
+      size: 0
+      maxSize: 0
+    secrets:
+      joinSecret: 
+      spectateSecret: 
+  events:
+    OnReady:
+      m_PersistentCalls:
+        m_Calls: []
+      m_TypeName: DiscordRPC.Unity.DiscordEvents+ReadyMessageEvent, Assembly-CSharp,
+        Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    OnClose:
+      m_PersistentCalls:
+        m_Calls: []
+      m_TypeName: DiscordRPC.Unity.DiscordEvents+CloseMessageEvent, Assembly-CSharp,
+        Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    OnError:
+      m_PersistentCalls:
+        m_Calls: []
+      m_TypeName: DiscordRPC.Unity.DiscordEvents+ErrorMessageEvent, Assembly-CSharp,
+        Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    OnPresenceUpdate:
+      m_PersistentCalls:
+        m_Calls: []
+      m_TypeName: DiscordRPC.Unity.DiscordEvents+PresenceMessageEvent, Assembly-CSharp,
+        Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    OnSubscribe:
+      m_PersistentCalls:
+        m_Calls: []
+      m_TypeName: DiscordRPC.Unity.DiscordEvents+SubscribeMessageEvent, Assembly-CSharp,
+        Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    OnUnsubscribe:
+      m_PersistentCalls:
+        m_Calls: []
+      m_TypeName: DiscordRPC.Unity.DiscordEvents+UnsubscribeMessageEvent, Assembly-CSharp,
+        Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    OnJoin:
+      m_PersistentCalls:
+        m_Calls: []
+      m_TypeName: DiscordRPC.Unity.DiscordEvents+JoinMessageEvent, Assembly-CSharp,
+        Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    OnSpectate:
+      m_PersistentCalls:
+        m_Calls: []
+      m_TypeName: DiscordRPC.Unity.DiscordEvents+SpectateMessageEvent, Assembly-CSharp,
+        Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    OnJoinRequest:
+      m_PersistentCalls:
+        m_Calls: []
+      m_TypeName: DiscordRPC.Unity.DiscordEvents+JoinRequestMessageEvent, Assembly-CSharp,
+        Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    OnConnectionEstablished:
+      m_PersistentCalls:
+        m_Calls: []
+      m_TypeName: DiscordRPC.Unity.DiscordEvents+ConnectionEstablishedMessageEvent,
+        Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    OnConnectionFailed:
+      m_PersistentCalls:
+        m_Calls: []
+      m_TypeName: DiscordRPC.Unity.DiscordEvents+ConnectionFailedMessageEvent, Assembly-CSharp,
+        Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+--- !u!4 &617172919
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 617172917}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.3740132, y: -0.5895786, z: 0.11440121}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &980202843
 GameObject:
@@ -1488,6 +1670,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1731770018}
   - component: {fileID: 1731770019}
+  - component: {fileID: 1731770020}
   m_Layer: 0
   m_Name: MessageBox
   m_TagString: Untagged
@@ -1531,12 +1714,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a67146030dc2f04086ac917f78d6625, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  windowToggler: {fileID: 1731770020}
   messageText: {fileID: 1919155237}
   button1: {fileID: 1608730227}
   button2: {fileID: 102231299}
   button1Text: {fileID: 1776556886}
   button2Text: {fileID: 1319095193}
+--- !u!114 &1731770020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1731770017}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25cf9303f5aec3448b9beff8b0f690ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
   duration: 0.25
+  ActiveFirst: 0
 --- !u!1 &1776556884
 GameObject:
   m_ObjectHideFlags: 0

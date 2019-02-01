@@ -1,6 +1,7 @@
 package oauthserv
 
 import (
+	"github.com/markbates/goth/providers/steam"
 	"encoding/json"
 	"github.com/garyburd/redigo/redis"
 	"fmt"
@@ -25,6 +26,7 @@ var (
 )
 
 const (
+	sessionName = "_minda_reqid"
 	redisAuthRequestTmpl = "auth_request_%s"
 	authRequestTimeout = 180
 )
@@ -40,6 +42,7 @@ type OAuthServConf struct {
 	Naver       *oauthProvier `yaml:"naver"`
 	Discord     *oauthProvier `yaml:"discord"`
 	Google      *oauthProvier `yaml:"google"`
+	Steam *oauthProvier `yaml:"steam"`
 }
 
 type OAuthServ struct {
@@ -58,6 +61,9 @@ func Provide(conf OAuthServConf) *OAuthServ {
 	}
 	if conf.Google != nil {
 		providers = append(providers, google.New(conf.Google.Key, conf.Google.Secret, conf.CallbackURL+"/google/"))
+	}
+	if conf.Steam != nil {
+		providers = append(providers, steam.New(conf.Steam.Key, conf.CallbackURL+"/steam/"))
 	}
 	goth.UseProviders(providers...)
 	return &OAuthServ{
@@ -129,8 +135,17 @@ func (a *OAuthServ) CompleteAuth(c echo.Context, provider string) error {
 	r := c.Request()
 	q := r.URL.Query()
 	q.Set("provider", provider)
-    r.URL.RawQuery = q.Encode()
-	reqid := q.Get("state")
+	r.URL.RawQuery = q.Encode()
+
+	sess, err := gothic.Store.Get(r, sessionName)
+	if err != nil {
+		return err
+	}
+	reqid2 := sess.Values["reqid"]
+	if reqid2 == nil {
+		return echo.NewHTTPError(http.StatusBadRequest)
+	}
+	reqid := reqid2.(string)
 
 	exists, err := a.existsRequest(reqid)
 	if err != nil {
@@ -145,28 +160,17 @@ func (a *OAuthServ) CompleteAuth(c echo.Context, provider string) error {
 		return err
 	}
 
-	var first bool
-	user, err := a.Auth.GetUserByOAuth(provider, guser.UserID)
-	if err == authserv.ErrNotFound {
-		user, err = a.Auth.CreateUserByOAuth(provider, guser)
-		first = true
-		if err != nil {
-			return err
-		}
-	} else if err != nil{
-		return err
-	}
-
-	tok := a.Auth.CreateToken(user.ID)
-	err = a.setRequest(reqid, models.AuthRequest{
-		Token: &tok,
-		First: first,
-	})
+	req, err := a.Auth.AuthorizeByOAuth(provider, guser)
 	if err != nil {
 		return err
 	}
 
-	return c.JSON(200, user)
+	err = a.setRequest(reqid, req)
+	if err != nil {
+		return err
+	}
+
+	return c.NoContent(200)
 }
 
 func (a *OAuthServ) BeginAuth(c echo.Context, provider string, reqid string) error {
@@ -183,6 +187,9 @@ func (a *OAuthServ) BeginAuth(c echo.Context, provider string, reqid string) err
 	q.Set("provider", provider)
 	q.Set("state", reqid)
 	r.URL.RawQuery = q.Encode()
+	sess, _ := gothic.Store.New(r, sessionName)
+	sess.Values["reqid"] = reqid
+	sess.Save(r, c.Response().Writer)
 
 	u, err := gothic.GetAuthURL(c.Response().Writer, r)
 	if err != nil {

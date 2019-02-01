@@ -1,8 +1,12 @@
-import { createCanvas, Image, loadImage } from "canvas"
+import { createCanvas, Image, loadImage, registerFont } from "canvas"
 import emojiUnicode from "emoji-unicode"
 import fs from "fs-extra"
 import sizeOf from "image-size"
+<<<<<<< HEAD
 import { MSGrid, StoneType } from "minda-ts"
+=======
+import { MSGrid, MSUser, StoneType } from "minda-ts"
+>>>>>>> 5266d47db47c99f4d5cd0fd64c2491ee1015895e
 import fetch from "node-fetch"
 import sharp from "sharp"
 import { debugPath } from "../snow/config/snowconfig"
@@ -13,7 +17,81 @@ export async function renderBoard(board:MSGrid,
     blackImage:string = "",
     whiteImage:string = "",
     noStoneImage:string = "") {
+<<<<<<< HEAD
 
+=======
+    // load font
+    const ttf = `${debugPath}/NanumSquareRoundR.ttf`
+    registerFont(ttf, { family: "NanumSquareRound" })
+    // define size
+    const hexagonSize = 1500
+    const frameWidth = Math.floor(hexagonSize * 1.2211)
+    const circleFR = Math.floor(frameWidth * 1.1)
+    const canvas = createCanvas(
+        circleFR,
+        circleFR, "PDF")
+    // load frame
+    const frameBuffer = await fs.readFile(`${debugPath}/board.png`)
+    const frameSizeI = sizeOf(frameBuffer)
+    const scaledFrameH = Math.floor(frameSizeI.height / frameSizeI.width * frameWidth)
+    const frame = await sharp(frameBuffer)
+        .resize(frameWidth, scaledFrameH, { fit: "inside" })
+        .toBuffer().then(loadImage)
+    const ctx:CanvasRenderingContext2D = canvas.getContext("2d")
+    // draw circle
+    ctx.beginPath()
+    const r = circleFR / 2
+    ctx.arc(r, r, r, 0, 2 * Math.PI, false)
+    ctx.fillStyle = "#f9edca"
+    ctx.fill()
+    // draw frame
+    ctx.drawImage(frame, (circleFR - frameWidth) / 2, (circleFR - scaledFrameH) / 2)
+    await drawHexagon(ctx, [Math.floor(circleFR / 2), Math.floor(circleFR / 2)], hexagonSize, "#ffefbc", {
+        board,
+        blackImage,
+        whiteImage,
+        noStoneImage,
+    })
+    const infoSize = Math.floor(hexagonSize / 8)
+    await drawPicture(ctx, {
+        at: [(circleFR - infoSize * 3) / 2, 0],
+        size: infoSize,
+        backColor: "#222222",
+        textColor: "#eeeeee"
+    }, frameBuffer, "Black")
+    await drawPicture(ctx, {
+        at: [(circleFR - infoSize * 3) / 2, circleFR - infoSize],
+        size: infoSize,
+        backColor: "#eeeeee",
+        textColor: "#222222"
+    }, frameBuffer, "White")
+    const buffer:Buffer = canvas.toBuffer()
+    return buffer
+}
+/**
+ * Draw hexagon
+ * @param ctx Context
+ * @param centerPoint Center point of hexagon 
+ * @param hexaLength Hexagon's longest width
+ * @param bgColor Background color
+ * @param params Original parameters
+ */
+async function drawHexagon(ctx:CanvasRenderingContext2D,
+    centerPoint:[number, number],
+    hexaLength:number,
+    bgColor:string,
+    params:{
+        board:MSGrid,
+        blackImage:string,
+        whiteImage:string,
+        noStoneImage:string,
+    }
+    ) {
+    // 0. config (0 < x <= 1/2)
+    const elSize = 2 / 5
+    const {board, blackImage, whiteImage, noStoneImage} = params
+    /* first: parse color */
+>>>>>>> 5266d47db47c99f4d5cd0fd64c2491ee1015895e
     const parseColor = (str:string, fault:string) => {
         if (str.startsWith("#") && /^#[0-9A-Fa-f]{6}$/ig.test(str)) {
             return str.toUpperCase()
@@ -24,17 +102,36 @@ export async function renderBoard(board:MSGrid,
     const colors = {
         black: parseColor(blackImage, "#eeeeee"),
         white: parseColor(whiteImage, "#111111"),
+<<<<<<< HEAD
         default: parseColor(noStoneImage, "#f7deb4"),
+=======
+        default: parseColor(noStoneImage, "#ddd3b3"),
     }
-    const elSize = 1 / 3
-    // the width of hexagon (l)
-    const hexaLength = 1200
+    /* and draw background */
+    if (bgColor != null) {
+        ctx.fillStyle = bgColor
+        ctx.beginPath()
+        const [cx, cy] = centerPoint
+        ctx.moveTo(Math.floor(cx - hexaLength / 2), cy)
+        ctx.lineTo(Math.floor(cx - hexaLength / 4), Math.floor(cy - Math.sqrt(3) * hexaLength / 4))
+        ctx.lineTo(Math.floor(cx + hexaLength / 4), Math.floor(cy - Math.sqrt(3) * hexaLength / 4))
+        ctx.lineTo(Math.floor(cx + hexaLength / 2), cy)
+        ctx.lineTo(Math.floor(cx + hexaLength / 4), Math.floor(cy + Math.sqrt(3) * hexaLength / 4))
+        ctx.lineTo(Math.floor(cx - hexaLength / 4), Math.floor(cy + Math.sqrt(3) * hexaLength / 4))
+        ctx.lineTo(Math.floor(cx - hexaLength / 2), cy)
+        ctx.closePath()
+        ctx.fill()
+>>>>>>> 5266d47db47c99f4d5cd0fd64c2491ee1015895e
+    }
+    /* second: define constans */
+    hexaLength = Math.floor(hexaLength * board.sqaureSize / (board.sqaureSize + Math.sqrt(2) - 1))
     // 1 * l / (2n)
     const oneX = hexaLength / (2 * board.sqaureSize)
     // 3^(1/2)l / (2n)
     const oneY = Math.sqrt(3) * hexaLength / (2 * board.sqaureSize)
     // stone/image width (not radios but width)
     const elementWidth = 2 * hexaLength * elSize / board.sqaureSize
+<<<<<<< HEAD
     // hexagon width
     // const hexaWidth = Math.ceil(hexaLength + elementWidth)
     // hexagon height
@@ -73,6 +170,10 @@ export async function renderBoard(board:MSGrid,
     /**
      * Load image
      */
+=======
+    /* third: draw */
+    // load image
+>>>>>>> 5266d47db47c99f4d5cd0fd64c2491ee1015895e
     const getImage = async (url:string) => {
         if (!url.startsWith("http")) {
             return null
@@ -80,12 +181,12 @@ export async function renderBoard(board:MSGrid,
         let binary = await fetch(url).then((v) => v.buffer())
         const roundedCorners = Buffer.from(
             `<svg><rect x="0" y="0" width="${elementWidth}" height="${elementWidth
-                }" rx="${elementWidth}" ry="${elementWidth}"/></svg>`
+            }" rx="${elementWidth}" ry="${elementWidth}"/></svg>`
             // `<svg><circle cx="${elementWidth / 2} cy="${elementWidth / 2}" r="${elementWidth / 2}"/></svg>`
         )
         binary = await sharp(binary)
             .resize(Math.ceil(elementWidth))
-            .overlayWith(roundedCorners, {cutout: true})
+            .overlayWith(roundedCorners, { cutout: true })
             .toBuffer()
         return new Promise<Image>((res, rej) => {
             const img = new Image()
@@ -146,6 +247,7 @@ export async function renderBoard(board:MSGrid,
             }
         }
     }
+<<<<<<< HEAD
     const buffer:Buffer = canvas.toBuffer()
     /**
      * Background circle
@@ -168,6 +270,55 @@ export async function renderBoard(board:MSGrid,
     outerCtx.drawImage(frameImg, (padSize - frameSize.width) / 2, (padSize - frameSize.height) / 2)
     const out = outerCanvas.toBuffer()
     return out
+=======
+}
+async function drawPicture(ctx:CanvasRenderingContext2D, params:{
+    at:[number, number],
+    size:number,
+    backColor:string,
+    textColor:string,
+}, image:Buffer, username:string) {
+    const {at, size, backColor, textColor} = params
+    let [x,y] = at
+    x = Math.floor(x)
+    y = Math.floor(y)
+    const tagWidth = Math.floor(size * 3)
+    const tagHeight = Math.floor(size)
+    const padPicture = Math.floor(size * 0.1)
+    // background
+    ctx.fillStyle = backColor
+    ctx.fillRect(x, y, tagWidth, tagHeight)
+    // image
+    const padPicSize = tagHeight - 2 * padPicture
+    const picture = await sharp(image)
+        .resize(padPicSize, padPicSize, { fit: "contain", position:"center", background: {r:0, g:0, b:0, alpha:0} })
+        .toBuffer().then(loadImage)
+    ctx.drawImage(picture, x + padPicture, y + padPicture)
+    // image stroke
+    ctx.strokeStyle = textColor
+    ctx.lineWidth = 3
+    ctx.fillStyle = "#111111"
+    ctx.strokeRect(x + padPicture, y + padPicture, padPicSize, padPicSize)
+    // ctx.fillRect(x + padPicture, y + padPicture, padPicSize, padPicSize)
+    // nickname
+    ctx.fillStyle = textColor
+    const fontSize = Math.floor(tagHeight / 2 - 2 * padPicture)
+    ctx.font = `${fontSize}px NanumSquareRound`
+    ctx.fillText(username, x + padPicSize + padPicture * 3, Math.floor(y + padPicture * 2 + fontSize / 2),
+        Math.floor(tagWidth - (padPicSize + padPicture * 3)))
+    return [tagWidth, tagHeight]
+}
+function loadImage(url:string | Buffer) {
+    return new Promise<Image>((res, rej) => {
+        const img = new Image()
+        img.onload = () => res(img)
+        img.onerror = (err:any) => {
+            console.log(err)
+            res(null)
+        }
+        img.src = url
+    })
+>>>>>>> 5266d47db47c99f4d5cd0fd64c2491ee1015895e
 }
 export function emojiAsSVG(emoji:string) {
     return `https://cdnjs.cloudflare.com/ajax/libs/twemoji/11.2.0/2/svg/${

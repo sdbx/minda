@@ -5,6 +5,7 @@ import (
 	"lobby/models"
 	"lobby/servs/dbserv"
 	"lobby/servs/picserv"
+	"lobby/servs/steamserv"
 	"lobby/utils"
 	"strconv"
 
@@ -18,8 +19,9 @@ var (
 )
 
 type AuthServ struct {
-	DB     *dbserv.DBServ   `dim:"on"`
-	Pic    *picserv.PicServ `dim:"on"`
+	Steam  *steamserv.SteamServ `dim:"on"`
+	DB     *dbserv.DBServ       `dim:"on"`
+	Pic    *picserv.PicServ     `dim:"on"`
 	secret []byte
 }
 
@@ -102,6 +104,46 @@ func (a *AuthServ) CreateUserByOAuth(provider string, guser goth.User) (models.U
 	}
 	err = a.DB.Create(&ouser)
 	return user, err
+}
+
+func (a *AuthServ) AuthorizeByOAuth(provider string, guser goth.User) (models.AuthRequest, error) {
+	var first bool
+
+	user, err := a.GetUserByOAuth(provider, guser.UserID)
+	if err == ErrNotFound {
+		user, err = a.CreateUserByOAuth(provider, guser)
+		first = true
+		if err != nil {
+			return models.AuthRequest{}, err
+		}
+	} else if err != nil {
+		return models.AuthRequest{}, err
+	}
+
+	tok := a.CreateToken(user.ID)
+	return models.AuthRequest{
+		Token: &tok,
+		First: first,
+	}, nil
+}
+
+func (a *AuthServ) AuthorizeBySteam(ticket string) (models.AuthRequest, error) {
+	id, err := a.Steam.AuthenticateUserTicket(ticket)
+	if err != nil {
+		return models.AuthRequest{}, err
+	}
+
+	user, err := a.Steam.GetPlayerSummary(id)
+	if err != nil {
+		return models.AuthRequest{}, err
+	}
+
+	guser := goth.User{
+		UserID:    user.ID,
+		Name:      user.Name,
+		AvatarURL: user.AvatarMedium,
+	}
+	return a.AuthorizeByOAuth("steam", guser)
 }
 
 func (a *AuthServ) GetUserByOAuth(provider string, id string) (models.User, error) {

@@ -11,7 +11,7 @@ namespace Network
     {
         public static void GetUserInformation(int id, Action<User> callback)
         {
-            LobbyServer.instance.Get<User>("/users/" + id + "/", (User user, string err) =>
+            LobbyServer.instance.Get<User>("/users/" + id + "/", (User user, int? err) =>
             {
                 if (err != null)
                 {
@@ -44,7 +44,7 @@ namespace Network
             }
         }
 
-        public static void GetMyMaps(Action<Map[], string> callback)
+        public static void GetMyMaps(Action<Map[], int?> callback)
         {
             LobbyServer.instance.Get<Map[]>("/maps/",callback);
         }

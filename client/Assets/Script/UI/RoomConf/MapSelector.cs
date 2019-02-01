@@ -39,7 +39,7 @@ namespace UI
 
         private void Init()
         {
-            LobbyServerAPI.GetMyMaps((Map[] maps, string err)=>
+            LobbyServerAPI.GetMyMaps((Map[] maps, int? err)=>
             {
                 if(err!=null)
                 {

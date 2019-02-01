@@ -35,6 +35,8 @@ namespace UI.Toast
         private float lifeTime;
         [SerializeField]
         private float elementSpace;
+        [SerializeField]
+        private int limit;
 
         private Vector2 prefabSize;
 
@@ -59,7 +61,7 @@ namespace UI.Toast
 
         private void Update()
         {
-            if (toastQueues.Count != 0 && !isMoving)
+            if (toastQueues.Count != 0 && !isMoving && toastMessages.Count < limit)
             {
                 Create(toastQueues.Dequeue());
             }

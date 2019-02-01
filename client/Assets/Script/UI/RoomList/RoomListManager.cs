@@ -40,7 +40,7 @@ namespace UI
             roomObject.Refresh();
         }
 
-        private void CreateRoomList(Room[] rooms, string err)
+        private void CreateRoomList(Room[] rooms, int? err)
         {
             if(err!=null)
             {
@@ -66,21 +66,5 @@ namespace UI
             _roomList.Clear();
             LobbyServer.instance.Get<Room[]>("/rooms/", CreateRoomList);
         }
-
-        public void EnterRoom(Room room)
-        {
-            LobbyServer.instance.Put("/rooms/" + room.id + "/", "", (JoinRoomResult joinRoomResult, string err) =>
-            {
-                if (err != null)
-                {
-                    Debug.LogError(err);
-                    return;
-                }
-                var Addr = joinRoomResult.addr.Split(':');
-                SceneChanger.instance.ChangeTo("RoomConfigure");
-                GameServer.instance.EnterRoom(Addr[0], int.Parse(Addr[1]), joinRoomResult.invite);
-            });
-        }
-
     }
 }

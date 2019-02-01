@@ -51,7 +51,6 @@ namespace UI
             if(id == -1)
             {
                 usernameText.text = "Waiting..";
-                imformationText.text = "gorani 8253";
                 SetColor(ballType);
                 kingIcon.SetActive(false);
                 inGameUser = null;
@@ -62,7 +61,6 @@ namespace UI
             {
                 this.inGameUser = inGameUser;
                 usernameText.text = inGameUser.user.username;
-                imformationText.text = "gorani";
                 SetColor(inGameUser.ballType);
                 kingIcon.SetActive(inGameUser.isKing);
                 if(inGameUser.user.picture != null)

@@ -53,7 +53,7 @@
     "hash.js": "^1.1.7",
     "image-size": "^0.7.1",
     "json5": "^2.1.0",
-    "minda-ts": "file:../tslib",
+    "minda-ts": "file:tslib",
     "msgpack5": "^4.2.1",
     "node-fetch": "^2.3.0",
     "sha.js": "^2.4.11",
