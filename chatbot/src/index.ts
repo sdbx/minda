@@ -35,10 +35,7 @@ async function run3() {
 }
 run3()
 // run2()
-<<<<<<< HEAD
-=======
 // console.log(debugPath)
->>>>>>> 5266d47db47c99f4d5cd0fd64c2491ee1015895e
 
 class AuthMinda {
     public onReady = new SimpleEventDispatcher<string>()
