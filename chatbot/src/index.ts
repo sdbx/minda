@@ -28,9 +28,14 @@ async function run2() {
 async function run3() {
     // tslint:disable-next-line
     const map = "0@0@0@0@0@0@0@2@2#0@0@0@0@0@0@0@2@2#0@0@0@0@0@0@2@2@2#0@1@0@0@0@0@2@2@2#1@1@1@0@0@0@2@2@2#1@1@1@0@0@0@0@2@0#1@1@1@0@0@0@0@0@0#1@1@0@0@0@0@0@0@0#1@1@0@0@0@0@0@0@0"
-    const board = await renderBoard(new MSGrid(map),
-    "https://cdn.discordapp.com/emojis/471277517823803412.png?v=1",
-    "https://cdn.discordapp.com/emojis/506470672873160734.png?v=1")
+    const board = await renderBoard(new MSGrid(map),{
+        black: "https://cdn.discordapp.com/emojis/471277517823803412.png?v=1",
+        white: "https://cdn.discordapp.com/emojis/506470672873160734.png?v=1",
+    }, {
+        black: {username:"Black", stone: 2},
+        white: {username:"White", stone: 8},
+        maxstone: 9,
+    })
     await fs.writeFile(`${debugPath}/config/test.png`, board)
 }
 run3()

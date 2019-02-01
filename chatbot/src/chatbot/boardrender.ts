@@ -9,12 +9,17 @@ import { debugPath } from "../snow/config/snowconfig"
 import awaitEvent from "../timeout"
 import { blank1_1, blank1_2, blank1_3, blank1_4, blank1_6, blankChar, blankChar2 } from "./cbconst"
 
-export async function renderBoard(board:MSGrid,
-    blackImage:string = "",
-    whiteImage:string = "",
-    noStoneImage:string = "") {
+export async function renderBoard(board:MSGrid, pallate:Partial<{
+    black:string,
+    white:string,
+    default:string,
+}> = {}, sideinfo:Partial<{
+    black:{username:string, stone?:number, image?:Buffer},
+    white:{username:string, stone?:number, image?:Buffer},
+    maxstone:number,
+}> = {}) {
     // load font
-    const ttf = `${debugPath}/NanumSquareRoundR.ttf`
+    const ttf = `${debugPath}/res/NanumSquareRoundR.ttf`
     registerFont(ttf, { family: "NanumSquareRound" })
     // define size
     const hexagonSize = 1500
@@ -24,7 +29,7 @@ export async function renderBoard(board:MSGrid,
         circleFR,
         circleFR, "PDF")
     // load frame
-    const frameBuffer = await fs.readFile(`${debugPath}/board.png`)
+    const frameBuffer = await fs.readFile(`${debugPath}/res/board.png`)
     const frameSizeI = sizeOf(frameBuffer)
     const scaledFrameH = Math.floor(frameSizeI.height / frameSizeI.width * frameWidth)
     const frame = await sharp(frameBuffer)
@@ -41,23 +46,41 @@ export async function renderBoard(board:MSGrid,
     ctx.drawImage(frame, (circleFR - frameWidth) / 2, (circleFR - scaledFrameH) / 2)
     await drawHexagon(ctx, [Math.floor(circleFR / 2), Math.floor(circleFR / 2)], hexagonSize, "#ffefbc", {
         board,
-        blackImage,
-        whiteImage,
-        noStoneImage,
+        blackImage: pallate.black,
+        whiteImage: pallate.white,
+        noStoneImage: pallate.default,
     })
+    // draw userinfo
     const infoSize = Math.floor(hexagonSize / 8)
-    await drawPicture(ctx, {
-        at: [(circleFR - infoSize * 3) / 2, 0],
-        size: infoSize,
-        backColor: "#222222",
-        textColor: "#eeeeee"
-    }, frameBuffer, "Black")
-    await drawPicture(ctx, {
-        at: [(circleFR - infoSize * 3) / 2, circleFR - infoSize],
-        size: infoSize,
-        backColor: "#eeeeee",
-        textColor: "#222222"
-    }, frameBuffer, "White")
+    const defaultPic = await fs.readFile(`${debugPath}/res/placeHolderProfileImage.png`)
+    // copy
+    if (sideinfo.black != null) {
+        if (sideinfo.black.image == null) {
+            sideinfo.black.image = defaultPic
+        }
+        await drawPicture(ctx, "left", {
+            at: [(circleFR - infoSize * 3) / 2, 0],
+            size: infoSize,
+            backColor: "#222222",
+            textColor: "#eeeeee",
+            stone: sideinfo.black.stone,
+            maxStone: sideinfo.maxstone,
+        }, sideinfo.black.image, sideinfo.black.username)   
+    }
+    // paste
+    if (sideinfo.white != null) {
+        if (sideinfo.white.image == null) {
+            sideinfo.white.image = defaultPic
+        }
+        await drawPicture(ctx, "right", {
+            at: [(circleFR - infoSize * 3) / 2, circleFR - infoSize],
+            size: infoSize,
+            backColor: "#eeeeee",
+            textColor: "#222222",
+            stone: sideinfo.white.stone,
+            maxStone: sideinfo.maxstone,
+        }, sideinfo.white.image, sideinfo.white.username)
+    }
     const buffer:Buffer = canvas.toBuffer()
     return buffer
 }
@@ -85,7 +108,7 @@ async function drawHexagon(ctx:CanvasRenderingContext2D,
     const {board, blackImage, whiteImage, noStoneImage} = params
     /* first: parse color */
     const parseColor = (str:string, fault:string) => {
-        if (str.startsWith("#") && /^#[0-9A-Fa-f]{6}$/ig.test(str)) {
+        if (str != null && str.startsWith("#") && /^#[0-9A-Fa-f]{6}$/ig.test(str)) {
             return str.toUpperCase()
         } else {
             return fault.toUpperCase()
@@ -122,7 +145,7 @@ async function drawHexagon(ctx:CanvasRenderingContext2D,
     /* third: draw */
     // load image
     const getImage = async (url:string) => {
-        if (!url.startsWith("http")) {
+        if (url == null || !url.startsWith("http")) {
             return null
         }
         let binary = await fetch(url).then((v) => v.buffer())
@@ -195,40 +218,74 @@ async function drawHexagon(ctx:CanvasRenderingContext2D,
         }
     }
 }
-async function drawPicture(ctx:CanvasRenderingContext2D, params:{
+async function drawPicture(ctx:CanvasRenderingContext2D, align:"left" | "right", params:{
     at:[number, number],
     size:number,
     backColor:string,
     textColor:string,
+    stone:number,
+    maxStone:number,
 }, image:Buffer, username:string) {
+    const alignLeft = align === "left"
     const {at, size, backColor, textColor} = params
     let [x,y] = at
     x = Math.floor(x)
     y = Math.floor(y)
     const tagWidth = Math.floor(size * 3)
     const tagHeight = Math.floor(size)
-    const padPicture = Math.floor(size * 0.1)
+    const padding = Math.floor(size * 0.1)
+    const pos = [x,y]
     // background
     ctx.fillStyle = backColor
     ctx.fillRect(x, y, tagWidth, tagHeight)
+    const padPicSize = tagHeight - 2 * padding
+    // move poistion
+    if (alignLeft) {
+        pos[0] += padding
+        pos[1] += padding
+    } else {
+        pos[0] += tagWidth - padding - padPicSize
+        pos[1] += padding
+    }
     // image
-    const padPicSize = tagHeight - 2 * padPicture
     const picture = await sharp(image)
         .resize(padPicSize, padPicSize, { fit: "contain", position:"center", background: {r:0, g:0, b:0, alpha:0} })
         .toBuffer().then(loadImage)
-    ctx.drawImage(picture, x + padPicture, y + padPicture)
+    ctx.drawImage(picture,pos[0], pos[1])
     // image stroke
     ctx.strokeStyle = textColor
     ctx.lineWidth = 3
     ctx.fillStyle = "#111111"
-    ctx.strokeRect(x + padPicture, y + padPicture, padPicSize, padPicSize)
+    ctx.strokeRect(pos[0], pos[1], padPicSize, padPicSize)
     // ctx.fillRect(x + padPicture, y + padPicture, padPicSize, padPicSize)
+    // move position
+    const textWidth = Math.floor(tagWidth - (padPicSize + padding * 3))
+    const fontSize = Math.floor((tagHeight - 3 * padding) / 2)
+    if (alignLeft) {
+        pos[0] += padding + padPicSize
+    } else {
+        pos[0] -= padding
+    }
+    pos[1] += fontSize
+    if (!alignLeft) {
+        ctx.textAlign = "right"
+    }
     // nickname
     ctx.fillStyle = textColor
-    const fontSize = Math.floor(tagHeight / 2 - 2 * padPicture)
     ctx.font = `${fontSize}px NanumSquareRound`
-    ctx.fillText(username, x + padPicSize + padPicture * 3, Math.floor(y + padPicture * 2 + fontSize / 2),
-        Math.floor(tagWidth - (padPicSize + padPicture * 3)))
+    ctx.fillText(username, pos[0], pos[1],
+        Math.floor(tagWidth - (padPicSize + padding * 3)))
+    // thinking
+    pos[1] = y + tagHeight - 2 * padding
+    const getNum = (num:number) => {
+        if (num == null || num < 0) {
+            return "?"
+        } else {
+            return num.toString()
+        }
+    }
+    ctx.fillText(`\u{25EF} ${getNum(params.stone)}/${params.maxStone}`, pos[0], pos[1],
+        Math.floor(tagWidth - (padPicSize + padding * 3)))
     return [tagWidth, tagHeight]
 }
 function loadImage(url:string | Buffer) {
