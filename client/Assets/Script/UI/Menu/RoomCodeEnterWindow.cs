@@ -9,7 +9,7 @@ using UnityEngine.UI;
 public class RoomCodeEnterWindow : MonoBehaviour 
 {
     [SerializeField]
-    private WindowToggler windowToggler;
+    private ObjectToggler windowToggler;
     [SerializeField]
     private InputField codeInput;
     [SerializeField]

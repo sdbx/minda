@@ -34,7 +34,6 @@ public class SizeMatcher : MonoBehaviour
         var targetSize = target.rect.size;
         targetSize = new Vector2(targetSize.x + horizontal, targetSize.y + vertical);
 
-        Debug.Log(targetSize != rectTransform.rect.size);
         if(targetSize != rectTransform.rect.size)
         {
             rectTransform.sizeDelta = targetSize;

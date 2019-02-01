@@ -29,9 +29,9 @@ namespace UI
 
         private CanvasGroup canvasGroup;
 
-        void Start()
+        public void Awake()
         {
-            canvasGroup = mapSelector.AddComponent<CanvasGroup>();
+            canvasGroup = mapSelector.GetComponent<CanvasGroup>();
         }
 
         public void ToggleActivation()

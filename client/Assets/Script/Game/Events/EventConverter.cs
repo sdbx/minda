@@ -38,7 +38,6 @@ namespace Game.Events
                 case "left":
                     item = new LeftEvent();
                     break;
-
                 case "confed":
                     item = new ConfedEvent();
                     break;
@@ -50,6 +49,9 @@ namespace Game.Events
                     break;
                 case "ended":
                     item = new EndedEvent();
+                    break;
+                case "chated":
+                    item = new ChattedEvent();
                     break;
                 default:
                     throw new NotImplementedException();

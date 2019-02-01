@@ -57,7 +57,6 @@ namespace Game.Balls
 
                 CubeCoord holeCubeCoord = hole.GetCubeCoord();
                 GameObject BallPrefab = (hole.GetHoleState() == HoleState.Black ? blackBallPrefab : whiteBallPrefab);
-                Debug.Log(hole.GetCubeCoord());
                 Vector2 holePosition = hole.GetPixelPoint(holeDistance);
 
                 GameObject ballObject = UnityEngine.Object.Instantiate(BallPrefab, Vector3.zero, Quaternion.Euler(0, 0, 0), parentTransform);

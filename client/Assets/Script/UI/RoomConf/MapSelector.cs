@@ -28,17 +28,15 @@ namespace UI
 
         private MapObject selectedMap;
         private MapObject LoadBtn;
-        
-        void Start()
+
+        private void Start()
         {
             Init();
-            var basic = AddMapElement("Basic", Board.GetMapFromString(
-                "0@0@0@0@0@0@0@1@1#0@0@0@0@0@0@0@1@1#0@0@0@0@0@0@1@1@1#0@2@0@0@0@0@1@1@1#2@2@2@0@0@0@1@1@1#2@2@2@0@0@0@0@1@0#2@2@2@0@0@0@0@0@0#2@2@0@0@0@0@0@0@0#2@2@0@0@0@0@0@0@0"));
-            basic.Select();
         }
 
         private void Init()
         {
+            gameObject.SetActive(false);
             LobbyServerAPI.GetMyMaps((Map[] maps, int? err)=>
             {
                 if(err!=null)
@@ -50,6 +48,11 @@ namespace UI
             
             LoadBtn = AddMapElement("Load..", null);
             LoadBtn.isDirectorySelectBtn = true;
+
+            var basic = AddMapElement("Basic", Board.GetMapFromString(
+                "0@0@0@0@0@0@0@1@1#0@0@0@0@0@0@0@1@1#0@0@0@0@0@0@1@1@1#0@2@0@0@0@0@1@1@1#2@2@2@0@0@0@1@1@1#2@2@2@0@0@0@0@1@0#2@2@2@0@0@0@0@0@0#2@2@0@0@0@0@0@0@0#2@2@0@0@0@0@0@0@0"));
+            basic.Select();
+            SetSelectedMap();
         }
 
         public void SelectMapInList(MapObject mapObject)
@@ -66,25 +69,27 @@ namespace UI
 
         public MapObject AddMapElement(string name, int[,] map)
         {
-            var mapObject = Instantiate(mapObjectPrefab, Vector3.zero, Quaternion.Euler(0, 0, 0), content);
+            var mapObject = Instantiate(mapObjectPrefab, content.position, Quaternion.Euler(0, 0, 0), content);
             mapObject.mapName = name;
             mapObject.map = map;
             mapObject.mapSelector = this;
             maps.Add(mapObject);
             if(LoadBtn!=null)
                 LoadBtn.transform.SetAsLastSibling();
+            mapObject.transform.localPosition = Vector3.zero;
             return mapObject;
         }
 
         public MapObject AddMapElement(Map map)
         {
-            var mapObject = Instantiate(mapObjectPrefab, Vector3.zero, Quaternion.Euler(0, 0, 0), content);
+            var mapObject = Instantiate(mapObjectPrefab, content.position , Quaternion.Euler(0, 0, 0), content);
             mapObject.mapName = map.name;
             mapObject.map = Board.GetMapFromString(map.payload);
             mapObject.mapSelector = this;
             maps.Add(mapObject);
             if(LoadBtn!=null)
                 LoadBtn.transform.SetAsLastSibling();
+            mapObject.transform.localPosition = Vector3.zero;
             return mapObject;
         }
 

@@ -19,6 +19,8 @@ namespace UI
         private PlayerInfoDisplay player2InfoDisplay;
         [SerializeField]
         private StartBtn startBtn;
+        [SerializeField]
+        private MapBtn mapBtn;
 
         [SerializeField]
         private IntUpDown defeatLostMarble;
@@ -27,7 +29,8 @@ namespace UI
         [SerializeField]
         private IntUpDown gameTimeout;
 
-        
+        private User me = LobbyServer.instance.loginUser;
+
         private void Awake()
         {
             GameServer.instance.UserEnteredEvent += UserEnter;
@@ -40,18 +43,23 @@ namespace UI
         }
         
         private void DefeatLostMarbleValueChanged(int value)
-        {
+        {                
+            if(!RoomUtils.CheckIsKing(me.id))
+                return;
             GameServer.instance.connectedRoom.conf.game_rule.defeat_lost_stones = value;
             GameServer.instance.UpdateConf();
         }
         private void TurnTimeoutValueChanged(int value)
         {
+            if (!RoomUtils.CheckIsKing(me.id))
+                return;
             GameServer.instance.connectedRoom.conf.game_rule.turn_timeout = value;
             GameServer.instance.UpdateConf();
         }
         private void GameTimeoutValueChanged(int value)
         {
-            Debug.Log(value*60);
+            if (!RoomUtils.CheckIsKing(me.id))
+                return;
             turnTimeout.ChangeMax(value*60);
             GameServer.instance.connectedRoom.conf.game_rule.game_timeout = value*60;
             GameServer.instance.UpdateConf();
@@ -72,6 +80,13 @@ namespace UI
         private void UserEnter(int id, BallType ballType)
         {
             UpdateAllConf();
+            if (!RoomUtils.CheckIsKing(me.id))
+                return;
+            var conf = GameServer.instance.connectedRoom.conf;
+            conf.game_rule.game_timeout = gameTimeout.value*60;
+            conf.game_rule.turn_timeout = turnTimeout.value;
+            conf.game_rule.defeat_lost_stones = defeatLostMarble.value;
+            GameServer.instance.UpdateConf();
         }
 
         
@@ -88,7 +103,6 @@ namespace UI
         private void SetPlayerInfo(Conf conf)
         {
             var isSpectator = GameServer.instance.isSpectator;
-            var me = LobbyServer.instance.loginUser;
 
             int player2Id;
             int player1Id;
@@ -149,6 +163,26 @@ namespace UI
                 //맵에서의 흰돌과 흑돌 각각 갯수 중 작은 값
                 var max = Mathf.Min(StringUtils.ParticularCharCount(room.conf.map, '1'), StringUtils.ParticularCharCount(room.conf.map, '2'));
                 defeatLostMarble.ChangeMax(max);
+                
+                if(RoomUtils.CheckIsKing(me.id))
+                {
+                    defeatLostMarble.isButtonLocked = false;
+                    turnTimeout.isButtonLocked = false;
+                    gameTimeout.isButtonLocked = false;
+                    mapBtn.isLocked = false;
+                }
+                else
+                {
+                    defeatLostMarble.isButtonLocked = true;
+                    turnTimeout.isButtonLocked = true;
+                    gameTimeout.isButtonLocked = true;
+                    mapBtn.isLocked = true;
+
+                    var gameRule = room.conf.game_rule;
+                    defeatLostMarble.ChangeValue(gameRule.defeat_lost_stones);
+                    turnTimeout.ChangeValue(gameRule.turn_timeout);
+                    gameTimeout.ChangeValue(gameRule.game_timeout);
+                }
             }
         }
 

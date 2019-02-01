@@ -32,6 +32,7 @@ namespace Network
         public event Action<int> UserLeftEvent;
         public event Action<Room> RoomConnectedEvent;
         public event Action<Conf> ConfedEvent;
+        public event Action<InGameUser, string> ChattedEvent;
         
         public bool isSpectator = false;
         public Room connectedRoom;
@@ -166,6 +167,7 @@ namespace Network
             AddHandler<ConfedEvent>(OnConfed);
             AddHandler<ErrorEvent>(OnError);
             AddHandler<GameStartedEvent>(OnGameStarted);
+            AddHandler<ChattedEvent>(OnChatted);
         }
 
         private void OnConnected(Game.Events.Event e)
@@ -261,6 +263,14 @@ namespace Network
             ToastManager.instance.Add(error.message,"Error");
         }
 
+        public void OnChatted(Game.Events.Event e)
+        {
+            var chatted = (ChattedEvent)e;
+            GetInGameUser(chatted.user,(InGameUser inGameUser)=>{
+                ChattedEvent?.Invoke(inGameUser,chatted.content);
+            });
+        }
+
         public void EnterRoom(string ip, int port, string invite)
         {
             Connect(ip, port, ()=> 
@@ -333,6 +343,13 @@ namespace Network
         {
             connectedRoom.conf.map = map;
             UpdateConf();
+        }
+
+        public void SendChat(string message)
+        {
+            ChatCommand command = new ChatCommand();
+            command.content = message;
+            SendCommand(command);
         }
     }
 }

@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 2e4ce350826a26642a3e7cd208c8b960
+guid: 89d717d4827bc424aa19527082d770b7
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -8,9 +8,9 @@ TrueTypeFontImporter:
   characterSpacing: 0
   characterPadding: 1
   includeFontData: 1
-  fontName: godoMaum
+  fontName: Noto Sans KR Regular plus Confo
   fontNames:
-  - godoMaum
+  - Noto Sans KR Regular plus Confo
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0
