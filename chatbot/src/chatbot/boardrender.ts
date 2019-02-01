@@ -44,7 +44,7 @@ export async function renderBoard(board:MSGrid, pallate:Partial<{
     ctx.fill()
     // draw frame
     ctx.drawImage(frame, (circleFR - frameWidth) / 2, (circleFR - scaledFrameH) / 2)
-    await drawHexagon(ctx, [Math.floor(circleFR / 2), Math.floor(circleFR / 2)], hexagonSize, "#ffefbc", {
+    await drawHexagon(ctx, [Math.floor(circleFR / 2), Math.floor(circleFR / 2)], hexagonSize, "#2c2c2a", {
         board,
         blackImage: pallate.black,
         whiteImage: pallate.white,
@@ -117,7 +117,7 @@ async function drawHexagon(ctx:CanvasRenderingContext2D,
     const colors = {
         black: parseColor(blackImage, "#eeeeee"),
         white: parseColor(whiteImage, "#111111"),
-        default: parseColor(noStoneImage, "#ddd3b3"),
+        default: parseColor(noStoneImage, "#ffefbc"), 
     }
     /* and draw background */
     if (bgColor != null) {
@@ -180,39 +180,44 @@ async function drawHexagon(ctx:CanvasRenderingContext2D,
             const x = Math.floor(centerPoint[0] +
                 (Math.abs(board.centerPosition - row) + 2 * (column - board.centerPosition)) * oneX)
             const y = Math.floor(centerPoint[1] + (row - board.centerPosition) * oneY)
-            const drawCircle = (fillColor:string) => {
+            const drawCircle = (fillColor:string, r:number) => {
                 ctx.beginPath()
-                ctx.arc(x, y, elementWidth / 2, 0, 2 * Math.PI, false)
+                ctx.arc(x, y, r, 0, 2 * Math.PI, false)
                 ctx.fillStyle = fillColor
                 ctx.fill()
             }
-            const drawImage = (fillImage:Image, cornerColor:string) => {
+            const drawImage = (fillImage:Image, cornerColor:string, r:number) => {
                 ctx.drawImage(fillImage,
-                    Math.floor(x - elementWidth / 2),
-                    Math.floor(y - elementWidth / 2),
-                    Math.round(elementWidth), Math.round(elementWidth))
+                    Math.floor(x - r),
+                    Math.floor(y - r),
+                    Math.round(r * 2), Math.round(r * 2))
                 ctx.beginPath()
-                ctx.arc(x, y, elementWidth / 2, 0, 2 * Math.PI, false)
+                ctx.arc(x, y, r, 0, 2 * Math.PI, false)
                 ctx.strokeStyle = cornerColor
-                ctx.lineWidth = 3
+                ctx.lineWidth = Math.min(3, Math.floor(r / 20))
                 ctx.stroke()
             }
-            const draw = (fillImage:Image, fillColor:string) => {
+            const draw = (fillImage:Image, fillColor:string, smallsize:boolean) => {
+                let r = elementWidth / 2
+                if (smallsize) {
+                    r *= 0.7
+                    r = Math.round(r)
+                }
                 if (fillImage != null) {
-                    drawImage(fillImage, "#333333")
+                    drawImage(fillImage, "#333333", r)
                 } else {
-                    drawCircle(fillColor)
+                    drawCircle(fillColor, r)
                 }
             }
             switch (stone) {
                 case StoneType.black: {
-                    draw(images.black, colors.black)
+                    draw(images.black, colors.black, false)
                 } break
                 case StoneType.white: {
-                    draw(images.white, colors.white)
+                    draw(images.white, colors.white, false)
                 } break
                 case StoneType.void: {
-                    draw(images.default, colors.default)
+                    draw(images.default, colors.default, true)
                 } break
             }
         }
