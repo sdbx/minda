@@ -11,7 +11,7 @@ namespace UI
         public static MessageBox instance;
 
         [SerializeField]
-        private WindowToggler windowToggler;
+        private ObjectToggler windowToggler;
         [SerializeField]
         private Text messageText;
         [SerializeField]

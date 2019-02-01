@@ -365,6 +365,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3249534baba944d42aa60dc39e9e8f6c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  UserId: 0
   profileImage: {fileID: 2910904634308038470}
   usernameText: {fileID: 2784678802491454808}
   imformationText: {fileID: 4850796862666347886}
@@ -412,6 +413,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c7b42beb955e4543b8f2a62b0cedd57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  duration: 0.25
   settings:
   - element: {fileID: 7216269892280209081}
     type: 1

@@ -45,4 +45,10 @@ namespace Game
     {
         public string type = "start";
     }
+
+    public class ChatCommand : Command
+    {
+        public string type = "chat";
+        public string content;
+    }
 }

@@ -48,7 +48,7 @@ namespace UI
                 Select();
             }
         }
-
+        
         public void Select()
         {
             mapSelector.SelectMapInList(this);

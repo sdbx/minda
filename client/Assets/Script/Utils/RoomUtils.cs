@@ -38,5 +38,9 @@ namespace Utils
                 return BallType.None;
             }
         }
+        public static bool CheckIsKing(int id)
+        {
+            return GameServer.instance.connectedRoom.conf.king == id;
+        }
     }
 }

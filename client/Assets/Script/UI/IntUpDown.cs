@@ -19,10 +19,13 @@ public class IntUpDown : MonoBehaviour
     public int min{get{return min_;}}
     public int max{get{return max_;}}
     
+    [SerializeField]
     private int value_;
     public int value{get{return value_;}}
 
     public event Action<int> ValueChanged;
+    
+    public bool isButtonLocked = false;
 
     private void Awake() 
     {
@@ -34,14 +37,16 @@ public class IntUpDown : MonoBehaviour
 
     public void Up()
     {
+        if(isButtonLocked)
+            return;
         ChangeValue(value+1);
-        UpdateInputField();
     }
 
     public void Down()
     {
+        if(isButtonLocked)
+            return;
         ChangeValue(value-1);
-        UpdateInputField();
     }
 
     private void UpdateInputField()
@@ -57,6 +62,7 @@ public class IntUpDown : MonoBehaviour
         {
            value_ = min_;
            ValueChanged?.Invoke(min_);
+           UpdateInputField();
         } 
     }
 
@@ -68,6 +74,7 @@ public class IntUpDown : MonoBehaviour
         {
             value_ = max_;
             ValueChanged?.Invoke(max_);
+            UpdateInputField();
         }
     }
 
@@ -85,7 +92,8 @@ public class IntUpDown : MonoBehaviour
         {
             value_ = num;
         }
-        ValueChanged?.Invoke(num);
+        ValueChanged?.Invoke(value_);
+        UpdateInputField();
     }
 
     private void OnEndEdit(string str)

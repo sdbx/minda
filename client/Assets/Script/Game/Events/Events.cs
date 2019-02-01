@@ -60,4 +60,10 @@ namespace Game.Events
         public BallType player;
         public string cause;
     }
+
+    public class ChattedEvent : Event
+    {
+        public int user;
+        public string content;
+    }
 }

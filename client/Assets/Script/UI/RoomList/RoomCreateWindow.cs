@@ -11,7 +11,7 @@ using UI;
 public class RoomCreateWindow : MonoBehaviour
 {
     [SerializeField]
-    private WindowToggler windowToggler;
+    private ObjectToggler windowToggler;
     [SerializeField]
     private InputField nameText;
     [SerializeField]

@@ -3,13 +3,15 @@ using UnityEngine;
 
 namespace UI
 {
-    public class WindowToggler : MonoBehaviour
+    public class ObjectToggler : MonoBehaviour
     {
         [SerializeField]
         private float duration;
         private CanvasGroup canvasGroup;
         [SerializeField]
         private bool ActiveFirst;
+
+        public bool isActivated{get;private set;}
 
         private void Awake()
         {
@@ -32,13 +34,14 @@ namespace UI
 
         public void Activate()
         {
+            isActivated = true;
             gameObject.SetActive(true);
             DOTween.To(() => canvasGroup.alpha, x => canvasGroup.alpha = x, 1, duration);
         }
 
         public void UnActivate()
         {
-            DOTween.To(() => canvasGroup.alpha, x => canvasGroup.alpha = x, 0, duration).OnComplete(()=>{gameObject.SetActive(false);});
+            DOTween.To(() => canvasGroup.alpha, x => canvasGroup.alpha = x, 0, duration).OnComplete(()=>{gameObject.SetActive(false);isActivated = false;});
         }
     }
 }

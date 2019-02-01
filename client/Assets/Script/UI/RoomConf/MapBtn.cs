@@ -16,11 +16,13 @@ namespace UI
         private float speed = 0.01f;
         private bool isMouseEnter;
         [SerializeField]
-        private MapSelectorToggler mapListToggler;
+        private MapSelectorToggler mapSelectorToggler;
+
+        public bool isLocked = true;
 
         void Update()
         {
-            if (isMouseEnter && mapListToggler.isUnActivated && gameObject.transform.localScale.x < maxScale)
+            if (isMouseEnter && mapSelectorToggler.isUnActivated && gameObject.transform.localScale.x < maxScale)
             {
                 var transform = gameObject.transform;
                 float value = transform.localScale.x + speed;
@@ -36,17 +38,23 @@ namespace UI
 
         public void OnPointerEnter(PointerEventData eventData)
         {
+            if(isLocked)
+                return;
             isMouseEnter = true;
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
+            if (isLocked)
+                return;
             isMouseEnter = false;
         }
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            mapListToggler.ToggleActivation();
+            if (isLocked)
+                return;
+            mapSelectorToggler.ToggleActivation();
         }
     }
 

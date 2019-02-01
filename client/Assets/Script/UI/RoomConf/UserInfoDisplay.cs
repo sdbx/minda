@@ -82,7 +82,7 @@ namespace UI
             var gameServer = GameServer.instance;
             var myId = LobbyServer.instance.loginUser.id;
             //king menu
-            if(gameServer.connectedRoom.conf.king == myId)
+            if(RoomUtils.CheckIsKing(myId))
             {
                 if(inGameUser.ballType != BallType.White)
                 {

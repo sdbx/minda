@@ -22,8 +22,8 @@ namespace UI
         private RawImage backGround;
         [SerializeField]
         private Text usernameText;
-        [SerializeField]
-        private Text imformationText;
+        //[SerializeField]
+        //private Text imformationText;
         [SerializeField]
         private Texture backgroundBlack;
         [SerializeField]
@@ -81,14 +81,12 @@ namespace UI
             if(ballType == BallType.Black)
             {
                 backGround.texture = backgroundBlack;
-                usernameText.color = Color.white;
-                imformationText.color = Color.white;
+                displayChanger.SetMode("Black");
             }
             else if(ballType == BallType.White)
             {
                 backGround.texture = backgroundWhite;
-                usernameText.color = Color.black;
-                imformationText.color = Color.black;
+                displayChanger.SetMode("White");
             }
         }
 
