@@ -31,6 +31,8 @@ namespace UI
 
         private User me = LobbyServer.instance.loginUser;
 
+        private bool hasRecievedFirstConf = false;
+
         private void Awake()
         {
             GameServer.instance.UserEnteredEvent += UserEnter;
@@ -82,11 +84,6 @@ namespace UI
             UpdateAllConf();
             if (!RoomUtils.CheckIsKing(me.id))
                 return;
-            var conf = GameServer.instance.connectedRoom.conf;
-            conf.game_rule.game_timeout = gameTimeout.value*60;
-            conf.game_rule.turn_timeout = turnTimeout.value;
-            conf.game_rule.defeat_lost_stones = defeatLostMarble.value;
-            GameServer.instance.UpdateConf();
         }
 
         
@@ -97,6 +94,11 @@ namespace UI
 
         private void ConfedCallBack(Conf conf)
         {
+            if(!hasRecievedFirstConf)
+            {
+                hasRecievedFirstConf = true;
+                UpdateGameruleIntUpDowns();
+            }
             UpdateAllConf();
         }
 
@@ -178,12 +180,17 @@ namespace UI
                     gameTimeout.isButtonLocked = true;
                     mapBtn.isLocked = true;
 
-                    var gameRule = room.conf.game_rule;
-                    defeatLostMarble.ChangeValue(gameRule.defeat_lost_stones);
-                    turnTimeout.ChangeValue(gameRule.turn_timeout);
-                    gameTimeout.ChangeValue(gameRule.game_timeout);
+                    UpdateGameruleIntUpDowns();
                 }
             }
+        }
+
+        private void UpdateGameruleIntUpDowns()
+        {
+            var gameRule = GameServer.instance.connectedRoom.conf.game_rule;
+            defeatLostMarble.ChangeValue(gameRule.defeat_lost_stones);
+            turnTimeout.ChangeValue(gameRule.turn_timeout);
+            gameTimeout.ChangeValue(gameRule.game_timeout/60);
         }
 
         private int GetOpponentId(int myId)

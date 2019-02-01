@@ -58,11 +58,11 @@ namespace Network
 
         void Start()
         {
-            if (SteamManager.isSteamVersion)
+            /*if (SteamManager.isSteamVersion)
             {
                 steamRetries = 10;
                 TrySteamLogin();
-            }
+            }*/
         }
 
         private void TrySteamLogin()

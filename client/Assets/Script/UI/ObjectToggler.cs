@@ -7,41 +7,88 @@ namespace UI
     {
         [SerializeField]
         private float duration;
+        [SerializeField]
         private CanvasGroup canvasGroup;
         [SerializeField]
         private bool ActiveFirst;
+        [SerializeField]
+        private bool onlyToggleAlpha;
 
         public bool isActivated{get;private set;}
 
+        private bool isInitalized;
+
         private void Awake()
         {
-            canvasGroup = gameObject.GetComponent<CanvasGroup>();
-            if (canvasGroup == null)
+            Init();
+        }
+
+        private void Init()
+        {
+            if(isInitalized)
+                return;
+
+            if (ActiveFirst)
             {
-                gameObject.AddComponent<CanvasGroup>();
-            }
-            if(ActiveFirst)
-            {
-                gameObject.SetActive(true);
+                if (!onlyToggleAlpha)
+                    gameObject.SetActive(true);
                 canvasGroup.alpha = 1;
             }
             else
             {
-                gameObject.SetActive(false);
+                if (!onlyToggleAlpha)
+                    gameObject.SetActive(false);
                 canvasGroup.alpha = 0;
+            }
+            isInitalized = true;
+        }
+
+        public void SetActivation(bool activation)
+        {
+            Init();
+            if(activation != isActivated)
+            {
+                if(activation)
+                {
+                    Activate();
+                }
+                else
+                {
+                    UnActivate();
+                }
             }
         }
 
         public void Activate()
         {
-            isActivated = true;
-            gameObject.SetActive(true);
+            Init();
             DOTween.To(() => canvasGroup.alpha, x => canvasGroup.alpha = x, 1, duration);
+
+            if (!onlyToggleAlpha)
+                gameObject.SetActive(true);
+
+            canvasGroup.interactable = true;
+            canvasGroup.blocksRaycasts = true;
+            isActivated = true;
         }
 
         public void UnActivate()
         {
-            DOTween.To(() => canvasGroup.alpha, x => canvasGroup.alpha = x, 0, duration).OnComplete(()=>{gameObject.SetActive(false);isActivated = false;});
+            Init();
+            DOTween.To(() => canvasGroup.alpha, x => canvasGroup.alpha = x, 0, duration).OnComplete(()=>
+            {
+                if(!onlyToggleAlpha)
+                    gameObject.SetActive(false);
+
+                canvasGroup.interactable = false;
+                canvasGroup.blocksRaycasts = false;
+                isActivated = false;
+            });
+        }
+
+        public void Toggle()
+        {
+            SetActivation(!isActivated);
         }
     }
 }

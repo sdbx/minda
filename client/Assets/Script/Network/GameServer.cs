@@ -7,6 +7,8 @@ using Game;
 using Game.Events;
 using Models;
 using Newtonsoft.Json;
+using UI;
+using UI.Chatting;
 using UI.Toast;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -32,7 +34,7 @@ namespace Network
         public event Action<int> UserLeftEvent;
         public event Action<Room> RoomConnectedEvent;
         public event Action<Conf> ConfedEvent;
-        public event Action<InGameUser, string> ChattedEvent;
+        public event Action<Message> MessagedEvent;
         
         public bool isSpectator = false;
         public Room connectedRoom;
@@ -185,6 +187,11 @@ namespace Network
             var conf = connectedRoom.conf;
             var me = LobbyServer.instance.loginUser;
             var emptyBallType = RoomUtils.GetEmptyBallType(conf);
+            
+            GetInGameUser(entered.user,(InGameUser inGameUser)=>{
+                MessagedEvent?.Invoke(new SystemMessage("Notice",$"{inGameUser.user.username} has joined"));
+            });
+           
 
             //MyEnter
             if(entered.user == me.id)
@@ -236,6 +243,7 @@ namespace Network
         private void OnLeft(Game.Events.Event e)
         {
             var left = (LeftEvent)e;
+            MessagedEvent?.Invoke(new SystemMessage("Notice", $"{users[left.user].username} has left"));
             connectedRoom.Users.Remove(left.user);
             users.Remove(left.user);
             UserLeftEvent?.Invoke(left.user);
@@ -266,8 +274,9 @@ namespace Network
         public void OnChatted(Game.Events.Event e)
         {
             var chatted = (ChattedEvent)e;
-            GetInGameUser(chatted.user,(InGameUser inGameUser)=>{
-                ChattedEvent?.Invoke(inGameUser,chatted.content);
+            GetInGameUser(chatted.user,(InGameUser inGameUser)=>
+            {
+                MessagedEvent?.Invoke(new UserMessage(inGameUser,chatted.content));
             });
         }
 
@@ -350,6 +359,28 @@ namespace Network
             ChatCommand command = new ChatCommand();
             command.content = message;
             SendCommand(command);
+        }
+
+        public void ExitGame()
+        {
+            asyncCallbackClient.Close();   
+            ClearAll();
+            SceneManager.LoadScene("Menu",LoadSceneMode.Single);
+        }
+
+        private void ClearAll()
+        {
+            UserEnteredEvent = null;
+            UserLeftEvent = null;
+            RoomConnectedEvent = null;
+            ConfedEvent = null;
+            MessagedEvent = null;
+
+            connectedRoom = null;
+            users.Clear();
+            profileImages.Clear();
+
+            gamePlaying = null;
         }
     }
 }

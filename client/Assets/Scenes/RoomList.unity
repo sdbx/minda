@@ -1373,7 +1373,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   duration: 0.2
+  canvasGroup: {fileID: 996367101}
   ActiveFirst: 0
+  onlyToggleAlpha: 0
 --- !u!225 &996367101
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -3214,7 +3216,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.000030476976}
+  m_AnchoredPosition: {x: 0, y: 0.000030509056}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &2003159834
