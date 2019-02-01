@@ -45,6 +45,29 @@ export class MSGrid {
         const delta = Math.abs(this.centerPosition - index)
         return this.sqaureSize - delta
     }
+    public getStones(color:"black" | "white" | "void") {
+        const stones:[number, number, number] = [0, 0, 0]
+        for (const row of this.decodedGrid) {
+            for (const el of row) {
+                if (el === StoneType.black) {
+                    stones[0] += 1
+                } else if (el === StoneType.white) {
+                    stones[1] += 1
+                } else if (el === StoneType.void) {
+                    stones[2] += 1
+                }
+            }
+        }
+        switch (color) {
+            case "black":
+                return stones[0]
+            case "white":
+                return stones[1]
+            case "void":
+                return stones[2]
+        }
+        return 0
+    }
 }
 export type MSGridEncode = string
 export enum StoneType {

@@ -4,7 +4,7 @@ import SnowMessage from "../snowmessage"
 import { SnowPerm } from "../snowperm"
 import SnowUser from "../snowuser"
 import { getFirst } from "../snowutil"
-import SnowChannel, { ConfigDepth } from "./snowchannel"
+import SnowChannel, { ConfigDepth, CreateChannelOpts } from "./snowchannel"
 
 export default class DiscordSnowCh extends SnowChannel {
     public readonly provider = "discord"
@@ -29,10 +29,6 @@ export default class DiscordSnowCh extends SnowChannel {
     }
     public async sendFiles(files:Array<string | Buffer>, text?:string) {
         return this._send(text, files)
-    }
-    public async user(id:string) {
-        const users = await this.userList()
-        return users.find((v) => v.id === id)
     }
     public async userList() {
         let users:SnowUser[] = []
@@ -115,8 +111,36 @@ export default class DiscordSnowCh extends SnowChannel {
             }
         }
     }
-    public async getConfig(depth:ConfigDepth, key:string):Promise<unknown> {
-        throw new Error("Method not implemented.")
+    public async createChannel(name:string, options:CreateChannelOpts) {
+        // options: pseudo category code
+        if (this.channel instanceof Discord.TextChannel) {
+            const guild = this.channel.guild
+            if (guild.me.permissions.has("MANAGE_CHANNELS")) {
+                const findCh = guild.channels.find(
+                    (v) => v.id === options.category)
+                if (findCh != null && findCh instanceof Discord.CategoryChannel) {
+                    const ch = await guild.createChannel(name, "text") as Discord.TextChannel
+                    ch.setParent(findCh)
+                    return new DiscordSnowCh(ch)
+                } else {
+                    const ch = await guild.createChannel(name, "text") as Discord.TextChannel
+                    return new DiscordSnowCh(ch)
+                }
+            } else {
+                throw new Error("No MANAGE_CHANNELS permission in bot")
+            }
+        } else {
+            throw new Error("Not Guild Channel (Cannot make channels)")
+        }
+    }
+    public async deleteChannel() {
+        try {
+            await this.channel.delete()
+            return true
+        } catch (err) {
+            console.error(err)
+            return false
+        }
     }
     protected async _send(text:string, files:Array<string | Buffer>) {
         if (this.channel instanceof Discord.TextChannel) {
@@ -125,9 +149,16 @@ export default class DiscordSnowCh extends SnowChannel {
                 return null
             }
         }
-        const message = getFirst(await this.channel.send(text, {
-            files,
-        }))
+        let message:Discord.Message
+        if (text != null) {
+            message = getFirst(await this.channel.send(text, {
+                files,
+            }))
+        } else {
+            message = getFirst(await this.channel.send({
+                files,
+            }))
+        }
         if (message != null) {
             return messageToSnow(message)
         }

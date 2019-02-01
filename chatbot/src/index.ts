@@ -24,6 +24,19 @@ async function run2() {
     await authF.init()
     console.log(await snow.login())
     snow.addCommands(authF.commands)
+    snow.addCommand(new SnowCommand({
+        name: "ping",
+        description: "핑핑 조리핑",
+        paramNames: [],
+        func: async (ctx) => {
+            try {
+                const m = await ctx.channel.prompt(ctx.message.author, ["당신은 바부입니까?"], 20000)
+                await ctx.channel.send("바부는 " + m.content + "라고 말했습니다.")
+            } catch {
+                await ctx.channel.send("이런 달아났습니다.")
+            }
+        }
+    }))
 }
 async function run3() {
     // tslint:disable-next-line
@@ -38,8 +51,8 @@ async function run3() {
     })
     await fs.writeFile(`${debugPath}/config/test.png`, board)
 }
-run3()
-// run2()
+// run3()
+run2()
 // console.log(debugPath)
 
 class AuthMinda {

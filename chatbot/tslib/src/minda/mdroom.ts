@@ -63,7 +63,7 @@ class MindaRoomBase implements MSRoom {
      * 패배 조건 - 떨궈진 돌의 갯수
      */
     public get loseStones() {
-        return this.conf.game_rule.default_lost_stones
+        return this.conf.game_rule.defeat_lost_stones
     }
     /**
      * 판때기 모양새
@@ -281,7 +281,6 @@ class MindaRoomBase implements MSRoom {
                 const moveE = event as MoveInfo
                 this.board = new MSGrid(moveE.map)
                 this.onMove.dispatch(moveE)
-                // @TODO 언젠가 합시다
             } break
             case MSEvents.start: {
                 const startE = event as StartInfo
@@ -484,7 +483,7 @@ export class MindaRoom extends MindaRoomBase {
             return this.setConfig({
                 game_rule: {
                     ...this.conf.game_rule,
-                    default_lost_stones: stones,
+                    defeat_lost_stones: stones,
                 }
             })
         }

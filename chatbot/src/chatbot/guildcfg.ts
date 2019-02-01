@@ -33,4 +33,8 @@ export default class BotConfig extends BaseGuildCfg {
         default: "\u{26AB}" // ⚫
     })
     public blackStone:string
+    @Column({
+        default: ""
+    })
+    public manageCategory:string
 }

@@ -2,7 +2,7 @@ export interface MSGameRule {
     /**
      * 지기 위하여 필요한 돌의 갯수
      */
-    default_lost_stones:number;
+    defeat_lost_stones:number;
     /**
      * 한 턴의 제한시간 (초)
      */

@@ -1,13 +1,15 @@
-import { MindaAdmin, MindaClient, MindaCredit, MindaRoom, MSGrid, StoneType } from "minda-ts"
+import { MindaAdmin, MindaClient, MindaCredit, MindaRoom, MoveInfo, MSGrid, StartInfo, StoneType } from "minda-ts"
 import path from "path"
 import { Column, Entity, PrimaryColumn } from "typeorm"
 import SnowCommand, { SnowContext } from "../snow/bot/snowcommand"
+import SnowChannel from "../snow/channel/snowchannel"
 import BaseGuildCfg from "../snow/config/baseguildcfg"
 import SimpleConfig from "../snow/config/simpleconfig"
 import SnowConfig from "../snow/config/snowconfig"
 import SnowUser from "../snow/snowuser"
 import awaitEvent from "../timeout"
 import { bindFn } from "../util"
+import { WebpackTimer } from "../webpacktimer"
 import { renderBoard } from "./boardrender"
 import { blank1_2, blank1_3, blank1_4, blank1_6, blankChar, blankChar2 } from "./cbconst"
 import BotConfig from "./guildcfg"
@@ -80,12 +82,41 @@ export default class MindaExec {
             }
             return `${noAuth.join(", ")} 유저가 민다에 없습니다.`
         }
+        // set category force.. f***
+        if (context.channel.provider === "discord" &&
+            context.configGroup.manageCategory.length < 1) {
+            const code = await channel.prompt(context.message.author, ["카테고리를 지정해주세요."])
+            context.configGroup.manageCategory = code.content
+        }
+        let subCh:SnowChannel
+        try {
+            subCh = await channel.createChannel("Test", {
+                category: context.configGroup.manageCategory,
+            })
+        } catch (err) {
+            context.configGroup.manageCategory = ""
+            channel.dm(message.author).then((v) => v.send(err.toString()))
+            return `채널 생성에 실패했습니다.`
+        }
+
         const room = await this.admin.createRoom(`[${channel.name()}] ${user1.nickname} vs ${user2.nickname}`)
-        const roomFind = (await this.admin.fetchRooms()).find((v) => v.id === room.id)
-        if (roomFind == null) {
+        if (!await new Promise<boolean>((res, rej) => {
+            let fetchTry = 0
+            const fetchId = WebpackTimer.setInterval(async () => {
+                const roomFind = (await this.admin.fetchRooms()).find((v) => v.id === room.id)
+                if (roomFind != null) {
+                    res(true)
+                }
+                if (fetchTry >= 5) {
+                    WebpackTimer.clearInterval(fetchId)
+                    res(false)
+                }
+                fetchTry += 1
+            }, 500)
+        })) {
             return `방 생성에 실패했습니다.`
         }
-        await channel.send("방 이름: " + roomFind.conf.name)
+        await channel.send("방 이름: " + room.conf.name)
         /**
          * Debug
          */
@@ -93,9 +124,15 @@ export default class MindaExec {
 
         this.playingQueue.set(user1.getUID(), room)
         this.playingQueue.set(user2.getUID(), room)
+        const deleteQueue = async () => {
+            this.playingQueue.delete(user1.getUID())
+            this.playingQueue.delete(user2.getUID())
+            room.close()
+            await subCh.deleteChannel()
+        }
         room.onChat.sub((ch) => {
             const n = this.admin.users.find((v) => v.id === ch.user).username
-            channel.send(`${n} : ${ch.content}`)
+            subCh.send(`${n} : ${ch.content}`)
         })
         room.onLeave.sub(async (lf) => {
             if (room.ingame) {
@@ -116,26 +153,38 @@ export default class MindaExec {
                 winner = (await this.admin.user(room.black)).username
                 color = "검은 돌"
             }
-            await channel.send(`${winner} (${color}) 승리!`)
-            room.close()
+            await subCh.send(`${winner} (${color}) 승리!`)
+            await deleteQueue()
         })
-        room.onStart.sub(async (si) => {
-            const {blackStone, whiteStone} = context.configGroup
-            await channel.send(null, await renderBoard(room.board))
+        const dispatchState = async (si:StartInfo | MoveInfo) => {
+            const { blackStone, whiteStone } = context.configGroup
+            const blackU = await this.admin.user(room.black)
+            const whiteU = await this.admin.user(room.white)
+            const deltaB = (str:"black" | "white" | "void") =>
+                room.defaultBoard.getStones(str) - room.board.getStones(str)
+            const stoneB = deltaB("black")
+            const stoneW = deltaB("white")
+            await subCh.send(null, await renderBoard(room.board, {}, {
+                black: { username: blackU.username, image: await this.admin.getUserImage(blackU), stone: stoneB,},
+                white: { username: whiteU.username, image: await this.admin.getUserImage(whiteU), stone: stoneW,},
+                maxstone: room.loseStones,
+            }))
             // await channel.send(`게임 시작.\n${}`)
-        })
+        }
+        room.onStart.sub(dispatchState)
+        room.onMove.sub(dispatchState)
         awaitEvent(room.onEnter, 60000, async (info) => {
             if (info.user === minda1.id) {
                 if (await room.setBlack(minda1)) {
                     await room.sendChat(`흑돌 선수 ${minda1.username}님이 입장합니다.`)   
                 } else {
-                    channel.send("흑돌을 설정하는데 실패했습니다.")
+                    subCh.send("흑돌을 설정하는데 실패했습니다.")
                 }
             } else if (info.user === minda2.id) {
                 if (await room.setWhite(minda2)) {
                     await room.sendChat(`백돌 선수 ${minda2.username}님이 입장합니다.`)
                 } else {
-                    channel.send("백돌을 설정하는데 실패했습니다.")
+                    subCh.send("백돌을 설정하는데 실패했습니다.")
                 }
             }
             if (room.black >= 0 && room.white >= 0) {
@@ -146,10 +195,8 @@ export default class MindaExec {
             }
             return null
         }, true).catch(async () => {
-            room.close()
-            this.playingQueue.delete(user1.getUID())
-            this.playingQueue.delete(user2.getUID())
             await channel.send("유저가 접속을 안하여 방이 닫혔습니다.")
+            await deleteQueue()
         })
         return null
     }

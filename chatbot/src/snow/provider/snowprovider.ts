@@ -14,6 +14,7 @@ export abstract class SnowProvider<C extends BaseGuildCfg> {
      * Logined?
      */
     public available:boolean = false
+    public abstract readonly name:string
     protected store:SnowConfig<C>
     protected prefix:string = "!"
     protected commands:Array<SnowCommand<C>> = []
@@ -55,6 +56,7 @@ export abstract class SnowProvider<C extends BaseGuildCfg> {
      * @param msg Message
      */
     protected async parseCommand(channel:SnowChannel, msg:SnowMessage) {
+        channel.onMessage.dispatch(channel, msg)
         if (!msg.content.startsWith(this.prefix)) {
             return
         }

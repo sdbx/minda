@@ -8,6 +8,7 @@ import SnowMessage from "../snowmessage"
 import { SnowProvider } from "./snowprovider"
 
 export default class DiscordSnow<C extends BaseGuildCfg> extends SnowProvider<C> {
+    public name = "discord"
     protected token:string
     protected client:Discord.Client
     protected channels:Map<string, SnowChannel>

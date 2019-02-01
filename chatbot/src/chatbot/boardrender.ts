@@ -289,7 +289,7 @@ async function drawPicture(ctx:CanvasRenderingContext2D, align:"left" | "right",
             return num.toString()
         }
     }
-    ctx.fillText(`\u{25EF} ${getNum(params.stone)}/${params.maxStone}`, pos[0], pos[1],
+    ctx.fillText(`\u{25EF} ${getNum(params.stone)}/${getNum(params.maxStone)}`, pos[0], pos[1],
         Math.floor(tagWidth - (padPicSize + padding * 3)))
     return [tagWidth, tagHeight]
 }
