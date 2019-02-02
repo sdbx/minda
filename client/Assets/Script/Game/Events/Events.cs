@@ -12,6 +12,9 @@ namespace Game.Events
         public string map;
         public GameRule rule;
         public BallType turn;
+        public float white_time;
+        public float black_time;
+        public float current_time;
     }
 
     public class EnteredEvent : Event
@@ -66,4 +69,5 @@ namespace Game.Events
         public int user;
         public string content;
     }
+    
 }

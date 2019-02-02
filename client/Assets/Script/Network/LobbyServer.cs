@@ -37,6 +37,7 @@ namespace Network
 
         private int steamRetries;
         public User loginUser = null;
+        private Texture loginUserTexture = null;
 
 
         private void Awake()
@@ -85,11 +86,6 @@ namespace Network
                 }
                 HandleLoginResult(loginResult);
             });
-        }
-
-        private void Update()
-        {
-
         }
 
         //login
@@ -207,6 +203,32 @@ namespace Network
                 callback(true);
             });
         }
+
+        public void GetLoginUserProfileImage(Action<Texture> callback)
+        {
+            if(loginUser.picture == null)
+            {
+                callback(null);
+                return;
+            }
+            else if(loginUserTexture != null)
+            {
+                callback(loginUserTexture);
+                return;
+            }
+            LobbyServerAPI.DownloadImage(loginUser.picture.Value,(Texture texture)=>
+            {
+                loginUserTexture = texture;
+                callback(texture);
+            });
+        }
+
+        
+        public void UploadImage(byte[] bytes,Action<int,int?> callback)
+        {
+            StartCoroutine(requestor.PostImage("/pics/", bytes, token, callback));
+        }
+
 
     }
 }

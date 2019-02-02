@@ -43,13 +43,11 @@ namespace Network
                 callBack(((DownloadHandlerTexture)www.downloadHandler).texture);
             }
         }
-
+        
         public static void GetMyMaps(Action<Map[], int?> callback)
         {
             LobbyServer.instance.Get<Map[]>("/maps/",callback);
         }
-
-
     }
 }
 

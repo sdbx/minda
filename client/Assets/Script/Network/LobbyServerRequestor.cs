@@ -5,6 +5,7 @@ using UnityEngine.Networking;
 using Newtonsoft.Json;
 using System.Text;
 using UI.Toast;
+using Models;
 
 namespace Network
 {
@@ -97,7 +98,30 @@ namespace Network
                 callBack(default(T), 500);
                 return;
             }
+            if(typeof(T) == typeof(Nothing))
+            {
+                callBack(default(T), null);
+                return;
+            }
             callBack(JsonConvert.DeserializeObject<T>(data),null);
+        }
+
+
+        public IEnumerator PostImage(string endPoint, byte[] data, string token, Action<int, int?> callBack)
+        {
+            // WWWForm postForm = new WWWForm();
+            // postForm.AddBinaryData(data);
+            using (UnityWebRequest www = UnityWebRequest.Put(Addr + endPoint, data))
+            {
+                www.method = UnityWebRequest.kHttpVerbPOST;
+                if (token != "")
+                    www.SetRequestHeader("Authorization", token);
+
+                yield return www.SendWebRequest();
+
+                RequestCallBack(www.downloadHandler.text, callBack, www.error);
+                Debug.Log(www.downloadHandler.text);
+            }
         }
     }
 }
