@@ -57,7 +57,8 @@ impl Room {
             conf: self.conf.clone(),
             users: self.users.iter().map(|(_,u)| {
                 u.user_id
-            }).collect::<Vec<_>>()
+            }).collect::<Vec<_>>(),
+            ingame: !self.game.is_none()
         }
     }
 }
