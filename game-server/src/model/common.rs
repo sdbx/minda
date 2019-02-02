@@ -60,7 +60,8 @@ pub struct Room {
     pub id: String,
     pub created_at: DateTime<Utc>,
     pub conf: RoomConf,
-    pub users: Vec<UserId>
+    pub users: Vec<UserId>,
+    pub ingame: bool
 }
 
 #[derive(Serialize, PartialEq, Deserialize, Debug, Clone)]
