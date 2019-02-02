@@ -87,7 +87,7 @@ pub enum Event {
     #[serde(rename = "banned")]
     Banned { user: UserId },
     #[serde(rename = "ticked")]
-    Ticked { black_time: usize, white_time: usize, current_time: usize },
+    Ticked { black_time: f32, white_time: f32, current_time: f32 },
 }
 
 impl Event {
