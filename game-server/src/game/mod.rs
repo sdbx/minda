@@ -6,5 +6,5 @@ mod board;
 mod game;
 
 pub use self::cord::{Cord};
-pub use self::board::{Board, Stone, Move, Player};
-pub use self::game::Game;
+pub use self::board::{Board, Stone, Player};
+pub use self::game::{Game,Move};

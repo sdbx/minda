@@ -5,28 +5,32 @@ use uuid::Uuid;
 use model::Command;
 use error::Error;
 
-mod conf;
-mod chat;
+mod common;
 mod game;
-mod connect;
-mod start;
+mod room;
 
 pub fn handle(server: &mut Server, conn: &Connection, cmd: &Command) -> Result<(), Error> {
     match cmd {
         Command::Connect { invite } => {
-            connect::handle(server, conn, &invite)
+            common::connect(server, conn, &invite)
         },
         Command::Chat { content } => {
-            chat::handle(server, conn, &content)
+            common::chat(server, conn, &content)
         },
         Command::Conf { conf } => {
-            conf::handle(server, conn, &conf)
+            room::conf(server, conn, &conf)
         },
         Command::Move { start, end, dir } => {
             game::game_move(server, conn, *start, *end, *dir)
         },
         Command::Start { } => {
-            start::handle(server, conn)
+            room::start(server, conn)
+        },
+        Command::Gg { } => {
+            game::game_gg(server, conn)
+        },
+        Command::Ban { user } => {
+            room::ban(server, conn, *user)
         }
     }
 }

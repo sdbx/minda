@@ -6,9 +6,12 @@ using Network;
 using Newtonsoft.Json;
 using Models;
 using Scene;
+using UI;
 
 public class RoomCreateWindow : MonoBehaviour
 {
+    [SerializeField]
+    private ObjectToggler windowToggler;
     [SerializeField]
     private InputField nameText;
     [SerializeField]
@@ -24,51 +27,40 @@ public class RoomCreateWindow : MonoBehaviour
         CreateBtn.onClick.AddListener(Create);
     }
 
-    public void Active()
-    {
-        gameObject.SetActive(true);
-    }
-
     public void Create()
     {
-        NetworkManager.instance.RefreshLoggedInUser(() =>
+        var me = LobbyServer.instance.loginUser;
+        if (nameText.text == "")
         {
-            var me = NetworkManager.instance.loggedInUser;
-            if (nameText.text == "")
-            {
-                nameText.text = $"{me.username}'s room";
-            }
-
-            NetworkManager.instance.Post<JoinRoomResult>("/rooms/", ToJson(me) , (JoinRoomResult result, string err)=>
-            {
-                if(err!=null)
-                {
-                    Debug.Log(err);
-                    return;
-                }
-                var Addr = result.addr.Split(':');
-                SceneChanger.instance.ChangeTo("RoomConfigure");
-                NetworkManager.instance.EnterRoom(Addr[0],int.Parse(Addr[1]), result.invite);
-            });
-
-        });
+            nameText.text = $"{me.username}'s room";
+        }
+        LobbyServer.instance.Post<JoinRoomResult>("/rooms/", ToJson(), (JoinRoomResult result, int? err) =>
+        {
+           if (err != null)
+           {
+               Debug.Log(err);
+               return;
+           }
+           var Addr = result.addr.Split(':');
+           SceneChanger.instance.ChangeTo("RoomConfigure");
+           GameServer.instance.EnterRoom(Addr[0], int.Parse(Addr[1]), result.invite);
+       });
     }
 
-    public string ToJson(User me)
+    public string ToJson()
     {
-        Models.RoomSettings roomSett = new RoomSettings{
+        Conf conf = new Conf{
             name = nameText.text,
-            king = me.id,
-            black = me.id,
-            white = -1
+            king = -1,
+            open = true,
         };
 
-        return JsonConvert.SerializeObject(roomSett);
+        return JsonConvert.SerializeObject(conf);
     }
 
     public void Cancel()
     {
         nameText.text = "";
-        gameObject.SetActive(false);
+        windowToggler.UnActivate();
     }
 }

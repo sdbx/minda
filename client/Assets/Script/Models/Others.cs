@@ -10,6 +10,7 @@ namespace Models
     public struct LoginResult
     {
         public string token;
+        public bool first;
     }
     public struct Reqid
     {

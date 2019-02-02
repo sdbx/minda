@@ -1,0 +1,13 @@
+{
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "search.exclude": {
+    "**/build": true,
+    "tslib": true,
+  },
+  "files.watcherExclude": {
+    "**/build/**": true,
+    "tslib": true,
+  }
+  // "typescript.implementationsCodeLens.enabled": true
+  // "typescript.referencesCodeLens.enabled": true
+}

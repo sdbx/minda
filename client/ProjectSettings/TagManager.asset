@@ -51,3 +51,21 @@ TagManager:
   - name: Arrow
     uniqueID: 3343267143
     locked: 0
+  - name: UserInfo
+    uniqueID: 960471901
+    locked: 0
+  - name: UserList
+    uniqueID: 3040178159
+    locked: 0
+  - name: Chatting
+    uniqueID: 3980232207
+    locked: 0
+  - name: MapSelector
+    uniqueID: 2997160801
+    locked: 1
+  - name: InGameMenu
+    uniqueID: 2422795177
+    locked: 0
+  - name: UpperUI
+    uniqueID: 739713391
+    locked: 0

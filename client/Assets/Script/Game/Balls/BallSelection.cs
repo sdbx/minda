@@ -24,7 +24,7 @@ namespace Game.Balls
             return new Vector2((firstPosition.x + endPosition.x) / 2, (firstPosition.y + endPosition.y) / 2);
         }
 
-        public CubeCoord GetMiddleBall()
+        public CubeCoord GetMiddleBallCubeCoord()
         {
             if (count <= 2)
             {

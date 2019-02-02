@@ -1,31 +1,45 @@
 package routes
 
 import (
-	"lobby/utils"
 	"lobby/middlewares"
-	"math/rand"
-	"lobby/servs/taskserv"
 	"lobby/models"
 	"lobby/servs/discserv"
+	"lobby/servs/taskserv"
+	"lobby/utils"
+	"math/rand"
+	"net/http"
+	"strings"
 
 	"github.com/labstack/echo"
 	"github.com/sunho/dim"
 )
 
 type room struct {
-	Task *taskserv.TaskServ `dim:"on"`
+	Task *taskserv.TaskServ     `dim:"on"`
 	Disc *discserv.DiscoverServ `dim:"on"`
 }
 
 func (r *room) Register(d *dim.Group) {
-	d.Use(&middlewares.AuthMiddleware{})
 	d.GET("/", r.listRoom)
-	d.POST("/", r.postRoom)
-	d.PUT("/:roomid/", r.putRoom)
+	d.RouteFunc("/", func(d *dim.Group) {
+		d.Use(&middlewares.AuthMiddleware{})
+		d.POST("", r.postRoom)
+		d.PUT(":roomid/", r.putRoom)
+	})
 }
 
 func (r *room) listRoom(c echo.Context) error {
-	return c.JSONPretty(200, r.Disc.GetRooms(), "\t")
+	rooms := r.Disc.GetRooms()
+	if name := c.QueryParam("name"); name != "" {
+		out := []models.Room{}
+		for _, room := range rooms {
+			if strings.Contains(room.Conf.Name, name) {
+				out = append(out, room)
+			}
+		}
+		return c.JSONPretty(200, out, "\t")
+	}
+	return c.JSONPretty(200, rooms, "\t")
 }
 
 func (r *room) postRoom(c2 echo.Context) error {
@@ -38,7 +52,7 @@ func (r *room) postRoom(c2 echo.Context) error {
 		return err
 	}
 
-	rooms, err := r.Disc.FetchRooms(true)
+	rooms, err := r.Disc.FetchRooms(true, true)
 	if err != nil {
 		return err
 	}
@@ -52,7 +66,7 @@ func (r *room) postRoom(c2 echo.Context) error {
 				if err != nil {
 					return err
 				}
-			} else { 
+			} else {
 				_, err = r.Task.Request(room.Server, &models.KickUserTask{
 					UserID: user.ID,
 					RoomID: room.ID,
@@ -63,7 +77,7 @@ func (r *room) postRoom(c2 echo.Context) error {
 			}
 		}
 	}
-	
+
 	servers, err := r.Disc.ListGameServers()
 	if err != nil {
 		return err
@@ -75,8 +89,29 @@ func (r *room) postRoom(c2 echo.Context) error {
 	conf.White = -1
 	conf.Black = -1
 	conf.King = user.ID
+	if conf.Map == "" {
+		conf.Map = "0@0@0@0@0@0@0@2@2#0@0@0@0@0@0@0@2@2#0@0@0@0@0@0@2@2@2#0@1@0@0@0@0@2@2@2#1@1@1@0@0@0@2@2@2#1@1@1@0@0@0@0@2@0#1@1@1@0@0@0@0@0@0#1@1@0@0@0@0@0@0@0#1@1@0@0@0@0@0@0@0"
+	}
+	if conf.GameRule.GameTimeout == 0 {
+		conf.GameRule.GameTimeout = 600
+	}
+	if conf.GameRule.TurnTimeout == 0 {
+		conf.GameRule.TurnTimeout = 20
+	}
+	if conf.GameRule.DefeatLostStones == 0 {
+		conf.GameRule.DefeatLostStones = 6
+	}
+	if !conf.Validate() {
+		return echo.NewHTTPError(400, http.StatusBadRequest)
+	}
+
+	id, err := r.Disc.CreateRoomID()
+	if err != nil {
+		return err
+	}
 	res, err := r.Task.Request(servers[rand.Intn(len(servers))].Name, &models.CreateRoomTask{
-		Conf: conf,
+		RoomID: id,
+		Conf:   conf,
 		UserID: user.ID,
 	})
 	if err != nil {
@@ -89,13 +124,13 @@ func (r *room) postRoom(c2 echo.Context) error {
 func (r *room) putRoom(c2 echo.Context) error {
 	c := c2.(*models.Context)
 	id := c.Param("roomid")
-	rooms, err := r.Disc.FetchRooms(false)
+	rooms, err := r.Disc.FetchRooms(false, true)
 	if err != nil {
 		return err
 	}
+	user := c.User
 	for _, room := range rooms {
 		if room.ID == id {
-			user := c.User
 			res, err := r.Task.Request(room.Server, &models.JoinRoomTask{
 				UserID: user.ID,
 				RoomID: id,

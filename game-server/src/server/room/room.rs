@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use chrono::Utc;
 use chrono::DateTime;
 use game::Game;
@@ -12,16 +13,18 @@ pub struct Room {
     pub created_at: DateTime<Utc>,
     pub conf: RoomConf,
     pub users: HashMap<Uuid, RoomUser>,
+    pub banned_users: HashSet<UserId>,
     pub game: Option<Game>
 }
 
 impl Room {
-    pub fn new(conf: &RoomConf) -> Self {
+    pub fn new(id: &str, conf: &RoomConf) -> Self {
         Self {
-            id: Uuid::new_v4().to_string(),
+            id: id.to_owned(),
             created_at: Utc::now(),
             conf: conf.clone(),
             users: HashMap::new(),
+            banned_users: HashSet::new(),
             game: None
         }
     }
@@ -48,6 +51,10 @@ impl Room {
             }
         }
         None
+    }
+
+    pub fn get_users(&self, user_id: UserId) -> Vec<&RoomUser> {
+        self.users.iter().filter(|(_, u)| u.user_id == user_id).map(|(_, u)| u).collect()
     }
 
     pub fn to_model(&self) -> MRoom {

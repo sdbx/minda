@@ -38,11 +38,17 @@ namespace Game
     public class ConfCommand : Command
     {
         public string type = "conf";
-        public RoomSettings conf;
+        public Conf conf;
     }
 
     public class GameStart : Command 
     {
         public string type = "start";
+    }
+
+    public class ChatCommand : Command
+    {
+        public string type = "chat";
+        public string content;
     }
 }

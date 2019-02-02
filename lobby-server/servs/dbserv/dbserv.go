@@ -21,5 +21,6 @@ func (db *DBServ) Init() error {
 	if err != nil {
 		return err
 	}
+	
 	return mig.Up()
 }

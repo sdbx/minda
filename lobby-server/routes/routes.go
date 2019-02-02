@@ -2,6 +2,7 @@ package routes
 
 import (
 	"lobby/middlewares"
+
 	"github.com/labstack/echo"
 	"github.com/sunho/dim"
 )
@@ -18,4 +19,7 @@ func Register(d *dim.Group) {
 	d.Route("/rooms", &room{})
 	d.Route("/auth", &auth{})
 	d.Route("/admin", &admin{})
+	d.Route("/maps", &mapr{})
+	d.Route("/pics", &pic{})
+	d.Route("/histories", &history{})
 }

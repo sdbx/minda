@@ -77,7 +77,7 @@ namespace Game.Coords
         {
             for(int i = 0;i<6;i++)
             {
-                if(direction == _directions[i])
+                if(direction.isSame(_directions[i]))
                 {
                     return i;
                 }

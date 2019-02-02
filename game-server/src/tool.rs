@@ -1,3 +1,6 @@
+use std::fmt::Display;
+use error::Error;
+
 #[macro_export]
 macro_rules! enum_number {
     ($name:ident { $($variant:ident = $value:expr, )* }) => {
@@ -49,5 +52,11 @@ macro_rules! enum_number {
                 deserializer.deserialize_u64(Visitor)
             }
         }
+    }
+}
+
+pub fn print_err<T, E: Display>(res: Result<T, E>) {
+    if let Err(e) = res {
+        error!("{}", e)
     }
 }

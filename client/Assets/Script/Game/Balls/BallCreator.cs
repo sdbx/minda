@@ -57,12 +57,11 @@ namespace Game.Balls
 
                 CubeCoord holeCubeCoord = hole.GetCubeCoord();
                 GameObject BallPrefab = (hole.GetHoleState() == HoleState.Black ? blackBallPrefab : whiteBallPrefab);
-                Debug.Log(hole.GetCubeCoord());
                 Vector2 holePosition = hole.GetPixelPoint(holeDistance);
 
-                GameObject ballObject = UnityEngine.Object.Instantiate(BallPrefab, new Vector3(holePosition.x, -holePosition.y, 8) + parentTransform.position,
-                Quaternion.Euler(0, 0, 0), parentTransform);
-
+                GameObject ballObject = UnityEngine.Object.Instantiate(BallPrefab, Vector3.zero, Quaternion.Euler(0, 0, 0), parentTransform);
+                ballObject.transform.localPosition = new Vector3(holePosition.x, -holePosition.y, 8);
+                
 
                 float ballSpriteSize = BallPrefab.GetComponent<RawImage>().texture.width;
                 ballObject.transform.localScale = new Vector3(sizeOfBall / ballSpriteSize, sizeOfBall / ballSpriteSize);

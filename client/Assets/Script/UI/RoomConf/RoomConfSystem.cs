@@ -4,6 +4,7 @@ using UnityEngine;
 using Game;
 using Models;
 using Network;
+using Utils;
 
 namespace UI
 {
@@ -11,151 +12,190 @@ namespace UI
     {
         //player2 가 본인
         [SerializeField]
-        private UserInfoDisplay player1InfoDisplay;
+        private UserList userList;
         [SerializeField]
-        private UserInfoDisplay player2InfoDisplay;
+        private PlayerInfoDisplay player1InfoDisplay;
+        [SerializeField]
+        private PlayerInfoDisplay player2InfoDisplay;
         [SerializeField]
         private StartBtn startBtn;
+        [SerializeField]
+        private MapBtn mapBtn;
+
+        [SerializeField]
+        private IntUpDown defeatLostMarble;
+        [SerializeField]
+        private IntUpDown turnTimeout;
+        [SerializeField]
+        private IntUpDown gameTimeout;
+
+        private User me = LobbyServer.instance.loginUser;
+
+        private bool hasRecievedFirstConf = false;
+
+        private void Awake()
+        {
+            GameServer.instance.UserEnteredEvent += UserEnter;
+            GameServer.instance.UserLeftEvent += UserLeft;
+            GameServer.instance.ConfedEvent += ConfedCallBack;
+
+            defeatLostMarble.ValueChanged += DefeatLostMarbleValueChanged;
+            turnTimeout.ValueChanged += TurnTimeoutValueChanged;
+            gameTimeout.ValueChanged += GameTimeoutValueChanged;
+        }
         
-        public bool isSpectator = false;
-        private bool isWaitingForOppenent = false;
-
-        void Start()
-        {
-            NetworkManager.instance.otherUserEnterCallBack = UserEnter;
-            NetworkManager.instance.myEnterCallBack = Entered;
-            NetworkManager.instance.userLeftCallBack = UserLeft;
-            NetworkManager.instance.confedCallBack = ConfedCallBack;
-        }
-
-        private void Entered()
-        {
-            Network.NetworkManager.instance.RefreshLoggedInUser(() =>
-            {
-                var me = NetworkManager.instance.loggedInUser;
-                var room = NetworkManager.instance.connectedRoom;
-
-                room.Users.Add(me.id);
-                if (room.conf.black == -1)
-                {
-                    room.conf.black = me.id;
-                    NetworkManager.instance.UpdateConf();
-                }
-                else if (room.conf.black == -1)
-                {
-                    room.conf.black = me.id;
-                    NetworkManager.instance.UpdateConf();
-                }
-                else
-                {
-                    isSpectator = true;
-                }
-                IdentifyAndSetInfo();
-            });
-        }
-
-        private void UserEnter(int userId)
-        {
-            var room = NetworkManager.instance.connectedRoom;
-
-            if (isSpectator)
+        private void DefeatLostMarbleValueChanged(int value)
+        {                
+            if(!RoomUtils.CheckIsKing(me.id))
                 return;
-
-            var me = NetworkManager.instance.loggedInUser;
-            if (GetOpponentId(me.id) == -1)
-            {
-                if (IdUtils.GetBallType(me.id) == BallType.Black)
-                    room.conf.white = userId;
-                else room.conf.black = userId;
-                NetworkManager.instance.UpdateConf();
-                startBtn.Active();
-            }
-
-            IdentifyAndSetInfo();
+            GameServer.instance.connectedRoom.conf.game_rule.defeat_lost_stones = value;
+            GameServer.instance.UpdateConf();
         }
+        private void TurnTimeoutValueChanged(int value)
+        {
+            if (!RoomUtils.CheckIsKing(me.id))
+                return;
+            GameServer.instance.connectedRoom.conf.game_rule.turn_timeout = value;
+            GameServer.instance.UpdateConf();
+        }
+        private void GameTimeoutValueChanged(int value)
+        {
+            if (!RoomUtils.CheckIsKing(me.id))
+                return;
+            turnTimeout.ChangeMax(value*60);
+            GameServer.instance.connectedRoom.conf.game_rule.game_timeout = value*60;
+            GameServer.instance.UpdateConf();
+        }
+
+        private void Start()
+        {
+            UpdateAllConf();
+        }
+
+        private void OnDestroy()
+        {
+            GameServer.instance.UserEnteredEvent -= UserEnter;
+            GameServer.instance.UserLeftEvent -= UserLeft;
+            GameServer.instance.ConfedEvent -= ConfedCallBack;
+        }
+
+        private void UserEnter(int id, BallType ballType)
+        {
+            UpdateAllConf();
+            if (!RoomUtils.CheckIsKing(me.id))
+                return;
+        }
+
         
         private void UserLeft(int user)
         {
             UpdateAllConf();
         }
 
-        private void ConfedCallBack(RoomSettings conf)
+        private void ConfedCallBack(Conf conf)
         {
+            if(!hasRecievedFirstConf)
+            {
+                hasRecievedFirstConf = true;
+                UpdateGameruleIntUpDowns();
+            }
             UpdateAllConf();
         }
 
-        private void IdentifyAndSetInfo()
+        private void SetPlayerInfo(Conf conf)
         {
-            var room = NetworkManager.instance.connectedRoom;
+            var isSpectator = GameServer.instance.isSpectator;
+
             int player2Id;
             int player1Id;
 
-            if(!isSpectator)
+            if(isSpectator)
             {
-                player2Id = NetworkManager.instance.loggedInUser.id;
-                player1Id = GetOpponentId(player2Id);
+                player2Id = conf.black;
+                player1Id = conf.white;
             }
             else
             {
-                player2Id = room.conf.black;
-                player1Id = room.conf.white;
+                player2Id = me.id;
+                player1Id = GetOpponentId(me.id);
             }
 
             if(player1Id == -1 && player2Id == -1)
             {
-                player1InfoDisplay.ballType = BallType.White;
-                player1InfoDisplay.user = User.waiting;
-                player2InfoDisplay.ballType = BallType.Black;
-                player2InfoDisplay.user = User.waiting;
-
-                player2InfoDisplay.Display();
-                player1InfoDisplay.Display();
+                player1InfoDisplay.display(-1, BallType.White);
+                player2InfoDisplay.display(-1, BallType.Black);
                 return;
             }
 
-            player1InfoDisplay.ballType = IdUtils.GetBallType(player1Id);
-            player2InfoDisplay.ballType = IdUtils.GetBallType(player2Id);
-            
-            player1InfoDisplay.isKing = (player1Id == room.conf.king);
-            player2InfoDisplay.isKing = (player2Id == room.conf.king);
-
             if(player1Id == -1)
             {
-                player1InfoDisplay.user = User.waiting;
-                player1InfoDisplay.Display();
+                player1InfoDisplay.display(-1, RoomUtils.GetBallType(-1));
             }
             else
             {
-                NetworkManager.instance.GetUserInformation(player1Id, (User user) =>
-                {
-                    player1InfoDisplay.user = user;
-                    player1InfoDisplay.Display();
-                });
+                player1InfoDisplay.display(player1Id, RoomUtils.GetBallType(player1Id));
             }
 
             if (player2Id == -1)
             {
-                player2InfoDisplay.user = User.waiting;
-                player2InfoDisplay.Display();
+                player2InfoDisplay.display(-1, RoomUtils.GetBallType(-1));
             }
             else
             {
-                NetworkManager.instance.GetUserInformation(player2Id, (User user) =>
-                {
-                    player2InfoDisplay.user = user;
-                    player2InfoDisplay.Display();
-                });
+                player2InfoDisplay.display(player2Id, RoomUtils.GetBallType(player2Id));
+            }
+
+            if (conf.king == me.id && conf.black != -1 && conf.white != -1)
+            {
+                startBtn.Active();
+            } 
+            else 
+            {
+                startBtn.UnActive();
             }
         }
 
         private void UpdateAllConf()
         {
-            IdentifyAndSetInfo();
+            var room = GameServer.instance.connectedRoom;
+            if (room != null) 
+            {
+                SetPlayerInfo(room.conf);
+                userList.Load(room.Users.ToArray());
+                //맵에서의 흰돌과 흑돌 각각 갯수 중 작은 값
+                var max = Mathf.Min(StringUtils.ParticularCharCount(room.conf.map, '1'), StringUtils.ParticularCharCount(room.conf.map, '2'));
+                defeatLostMarble.ChangeMax(max);
+                
+                if(RoomUtils.CheckIsKing(me.id))
+                {
+                    defeatLostMarble.isButtonLocked = false;
+                    turnTimeout.isButtonLocked = false;
+                    gameTimeout.isButtonLocked = false;
+                    mapBtn.isLocked = false;
+                }
+                else
+                {
+                    defeatLostMarble.isButtonLocked = true;
+                    turnTimeout.isButtonLocked = true;
+                    gameTimeout.isButtonLocked = true;
+                    mapBtn.isLocked = true;
+
+                    UpdateGameruleIntUpDowns();
+                }
+            }
+        }
+
+        private void UpdateGameruleIntUpDowns()
+        {
+            var gameRule = GameServer.instance.connectedRoom.conf.game_rule;
+            defeatLostMarble.ChangeValue(gameRule.defeat_lost_stones);
+            turnTimeout.ChangeValue(gameRule.turn_timeout);
+            gameTimeout.ChangeValue(gameRule.game_timeout/60);
         }
 
         private int GetOpponentId(int myId)
         {
-            var room = NetworkManager.instance.connectedRoom;
+            var room = GameServer.instance.connectedRoom;
             if (myId == room.conf.black)
             {
                 return room.conf.white;
@@ -165,5 +205,6 @@ namespace UI
                 return room.conf.black;
             }
         }
+
     }
 }

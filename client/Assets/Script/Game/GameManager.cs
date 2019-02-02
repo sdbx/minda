@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
 using Network;
+using Scene;
 using Game.Events;
 using Game.Coords;
 using Game.Balls;
 using Game.Boards;
+using Utils;
 
 namespace Game
 {
@@ -17,32 +19,34 @@ namespace Game
         public BallType myBallType;
 
         public Text turnText;
+        public Text blackTimeText;
+        public Text whiteTimeText;
+        public Text currentTimeText;
 
         void Start()
         {
             boardManger.CreateBoard();
-            SendStartGameCommand();
-            SetHandlers();
+            var game = GameServer.instance.gamePlaying;
+            StartGame(Board.GetMapFromString(game.map), game.turn);
+
+            InitHandlers();
         }
 
-        void Update()
+        private void InitHandlers()
         {
-
+            GameServer.instance.AddHandler<MoveEvent>(OnMoved);
+            GameServer.instance.AddHandler<EndedEvent>(OnEnded);
+            GameServer.instance.AddHandler<TickedEvent>(OnTicked);
         }
 
-        private void SetHandlers()
+        private void OnDestroy()
         {
-            NetworkManager.instance.SetHandler<MoveEvent>(MoveHandler);
-            NetworkManager.instance.SetHandler<GameStartedEvent>(GameStartHandler);
+            GameServer.instance.RemoveHandler<MoveEvent>(OnMoved);
+            GameServer.instance.RemoveHandler<EndedEvent>(OnEnded);
+            GameServer.instance.RemoveHandler<TickedEvent>(OnTicked);
         }
 
-        private void GameStartHandler(Events.Event e)
-        {
-            var game = (GameStartedEvent)e;
-            StartGame(game.board, game.turn);
-        }
-
-        private void MoveHandler(Events.Event e)
+        private void OnMoved(Events.Event e)
         {
             var move = (MoveEvent)e;
             if (move.player != myBallType)
@@ -51,30 +55,38 @@ namespace Game
             }
         }
 
+        public void OnEnded(Game.Events.Event e)
+        {
+            var end = (EndedEvent)e;
+            SceneChanger.instance.ChangeTo("RoomConfigure");
+        }
+
+        public void OnTicked(Game.Events.Event e) {
+            var tick = (TickedEvent)e;
+            whiteTimeText.text = "Remaining time for the white:" + tick.white_time + " seconds";
+            blackTimeText.text = "Remaining time for the black:" + tick.black_time + " seconds";
+            currentTimeText.text = "Remaining time for this turn:" + tick.current_time + " seconds";
+        }
+
         public void StartGame(int[,] map, BallType turn)
         {
-            myBallType = IdUtils.GetBallType(NetworkManager.instance.loggedInUser.id);
+            myBallType = RoomUtils.GetBallType(LobbyServer.instance.loginUser.id);
             ballManager.RemoveBalls();
             boardManger.SetMap(map);
             ballManager.CreateBalls(boardManger);
             if (turn == myBallType)
             {
-                myTurn();
+                MyTurn();
             }
         }
 
         public void SendBallMoving(BallSelection ballSelection, int direction)
         {
             MoveCommand moveCommand = new MoveCommand(myBallType, ballSelection.first, ballSelection.end, CubeCoord.ConvertNumToDirection(direction));
-            NetworkManager.instance.SendCommand(moveCommand);
+            GameServer.instance.SendCommand(moveCommand);
         }
 
-        public void SendStartGameCommand()
-        {
-            NetworkManager.instance.SendCommand(new GameStart());
-        }
-
-        public void myTurn()
+        public void MyTurn()
         {
             ballManager.state = 1;
             turnText.text = "My turn";
@@ -83,7 +95,7 @@ namespace Game
         public void OppenetMovement(BallSelection ballSelection, int direction)
         {
             ballManager.PushBalls(ballSelection, direction);
-            myTurn();
+            MyTurn();
         }
     }
 }

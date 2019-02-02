@@ -8,8 +8,15 @@ Minda is an online multiplayer [abalone](https://en.wikipedia.org/wiki/Abalone_(
 
 ### Client
 
-고라니를 때린다.
+Open /client in Unity 2018.
 
 ### Server
 
-고라니를 때린다.
+#### Lobby Server
+```
+cd lobby-server && go build
+```
+#### Game Server
+```
+cd game-server && cargo build
+```

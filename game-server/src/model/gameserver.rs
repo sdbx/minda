@@ -1,3 +1,9 @@
+use model::GameRule;
+use serde::Deserialize;
+use serde::Deserializer;
+use serde::Serializer;
+use serde::de::Error;
+use serde::Serialize;
 use model::RoomConf;
 use super::{UserId, AxialCord, Room};
 use game::{Stone, Game};
@@ -23,34 +29,75 @@ impl Invite {
     }
 }
 
+#[derive(Clone, Debug)]
+pub enum EndedCause {
+    Timeout,
+    Gg,
+    LostStones
+}
+
+impl Serialize for EndedCause {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where S: Serializer
+    {
+        serializer.serialize_str(match *self {
+            EndedCause::Timeout => "timeout",
+            EndedCause::Gg => "gg",
+            EndedCause::LostStones => "lost stones",
+        })
+    }
+}
+
+impl<'de> Deserialize<'de> for EndedCause {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+        where D: Deserializer<'de>
+    {
+        let s = String::deserialize(deserializer)?;
+        let out = match s.as_str() {
+            "timeout" => EndedCause::Timeout,
+            "gg" => EndedCause::Gg,
+            "lost stones" => EndedCause::LostStones,
+            _ => return Err(D::Error::custom("Invalid ended cause"))
+        };
+        Ok(out)
+    }
+}
+
 #[derive(Clone, Serialize, Deserialize, Debug)]
 #[serde(tag = "type")]
 pub enum Event {
     #[serde(rename = "connected")]
     Connected { room: Room },
     #[serde(rename = "started")]
-    Started { board: Vec<Vec<Stone>>, black: UserId, white: UserId, turn: String },
+    Started { map: String, black: UserId, white: UserId, turn: String, rule: GameRule },
     #[serde(rename = "entered")]
     Entered { user: UserId },
     #[serde(rename = "error")]
     Error { message: String },
     #[serde(rename = "moved")]
-    Moved { player: String, start: AxialCord, end: AxialCord, dir: AxialCord },
+    Moved { player: String, start: AxialCord, end: AxialCord, dir: AxialCord, map: String },
     #[serde(rename = "chated")]
     Chated { user: UserId, content: String },
     #[serde(rename = "confed")]
     Confed { conf: RoomConf },
     #[serde(rename = "left")]
-    Left { user: UserId }
+    Left { user: UserId },
+    #[serde(rename = "ended")]
+    Ended { loser: UserId, player: String, cause: EndedCause },
+    #[serde(rename = "banned")]
+    Banned { user: UserId },
+    #[serde(rename = "ticked")]
+    Ticked { black_time: usize, white_time: usize, current_time: usize },
 }
 
 impl Event {
     pub fn game_to_started(game: &Game) -> Self {
         Event::Started {
-            board: game.board.raw(),
+            map: game.board.to_string(),
             black: game.black,
             white: game.white,
-            turn: game.turn.to_string()
+            turn: game.turn.to_string(),
+            rule: game.rule.clone()
         }
     }
 }
@@ -68,6 +115,10 @@ pub enum Command {
     Conf { conf: RoomConf },
     #[serde(rename = "start")]
     Start { },
+    #[serde(rename = "ban")]
+    Ban { user: UserId },
+    #[serde(rename = "gg")]
+    Gg { }
 }
 
 pub fn parse_command(msg: &str) -> Result<Command, serde_json::Error> {

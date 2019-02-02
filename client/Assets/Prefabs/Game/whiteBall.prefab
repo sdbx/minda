@@ -96,7 +96,7 @@ MonoBehaviour:
     x: 0
     y: 0
     z: 0
-  movingSpeed: 0.5
+  movingSpeed: 0.1
   _positionState: 0
   _ballType: 0
   _boardManager: {fileID: 0}

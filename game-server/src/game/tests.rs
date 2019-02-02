@@ -14,15 +14,7 @@ fn board_test1() {
     after.set(Cord(0,-2,2), Black);
     after.set(Cord(0,-3,3), Black);
     after.set(Cord(0,-4,4), White);
-
-    let m = Move{
-        from: Cord(0,0,0),
-        to: Cord(0,-2,2),
-        dir: Cord(0,-1,1),
-        player: Player::Black
-    };
-
-    before.push(m).unwrap();
+    before.push(Player::Black, Cord(0,0,0), Cord(0,-2,2), Cord(0, -1, 1)).unwrap();
     assert_eq!(before.raw(), after.raw());
 }
 
@@ -41,14 +33,7 @@ fn board_test2() {
     after.set(Cord(0,-2,2), White);
     after.set(Cord(0,-3,3), White);
 
-    let m = Move{
-        from: Cord(0,0,0),
-        to: Cord(0,-2,2),
-        dir: Cord(0,-1,1),
-        player: Player::Black
-    };
-
-    assert!(before.push(m).is_err());
+    assert!(before.push(Player::Black, Cord(0,0,0), Cord(0, -2, 2), Cord(0, -1, 1)).is_err());
     assert_eq!(before.raw(), after.raw());
 }
 
@@ -67,14 +52,7 @@ fn board_test3() {
     after.set(Cord(-1,-1,2), Black);
     after.set(Cord(0,-3,3), White);
 
-    let m = Move{
-        from: Cord(0,0,0),
-        to: Cord(0,-2,2),
-        dir: Cord(-1,1,0),
-        player: Player::Black
-    };
-
-    before.push(m).unwrap();
+    before.push(Player::Black, Cord(0,0,0), Cord(0,-2,2), Cord(-1,1,0)).unwrap();
     assert_eq!(before.raw(), after.raw());
 }
 
@@ -92,15 +70,7 @@ fn board_test4() {
     after.set(Cord(0,-1,1), Black);
     after.set(Cord(0,-2,2), Black);
     after.set(Cord(0,-3,3), White);
-
-    let m = Move{
-        from: Cord(0,0,0),
-        to: Cord(0,0,0),
-        dir: Cord(-1,1,0),
-        player: Player::Black
-    };
-
-    before.push(m).unwrap();
+    before.push(Player::Black, Cord(0,0,0), Cord(0,0,0), Cord(-1,1,0)).unwrap();
     assert_eq!(before.raw(), after.raw());
 }
 
@@ -115,13 +85,6 @@ fn board_test5() {
     after.set(Cord(0,0,0), Black);
     after.set(Cord(0,-1,1), Black);
 
-    let m = Move{
-        from: Cord(0,0,0),
-        to: Cord(0,0,0),
-        dir: Cord(0,-1,1),
-        player: Player::Black
-    };
-
-    assert!(before.push(m).is_err());
+    assert!(before.push(Player::Black, Cord(0,0,0), Cord(0,0,0), Cord(0,-1,1)).is_err());
     assert_eq!(before.raw(), after.raw());
 }

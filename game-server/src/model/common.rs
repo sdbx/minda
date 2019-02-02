@@ -1,10 +1,11 @@
 use std::ops::Deref;
+use game::Board;
 use serde::{Serialize, Serializer, Deserialize, Deserializer};
 use game::Cord;
 use chrono::Utc;
 use chrono::DateTime;
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct UserId(isize);
 
 impl UserId {
@@ -54,19 +55,43 @@ pub struct User {
     pub username: String
 }
 
-#[derive(Serialize, PartialEq, Deserialize, Debug, Clone)]
-pub struct RoomConf {
-    pub name: String,
-    pub king: UserId,
-    pub black: UserId,
-    pub white: UserId 
-}
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Room {
     pub id: String,
     pub created_at: DateTime<Utc>,
     pub conf: RoomConf,
-    pub users: Vec<UserId>,
-    pub ingame: bool
+    pub users: Vec<UserId>
+}
+
+#[derive(Serialize, PartialEq, Deserialize, Debug, Clone)]
+pub struct RoomConf {
+    pub name: String,
+    pub king: UserId,
+    pub black: UserId,
+    pub white: UserId,
+    pub open: bool,
+    pub map: String,
+    pub game_rule: GameRule
+}
+
+#[derive(Serialize, PartialEq, Deserialize, Debug, Clone)]
+pub struct GameRule {
+    pub defeat_lost_stones: usize,
+    pub turn_timeout: usize,
+    pub game_timeout: usize
+}
+
+impl GameRule {
+    pub fn verify(&self, board: &Board) -> bool {
+        //TODO 
+        let (black, white) = board.count_stones();
+        if black != white ||
+            self.defeat_lost_stones == 0 || self.defeat_lost_stones > black ||
+            self.turn_timeout == 0 ||
+            self.game_timeout == 0 {
+            false
+        } else {
+            true
+        }
+    }
 }

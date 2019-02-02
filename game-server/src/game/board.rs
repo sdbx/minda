@@ -1,3 +1,6 @@
+use model::AxialCord;
+use std::cmp::min;
+use std::cmp::max;
 use std::collections::VecDeque;
 use std::iter::FromIterator;
 use std::fmt::{self, Display, Formatter};
@@ -24,14 +27,14 @@ impl Display for Stone {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         use self::Stone::*;
         match *self {
-            Blank => write!(f, "O"),
-            Black => write!(f, "B"),
-            White => write!(f, "W")
+            Blank => write!(f, "0"),
+            Black => write!(f, "1"),
+            White => write!(f, "2")
         }
     }
 }
 
-#[derive(PartialEq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy)]
 pub enum Player {
     White,
     Black
@@ -60,26 +63,7 @@ impl Player {
     }
 }
 
-pub struct Game {
-    pub board: Board,
-}
-
-impl Game {
-    pub fn new(board: Board) -> Self {
-        Self {
-            board: board
-        }
-    }
-}
-
-pub struct Move {
-    pub player: Player,
-    pub from: Cord,
-    pub to: Cord,
-    pub dir: Cord
-}
-
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Board {
     payload: Vec<Vec<Stone>>,
     side: isize
@@ -118,6 +102,18 @@ impl Board {
         Some(out)
     }
 
+    pub fn to_string(&self) -> String {
+        self.payload.iter().map(|i| {
+            i.iter().map(|s|{
+                s.to_string()
+            }).collect::<Vec<_>>().as_slice().join("@")
+        }).collect::<Vec<_>>().as_slice().join("#")
+    }
+
+    pub fn side(&self) -> isize {
+        return self.side
+    }
+
     pub fn test_board() -> Self {
         let mut board = Board::new(5);
         board.set(Cord(0,0,0), Stone::Black);
@@ -144,6 +140,22 @@ impl Board {
         let (i, j) = self.to_axial(cord);
         self.payload[i][j] = stone;
         Ok(())
+    }
+
+    // (black, white)
+    pub fn count_stones(&self) -> (usize, usize) {
+        let mut black = 0;
+        let mut white = 0;
+        for i in self.payload.iter() {
+            for j in i {
+                match j {
+                    Stone::Black => { black += 1; },
+                    Stone::White => { white += 1; },
+                    _ => { },
+                }
+            }
+        }
+        (black, white)
     }
 
     fn validate(&self, cord: Cord) -> bool {
@@ -260,7 +272,7 @@ impl Board {
         Ok(())
     }
 
-    fn push_internal(&mut self, player: Player, from: Cord, to: Cord, dir: Cord) -> Result<(), Error> {
+    pub fn push(&mut self, player: Player, from: Cord, to: Cord, dir: Cord) -> Result<(), Error> {
         if !self.validate(from) || !self.validate(to) {
             return Err(Error::InvalidCord)
         }
@@ -287,9 +299,5 @@ impl Board {
         } else {
             return self.push_sideways(player, from, to, dir)
         }
-    }
-
-    pub fn push(&mut self, m: Move) -> Result<(), Error> {
-        self.push_internal(m.player, m.from, m.to, m.dir)
     }
 }

@@ -2,27 +2,28 @@ package routes
 
 import (
 	"lobby/middlewares"
-	"github.com/sunho/dim"
-	"lobby/servs/authserv"
 	"lobby/models"
+	"lobby/servs/authserv"
 	"lobby/servs/dbserv"
+
+	"github.com/sunho/dim"
 
 	"github.com/labstack/echo"
 )
 
 type adminUser struct {
-	DB *dbserv.DBServ `dim:"on"`
+	DB   *dbserv.DBServ     `dim:"on"`
 	Auth *authserv.AuthServ `dim:"on"`
 }
 
-func (a *adminUser) Register(g *dim.Group) {
-	g.GET("/", a.listUser)
-	g.POST("/", a.postUser)
-	g.RouteFunc("/:userid", func(g *dim.Group){
-		g.Use(&middlewares.UserMiddleware{})
-		g.PUT("/", a.putUser)
-		g.DELETE("/", a.deleteUser)
-		g.POST("/token/", a.postUserToken)
+func (a *adminUser) Register(d *dim.Group) {
+	d.GET("/", a.listUser)
+	d.POST("/", a.postUser)
+	d.RouteFunc("/:userid", func(d *dim.Group) {
+		d.Use(&middlewares.UserMiddleware{})
+		d.PUT("/", a.putUser)
+		d.DELETE("/", a.deleteUser)
+		d.POST("/token/", a.postUserToken)
 	})
 }
 

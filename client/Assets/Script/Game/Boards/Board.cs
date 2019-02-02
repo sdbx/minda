@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Game.Balls;
 using Game.Coords;
@@ -67,6 +68,23 @@ namespace Game.Boards
                 }
             }
             return map;
+        }
+
+        public static string GetStringFromMap(int[,] map)
+        {
+            var l = map.GetLength(0);
+            var mapStr = "";
+            for (var x = 0; x < l; x++)
+            {
+                for (var y = 0; y < l; y++)
+                {
+                    mapStr += map[x, y];
+                    mapStr += "@";
+                }
+                mapStr = mapStr.Substring(0, mapStr.Length - 1);
+                mapStr += "#";
+            }
+            return mapStr.Substring(0, mapStr.Length - 1);
         }
 
         public Hole[,] GetHoles()
@@ -149,7 +167,7 @@ namespace Game.Boards
                 }
                 if (ballSelection.count == 3)
                 {
-                    currentcoord = ballSelection.GetMiddleBall() + dirCubeCoord;
+                    currentcoord = ballSelection.GetMiddleBallCubeCoord() + dirCubeCoord;
                     if (!CheckHoleIsEmptyOrOut(currentcoord))
                         return false;
                 }

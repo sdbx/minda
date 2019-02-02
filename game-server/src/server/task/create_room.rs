@@ -5,8 +5,8 @@ use model::{Invite};
 use error::Error;
 use server::room::Room;
 
-pub fn handle(server: &mut Server, user_id: UserId, conf: &RoomConf) -> Result<String, Error> {
-    let room = Room::new(&conf);
+pub fn handle(server: &mut Server, room_id: &str, user_id: UserId, conf: &RoomConf) -> Result<String, Error> {
+    let room = Room::new(room_id, &conf);
     let invite = Invite::new(user_id, &room.id);
     let res = LobbyRoomResult{
         invite: invite.key.clone(),

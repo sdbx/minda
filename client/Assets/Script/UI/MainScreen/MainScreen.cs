@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Network;
 using UnityEngine;
 
 public class MainScreen : MonoBehaviour
@@ -7,40 +8,41 @@ public class MainScreen : MonoBehaviour
     [SerializeField]
     private RectTransform title;
     [SerializeField]
-    private float moveSpeed = 1;
+    private float smoothTime = 1;
     [SerializeField]
     private Vector3 destination = new Vector3();
     [SerializeField]
-    private CanvasGroup clickToLogin;
+    private GameObject clickToLogin;
     [SerializeField]
-    private CanvasGroup socialLoginBtns;
+    private GameObject socialLoginBtns;
     [SerializeField]
-    private float timer = 1;
-    private float opacitySpeed = 0.05f;
+    private float time = 1;
     private Vector3 buttonVelocity = Vector3.zero;
     private bool Clicked = false;
 
-    void Start()
+    void Awake()
     {
-        socialLoginBtns.alpha = 0;
         socialLoginBtns.gameObject.SetActive(false);
     }
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0)) Clicked = true;
-        if (Clicked)
+        if (LobbyServer.instance.loginState == LobbyServer.LoginState.Logout)
         {
-            socialLoginBtns.gameObject.SetActive(true);
-            title.localPosition = Vector3.SmoothDamp(title.localPosition, destination, ref buttonVelocity, 0.5f);
-            clickToLogin.alpha -= opacitySpeed;
-            if(timer>0)
+            if (Input.GetMouseButtonDown(0)) Clicked = true;
+            if (Clicked)
             {
-                timer -= Time.deltaTime;
-            }
-            if (timer < 0 && socialLoginBtns.alpha < 1)
-            {
-                socialLoginBtns.alpha += opacitySpeed;
+                title.localPosition = Vector3.SmoothDamp(title.localPosition, destination, ref buttonVelocity, smoothTime);
+                if (time > 0)
+                {
+                    time -= Time.deltaTime;
+                }
+                if (time <=0)
+                {
+                    time = 0;
+                    clickToLogin.gameObject.SetActive(false);
+                    socialLoginBtns.gameObject.SetActive(true);
+                }
             }
         }
     }
