@@ -69,7 +69,7 @@ pub enum Event {
     #[serde(rename = "connected")]
     Connected { room: Room },
     #[serde(rename = "started")]
-    Started { map: String, black: UserId, white: UserId, turn: String, rule: GameRule },
+    Started { map: String, black: UserId, white: UserId, turn: String, rule: GameRule, white_time: f32, black_time: f32, current_time: f32 },
     #[serde(rename = "entered")]
     Entered { user: UserId },
     #[serde(rename = "error")]
@@ -97,7 +97,10 @@ impl Event {
             black: game.black,
             white: game.white,
             turn: game.turn.to_string(),
-            rule: game.rule.clone()
+            rule: game.rule.clone(),
+            black_time: game.black_time as f32 / 1000.0,
+            white_time: game.white_time as f32 / 1000.0,
+            current_time: game.current_time as f32 / 1000.0
         }
     }
 }
