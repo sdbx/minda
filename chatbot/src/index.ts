@@ -33,8 +33,8 @@ async function run3() {
     "https://cdn.discordapp.com/emojis/506470672873160734.png?v=1")
     await fs.writeFile(`${debugPath}/config/test.png`, board)
 }
-run3()
-// run2()
+// run3()
+run2()
 // console.log(debugPath)
 
 class AuthMinda {

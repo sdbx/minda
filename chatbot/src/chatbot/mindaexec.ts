@@ -1,4 +1,5 @@
-import { MindaAdmin, MindaClient, MindaCredit, MindaRoom, MSGrid, StoneType } from "minda-ts"
+import { MindaAdmin, MindaClient, MindaCredit, MindaRoom, MSGrid, MSUser, StoneType } from "minda-ts"
+import { MSRoom } from "minda-ts/build/main/minda/structure/msroom"
 import path from "path"
 import { Column, Entity, PrimaryColumn } from "typeorm"
 import SnowCommand, { SnowContext } from "../snow/bot/snowcommand"
@@ -7,7 +8,9 @@ import SimpleConfig from "../snow/config/simpleconfig"
 import SnowConfig from "../snow/config/snowconfig"
 import SnowUser from "../snow/snowuser"
 import awaitEvent from "../timeout"
+import { DeepReadonly } from "../types/deepreadonly"
 import { bindFn } from "../util"
+import { WebpackTimer } from "../webpacktimer"
 import { renderBoard } from "./boardrender"
 import { blank1_2, blank1_3, blank1_4, blank1_6, blankChar, blankChar2 } from "./cbconst"
 import BotConfig from "./guildcfg"
@@ -27,6 +30,7 @@ export default class MindaExec {
             paramNames: ["oAuth-공급자"],
             description: "민다 인-증을 해봅시다.",
             func: bindFn(this, this.cmdAuth),
+            reqLength: 0,
         }, "string"))
         this.commands.push(new SnowCommand({
             name: "unauth",
@@ -39,6 +43,13 @@ export default class MindaExec {
             paramNames: ["맞짱뜰 유저"],
             description: "싸우자",
             func: bindFn(this, this.cmdFight),
+        }, "SnowUser"))
+        this.commands.push(new SnowCommand({
+            name: "stat",
+            paramNames: ["검색할 유저"],
+            description: "전적을 검색합니다.",
+            func: bindFn(this, this.cmdRecordStat),
+            reqLength: 0,
         }, "SnowUser"))
     }
     public async init() {
@@ -81,9 +92,18 @@ export default class MindaExec {
             return `${noAuth.join(", ")} 유저가 민다에 없습니다.`
         }
         const room = await this.admin.createRoom(`[${channel.name()}] ${user1.nickname} vs ${user2.nickname}`)
-        const roomFind = (await this.admin.fetchRooms()).find((v) => v.id === room.id)
-        if (roomFind == null) {
-            return `방 생성에 실패했습니다.`
+        let roomFind:DeepReadonly<MSRoom>
+        for (let tries = 0; tries < 5; tries += 1) {
+            roomFind = (await this.admin.fetchRooms()).find((v) => v.id === room.id)
+            if (roomFind != null) {
+                break
+            }
+            if (tries >= 4) {
+                return `방 생성에 실패했습니다.`
+            }
+            await new Promise<void>((res, rej) => {
+                WebpackTimer.setTimeout(() => res(),300)
+            })
         }
         await channel.send("방 이름: " + roomFind.conf.name)
         /**
@@ -179,7 +199,7 @@ export default class MindaExec {
         }
         const credit = new MindaCredit(5000)
         const proves = await credit.getProviders()
-        if (proves.indexOf(provider) < 0) {
+        if (provider == null || proves.indexOf(provider) < 0) {
             return provider + "(이)라는 공급자가 없습니다." + "\n공급자 목록: " + proves.join(",")
         }
         const dm = await channel.dm(user)
@@ -204,6 +224,44 @@ export default class MindaExec {
             this.authQueue.delete(user.getUID())
         })
         return null
+    }
+    protected async cmdRecordStat(context:SnowContext<BotConfig>, searchU:SnowUser) {
+        const { channel, message } = context
+        const user = searchU == null ? message.author : searchU
+        const uid = {
+            uid: user.id,
+            platform: user.platform,
+        }
+        const getID = await this.userDB.get(uid, "mindaId")
+        if (getID >= 0) {
+            const query = await this.admin.searchRecords({
+                user: getID,
+            })
+            const recs:string[] = []
+            const getName = (u:MSUser) => {
+                if (u != null && u.id >= 0) {
+                    return u.username
+                } else {
+                    return "Unknown"
+                }
+            }
+            for (let i = 0; i < query.length; i += 1) {
+                const q = query[i]
+                let out = ""
+                const blackU = await this.admin.user(q.black)
+                const whiteU = await this.admin.user(q.white)
+                out += `[${i + 1}] ${getName(blackU)} vs `
+                out += `${getName(whiteU)} (${q.loser === getID ? "패" : "승"})`
+                recs.push(out)
+            }
+            if (recs.length <= 0) {
+                await channel.send("없음")
+            } else {
+                await channel.send(recs.join("\n"))
+            }
+        } else {
+            await channel.send("잘못된 유저입니다.")
+        }
     }
 }
 @Entity()
