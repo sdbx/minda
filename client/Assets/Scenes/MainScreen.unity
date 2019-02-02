@@ -1246,7 +1246,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1233910107}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e8fbab96e499fe047b8ced3e0926b5a5, type: 3}
+  m_Script: {fileID: 11500000, guid: bb25d3cf6c9e8884db4488334c99478f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1241623629
@@ -1716,7 +1716,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a67146030dc2f04086ac917f78d6625, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  windowToggler: {fileID: 1731770020}
+  toggler: {fileID: 1731770020}
   messageText: {fileID: 1919155237}
   button1: {fileID: 1608730227}
   button2: {fileID: 102231299}

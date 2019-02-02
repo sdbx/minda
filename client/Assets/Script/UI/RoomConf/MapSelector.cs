@@ -52,7 +52,6 @@ namespace UI
             var basic = AddMapElement("Basic", Board.GetMapFromString(
                 "0@0@0@0@0@0@0@1@1#0@0@0@0@0@0@0@1@1#0@0@0@0@0@0@1@1@1#0@2@0@0@0@0@1@1@1#2@2@2@0@0@0@1@1@1#2@2@2@0@0@0@0@1@0#2@2@2@0@0@0@0@0@0#2@2@0@0@0@0@0@0@0#2@2@0@0@0@0@0@0@0"));
             basic.Select();
-            MapPreviewInMain.SetMap(selectedMap.map);
         }
 
         public void SelectMapInList(MapObject mapObject)

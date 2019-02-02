@@ -61,6 +61,7 @@ namespace UI
 
         public void Activate()
         {
+            isActivated = true;
             Init();
             DOTween.To(() => canvasGroup.alpha, x => canvasGroup.alpha = x, 1, duration);
 
@@ -69,11 +70,11 @@ namespace UI
 
             canvasGroup.interactable = true;
             canvasGroup.blocksRaycasts = true;
-            isActivated = true;
         }
 
         public void UnActivate()
         {
+            isActivated = false;
             Init();
             DOTween.To(() => canvasGroup.alpha, x => canvasGroup.alpha = x, 0, duration).OnComplete(()=>
             {
@@ -82,7 +83,6 @@ namespace UI
 
                 canvasGroup.interactable = false;
                 canvasGroup.blocksRaycasts = false;
-                isActivated = false;
             });
         }
 

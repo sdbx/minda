@@ -5,6 +5,7 @@ using Game;
 using Models;
 using Network;
 using Utils;
+using Game.Boards;
 
 namespace UI
 {
@@ -28,6 +29,8 @@ namespace UI
         private IntUpDown turnTimeout;
         [SerializeField]
         private IntUpDown gameTimeout;
+        [SerializeField]
+        private MapPreview mapPreview;
 
         private User me = LobbyServer.instance.loginUser;
 
@@ -164,6 +167,7 @@ namespace UI
                 userList.Load(room.Users.ToArray());
                 //맵에서의 흰돌과 흑돌 각각 갯수 중 작은 값
                 var max = Mathf.Min(StringUtils.ParticularCharCount(room.conf.map, '1'), StringUtils.ParticularCharCount(room.conf.map, '2'));
+                mapPreview.SetMap(Board.GetMapFromString(room.conf.map));
                 defeatLostMarble.ChangeMax(max);
                 
                 if(RoomUtils.CheckIsKing(me.id))

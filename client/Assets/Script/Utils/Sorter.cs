@@ -5,6 +5,6 @@ public static class Sorter
 {
     public static int SortRoomWithDateTime(Room a, Room b)
     {
-        return b.created_at.CompareTo(a);
+        return b.created_at.CompareTo(a.created_at);
     }
 }

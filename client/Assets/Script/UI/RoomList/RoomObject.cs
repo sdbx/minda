@@ -36,10 +36,7 @@ namespace UI
 
         private void onClick()
         {
-            LobbyServer.instance.EnterRoom(room.id,(bool success)=>
-            {
-                
-            });
+            roomListManger.TryEnter(room.id);
         }
     }
 

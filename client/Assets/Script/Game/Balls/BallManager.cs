@@ -139,7 +139,6 @@ namespace Game.Balls
                     }
 
                     gameManager.SendBallMoving(_ballSelection, arrowsManager.selectedArrow);
-                    gameManager.turnText.text = "Opponenent's turn";
                     state = 0;
                 }
             }

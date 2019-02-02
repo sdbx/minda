@@ -75,7 +75,7 @@ namespace UI.Chatting
 
         private void OnMessages(Message message)
         {
-            var isBottom = scrollRect.verticalNormalizedPosition == 0;
+            var isBottom = scrollRect.verticalNormalizedPosition <= 10;
             AddLine(message.ToString());
 
             if (isBottom ||

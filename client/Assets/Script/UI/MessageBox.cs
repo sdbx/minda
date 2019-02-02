@@ -12,7 +12,7 @@ namespace UI
         public static MessageBox instance;
 
         [SerializeField]
-        private ObjectToggler windowToggler;
+        private ObjectToggler toggler;
         [SerializeField]
         private Text messageText;
         [SerializeField]
@@ -58,8 +58,9 @@ namespace UI
             {
                 return;
             }
-            windowToggler.Activate();
+            toggler.Activate();
             messageText.text = message;
+            toggler.UnActivate();
             button1.gameObject.SetActive(false);
             button2Text.text = buttonText;
             this.callback = callback;
@@ -71,7 +72,7 @@ namespace UI
             {
                 return;
             }
-            windowToggler.Activate();
+            toggler.Activate();
             messageText.text = message;
             button1.gameObject.SetActive(true);
             button1Text.text = agree;
@@ -85,7 +86,7 @@ namespace UI
                 return;
             callback(true);
             messageText.text="";
-            windowToggler.UnActivate();
+            toggler.UnActivate();
             callback = null;
         }
 
@@ -103,7 +104,8 @@ namespace UI
             {
                 callback(false);
             }
-            windowToggler.Activate();
+            messageText.text="";
+            toggler.UnActivate();
             callback = null;
         }
     }

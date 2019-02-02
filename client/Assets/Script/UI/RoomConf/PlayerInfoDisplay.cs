@@ -22,8 +22,6 @@ namespace UI
         private RawImage backGround;
         [SerializeField]
         private Text usernameText;
-        //[SerializeField]
-        //private Text imformationText;
         [SerializeField]
         private Texture backgroundBlack;
         [SerializeField]
@@ -31,7 +29,9 @@ namespace UI
         [SerializeField]
         private GameObject kingIcon;
         [SerializeField]
-        private DisplayChanger displayChanger;
+        private DisplayChanger backGroundDisplayChanger;
+        [SerializeField]
+        private DisplayChanger textDisplayChanger;
         [SerializeField]
         private int corner;
         [SerializeField]
@@ -81,12 +81,12 @@ namespace UI
             if(ballType == BallType.Black)
             {
                 backGround.texture = backgroundBlack;
-                displayChanger.SetMode("Black");
+                textDisplayChanger.SetMode("Black");
             }
             else if(ballType == BallType.White)
             {
                 backGround.texture = backgroundWhite;
-                displayChanger.SetMode("White");
+                textDisplayChanger.SetMode("White");
             }
         }
 
@@ -143,12 +143,12 @@ namespace UI
             if(UserId == -1)
                 return;
             //BlackHightlighed, WhiteHightlighed
-            displayChanger.SetMode(inGameUser.ballType + "Hightlighed");
+            backGroundDisplayChanger.SetMode(inGameUser.ballType + "Hightlighed");
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            displayChanger.SetOrigin();
+            backGroundDisplayChanger.SetOrigin();
         }
 
         public void OnPointerClick(PointerEventData eventData)
