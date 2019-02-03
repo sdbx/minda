@@ -18,7 +18,7 @@ func (u *user) Register(d *dim.Group) {
 	d.RouteFunc("/me", func(d *dim.Group) {
 		d.Use(&middlewares.AuthMiddleware{})
 		d.GET("/", u.me)
-		d.PUT("/", u.me)
+		d.PUT("/", u.putMe)
 	})
 	d.GET("/:id/", u.getUser)
 }
