@@ -14,7 +14,7 @@ require (
 	github.com/gobuffalo/uuid v2.0.5+incompatible
 	github.com/gobuffalo/x v0.0.0-20181110221217-14085ca3e1a9 // indirect
 	github.com/gofrs/uuid v3.1.0+incompatible
-	github.com/labstack/echo v3.3.10+incompatible // indirect
+	github.com/labstack/echo v3.3.10+incompatible
 	github.com/leodido/go-urn v1.1.0 // indirect
 	github.com/markbates/goth v1.47.2
 	github.com/markbates/oncer v0.0.0-20181203154359-bf2de49a0be2 // indirect

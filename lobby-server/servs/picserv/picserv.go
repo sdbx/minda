@@ -64,6 +64,10 @@ func Provide(conf PicServConf) (*PicServ, error) {
 	}, err
 }
 
+func (p *PicServ) ConfigName() string {
+	return "pic"
+}
+
 func (p *PicServ) DownloadImage(url string) (image.Image, error) {
 	fmt.Println(url)
 	resp, err := http.Get(url)

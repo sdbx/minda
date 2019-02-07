@@ -72,8 +72,17 @@ func (u *user) putMePicture(c2 echo.Context) error {
 		return echo.NewHTTPError(403, "Try again later")
 	}
 
-	defer c.Request().Body.Close()
-	buf, err := ioutil.ReadAll(c.Request().Body)
+	file, err := c.FormFile("file")
+	if err != nil {
+		return err
+	}
+
+	r, err := file.Open()
+	if err != nil {
+		return err
+	}
+
+	buf, err := ioutil.ReadAll(r)
 	if err != nil {
 		return err
 	}
