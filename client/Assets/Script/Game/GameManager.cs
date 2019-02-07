@@ -36,7 +36,7 @@ namespace Game
             boardManger.CreateBoard();
             var game = GameServer.instance.gamePlaying;
             InitTimer(game.rule.turn_timeout,game.rule.game_timeout);
-            UpdateTimers(game.rule.turn_timeout,game.rule.game_timeout, game.rule.game_timeout);
+            UpdateTimers(game.current_time,game.rule.game_timeout, game.rule.game_timeout);
             StartGame(Board.GetMapFromString(game.map), game.turn);
 
             InitHandlers();
@@ -113,7 +113,7 @@ namespace Game
             UpdateTimers(ticked.current_time,ticked.black_time,ticked.white_time);
         }
 
-        private void UpdateTimers(int currentTime, int blackTime, int whiteTime)
+        private void UpdateTimers(float currentTime, float blackTime, float whiteTime)
         {
             CircularTimer blackGameTimer;
             CircularTimer whiteGameTimer;
@@ -147,7 +147,7 @@ namespace Game
             }
         }
 
-        private void setTimer(CircularTimer nowGameTimer, CircularTimer nowTurnTimer, int turnTime, int gameTime, CircularTimer nextTurnTimer, CircularTimer nextGameTimer)
+        private void setTimer(CircularTimer nowGameTimer, CircularTimer nowTurnTimer, float turnTime, float gameTime, CircularTimer nextTurnTimer, CircularTimer nextGameTimer)
         {
             nowGameTimer.displayText = false;
             nowTurnTimer.gameObject.SetActive(true);

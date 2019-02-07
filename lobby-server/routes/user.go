@@ -1,20 +1,21 @@
 package routes
 
 import (
-	"github.com/gobuffalo/pop/nulls"
-	"lobby/servs/picserv"
 	"io/ioutil"
 	"lobby/middlewares"
 	"lobby/models"
 	"lobby/servs/dbserv"
+	"lobby/servs/picserv"
 	"strconv"
+
+	"github.com/gobuffalo/pop/nulls"
 
 	"github.com/labstack/echo"
 	"github.com/sunho/dim"
 )
 
 type user struct {
-	DB *dbserv.DBServ `dim:"on"`
+	DB  *dbserv.DBServ   `dim:"on"`
 	Pic *picserv.PicServ `dim:"on"`
 }
 
@@ -22,7 +23,7 @@ func (u *user) Register(d *dim.Group) {
 	d.RouteFunc("/me", func(d *dim.Group) {
 		d.Use(&middlewares.AuthMiddleware{})
 		d.GET("/", u.me)
-		d.PUT("/", u.me)
+		d.PUT("/", u.putMe)
 		d.PUT("/picture", u.me)
 	})
 	d.GET("/:id/", u.getUser)

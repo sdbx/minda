@@ -9,6 +9,7 @@ import { MindaCredit } from "./mdcredit"
 import { extractContent, reqBinary, reqGet, reqPost } from "./mdrequest"
 import { MindaRoom } from "./mdroom"
 import { MSGameRule } from "./structure/msgamerule"
+import { MSRecStat } from "./structure/msrecstat"
 import { MSRoom, MSRoomConf, MSRoomServer } from "./structure/msroom"
 import { MSUser } from "./structure/msuser"
 /**
@@ -199,6 +200,27 @@ export class MindaClient {
         } else {
             return -1
         }
+    }
+    /**
+     * 유저의 전적을 불러옵니다.
+     * @param options
+     * @param user 유저아이디입니다. 해당 유저가 포함된 전적만 가져옵니다.
+     * @param since 시간입니다.  해당 시간 이후의 전적만 가져옵니다.
+     * @param p 페이지 번호입니다. 1부터 시작합니다.
+     */
+    public async searchRecords(options:Partial<{
+        user:number | MSUser,
+        since:number | Date,
+        p:number,
+    }> = {}, limit = 100) {
+        if (options.user != null && typeof options.user !== "number") {
+            options.user = options.user.id
+        }
+        if (options.since != null && typeof options.since !== "number") {
+            options.since = options.since.getTime()
+        }
+        const result = await extractContent<MSRecStat[]>(reqGet("GET", `/histories/`, this.token))
+        return result
     }
     /**
      * [내부] 자신 스스로의 프로필을 가져옵니다.
