@@ -47,7 +47,7 @@ func (a *AuthServ) Init() error {
 	if size == 0 {
 		user := models.User{
 			Username: "admin",
-			Picture:  nulls.Int{Valid: false},
+			Picture:  nulls.String{Valid: false},
 			Permission: models.UserPermission{
 				Admin: true,
 			},
@@ -67,10 +67,10 @@ func (a *AuthServ) GetUser(id int) (models.User, error) {
 	return user, err
 }
 
-func (a *AuthServ) uploadImg(url string) (int, error) {
+func (a *AuthServ) uploadImg(url string) (string, error) {
 	img, err := a.Pic.DownloadImage(url)
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 	return a.Pic.UploadImage(img)
 }
@@ -80,13 +80,13 @@ func (a *AuthServ) CreateUserByOAuth(provider string, guser goth.User) (models.U
 	if username == "" {
 		username = guser.Name
 	}
-	picture := nulls.Int{Valid: false}
+	picture := nulls.String{Valid: false}
 	if guser.AvatarURL != "" {
-		id, err := a.uploadImg(guser.AvatarURL)
+		img, err := a.uploadImg(guser.AvatarURL)
 		if err != nil {
 			utils.Log.Error("Error while uploading image", zap.Error(err))
 		} else {
-			picture = nulls.NewInt(id)
+			picture = nulls.NewString(img)
 		}
 	}
 	user := models.User{
