@@ -1,8 +1,9 @@
 using Game.Coords;
 using Newtonsoft.Json;
 using Models;
+using Game;
 
-namespace Game.Events
+namespace Models.Events
 {
     public abstract class Event { };
 

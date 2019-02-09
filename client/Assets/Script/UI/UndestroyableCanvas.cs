@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -7,10 +8,11 @@ public class UndestroyableCanvas : MonoBehaviour
     static private List<string> canvases = new List<string>();
 
     private Canvas canvas;
+    [SerializeField]
+    private string[] undestroySceneList;
 
     private void Awake() 
     {
-
         if(canvases.Contains(gameObject.name))
         {
             Destroy(gameObject);
@@ -24,6 +26,15 @@ public class UndestroyableCanvas : MonoBehaviour
 
     private void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, LoadSceneMode mode)
     {
-        canvas.worldCamera = Camera.main;
+        if (undestroySceneList.Length == 0 || Array.Exists(undestroySceneList, element => element == scene.name))
+        {
+            canvas.worldCamera = Camera.main;
+        }
+        else
+        {
+            canvases.Remove(gameObject.name);
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+            Destroy(gameObject);
+        }
     }
 }

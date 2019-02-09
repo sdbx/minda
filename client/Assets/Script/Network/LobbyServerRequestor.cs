@@ -98,7 +98,7 @@ namespace Network
                 callBack(default(T), 500);
                 return;
             }
-            if(typeof(T) == typeof(Nothing))
+            if(data == "")
             {
                 callBack(default(T), null);
                 return;
@@ -107,7 +107,7 @@ namespace Network
         }
 
 
-        public IEnumerator PostImage(string endPoint, byte[] data, string token, Action<int, int?> callBack)
+        public IEnumerator PostImage(string endPoint, byte[] data, string token, Action<Pic, int?> callBack)
         {
             // WWWForm postForm = new WWWForm();
             // postForm.AddBinaryData(data);
@@ -123,5 +123,6 @@ namespace Network
                 Debug.Log(www.downloadHandler.text);
             }
         }
+
     }
 }

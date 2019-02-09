@@ -4,12 +4,15 @@ using UnityEngine.UI;
 using UnityEngine;
 using Network;
 using Scene;
-using Game.Events;
+using Models.Events;
 using Game.Coords;
 using Game.Balls;
 using Game.Boards;
 using Utils;
 using UI.Toast;
+using UI;
+using Models;
+using Event = Models.Events.Event;
 
 namespace Game
 {
@@ -28,6 +31,8 @@ namespace Game
         private CircularTimer player2GameTimer;
         [SerializeField]
         private CircularTimer player2TurnTimer;
+        [SerializeField]
+        private WinScreen winScreen;
 
         private BallType nowTurn;
 
@@ -35,10 +40,10 @@ namespace Game
         {
             boardManger.CreateBoard();
             var game = GameServer.instance.gamePlaying;
-            InitTimer(game.rule.turn_timeout,game.rule.game_timeout);
-            UpdateTimers(game.current_time,game.rule.game_timeout, game.rule.game_timeout);
+            //boardManger.CreateBoard();
             StartGame(Board.GetMapFromString(game.map), game.turn);
-
+            InitTimer(game.rule.turn_timeout, game.rule.game_timeout);
+            UpdateTimers(game.current_time, game.rule.game_timeout, game.rule.game_timeout);
             InitHandlers();
         }
 
@@ -56,7 +61,7 @@ namespace Game
             GameServer.instance.RemoveHandler<TickedEvent>(OnTicked);
         }
 
-        private void OnMoved(Events.Event e)
+        private void OnMoved(Event e)
         {
             var move = (MoveEvent)e;
             nowTurn = OppositeBallType(move.player);
@@ -101,13 +106,13 @@ namespace Game
             gameTimeoutTimer.Stop();
         }
 
-        public void OnEnded(Game.Events.Event e)
+        public void OnEnded(Event e)
         {
             var end = (EndedEvent)e;
-            SceneChanger.instance.ChangeTo("RoomConfigure");
+            winScreen.Display(end, () => { SceneChanger.instance.ChangeTo("RoomConfigure"); });
         }
 
-        public void OnTicked(Game.Events.Event e) 
+        public void OnTicked(Event e) 
         {
             var ticked = (TickedEvent)e;
             UpdateTimers(ticked.current_time,ticked.black_time,ticked.white_time);
@@ -137,6 +142,9 @@ namespace Game
                 whiteTurnTimer = player2TurnTimer;
             }
 
+            blackGameTimer.leftTime = blackTime;
+            whiteGameTimer.leftTime = whiteTime;
+
             if (nowTurn == BallType.Black)
             {
                 setTimer(blackGameTimer, blackTurnTimer, currentTime, blackTime, whiteTurnTimer, whiteGameTimer);
@@ -153,7 +161,6 @@ namespace Game
             nowTurnTimer.gameObject.SetActive(true);
             nowTurnTimer.leftTime = turnTime;
             nowTurnTimer.CountDown(nowTurnTimer.wholeTime);
-            nowGameTimer.leftTime = gameTime;
             nowGameTimer.CountDown(nowGameTimer.wholeTime);
 
             nextTurnTimer.gameObject.SetActive(false);
@@ -179,6 +186,7 @@ namespace Game
             ballManager.RemoveBalls();
             boardManger.SetMap(map);
             ballManager.CreateBalls(boardManger);
+            nowTurn = turn;
             if (turn == myBallType)
             {
                 ballManager.state = 1;

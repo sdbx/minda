@@ -111,7 +111,7 @@ public class CircularTimer : MonoBehaviour
 
     private string MakeTimeStr(float time)
     {
-        var intTime = (int)leftTime + 1;
+        var intTime = (int)leftTime;
 
         var min = Mathf.CeilToInt(intTime / 60);
         string minStr, secStr;

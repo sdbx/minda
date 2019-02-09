@@ -30,6 +30,11 @@ namespace UI.Chatting
             Clear();
         }
 
+        private void OnDestroy()
+        {
+            GameServer.instance.MessagedEvent -= OnMessages;
+        }
+
         private void Update()
         {
             //auto hide

@@ -223,10 +223,29 @@ namespace Network
             });
         }
 
-        
-        public void UploadImage(byte[] bytes,Action<int,int?> callback)
+        public void RefreshLoginUserProfileImage(Action<Texture> callback)
+        {
+            if (loginUser.picture == null)
+            {
+                callback(null);
+                return;
+            }
+            LobbyServerAPI.DownloadImage(loginUser.picture.Value, (Texture texture) =>
+             {
+                 loginUserTexture = texture;
+                 callback(texture);
+             });
+        }
+
+
+        public void UploadImage(byte[] bytes,Action<Pic,int?> callback)
         {
             StartCoroutine(requestor.PostImage("/pics/", bytes, token, callback));
+        }
+
+        public bool IsLoginId(int id)
+        {
+            return id == loginUser.id;
         }
 
 

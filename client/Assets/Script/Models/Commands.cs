@@ -1,7 +1,7 @@
 using Game.Coords;
 using Models;
 
-namespace Game
+namespace Models
 {
     public abstract class Command { };
     public class ConnectCommand : Command

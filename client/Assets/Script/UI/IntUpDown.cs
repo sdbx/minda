@@ -98,6 +98,11 @@ public class IntUpDown : MonoBehaviour
 
     private void OnEndEdit(string str)
     {
+        if(isButtonLocked)
+        {
+            UpdateInputField();
+            return;
+        }
         if (int.TryParse(str, out int parsedNum))
         {
             ChangeValue(parsedNum);

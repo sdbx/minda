@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Game.Boards;
 using Game.Coords;
+using Models;
 using UnityEngine;
 using UnityEngine.UI;
 

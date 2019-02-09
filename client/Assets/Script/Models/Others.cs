@@ -17,12 +17,12 @@ namespace Models
         [JsonProperty("req_id")]
         public string id;
     }
-    public struct pic
+    public struct Pic
     {
         [JsonProperty("pic_id")]
         public int id;
     }
-    public struct Nothing
+    public struct EmptyResult
     {
 
     }

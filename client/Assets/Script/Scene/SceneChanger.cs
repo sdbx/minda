@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Game;
-using Game.Events;
+using Models.Events;
 using Models;
 using Network;
 using Newtonsoft.Json;

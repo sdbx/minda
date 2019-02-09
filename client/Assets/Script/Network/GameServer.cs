@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using Game;
-using Game.Events;
+using Models.Events;
 using Models;
 using Newtonsoft.Json;
 using UI;
@@ -13,6 +13,7 @@ using UI.Toast;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Utils;
+using Event = Models.Events.Event;
 
 namespace Network
 {
@@ -27,7 +28,7 @@ namespace Network
         {
             TypeNameHandling = TypeNameHandling.Objects,
         };
-        public delegate void GameEventHandler(Game.Events.Event e);
+        public delegate void GameEventHandler(Event e);
         private Dictionary<Type, List<GameEventHandler>> handlers = new Dictionary<Type, List<GameEventHandler>>();
 
         public event Action<int,BallType> UserEnteredEvent;
@@ -35,6 +36,8 @@ namespace Network
         public event Action<Room> RoomConnectedEvent;
         public event Action<Conf> ConfedEvent;
         public event Action<Message> MessagedEvent;
+        public event Action<GameStartedEvent> gameStarted;
+        public event Action<EndedEvent> endedEvent;
         
         public bool isSpectator = false;
         public Room connectedRoom;
@@ -42,6 +45,7 @@ namespace Network
         private Dictionary<int, Texture> profileImages = new Dictionary<int, Texture>();
         
         public GameStartedEvent gamePlaying;
+        public bool isInGame;
 
         private void Awake()
         {
@@ -97,7 +101,7 @@ namespace Network
                 if (splitedStr == "")
                     return;
 
-                Game.Events.Event e = JsonConvert.DeserializeObject<Game.Events.Event>(splitedStr, eventJsonSettings);
+                Event e = JsonConvert.DeserializeObject<Event>(splitedStr, eventJsonSettings);
                 Debug.Log(e.GetType());
                 foreach(var handle in handlers[e.GetType()])
                 {
@@ -170,16 +174,17 @@ namespace Network
             AddHandler<ErrorEvent>(OnError);
             AddHandler<GameStartedEvent>(OnGameStarted);
             AddHandler<ChattedEvent>(OnChatted);
+            AddHandler<EndedEvent>(OnGameEnded);
         }
 
-        private void OnConnected(Game.Events.Event e)
+        private void OnConnected(Event e)
         {
             var connected = (ConnectedEvent)e;
             connectedRoom = connected.room;
             RoomConnectedEvent?.Invoke(connected.room);
         }
 
-        private void OnEntered(Game.Events.Event e)
+        private void OnEntered(Event e)
         {
             var entered = (EnteredEvent)e;
             connectedRoom.Users.Add(entered.user);
@@ -240,7 +245,7 @@ namespace Network
             });
         }
 
-        private void OnLeft(Game.Events.Event e)
+        private void OnLeft(Event e)
         {
             var left = (LeftEvent)e;
             MessagedEvent?.Invoke(new SystemMessage("Notice", $"{users[left.user].username} has left"));
@@ -249,7 +254,7 @@ namespace Network
             UserLeftEvent?.Invoke(left.user);
         }
 
-        private void OnConfed(Game.Events.Event e)
+        private void OnConfed(Event e)
         {
             var confed = (ConfedEvent)e;
             var myId = LobbyServer.instance.loginUser.id;
@@ -258,20 +263,29 @@ namespace Network
             ConfedEvent?.Invoke(confed.conf);
         }
 
-        public void OnGameStarted(Game.Events.Event e)
+        public void OnGameStarted(Event e)
         {
             var gameStarted = (GameStartedEvent)e;
             gamePlaying = gameStarted;
             SceneManager.LoadScene("Game",LoadSceneMode.Single);
+            isInGame = true;
         }
 
-        public void OnError(Game.Events.Event e)
+        public void OnGameEnded(Event e)
+        {
+            var gameEnded = (EndedEvent)e;
+            isInGame = false;
+            endedEvent?.Invoke(gameEnded);
+            
+        }
+        
+        public void OnError(Event e)
         {
             var error = (ErrorEvent)e;
             ToastManager.instance.Add(error.message,"Error");
         }
 
-        public void OnChatted(Game.Events.Event e)
+        public void OnChatted(Event e)
         {
             var chatted = (ChattedEvent)e;
             GetInGameUser(chatted.user,(InGameUser inGameUser)=>
@@ -366,6 +380,11 @@ namespace Network
             asyncCallbackClient.Close();   
             ClearAll();
             SceneManager.LoadScene("Menu",LoadSceneMode.Single);
+        }
+
+        public void Surrender()
+        {
+            SendCommand(new GGCommand());
         }
 
         private void ClearAll()

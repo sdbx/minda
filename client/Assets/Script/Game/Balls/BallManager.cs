@@ -4,6 +4,7 @@ using Game;
 using Game.Boards;
 using Game.Coords;
 using Game.Guide;
+using Models;
 using UnityEngine;
 
 namespace Game.Balls

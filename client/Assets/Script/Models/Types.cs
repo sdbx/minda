@@ -1,4 +1,4 @@
-namespace Game
+namespace Models
 {
     public enum BallType
     {

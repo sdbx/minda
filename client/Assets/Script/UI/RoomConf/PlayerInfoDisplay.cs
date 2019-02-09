@@ -6,6 +6,7 @@ using Network;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Utils;
 using static UnityEngine.Camera;
 
 namespace UI
@@ -36,6 +37,8 @@ namespace UI
         private int corner;
         [SerializeField]
         private Vector2 contextMenuPivot;
+        [SerializeField]
+        private int num;
 
         private Texture placeHolder;
 
@@ -43,9 +46,20 @@ namespace UI
         {
             placeHolder = UISettings.instance.placeHolder;
             rectTransform = gameObject.GetComponent<RectTransform>();
+            GameServer.instance.ConfedEvent += OnConfed;
         }
         
-        public void display(int id, BallType ballType = BallType.None)
+        private void OnDestroy()
+        {
+            GameServer.instance.ConfedEvent -= OnConfed;
+        }
+        
+        public void OnConfed(Conf conf)
+        {
+            SetPlayerInfo(conf);
+        }
+
+        public void Display(int id, BallType ballType = BallType.None)
         {
             UserId = id;
             if(id == -1)
@@ -157,6 +171,33 @@ namespace UI
             {
                 CreateContextMenu();
             }
+        }
+
+        private void SetPlayerInfo(Conf conf)
+        {
+            var isSpectator = GameServer.instance.isSpectator;
+
+            int playerId;
+            BallType ballType;
+
+            if(isSpectator)
+            {
+                ballType = (num == 2 ? BallType.Black : BallType.White);
+            }
+            //본인이 검은색
+            else if (conf.black == LobbyServer.instance.loginUser.id)
+            {
+                ballType = (num == 2 ? BallType.Black : BallType.White);
+            }
+            //본인이 흰색
+            else
+            {
+                ballType = (num == 2 ? BallType.White : BallType.Black);
+            }
+            
+            playerId = (ballType == BallType.Black ? conf.black : conf.white);
+
+            Display(playerId,ballType);
         }
     }
 

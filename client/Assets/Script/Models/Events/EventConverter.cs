@@ -2,7 +2,7 @@ using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Game.Events
+namespace Models.Events
 {
     class EventConverter : JsonConverter
     {

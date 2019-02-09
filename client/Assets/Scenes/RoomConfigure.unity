@@ -158,7 +158,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.00000054575065}
+  m_AnchoredPosition: {x: 0, y: -0.000015603822}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &54490532
@@ -3140,7 +3140,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AspectMode: 0
-  m_AspectRatio: 2.669584
+  m_AspectRatio: 2.4806464
 --- !u!1 &956084649
 GameObject:
   m_ObjectHideFlags: 0
@@ -3666,6 +3666,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb25d3cf6c9e8884db4488334c99478f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  undestroySceneList:
+  - RoomConfigure
+  - Game
 --- !u!1 &1217721689
 GameObject:
   m_ObjectHideFlags: 0
@@ -4037,7 +4040,7 @@ GameObject:
   - component: {fileID: 1239025394}
   - component: {fileID: 1239025393}
   m_Layer: 5
-  m_Name: ExitBtn
+  m_Name: ExitOrGGBtn
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4516,6 +4519,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb25d3cf6c9e8884db4488334c99478f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  undestroySceneList:
+  - RoomConfigure
+  - Game
 --- !u!1 &1363631202
 GameObject:
   m_ObjectHideFlags: 0
@@ -4633,6 +4639,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb25d3cf6c9e8884db4488334c99478f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  undestroySceneList:
+  - RoomConfigure
+  - Game
 --- !u!114 &1384653396
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4818,7 +4827,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.000020517144, y: 0.000009086603}
+  m_AnchoredPosition: {x: -0.000020517144, y: 0.000011720966}
   m_SizeDelta: {x: -377.80002, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1396062840
@@ -5117,6 +5126,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb25d3cf6c9e8884db4488334c99478f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  undestroySceneList:
+  - RoomConfigure
+  - Game
 --- !u!1 &1439959359
 GameObject:
   m_ObjectHideFlags: 0
@@ -5422,9 +5434,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c3602eca77327e448f301310a24f735, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  userList: {fileID: 836385874}
-  player1InfoDisplay: {fileID: 1618815372}
-  player2InfoDisplay: {fileID: 1557817087}
   startBtn: {fileID: 855254175}
   mapBtn: {fileID: 1363631205}
   defeatLostMarble: {fileID: 1293107226}
@@ -5690,6 +5699,7 @@ MonoBehaviour:
   textDisplayChanger: {fileID: 1557817088}
   corner: 1
   contextMenuPivot: {x: 0, y: 0}
+  num: 2
 --- !u!114 &1557817088
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5852,7 +5862,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 376441763}
   m_HandleRect: {fileID: 376441762}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -6011,6 +6021,7 @@ MonoBehaviour:
   textDisplayChanger: {fileID: 1618815373}
   corner: 3
   contextMenuPivot: {x: 1, y: 1}
+  num: 1
 --- !u!114 &1618815373
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6132,10 +6143,10 @@ RectTransform:
   m_Father: {fileID: 1384653399}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1920, y: 1080}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1641449633
 MonoBehaviour:
@@ -6198,7 +6209,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff61b1cc529c7a8489e4d1a11ffe7f2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ExitBtn: {fileID: 1239025393}
+  ExitOrGGBtn: {fileID: 1239025393}
+  ExitOrGGBtnText: {fileID: 676502694}
   CancelBtn: {fileID: 1234295129}
   toggler: {fileID: 1641449637}
 --- !u!114 &1641449637

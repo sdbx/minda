@@ -71,23 +71,26 @@ public class ProfileEditor : MonoBehaviour
         var newUser = new User();
         if (loadedImage != null)
         {
-            LobbyServer.instance.UploadImage(loadedImage, (int id, int? err) =>
+            LobbyServer.instance.UploadImage(loadedImage, (Pic pic, int? err) =>
              {
                  if (err != null)
                  {
                      //에러처리
                      ToastManager.instance.Add("Image uploading Error","Error");
+                     return;
                  }
-                 newUser.picture = id;
+                 newUser.picture = pic.id;
                  newUser.username = userNameInputField.text;
 
-                 LobbyServer.instance.Put("/users/me/", JsonConvert.SerializeObject(newUser), (Nothing nothing, int? err2) =>
+                 LobbyServer.instance.Put("/users/me/", JsonConvert.SerializeObject(newUser), (EmptyResult nothing, int? err2) =>
                  {
                      if (err2 != null)
                      {
                          //에러처리
                          ToastManager.instance.Add("Profile uploading Error", "Error");
+                         return;
                      }
+                     EndEdit();
                  });
              });
         }
@@ -95,15 +98,31 @@ public class ProfileEditor : MonoBehaviour
         {
             newUser.username = userNameInputField.text;
 
-            LobbyServer.instance.Put("/users/me/", JsonConvert.SerializeObject(newUser), (Nothing nothing, int? err2) =>
+            LobbyServer.instance.Put("/users/me/", JsonConvert.SerializeObject(newUser), (EmptyResult nothing, int? err2) =>
             {
                 if (err2 != null)
                 {
-                         //에러처리
-                         ToastManager.instance.Add("Profile uploading Error", "Error");
+                    //에러처리
+                    ToastManager.instance.Add("Profile uploading Error", "Error");
                 }
+                EndEdit();
             });
         }
+    }
+
+    private void EndEdit()
+    {
+        LobbyServer.instance.RefreshLoginUser((User user) =>
+        {
+            LobbyServer.instance.RefreshLoginUserProfileImage((Texture texture) =>
+            {
+                userNametext.text = user.username;
+                profileImage.texture = texture;
+            });
+        });
+
+        SetDisplaymentState(false);
+        userNametext.text = userNameInputField.text;
     }
 
     private void OnDiscardChagesBtnClicked()
@@ -122,7 +141,6 @@ public class ProfileEditor : MonoBehaviour
     {
         SetDisplaymentState(false);
         display();
-        userNameInputField.gameObject.SetActive(false);
     }
 
     private void display()
