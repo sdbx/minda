@@ -14,9 +14,9 @@ TagManager:
   - UI
   - 
   - 
-  - 
-  - 
-  - 
+  - Arrows
+  - Balls
+  - Board
   - 
   - 
   - 
@@ -63,6 +63,9 @@ TagManager:
   - name: MapSelector
     uniqueID: 2997160801
     locked: 1
+  - name: GameUI
+    uniqueID: 1218451015
+    locked: 0
   - name: InGameMenu
     uniqueID: 2422795177
     locked: 0

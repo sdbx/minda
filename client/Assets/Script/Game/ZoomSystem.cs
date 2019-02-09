@@ -53,7 +53,7 @@ namespace Game
 
             if (axis < 0)
             {
-                cam.transform.position = new Vector2((1 - (camSize / maxSize)) * (camPosition.x) * 2, (1 - (camSize / maxSize)) * (camPosition.y) * 2);
+                cam.transform.position = new Vector3((1 - (camSize / maxSize)) * (camPosition.x) * 2, (1 - (camSize / maxSize)) * (camPosition.y) * 2,-10);
             }
 
             var value = (1 - (camSize / maxSize))*3;
@@ -92,7 +92,7 @@ namespace Game
                 {
                     deltaPos = new Vector2(deltaPos.x, 0);
                 }
-                pos = new Vector3(Mathf.Clamp(pos.x, -dragLimit.x, dragLimit.x), Mathf.Clamp(pos.y, -dragLimit.y, dragLimit.y), 0);
+                pos = new Vector3(Mathf.Clamp(pos.x, -dragLimit.x, dragLimit.x), Mathf.Clamp(pos.y, -dragLimit.y, dragLimit.y), -10);
 
 
                 cam.transform.position = pos;

@@ -2,7 +2,7 @@ using UI;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MapUploadSystem : MonoBehaviour
+public class MapList : MonoBehaviour
 {
     [SerializeField]
     private MapObject prefab;
@@ -11,8 +11,6 @@ public class MapUploadSystem : MonoBehaviour
 
     [SerializeField]
     private Button browseBtn;
-    [SerializeField]
-    private Button uploadBtn;
 
     private void Awake()
     {
