@@ -1,6 +1,10 @@
 package picserv
 
 import (
+	"mime/multipart"
+	"io"
+	"strconv"
+	"image/color"
 	"time"
 	"lobby/utils"
 	"bytes"
@@ -10,15 +14,24 @@ import (
 	_ "image/jpeg"
 	"image/png"
 	"lobby/servs/redisserv"
-	"net/http"
 
 	"github.com/minio/minio-go"
 	"github.com/garyburd/redigo/redis"
 )
 
 const (
+	skinSize = 128
+	skinBorder = 0.08
+	profileSize = 128
 	redisCoolTmpl = "pic_cool_%d"
 	coolTime      = 10
+	maxSize = 1000
+	minSize = 50
+)
+
+var (
+	ColorBlack = color.RGBA{0,0,0,255}
+	ColorWhite = color.RGBA{255,255,255,255}
 )
 
 func redisCool(id int) string {
@@ -28,7 +41,7 @@ func redisCool(id int) string {
 type PicServConf struct {
 	Endpoint string `yaml:"endpoint"`
 	Key string `yaml:"key"`
-	Secret string `yaml:"key"`
+	Secret string `yaml:"secret"`
 	Region string `yaml:"region"`
 	Bucket string `yaml:"bucket"`
 }
@@ -64,31 +77,22 @@ func Provide(conf PicServConf) (*PicServ, error) {
 	}, err
 }
 
-func (p *PicServ) ConfigName() string {
+func (p PicServ) ConfigName() string {
 	return "pic"
 }
 
-func (p *PicServ) DownloadImage(url string) (image.Image, error) {
-	fmt.Println(url)
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	img, _, err := image.Decode(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-	return img, nil
+func (p *PicServ) ParseImage(r io.Reader) (image.Image, error) {
+	img, _, err := image.Decode(r)
+	return img, err
 }
 
-func (p *PicServ) UploadBuffer(buf []byte) (string, error) {
-	img, _, err := image.Decode(bytes.NewReader(buf))
+func (p *PicServ) ParseImageFromFile(f *multipart.FileHeader) (image.Image, error) {
+	r, err := f.Open()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return p.UploadImage(img)
+	defer r.Close()
+	return p.ParseImage(r)
 }
 
 func (p *PicServ) UploadImage(img image.Image) (string, error) {
@@ -97,13 +101,13 @@ func (p *PicServ) UploadImage(img image.Image) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	key := time.Now().String()+utils.RandString(30)+".png"
+	key := strconv.Itoa(int(time.Now().UnixNano())) + utils.RandString(30)+".png"
 	_, err = p.cli.PutObject(p.bucket, key, &buf, -1, minio.PutObjectOptions{ContentType:"image/png"})
 	if err != nil {
 		return "", err
 	}
 
-	return "http://" + p.endpoint + "/" + key, nil
+	return "http://" + p.endpoint + "/" + p.bucket + "/" + key, nil
 }
 
 func (p *PicServ) SetCool(id int) error {

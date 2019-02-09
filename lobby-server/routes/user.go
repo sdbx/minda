@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"io/ioutil"
 	"lobby/middlewares"
 	"lobby/models"
 	"lobby/servs/dbserv"
@@ -24,7 +23,7 @@ func (u *user) Register(d *dim.Group) {
 		d.Use(&middlewares.AuthMiddleware{})
 		d.GET("/", u.me)
 		d.PUT("/", u.putMe)
-		d.PUT("/picture", u.me)
+		d.PUT("/picture/", u.putMePicture)
 	})
 	d.GET("/:id/", u.getUser)
 }
@@ -55,7 +54,7 @@ func (u *user) putMe(c2 echo.Context) error {
 		return err
 	}
 	item.ID = c.User.ID
-	err = u.DB.Update(&item, "created_at", "permission", "picture")
+	err = u.DB.Update(&item, "created_at", "picture", "user_permission", "user_inventory")
 	if err != nil {
 		return err
 	}
@@ -77,17 +76,12 @@ func (u *user) putMePicture(c2 echo.Context) error {
 		return err
 	}
 
-	r, err := file.Open()
+	img, err := u.Pic.ParseImageFromFile(file)
 	if err != nil {
 		return err
 	}
 
-	buf, err := ioutil.ReadAll(r)
-	if err != nil {
-		return err
-	}
-
-	picURL, err := u.Pic.UploadBuffer(buf)
+	picURL, err := u.Pic.UploadImage(u.Pic.CreateProfile(img))
 	if err != nil {
 		return err
 	}
