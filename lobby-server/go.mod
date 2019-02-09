@@ -2,6 +2,7 @@ module lobby
 
 require (
 	github.com/aws/aws-sdk-go v1.16.29
+	github.com/disintegration/imaging v1.6.0
 	github.com/garyburd/redigo v1.6.0
 	github.com/go-ini/ini v1.41.0 // indirect
 	github.com/go-playground/locales v0.12.1 // indirect
@@ -23,5 +24,6 @@ require (
 	go.uber.org/atomic v1.3.2 // indirect
 	go.uber.org/multierr v1.1.0 // indirect
 	go.uber.org/zap v1.9.1
+	golang.org/x/image v0.0.0-20190118043309-183bebdce1b2 // indirect
 	gopkg.in/boj/redistore.v1 v1.0.0-20160128113310-fc113767cd6b
 )

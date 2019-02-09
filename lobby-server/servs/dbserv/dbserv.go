@@ -1,6 +1,9 @@
 package dbserv
 
-import "github.com/gobuffalo/pop"
+import (
+	"lobby/models"
+	"github.com/gobuffalo/pop"
+)
 
 type DBServ struct {
 	*pop.Connection
@@ -23,4 +26,12 @@ func (db *DBServ) Init() error {
 	}
 	
 	return mig.Up()
+}
+
+func (db *DBServ) GetSkinsOfUser(user int) ([]models.Skin, error) {
+	var out []models.Skin
+	err := db.Q().
+		InnerJoin("user_skins", "skins.id = user_skins.skin_id").
+		Where("user_skins.user_id = ?", user).All(&out)
+	return out, err
 }

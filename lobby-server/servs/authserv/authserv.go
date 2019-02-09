@@ -1,6 +1,7 @@
 package authserv
 
 import (
+	"net/http"
 	"errors"
 	"lobby/models"
 	"lobby/servs/dbserv"
@@ -68,7 +69,12 @@ func (a *AuthServ) GetUser(id int) (models.User, error) {
 }
 
 func (a *AuthServ) uploadImg(url string) (string, error) {
-	img, err := a.Pic.DownloadImage(url)
+	resp, err := http.Get(url)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	img, err := a.Pic.ParseImage(resp.Body)
 	if err != nil {
 		return "", err
 	}
@@ -174,19 +180,6 @@ func (a *AuthServ) CreateToken(id int) string {
 }
 
 func (a *AuthServ) Authorize(token string) (models.User, error) {
-	if token == "black" {
-		return models.User{
-			ID:       101,
-			Username: "흑우",
-		}, nil
-	}
-	if token == "white" {
-		return models.User{
-			ID:       201,
-			Username: "백우",
-		}, nil
-	}
-
 	id, err := a.ParseToken(token)
 	if err != nil {
 		return models.User{}, err

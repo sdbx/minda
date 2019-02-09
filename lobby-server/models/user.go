@@ -29,6 +29,7 @@ type UserInventory struct {
 	UserID       int       `db:"user_id" json:"-"`
 	OneColorSkin int       `db:"one_color_skin" json:"one_color_skin"`
 	TwoColorSkin int       `db:"two_color_skin" json:"two_color_skin"`
+	CurrentSkin  nulls.Int `db:"current_skin" json:"current_skin"`
 }
 
 type OAuthUser struct {
@@ -46,4 +47,10 @@ func (o OAuthUser) TableName() string {
 type AuthRequest struct {
 	Token *string `json:"token"`
 	First bool    `json:"first"`
+}
+
+type UserSkin struct {
+	ID     uuid.UUID `db:"id"`
+	UserID int       `db:"user_id"`
+	SkinID int       `db:"skin_id"`
 }
