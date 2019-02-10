@@ -228,8 +228,11 @@ impl Server {
                 };
                 if let Err(err) = cmd::handle(self, &conn, &cmd) {
                     self.dispatch(conn_id, &Event::Error{message: format!("{}", err)});
-                    if err.description() == "should terminate" {
-                        self.kick(conn_id);
+                    match err {
+                        Error::ShouldTerminate(_) => {
+                            self.kick(conn_id);
+                        },
+                        _ => {}
                     }
                 };
             },
