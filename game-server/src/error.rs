@@ -22,8 +22,12 @@ quick_error! {
             cause(err)
         }
         TaskError(error: String) {
-            description("Task error")
+            description("task error")
             display("task error: {}", error)
+        }
+        ShouldTerminate(err: String) {
+            description("should terminate")
+            display("{}", err)
         }
         GameStarted {
             description("Game have benn started already")

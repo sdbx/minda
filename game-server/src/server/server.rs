@@ -12,6 +12,7 @@ use std::time::Duration;
 use model::{Task, TaskResult, TaskRequest, GameServer};
 use redis::Commands;
 use error::Error;
+use std::error::{Error as SError};
 use ticker::Ticker;
 use game::{Game, Player, Board, Cord, Stone};
 use std::sync::mpsc::Sender;
@@ -227,6 +228,12 @@ impl Server {
                 };
                 if let Err(err) = cmd::handle(self, &conn, &cmd) {
                     self.dispatch(conn_id, &Event::Error{message: format!("{}", err)});
+                    match err {
+                        Error::ShouldTerminate(_) => {
+                            self.kick(conn_id);
+                        },
+                        _ => {}
+                    }
                 };
             },
             ServerEvent::DiscoverUpdated => {
