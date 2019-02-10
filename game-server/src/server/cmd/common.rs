@@ -41,7 +41,6 @@ pub fn connect(server: &mut Server, conn: &Connection, key: &str) -> Result<(), 
         conn.room_id = Some(invite.room_id.clone());
 
         let mroom = room.to_model();
-        room.add_user(conn.conn_id, invite.user_id, &key);
         if let Some(ref game) = room.game {
             let ticked = Some(Event::Ticked {
                 white_time: (game.white_time as f32) / 1000.0,
@@ -54,6 +53,14 @@ pub fn connect(server: &mut Server, conn: &Connection, key: &str) -> Result<(), 
         }
     };
 
+    kick_users.iter().for_each(|u| server.kick(*u));
+    {
+        let room = match server.rooms.get_mut(&invite.room_id) {
+            Some(room) => room,
+            None => { return Err(Error::Internal) }
+        };
+        room.add_user(conn.conn_id, invite.user_id, &key);
+    };
     server.invites.remove(&invite.key);
     server.update_discover()?;
 
@@ -65,6 +72,5 @@ pub fn connect(server: &mut Server, conn: &Connection, key: &str) -> Result<(), 
     server.broadcast(&invite.room_id, &Event::Entered{
         user: invite.user_id
     });
-    kick_users.iter().for_each(|u| server.kick(*u));
     Ok(())
 }
