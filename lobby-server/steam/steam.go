@@ -5,12 +5,16 @@ import (
 	"errors"
 	"io/ioutil"
 	"net/http"
+	"net/url"
+	"strconv"
 	"strings"
 	"time"
 )
 
-const steamURL = "https://api.steampowered.com"
-
+const (
+	steamURL       = "https://api.steampowered.com"
+	iSteamMicroTxn = "ISteamMicroTxn"
+)
 const (
 	methodGET  = "GET"
 	methodPOST = "POST"
@@ -57,6 +61,13 @@ func (s *Steam) apiCall(method string, args map[string]string, routes ...string)
 			q.Set(key, value)
 		}
 		req.URL.RawQuery = q.Encode()
+	case methodPOST:
+		form := url.Values{}
+		for key, value := range args {
+			form.Add(key, value)
+		}
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		req.Body = ioutil.NopCloser(strings.NewReader(form.Encode()))
 	}
 
 	resp, err := s.client.Do(req)
@@ -154,4 +165,75 @@ func (s *Steam) GetPlayerSummary(id string) (PlayerSummary, error) {
 	}
 
 	return resp.R.Players[0], nil
+}
+
+type Item struct {
+	ID     int
+	Name   string
+	Qty    int
+	Amount int
+}
+
+type initTxnResp struct {
+	R struct {
+		Result string `json:"result"`
+		P      struct {
+			TransID int `json:"transid"`
+		} `json:"params"`
+	} `json:"response"`
+}
+
+func (s *Steam) InitTxn(orderid int, id string, items []Item) (int, error) {
+	args := map[string]string{
+		"appid":      s.appid,
+		"key":        s.key,
+		"orderid":    strconv.Itoa(orderid),
+		"steamid":    id,
+		"itemamount": strconv.Itoa(len(items)),
+		"currency":   "USD",
+		"language":   "en",
+	}
+	for i, item := range items {
+		s := strconv.Itoa(i)
+		args["itemid["+s+"]"] = strconv.Itoa(item.ID)
+		args["qty["+s+"]"] = strconv.Itoa(item.Qty)
+		args["amount["+s+"]"] = strconv.Itoa(item.Amount)
+		args["description["+s+"]"] = item.Name
+	}
+
+	buf, err := s.apiCall(methodGET, args, iSteamMicroTxn, "InitTxn", "v3")
+
+	var resp initTxnResp
+	err = json.Unmarshal(buf, &resp)
+	if err != nil {
+		return 0, err
+	}
+	if resp.R.Result != "OK" {
+		return 0, errors.New("steam error: result not OK")
+	}
+
+	return resp.R.P.TransID, nil
+}
+
+func (s *Steam) FinalizeTxn(orderid int) error {
+	args := map[string]string{
+		"appid":   s.appid,
+		"key":     s.key,
+		"orderid": strconv.Itoa(orderid),
+	}
+
+	buf, err := s.apiCall(methodGET, args, iSteamMicroTxn, "FinalizeTxn", "v2")
+	if err != nil {
+		return err
+	}
+
+	var resp initTxnResp
+	err = json.Unmarshal(buf, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.R.Result != "OK" {
+		return errors.New("steam error: result not OK")
+	}
+	return nil
 }
