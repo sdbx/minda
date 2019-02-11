@@ -8,26 +8,20 @@ using DG.Tweening;
 
 public class DisplayChanger : MonoBehaviour
 {
-    private enum ElementType
-    {
-        Text,
-        RawImage,
-    }
-
     [Serializable]
     public class ColorSettings : SerializableDictionaryBase<string, Color> { }
 
     [Serializable]
     private class setting
     {
-        public GameObject element;
-        public ElementType type;
+        public Graphic element;
         [HideInInspector]
         private MonoBehaviour component;
         [HideInInspector]
         public Color origin;
         public ColorSettings colors = new ColorSettings();
     }
+
     [SerializeField]
     private float duration;
     [SerializeField]
@@ -47,21 +41,8 @@ public class DisplayChanger : MonoBehaviour
 
         foreach (var sett in settings)
         {
-            switch (sett.type)
-            {
 
-                case ElementType.Text:
-                    {
-                        sett.origin = sett.element.GetComponent<Text>().color;
-                        break;
-                    }
-
-                case ElementType.RawImage:
-                    {
-                        sett.origin = sett.element.GetComponent<RawImage>().color;
-                        break;
-                    }
-            }
+            sett.origin = sett.element.color;
         }
         isOriginColorSaved = true;
     }
@@ -71,27 +52,9 @@ public class DisplayChanger : MonoBehaviour
         SaveOrigin();
         foreach (var setting in settings)
         {
-            switch (setting.type)
+            if (setting.colors.ContainsKey(mode))
             {
-
-                case ElementType.Text:
-                    {   
-                        if(setting.colors.ContainsKey(mode))
-                        {
-                            setting.element.GetComponent<Text>().DOColor(setting.colors[mode],duration);
-                        }
-                        break;
-                    }
-
-                case ElementType.RawImage:
-                    {
-                        if (setting.colors.ContainsKey(mode))
-                        {
-                            setting.element.GetComponent<RawImage>().DOColor(setting.colors[mode],duration);
-                        }
-                        break;
-                    }
-
+                setting.element.DOColor(setting.colors[mode], duration);
             }
         }
     }
@@ -101,22 +64,7 @@ public class DisplayChanger : MonoBehaviour
         SaveOrigin();
         foreach (var sett in settings)
         {
-            switch (sett.type)
-            {
-
-                case ElementType.Text:
-                    {
-                        sett.element.GetComponent<Text>().DOColor(sett.origin,duration);
-                        break;
-                    }
-
-                case ElementType.RawImage:
-                    {
-                        sett.element.GetComponent<RawImage>().DOColor(sett.origin,duration);
-                        break;
-                    }
-
-            }
+            sett.element.DOColor(sett.origin, duration);
         }
     }
 }

@@ -16,6 +16,8 @@ namespace UI
         [SerializeField]
         private RoomObject roomPrefeb;
         [SerializeField]
+        private InputField SearchInputField;
+        [SerializeField]
         private ScrollRect scrollRect;
         private Transform content;
         private List<RoomObject> _roomList = new List<RoomObject>();
@@ -23,6 +25,7 @@ namespace UI
         private void Awake()
         {
             content = scrollRect.transform.GetChild(0).GetChild(0);
+            SearchInputField.onValueChanged.AddListener((string str)=>{RefreshRoomList();});
         }
 
         void Start()
@@ -52,7 +55,7 @@ namespace UI
         public void RefreshRoomList()
         {
             ClearRoomList();
-            LobbyServer.instance.Get<Room[]>("/rooms/", (Room[] rooms, int? err) =>
+            LobbyServer.instance.Get<Room[]>($"/rooms/?name={SearchInputField.text}", (Room[] rooms, int? err) =>
             {
                 if (err != null)
                 {

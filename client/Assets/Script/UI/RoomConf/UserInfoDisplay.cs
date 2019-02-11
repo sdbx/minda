@@ -13,7 +13,6 @@ namespace UI
     public class UserInfoDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
     {
         public int UserId;
-        private InGameUser inGameUser;
         private BallType ballType = BallType.Black;
         private RectTransform rectTransform;
         private RectTransform rootRectTransform;
@@ -57,7 +56,6 @@ namespace UI
             {
                 if (!destroyed)
                 {
-                    this.inGameUser = inGameUser;
                     usernameText.text = inGameUser.user.username;
                     imformationText.text = "gorani 53";
                     kingIcon.SetActive(inGameUser.isKing);
@@ -82,52 +80,56 @@ namespace UI
             var gameServer = GameServer.instance;
             var myId = LobbyServer.instance.loginUser.id;
             //king menu
-            if(RoomUtils.CheckIsKing(myId))
+            GameServer.instance.GetInGameUser(UserId, (InGameUser inGameUser) =>
             {
-                if(inGameUser.ballType != BallType.White)
+                if (RoomUtils.CheckIsKing(myId))
                 {
-                    contextMenu.Add("To White",()=>
+                    if (inGameUser.ballType != BallType.White)
                     {
-                        gameServer.ChangeUserRole(UserId, BallType.White);
+                        contextMenu.Add("To White", () =>
+                         {
+                             gameServer.ChangeUserRole(UserId, BallType.White);
+                         });
+                    }
+                    if (inGameUser.ballType != BallType.Black)
+                    {
+                        contextMenu.Add("To Black", () =>
+                         {
+                             gameServer.ChangeUserRole(UserId, BallType.Black);
+                         });
+                    }
+                    if (inGameUser.ballType != BallType.None)
+                    {
+                        contextMenu.Add("To Spectator", () =>
+                         {
+                             gameServer.ChangeUserRole(UserId, BallType.None);
+                         });
+                    }
+                    if (UserId != myId)
+                    {
+                        contextMenu.Add("Give King", () =>
+                         {
+                             gameServer.ChangeKingTo(UserId);
+                         });
+                    }
+                    contextMenu.Add("Ban", () =>
+                    {
+                        GameServer.instance.BanUser(UserId);
                     });
                 }
-                if(inGameUser.ballType != BallType.Black)
-                {
-                    contextMenu.Add("To Black",()=>
-                    {
-                        gameServer.ChangeUserRole(UserId, BallType.Black);
-                    });
-                }
-                if(inGameUser.ballType != BallType.None)
-                {
-                    contextMenu.Add("To Spectator",()=>
-                    {
-                        gameServer.ChangeUserRole(UserId, BallType.None);
-                    });
-                }
-                if(UserId != myId)
-                {
-                    contextMenu.Add("Give King", () =>
-                     {
-                         gameServer.ChangeKingTo(UserId);
-                     });
-                }
-            }
-            contextMenu.Add("Whisper",()=>{Debug.Log("귓속말");});
 
 
-            Vector3[] corners = new Vector3[4];
-            rectTransform.GetLocalCorners(corners);
-            
-            Vector2 pos = PositionUtils.WorldPosToLocalRectPos(transform.position, rootRectTransform);
-            ContextMenuManager.instance.Create(new Vector2(corners[corner].x+pos.x,corners[corner].y+pos.y), contextMenu);
+                Vector3[] corners = new Vector3[4];
+                rectTransform.GetLocalCorners(corners);
+
+                Vector2 pos = PositionUtils.WorldPosToLocalRectPos(transform.position, rootRectTransform);
+                ContextMenuManager.instance.Create(new Vector2(corners[corner].x + pos.x, corners[corner].y + pos.y), contextMenu);
+            });
         }
         
         //user menucontext
         public void OnPointerEnter(PointerEventData eventData)
         {
-            if(inGameUser == null)
-                return;
             displayChanger.SetMode("Hightlighed");
         }
 
@@ -138,10 +140,7 @@ namespace UI
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            if(inGameUser != null)
-            {
-                CreateContextMenu();
-            }
+            CreateContextMenu();
         }
     }
 

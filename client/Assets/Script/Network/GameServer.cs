@@ -61,8 +61,8 @@ namespace Network
 
             DontDestroyOnLoad(gameObject);
             eventJsonSettings.Converters.Add(new EventConverter());
-
             InitHandlers();
+            asyncCallbackClient.closeSocketCallback = OnSocketClose;
         }
 
         private void Update()
@@ -85,13 +85,22 @@ namespace Network
                     Debug.Log(asyncCallbackClient.logQueue.Dequeue());
                 }
             }
+
+            int callbackCount = asyncCallbackClient.callbackQuene.Count;
+            if (callbackCount > 0)
+            {
+                for (int i = 0; i < callbackCount; i++)
+                {
+                    asyncCallbackClient.callbackQuene.Dequeue()();
+                }
+            }
         }
 
         private void Connect(string ip, int port, Action callback)
         {
             if (asyncCallbackClient.state == ClientState.DISCONNECTED)
                 asyncCallbackClient.Connect(ip, port, callback);
-            else Debug.Log($"[AsyncCallbackClient]Already Connected {ip}:{port}");
+            else Debug.Log($"[AsyncCallbackClient] Already Connected {ip}:{port}");
         }
 
         private void ReceiveEvent(string data)
@@ -175,6 +184,7 @@ namespace Network
             AddHandler<GameStartedEvent>(OnGameStarted);
             AddHandler<ChattedEvent>(OnChatted);
             AddHandler<EndedEvent>(OnGameEnded);
+            AddHandler<BannedEvent>(OnBanned);
         }
 
         private void OnConnected(Event e)
@@ -199,7 +209,7 @@ namespace Network
            
 
             //MyEnter
-            if(entered.user == me.id)
+            if(entered.user == me.id&&RoomUtils.GetBallType(me.id)==BallType.None)
             {
                 isSpectator = (emptyBallType == BallType.None);
             }
@@ -236,7 +246,7 @@ namespace Network
                 {
                     return;
                 }
-                LobbyServerAPI.DownloadImage(inGameUser.user.picture.Value,(Texture texture)=>
+                LobbyServerAPI.DownloadImage(inGameUser.user.picture,(Texture texture)=>
                 {
                     if(!profileImages.ContainsKey(id))
                         profileImages.Add(id,texture);
@@ -291,6 +301,15 @@ namespace Network
             GetInGameUser(chatted.user,(InGameUser inGameUser)=>
             {
                 MessagedEvent?.Invoke(new UserMessage(inGameUser,chatted.content));
+            });
+        }
+
+        public void OnBanned(Event e)
+        {
+            var banned = (BannedEvent)e;
+            GetInGameUser(banned.user, (InGameUser inGameUser) =>
+            {
+                MessagedEvent?.Invoke(new SystemMessage("Notice", $"{inGameUser.user.username} was banned"));
             });
         }
 
@@ -375,13 +394,23 @@ namespace Network
             SendCommand(command);
         }
 
+        public void BanUser(int id)
+        {
+            BanCommnad command = new BanCommnad();
+            command.user = id;
+            SendCommand(command);
+        }
+
         public void ExitGame()
         {
             asyncCallbackClient.Close();   
-            ClearAll();
-            SceneManager.LoadScene("Menu",LoadSceneMode.Single);
         }
 
+        private void OnSocketClose()
+        {
+            ClearAll();
+            SceneManager.LoadSceneAsync("Menu",LoadSceneMode.Single);
+        }
         public void Surrender()
         {
             SendCommand(new GGCommand());

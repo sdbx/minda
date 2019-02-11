@@ -511,7 +511,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d628e3f4223ffab43b357761dde5f003, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  address: http://minda.games:8080
+  address: https://api.minda.games
   token: 
   loginCheckInterval: 1
 --- !u!4 &245894880
@@ -1083,6 +1083,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isSpectator: 0
+  isInGame: 0
 --- !u!4 &980202845
 Transform:
   m_ObjectHideFlags: 0

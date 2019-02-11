@@ -61,11 +61,14 @@ public class UserList : MonoBehaviour
         }
     }
 
-    private UserInfoDisplay Add(int user)
+    private void Add(int user)
     {
+        if(userInfoDisplays.ContainsKey(user))
+            return;
+            
         var userInfoDisplay = Instantiate<UserInfoDisplay>(prefab, content);
         userInfoDisplay.UserId = user;
         userInfoDisplays.Add(user,userInfoDisplay);
-        return userInfoDisplay;
+        return;
     }
 }

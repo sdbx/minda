@@ -32,6 +32,8 @@ namespace UI
         public void Awake()
         {
             canvasGroup = mapSelector.GetComponent<CanvasGroup>();
+            canvasGroup.interactable = false;
+            canvasGroup.blocksRaycasts = false;
         }
 
         public void ToggleActivation()
@@ -50,12 +52,14 @@ namespace UI
         {
             if (state == State.Activated)
             {
+                canvasGroup.interactable = false;
                 state = State.UnActivating;
-                mapSelector.transform.DOScale(unActivatedScale,duration).SetEase(Ease.InQuart).OnComplete(()=>
-                {
-                    mapSelector.SetActive(false);
-                    state = State.UnActivated;
-                });
+                mapSelector.transform.DOScale(unActivatedScale, duration).SetEase(Ease.InQuart).OnComplete(() =>
+                 {
+                     canvasGroup.blocksRaycasts = false;
+                     mapSelector.SetActive(false);
+                     state = State.UnActivated;
+                 });
             }
         }
 
@@ -63,6 +67,8 @@ namespace UI
         {
             if (state == State.UnActivated)
             {
+                canvasGroup.blocksRaycasts = true;
+                canvasGroup.interactable = true;
                 canvasGroup.alpha = 1;
                 mapSelector.SetActive(true);
                 mapSelector.transform.localScale = unActivatedScale;

@@ -18,7 +18,9 @@ namespace Network
     {
         public Queue<string> dataQueue = new Queue<string>();
         public Queue<string> logQueue = new Queue<string>();
+        public Queue<Action> callbackQuene = new Queue<Action>(); 
         private Action connectedCallback;
+        public Action closeSocketCallback;
         public ClientState state = ClientState.DISCONNECTED;
 
         private Socket client;
@@ -111,6 +113,7 @@ namespace Network
         {
             logQueue.Enqueue("[Disconnected]");
             state = ClientState.DISCONNECTED;
+            callbackQuene.Enqueue(closeSocketCallback);
             if (client != null)
             {
                 try { client.Shutdown(SocketShutdown.Both); }

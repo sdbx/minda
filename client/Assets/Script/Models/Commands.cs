@@ -51,4 +51,9 @@ namespace Models
         public string type = "chat";
         public string content;
     }
+    public class BanCommnad : Command
+    {
+        public string type = "ban";
+        public int user;
+    }
 }

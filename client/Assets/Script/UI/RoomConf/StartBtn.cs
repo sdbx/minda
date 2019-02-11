@@ -7,6 +7,7 @@ using Scene;
 using Network;
 using Game;
 using Models;
+using UnityEngine.SceneManagement;
 
 public class StartBtn : MonoBehaviour
 {
@@ -18,16 +19,21 @@ public class StartBtn : MonoBehaviour
     private void Awake()
     {
         gameObject.GetComponent<Button>().onClick.AddListener(OnClicked);
-        GameServer.instance.ConfedEvent += OnConfed;
-        OnConfed(GameServer.instance.connectedRoom.conf);
+        GameServer.instance.ConfedEvent += Check;
     }
 
     private void OnDestroy()
     {
-        GameServer.instance.ConfedEvent -= OnConfed;
+        GameServer.instance.ConfedEvent -= Check;
     }
 
-    private void OnConfed(Conf conf)
+    private void Start()
+    {
+        if(GameServer.instance.connectedRoom!=null)
+            Check(GameServer.instance.connectedRoom.conf);
+    }
+    
+    private void Check(Conf conf)
     {
         User me = LobbyServer.instance.loginUser;
         if (conf.king == me.id && conf.black != -1 && conf.white != -1)

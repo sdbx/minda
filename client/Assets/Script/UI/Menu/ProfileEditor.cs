@@ -79,7 +79,7 @@ public class ProfileEditor : MonoBehaviour
                      ToastManager.instance.Add("Image uploading Error","Error");
                      return;
                  }
-                 newUser.picture = pic.id;
+                 //newUser.picture = pic;
                  newUser.username = userNameInputField.text;
 
                  LobbyServer.instance.Put("/users/me/", JsonConvert.SerializeObject(newUser), (EmptyResult nothing, int? err2) =>

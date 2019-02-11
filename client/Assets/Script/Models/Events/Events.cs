@@ -70,5 +70,10 @@ namespace Models.Events
         public int user;
         public string content;
     }
+
+    public class BannedEvent : Event
+    {
+        public int user;
+    }
     
 }

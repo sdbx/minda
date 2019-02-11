@@ -10,109 +10,64 @@ using UnityEngine.UI;
 
 namespace UI
 {
-    public class MapSelector : MonoBehaviour
+    public class MapSelector : MapList
     {
         [SerializeField]
-        private MapPreview MapPreviewInMain;
+        private MapPreview mainPreview;
         [SerializeField]
-        private MapPreview mapPreviewInWindow;
+        private MapPreview windowPreview;
         [SerializeField]
-        ScrollRect scrollRect;
-        [SerializeField]
-        private Transform content;
-        [SerializeField]
-        private MapSelectorToggler mapSelectorToggler;
-        [SerializeField]
-        public MapObject mapObjectPrefab;
-        private List<MapObject> maps = new List<MapObject>();
+        private Button selectButton;
 
-        private MapObject selectedMap;
-        private MapObject LoadBtn;
+        protected override void Awake()
+        {
+            base.Awake();
+            LoadMyMaps();
+            selectButton.onClick.AddListener(SetSelectedMap);
+        }
 
         private void Start()
         {
-            Init();
+            var basic = CreateBasicMapObject();
+            Select(basic);
         }
 
-        private void Init()
+        private void LoadMyMaps()
         {
-            gameObject.SetActive(false);
-            LobbyServerAPI.GetMyMaps((Map[] maps, int? err)=>
+            LobbyServerAPI.GetMyMaps((Map[] maps, int? err) =>
             {
-                if(err!=null)
+                if (err != null)
                 {
                     return;
                 }
                 AddMapElements(maps);
             });
-            
-            LoadBtn = AddMapElement("Load..", null);
-            LoadBtn.isDirectorySelectBtn = true;
-
-            var basic = AddMapElement("Basic", Board.GetMapFromString(
-                "0@0@0@0@0@0@0@1@1#0@0@0@0@0@0@0@1@1#0@0@0@0@0@0@1@1@1#0@2@0@0@0@0@1@1@1#2@2@2@0@0@0@1@1@1#2@2@2@0@0@0@0@1@0#2@2@2@0@0@0@0@0@0#2@2@0@0@0@0@0@0@0#2@2@0@0@0@0@0@0@0"));
-            basic.Select();
         }
 
-        public void SelectMapInList(MapObject mapObject)
+        public override MapObject AddMapElement(string name, int[,] map)
         {
-            if (selectedMap != mapObject)
-            {
-                if (selectedMap != null)
-                    selectedMap.UnSelect();
-                Debug.Log($"[Map Selected] :{mapObject.mapName}");
-                selectedMap = mapObject;
-                mapPreviewInWindow.SetMap(mapObject.map);
-            }
-        }
-
-        public MapObject AddMapElement(string name, int[,] map)
-        {
-            var mapObject = Instantiate(mapObjectPrefab, content.position, Quaternion.Euler(0, 0, 0), content);
-            mapObject.mapName = name;
-            mapObject.map = map;
-            mapObject.mapSelector = this;
-            maps.Add(mapObject);
-            if(LoadBtn!=null)
-                LoadBtn.transform.SetAsLastSibling();
-            mapObject.transform.localPosition = Vector3.zero;
+            var mapObject = base.AddMapElement(name, map);
+            LoadButton.transform.SetAsLastSibling();
             return mapObject;
         }
 
-        public MapObject AddMapElement(Map map)
+        private MapObject CreateBasicMapObject()
         {
-            var mapObject = Instantiate(mapObjectPrefab, content.position , Quaternion.Euler(0, 0, 0), content);
-            mapObject.mapName = map.name;
-            mapObject.map = Board.GetMapFromString(map.payload);
-            mapObject.mapSelector = this;
-            maps.Add(mapObject);
-            if(LoadBtn!=null)
-                LoadBtn.transform.SetAsLastSibling();
-            mapObject.transform.localPosition = Vector3.zero;
-            return mapObject;
-        }
-
-        public void AddMapElements(Map[] maps)
-        {
-            if(maps==null)
-                return;
-            foreach (var map in maps)
-            {
-                AddMapElement(map);
-            }
-        }
-
-        public void ScorllBottom()
-        {
-            Canvas.ForceUpdateCanvases();
-            scrollRect.verticalNormalizedPosition = 0;
+            return AddMapElement("Basic", Board.GetMapFromString(Consts.basicMap));
         }
 
         public void SetSelectedMap()
-        {  
-            MapPreviewInMain.SetMap(selectedMap.map);
-            GameServer.instance.ChangeMapTo(Board.GetStringFromMap(selectedMap.map));
+        {
+            var map  = base.selectedMapObject.map;
+            mainPreview.SetMap(map);
+            GameServer.instance.ChangeMapTo(Board.GetStringFromMap(map));
         }
-    }
 
+        public override void Select(MapObject mapObject)
+        {
+            base.Select(mapObject);
+            windowPreview.SetMap(mapObject.map);
+        }
+        
+    }
 }

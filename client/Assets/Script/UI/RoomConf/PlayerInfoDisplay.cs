@@ -68,6 +68,7 @@ namespace UI
                 SetColor(ballType);
                 kingIcon.SetActive(false);
                 inGameUser = null;
+                SetProfileImage(placeHolder);
                 return;
             }
 
@@ -140,9 +141,11 @@ namespace UI
                          gameServer.ChangeKingTo(UserId);
                      });
                 }
-            }
-
-            contextMenu.Add("Whisper",()=>{Debug.Log("귓속말");});
+                contextMenu.Add("Ban",()=>
+                {
+                    GameServer.instance.BanUser(UserId);
+                });
+            }   
             
             Vector3[] corners = new Vector3[4];
             rectTransform.GetLocalCorners(corners);
@@ -180,12 +183,8 @@ namespace UI
             int playerId;
             BallType ballType;
 
-            if(isSpectator)
-            {
-                ballType = (num == 2 ? BallType.Black : BallType.White);
-            }
-            //본인이 검은색
-            else if (conf.black == LobbyServer.instance.loginUser.id)
+            //본인이 검은색이거나 관전자
+            if (isSpectator||conf.black == LobbyServer.instance.loginUser.id)
             {
                 ballType = (num == 2 ? BallType.Black : BallType.White);
             }

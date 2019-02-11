@@ -26,7 +26,7 @@ namespace Network
 
         public static LobbyServer instance;
 
-        public string address = "http://minda.games:8080";
+        public string address = "https://api.minda.games";
         LobbyServerRequestor requestor;
 
         public string token;
@@ -59,6 +59,16 @@ namespace Network
 
         void Start()
         {
+            if (token != "")
+            {
+                SceneManager.LoadSceneAsync("Menu", LoadSceneMode.Single);
+                loginState = LoginState.Login;
+                RefreshLoginUser((User user) =>
+                {
+                    ToastManager.instance.Add($"Hello, {user.username}", "Success");
+                });
+                Debug.Log("로그인 성공");
+            }
             /*if (SteamManager.isSteamVersion)
             {
                 steamRetries = 10;
@@ -216,7 +226,7 @@ namespace Network
                 callback(loginUserTexture);
                 return;
             }
-            LobbyServerAPI.DownloadImage(loginUser.picture.Value,(Texture texture)=>
+            LobbyServerAPI.DownloadImage(loginUser.picture,(Texture texture)=>
             {
                 loginUserTexture = texture;
                 callback(texture);
@@ -230,7 +240,7 @@ namespace Network
                 callback(null);
                 return;
             }
-            LobbyServerAPI.DownloadImage(loginUser.picture.Value, (Texture texture) =>
+            LobbyServerAPI.DownloadImage(loginUser.picture, (Texture texture) =>
              {
                  loginUserTexture = texture;
                  callback(texture);

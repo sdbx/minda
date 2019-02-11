@@ -18,8 +18,6 @@ public class RoomCreateWindow : MonoBehaviour
     private Button CancelBtn;
     [SerializeField]
     private Button CreateBtn;
-    [SerializeField]
-    private Button CreateWindowBtn;
 
     private void Awake() 
     {

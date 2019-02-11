@@ -6,13 +6,16 @@ namespace Models
     {
         public int id = -1;
         public string username = "";
-        public int? picture;
+        public string picture;
         Premissions permissions;
+        Inventory inventory;
     }
+
     public class Premissions
     {
         public bool admin;
     }
+
     public class InGameUser
     {
         public User user;
@@ -25,5 +28,20 @@ namespace Models
             }
         }
         public bool isKing = false;
+    }
+
+    public class Inventory
+    {
+        public int one_color_skin;
+        public int two_color_skin;
+        public int? current_skin;
+    }
+
+    public class Skin
+    {
+        public int id;
+        public string name;
+        public string black_picture;
+        public string white_picture;
     }
 }
