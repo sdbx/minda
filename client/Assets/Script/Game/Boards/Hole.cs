@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using Game.Coords;
+using Models;
 using UnityEngine;
 namespace Game.Boards
 {

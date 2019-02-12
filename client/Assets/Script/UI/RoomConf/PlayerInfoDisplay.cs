@@ -6,6 +6,7 @@ using Network;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Utils;
 using static UnityEngine.Camera;
 
 namespace UI
@@ -22,8 +23,6 @@ namespace UI
         private RawImage backGround;
         [SerializeField]
         private Text usernameText;
-        //[SerializeField]
-        //private Text imformationText;
         [SerializeField]
         private Texture backgroundBlack;
         [SerializeField]
@@ -31,11 +30,15 @@ namespace UI
         [SerializeField]
         private GameObject kingIcon;
         [SerializeField]
-        private DisplayChanger displayChanger;
+        private DisplayChanger backGroundDisplayChanger;
+        [SerializeField]
+        private DisplayChanger textDisplayChanger;
         [SerializeField]
         private int corner;
         [SerializeField]
         private Vector2 contextMenuPivot;
+        [SerializeField]
+        private int num;
 
         private Texture placeHolder;
 
@@ -43,9 +46,20 @@ namespace UI
         {
             placeHolder = UISettings.instance.placeHolder;
             rectTransform = gameObject.GetComponent<RectTransform>();
+            GameServer.instance.ConfedEvent += OnConfed;
         }
         
-        public void display(int id, BallType ballType = BallType.None)
+        private void OnDestroy()
+        {
+            GameServer.instance.ConfedEvent -= OnConfed;
+        }
+        
+        public void OnConfed(Conf conf)
+        {
+            SetPlayerInfo(conf);
+        }
+
+        public void Display(int id, BallType ballType = BallType.None)
         {
             UserId = id;
             if(id == -1)
@@ -54,6 +68,7 @@ namespace UI
                 SetColor(ballType);
                 kingIcon.SetActive(false);
                 inGameUser = null;
+                SetProfileImage(placeHolder);
                 return;
             }
 
@@ -81,12 +96,12 @@ namespace UI
             if(ballType == BallType.Black)
             {
                 backGround.texture = backgroundBlack;
-                displayChanger.SetMode("Black");
+                textDisplayChanger.SetMode("Black");
             }
             else if(ballType == BallType.White)
             {
                 backGround.texture = backgroundWhite;
-                displayChanger.SetMode("White");
+                textDisplayChanger.SetMode("White");
             }
         }
 
@@ -126,9 +141,11 @@ namespace UI
                          gameServer.ChangeKingTo(UserId);
                      });
                 }
-            }
-
-            contextMenu.Add("Whisper",()=>{Debug.Log("귓속말");});
+                contextMenu.Add("Ban",()=>
+                {
+                    GameServer.instance.BanUser(UserId);
+                });
+            }   
             
             Vector3[] corners = new Vector3[4];
             rectTransform.GetLocalCorners(corners);
@@ -143,12 +160,12 @@ namespace UI
             if(UserId == -1)
                 return;
             //BlackHightlighed, WhiteHightlighed
-            displayChanger.SetMode(inGameUser.ballType + "Hightlighed");
+            backGroundDisplayChanger.SetMode(inGameUser.ballType + "Hightlighed");
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            displayChanger.SetOrigin();
+            backGroundDisplayChanger.SetOrigin();
         }
 
         public void OnPointerClick(PointerEventData eventData)
@@ -157,6 +174,29 @@ namespace UI
             {
                 CreateContextMenu();
             }
+        }
+
+        private void SetPlayerInfo(Conf conf)
+        {
+            var isSpectator = GameServer.instance.isSpectator;
+
+            int playerId;
+            BallType ballType;
+
+            //본인이 검은색이거나 관전자
+            if (isSpectator||conf.black == LobbyServer.instance.loginUser.id)
+            {
+                ballType = (num == 2 ? BallType.Black : BallType.White);
+            }
+            //본인이 흰색
+            else
+            {
+                ballType = (num == 2 ? BallType.White : BallType.Black);
+            }
+            
+            playerId = (ballType == BallType.Black ? conf.black : conf.white);
+
+            Display(playerId,ballType);
         }
     }
 

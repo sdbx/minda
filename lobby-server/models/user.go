@@ -11,16 +11,25 @@ import (
 type User struct {
 	ID         int            `db:"id" json:"id"`
 	Username   string         `db:"username" json:"username"`
-	Picture    nulls.Int      `db:"picture" json:"picture"`
+	Picture    nulls.String   `db:"picture" json:"picture"`
 	CreatedAt  time.Time      `db:"created_at" json:"-"`
 	UpdatedAt  time.Time      `db:"updated_at" json:"-"`
 	Permission UserPermission `has_one:"user_permission" json:"permission"`
+	Inventory  UserInventory  `has_one:"user_inventory" json:"inventory"`
 }
 
 type UserPermission struct {
 	ID     uuid.UUID `db:"id" json:"-"`
 	UserID int       `db:"user_id" json:"-"`
 	Admin  bool      `db:"admin" json:"admin"`
+}
+
+type UserInventory struct {
+	ID           uuid.UUID `db:"id" json:"-"`
+	UserID       int       `db:"user_id" json:"-"`
+	OneColorSkin int       `db:"one_color_skin" json:"one_color_skin"`
+	TwoColorSkin int       `db:"two_color_skin" json:"two_color_skin"`
+	CurrentSkin  nulls.Int `db:"current_skin" json:"current_skin"`
 }
 
 type OAuthUser struct {
@@ -38,4 +47,10 @@ func (o OAuthUser) TableName() string {
 type AuthRequest struct {
 	Token *string `json:"token"`
 	First bool    `json:"first"`
+}
+
+type UserSkin struct {
+	ID     uuid.UUID `db:"id"`
+	UserID int       `db:"user_id"`
+	SkinID int       `db:"skin_id"`
 }

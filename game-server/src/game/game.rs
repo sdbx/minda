@@ -92,11 +92,10 @@ impl Game {
         Game::sub_time(&mut self.current_time, dt);
         if self.turn == Player::Black {
             Game::sub_time(&mut self.black_time, dt);
-            self.current_time % 1000 == 0 || self.black_time % 1000 == 0
         } else {
             Game::sub_time(&mut self.white_time, dt);
-            self.current_time % 1000 == 0 || self.white_time % 1000 == 0
         }
+        false
     }
 
     fn sub_time(time: &mut usize, dt: usize) {

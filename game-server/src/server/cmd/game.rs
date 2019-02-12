@@ -29,9 +29,9 @@ pub fn game_move(server: &mut Server, conn: &Connection, start: AxialCord, end: 
             map: game.board.to_string()
         },
         Event::Ticked {
-            white_time: game.white_time / 1000,
-            black_time: game.black_time / 1000,
-            current_time: game.current_time / 1000
+            white_time: (game.white_time as f32) / 1000.0,
+            black_time: (game.black_time as f32) / 1000.0,
+            current_time: (game.current_time as f32) / 1000.0
         },
         game.get_lose())
     };

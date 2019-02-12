@@ -1,85 +1,113 @@
 package picserv
 
 import (
+	"mime/multipart"
+	"io"
+	"strconv"
+	"image/color"
+	"time"
+	"lobby/utils"
 	"bytes"
 	"fmt"
 	"image"
 	_ "image/gif"
 	_ "image/jpeg"
 	"image/png"
-	"lobby/models"
-	"lobby/servs/dbserv"
 	"lobby/servs/redisserv"
-	"net/http"
 
+	"github.com/minio/minio-go"
 	"github.com/garyburd/redigo/redis"
 )
 
 const (
+	skinSize = 128
+	skinBorder = 0.08
+	profileSize = 128
 	redisCoolTmpl = "pic_cool_%d"
 	coolTime      = 10
+	maxSize = 1000
+	minSize = 50
+)
+
+var (
+	ColorBlack = color.RGBA{0,0,0,255}
+	ColorWhite = color.RGBA{255,255,255,255}
 )
 
 func redisCool(id int) string {
 	return fmt.Sprintf(redisCoolTmpl, id)
 }
 
+type PicServConf struct {
+	Endpoint string `yaml:"endpoint"`
+	Key string `yaml:"key"`
+	Secret string `yaml:"secret"`
+	Region string `yaml:"region"`
+	Bucket string `yaml:"bucket"`
+}
+
 type PicServ struct {
 	Redis *redisserv.RedisServ `dim:"on"`
-	DB    *dbserv.DBServ       `dim:"on"`
+	bucket string
+	endpoint string
+	cli *minio.Client
 }
 
-func Provide() *PicServ {
-	return &PicServ{}
-}
-
-func (p *PicServ) DownloadImage(url string) (image.Image, error) {
-	fmt.Println(url)
-	resp, err := http.Get(url)
+func Provide(conf PicServConf) (*PicServ, error) {
+	cli, err := minio.New(conf.Endpoint, conf.Key, conf.Secret, false)
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
-
-	img, _, err := image.Decode(resp.Body)
+	err = cli.MakeBucket(conf.Bucket, conf.Region)
+    if err != nil {
+        exists, err := cli.BucketExists(conf.Bucket)
+        if err != nil || !exists {
+			return nil, err
+        }
+	}
+	policy := `{"Version": "2012-10-17","Statement": [{"Action": ["s3:GetObject"],"Effect": "Allow","Principal": {"AWS": ["*"]},"Resource": ["arn:aws:s3:::`+ conf.Bucket + `/*"],"Sid": ""}]}`
+	err = cli.SetBucketPolicy(conf.Bucket, policy)
 	if err != nil {
 		return nil, err
 	}
-	return img, nil
+	return &PicServ {
+		cli: cli,
+		endpoint: conf.Endpoint,
+		bucket: conf.Bucket,
+	}, err
 }
 
-func (p *PicServ) UploadBuffer(buf []byte) (int, error) {
-	img, _, err := image.Decode(bytes.NewReader(buf))
+func (p PicServ) ConfigName() string {
+	return "pic"
+}
+
+func (p *PicServ) ParseImage(r io.Reader) (image.Image, error) {
+	img, _, err := image.Decode(r)
+	return img, err
+}
+
+func (p *PicServ) ParseImageFromFile(f *multipart.FileHeader) (image.Image, error) {
+	r, err := f.Open()
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	return p.UploadImage(img)
+	defer r.Close()
+	return p.ParseImage(r)
 }
 
-func (p *PicServ) UploadImage(img image.Image) (int, error) {
+func (p *PicServ) UploadImage(img image.Image) (string, error) {
 	var buf bytes.Buffer
 	err := png.Encode(&buf, img)
 	if err != nil {
-		return 0, err
+		return "", err
 	}
-	item := models.Picture{
-		Payload: buf.Bytes(),
-	}
-	err = p.DB.Create(&item)
+	key := strconv.Itoa(int(time.Now().UnixNano())) + utils.RandString(30)+".png"
+	_, err = p.cli.PutObject(p.bucket, key, &buf, -1, minio.PutObjectOptions{ContentType:"image/png"})
 	if err != nil {
-		return 0, err
-	}
-	return item.ID, nil
-}
-
-func (p *PicServ) GetImage(id int) ([]byte, error) {
-	var item models.Picture
-	err := p.DB.Q().Where("id = ?", id).First(&item)
-	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return item.Payload, nil
+	return "http://" + p.endpoint + "/" + p.bucket + "/" + key, nil
 }
 
 func (p *PicServ) SetCool(id int) error {

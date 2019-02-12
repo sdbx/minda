@@ -4,6 +4,7 @@ using Game;
 using Game.Boards;
 using Game.Coords;
 using Game.Guide;
+using Models;
 using UnityEngine;
 
 namespace Game.Balls
@@ -139,7 +140,6 @@ namespace Game.Balls
                     }
 
                     gameManager.SendBallMoving(_ballSelection, arrowsManager.selectedArrow);
-                    gameManager.turnText.text = "Opponenent's turn";
                     state = 0;
                 }
             }

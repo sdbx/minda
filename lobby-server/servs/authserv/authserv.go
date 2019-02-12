@@ -1,6 +1,7 @@
 package authserv
 
 import (
+	"net/http"
 	"errors"
 	"lobby/models"
 	"lobby/servs/dbserv"
@@ -47,7 +48,7 @@ func (a *AuthServ) Init() error {
 	if size == 0 {
 		user := models.User{
 			Username: "admin",
-			Picture:  nulls.Int{Valid: false},
+			Picture:  nulls.String{Valid: false},
 			Permission: models.UserPermission{
 				Admin: true,
 			},
@@ -67,10 +68,15 @@ func (a *AuthServ) GetUser(id int) (models.User, error) {
 	return user, err
 }
 
-func (a *AuthServ) uploadImg(url string) (int, error) {
-	img, err := a.Pic.DownloadImage(url)
+func (a *AuthServ) uploadImg(url string) (string, error) {
+	resp, err := http.Get(url)
 	if err != nil {
-		return 0, err
+		return "", err
+	}
+	defer resp.Body.Close()
+	img, err := a.Pic.ParseImage(resp.Body)
+	if err != nil {
+		return "", err
 	}
 	return a.Pic.UploadImage(img)
 }
@@ -80,13 +86,13 @@ func (a *AuthServ) CreateUserByOAuth(provider string, guser goth.User) (models.U
 	if username == "" {
 		username = guser.Name
 	}
-	picture := nulls.Int{Valid: false}
+	picture := nulls.String{Valid: false}
 	if guser.AvatarURL != "" {
-		id, err := a.uploadImg(guser.AvatarURL)
+		img, err := a.uploadImg(guser.AvatarURL)
 		if err != nil {
 			utils.Log.Error("Error while uploading image", zap.Error(err))
 		} else {
-			picture = nulls.NewInt(id)
+			picture = nulls.NewString(img)
 		}
 	}
 	user := models.User{
@@ -174,19 +180,6 @@ func (a *AuthServ) CreateToken(id int) string {
 }
 
 func (a *AuthServ) Authorize(token string) (models.User, error) {
-	if token == "black" {
-		return models.User{
-			ID:       101,
-			Username: "흑우",
-		}, nil
-	}
-	if token == "white" {
-		return models.User{
-			ID:       201,
-			Username: "백우",
-		}, nil
-	}
-
 	id, err := a.ParseToken(token)
 	if err != nil {
 		return models.User{}, err

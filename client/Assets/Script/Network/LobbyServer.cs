@@ -26,7 +26,7 @@ namespace Network
 
         public static LobbyServer instance;
 
-        public string address = "http://minda.games:8080";
+        public string address = "https://api.minda.games";
         LobbyServerRequestor requestor;
 
         public string token;
@@ -37,6 +37,7 @@ namespace Network
 
         private int steamRetries;
         public User loginUser = null;
+        private Texture loginUserTexture = null;
 
 
         private void Awake()
@@ -58,11 +59,21 @@ namespace Network
 
         void Start()
         {
-            if (SteamManager.isSteamVersion)
+            if (token != "")
+            {
+                SceneManager.LoadSceneAsync("Menu", LoadSceneMode.Single);
+                loginState = LoginState.Login;
+                RefreshLoginUser((User user) =>
+                {
+                    ToastManager.instance.Add($"Hello, {user.username}", "Success");
+                });
+                Debug.Log("로그인 성공");
+            }
+            /*if (SteamManager.isSteamVersion)
             {
                 steamRetries = 10;
                 TrySteamLogin();
-            }
+            }*/
         }
 
         private void TrySteamLogin()
@@ -85,11 +96,6 @@ namespace Network
                 }
                 HandleLoginResult(loginResult);
             });
-        }
-
-        private void Update()
-        {
-
         }
 
         //login
@@ -207,6 +213,51 @@ namespace Network
                 callback(true);
             });
         }
+
+        public void GetLoginUserProfileImage(Action<Texture> callback)
+        {
+            if(loginUser.picture == null)
+            {
+                callback(null);
+                return;
+            }
+            else if(loginUserTexture != null)
+            {
+                callback(loginUserTexture);
+                return;
+            }
+            LobbyServerAPI.DownloadImage(loginUser.picture,(Texture texture)=>
+            {
+                loginUserTexture = texture;
+                callback(texture);
+            });
+        }
+
+        public void RefreshLoginUserProfileImage(Action<Texture> callback)
+        {
+            if (loginUser.picture == null)
+            {
+                callback(null);
+                return;
+            }
+            LobbyServerAPI.DownloadImage(loginUser.picture, (Texture texture) =>
+             {
+                 loginUserTexture = texture;
+                 callback(texture);
+             });
+        }
+
+
+        public void UploadImage(byte[] bytes,Action<Pic,int?> callback)
+        {
+            StartCoroutine(requestor.PostImage("/pics/", bytes, token, callback));
+        }
+
+        public bool IsLoginId(int id)
+        {
+            return id == loginUser.id;
+        }
+
 
     }
 }

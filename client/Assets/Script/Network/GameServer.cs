@@ -4,13 +4,16 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using Game;
-using Game.Events;
+using Models.Events;
 using Models;
 using Newtonsoft.Json;
+using UI;
+using UI.Chatting;
 using UI.Toast;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Utils;
+using Event = Models.Events.Event;
 
 namespace Network
 {
@@ -25,14 +28,16 @@ namespace Network
         {
             TypeNameHandling = TypeNameHandling.Objects,
         };
-        public delegate void GameEventHandler(Game.Events.Event e);
+        public delegate void GameEventHandler(Event e);
         private Dictionary<Type, List<GameEventHandler>> handlers = new Dictionary<Type, List<GameEventHandler>>();
 
         public event Action<int,BallType> UserEnteredEvent;
         public event Action<int> UserLeftEvent;
         public event Action<Room> RoomConnectedEvent;
         public event Action<Conf> ConfedEvent;
-        public event Action<InGameUser, string> ChattedEvent;
+        public event Action<Message> MessagedEvent;
+        public event Action<GameStartedEvent> gameStarted;
+        public event Action<EndedEvent> endedEvent;
         
         public bool isSpectator = false;
         public Room connectedRoom;
@@ -40,6 +45,7 @@ namespace Network
         private Dictionary<int, Texture> profileImages = new Dictionary<int, Texture>();
         
         public GameStartedEvent gamePlaying;
+        public bool isInGame;
 
         private void Awake()
         {
@@ -55,8 +61,8 @@ namespace Network
 
             DontDestroyOnLoad(gameObject);
             eventJsonSettings.Converters.Add(new EventConverter());
-
             InitHandlers();
+            asyncCallbackClient.closeSocketCallback = OnSocketClose;
         }
 
         private void Update()
@@ -79,13 +85,22 @@ namespace Network
                     Debug.Log(asyncCallbackClient.logQueue.Dequeue());
                 }
             }
+
+            int callbackCount = asyncCallbackClient.callbackQuene.Count;
+            if (callbackCount > 0)
+            {
+                for (int i = 0; i < callbackCount; i++)
+                {
+                    asyncCallbackClient.callbackQuene.Dequeue()();
+                }
+            }
         }
 
         private void Connect(string ip, int port, Action callback)
         {
             if (asyncCallbackClient.state == ClientState.DISCONNECTED)
                 asyncCallbackClient.Connect(ip, port, callback);
-            else Debug.Log($"[AsyncCallbackClient]Already Connected {ip}:{port}");
+            else Debug.Log($"[AsyncCallbackClient] Already Connected {ip}:{port}");
         }
 
         private void ReceiveEvent(string data)
@@ -95,7 +110,7 @@ namespace Network
                 if (splitedStr == "")
                     return;
 
-                Game.Events.Event e = JsonConvert.DeserializeObject<Game.Events.Event>(splitedStr, eventJsonSettings);
+                Event e = JsonConvert.DeserializeObject<Event>(splitedStr, eventJsonSettings);
                 Debug.Log(e.GetType());
                 foreach(var handle in handlers[e.GetType()])
                 {
@@ -168,16 +183,18 @@ namespace Network
             AddHandler<ErrorEvent>(OnError);
             AddHandler<GameStartedEvent>(OnGameStarted);
             AddHandler<ChattedEvent>(OnChatted);
+            AddHandler<EndedEvent>(OnGameEnded);
+            AddHandler<BannedEvent>(OnBanned);
         }
 
-        private void OnConnected(Game.Events.Event e)
+        private void OnConnected(Event e)
         {
             var connected = (ConnectedEvent)e;
             connectedRoom = connected.room;
             RoomConnectedEvent?.Invoke(connected.room);
         }
 
-        private void OnEntered(Game.Events.Event e)
+        private void OnEntered(Event e)
         {
             var entered = (EnteredEvent)e;
             connectedRoom.Users.Add(entered.user);
@@ -185,9 +202,14 @@ namespace Network
             var conf = connectedRoom.conf;
             var me = LobbyServer.instance.loginUser;
             var emptyBallType = RoomUtils.GetEmptyBallType(conf);
+            
+            GetInGameUser(entered.user,(InGameUser inGameUser)=>{
+                MessagedEvent?.Invoke(new SystemMessage("Notice",$"{inGameUser.user.username} has joined"));
+            });
+           
 
             //MyEnter
-            if(entered.user == me.id)
+            if(entered.user == me.id&&RoomUtils.GetBallType(me.id)==BallType.None)
             {
                 isSpectator = (emptyBallType == BallType.None);
             }
@@ -224,7 +246,7 @@ namespace Network
                 {
                     return;
                 }
-                LobbyServerAPI.DownloadImage(inGameUser.user.picture.Value,(Texture texture)=>
+                LobbyServerAPI.DownloadImage(inGameUser.user.picture,(Texture texture)=>
                 {
                     if(!profileImages.ContainsKey(id))
                         profileImages.Add(id,texture);
@@ -233,15 +255,16 @@ namespace Network
             });
         }
 
-        private void OnLeft(Game.Events.Event e)
+        private void OnLeft(Event e)
         {
             var left = (LeftEvent)e;
+            MessagedEvent?.Invoke(new SystemMessage("Notice", $"{users[left.user].username} has left"));
             connectedRoom.Users.Remove(left.user);
             users.Remove(left.user);
             UserLeftEvent?.Invoke(left.user);
         }
 
-        private void OnConfed(Game.Events.Event e)
+        private void OnConfed(Event e)
         {
             var confed = (ConfedEvent)e;
             var myId = LobbyServer.instance.loginUser.id;
@@ -250,24 +273,43 @@ namespace Network
             ConfedEvent?.Invoke(confed.conf);
         }
 
-        public void OnGameStarted(Game.Events.Event e)
+        public void OnGameStarted(Event e)
         {
             var gameStarted = (GameStartedEvent)e;
             gamePlaying = gameStarted;
             SceneManager.LoadScene("Game",LoadSceneMode.Single);
+            isInGame = true;
         }
 
-        public void OnError(Game.Events.Event e)
+        public void OnGameEnded(Event e)
+        {
+            var gameEnded = (EndedEvent)e;
+            isInGame = false;
+            endedEvent?.Invoke(gameEnded);
+            
+        }
+        
+        public void OnError(Event e)
         {
             var error = (ErrorEvent)e;
             ToastManager.instance.Add(error.message,"Error");
         }
 
-        public void OnChatted(Game.Events.Event e)
+        public void OnChatted(Event e)
         {
             var chatted = (ChattedEvent)e;
-            GetInGameUser(chatted.user,(InGameUser inGameUser)=>{
-                ChattedEvent?.Invoke(inGameUser,chatted.content);
+            GetInGameUser(chatted.user,(InGameUser inGameUser)=>
+            {
+                MessagedEvent?.Invoke(new UserMessage(inGameUser,chatted.content));
+            });
+        }
+
+        public void OnBanned(Event e)
+        {
+            var banned = (BannedEvent)e;
+            GetInGameUser(banned.user, (InGameUser inGameUser) =>
+            {
+                MessagedEvent?.Invoke(new SystemMessage("Notice", $"{inGameUser.user.username} was banned"));
             });
         }
 
@@ -350,6 +392,43 @@ namespace Network
             ChatCommand command = new ChatCommand();
             command.content = message;
             SendCommand(command);
+        }
+
+        public void BanUser(int id)
+        {
+            BanCommnad command = new BanCommnad();
+            command.user = id;
+            SendCommand(command);
+        }
+
+        public void ExitGame()
+        {
+            asyncCallbackClient.Close();   
+        }
+
+        private void OnSocketClose()
+        {
+            ClearAll();
+            SceneManager.LoadSceneAsync("Menu",LoadSceneMode.Single);
+        }
+        public void Surrender()
+        {
+            SendCommand(new GGCommand());
+        }
+
+        private void ClearAll()
+        {
+            UserEnteredEvent = null;
+            UserLeftEvent = null;
+            RoomConnectedEvent = null;
+            ConfedEvent = null;
+            MessagedEvent = null;
+
+            connectedRoom = null;
+            users.Clear();
+            profileImages.Clear();
+
+            gamePlaying = null;
         }
     }
 }

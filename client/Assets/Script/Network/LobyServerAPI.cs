@@ -24,9 +24,9 @@ namespace Network
             });
         }
         
-        public static void DownloadImage(int picId, Action<Texture> callBack)
+        public static void DownloadImage(string picUrl, Action<Texture> callBack)
         {
-            LobbyServer.instance.StartCoroutine(GetTexture(LobbyServer.instance.address+"/pics/"+picId+"/",callBack));
+            LobbyServer.instance.StartCoroutine(GetTexture(picUrl,callBack));
         }
 
         private static IEnumerator GetTexture(string imgUrl, Action<Texture> callBack)
@@ -43,13 +43,11 @@ namespace Network
                 callBack(((DownloadHandlerTexture)www.downloadHandler).texture);
             }
         }
-
+        
         public static void GetMyMaps(Action<Map[], int?> callback)
         {
             LobbyServer.instance.Get<Map[]>("/maps/",callback);
         }
-
-
     }
 }
 

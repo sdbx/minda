@@ -2,16 +2,17 @@ using Network;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace UI
+namespace UI.Chatting
 {
     public class ChattingInput : MonoBehaviour
     {
         [SerializeField]
-        private ChattingSystem chattingSystem;
+        private ChattingWindow chattingSystem;
         [SerializeField]
         private InputField inputField;
         [SerializeField]
         public ObjectToggler objectToggler;
+
 
         
         public bool isActivated
@@ -41,12 +42,11 @@ namespace UI
                 {
                     GameServer.instance.SendChat(inputField.text);
                     inputField.text = "";
+                    chattingSystem.ScrollToBottom();
                     Focus();
+                    return;
                 }
-                else
-                {
-                    objectToggler.UnActivate();
-                }
+                objectToggler.UnActivate();
             }
             if(Input.GetKeyDown(KeyCode.Escape))
             {

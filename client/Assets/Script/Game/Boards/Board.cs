@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Game.Balls;
 using Game.Coords;
+using Models;
 using UnityEngine;
 
 namespace Game.Boards

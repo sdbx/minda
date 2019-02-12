@@ -20,3 +20,4 @@ cd lobby-server && go build
 ```
 cd game-server && cargo build
 ```
+

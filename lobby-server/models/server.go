@@ -52,8 +52,3 @@ func (r *RoomConf) Validate() bool {
 	}
 	return true
 }
-
-type Picture struct {
-	ID      int    `db:"id"`
-	Payload []byte `db:"payload"`
-}

@@ -2,6 +2,7 @@ using System;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace UI
@@ -11,7 +12,7 @@ namespace UI
         public static MessageBox instance;
 
         [SerializeField]
-        private ObjectToggler windowToggler;
+        private ObjectToggler toggler;
         [SerializeField]
         private Text messageText;
         [SerializeField]
@@ -24,7 +25,6 @@ namespace UI
         private Text button2Text;
 
         private Action<bool> callback;
-        private CanvasGroup canvasGroup;
 
         private void Awake()
         {
@@ -40,9 +40,16 @@ namespace UI
             button1.onClick.AddListener(OnButton1Clicked);
             button2.onClick.AddListener(OnButton2Clicked);
             transform.position = Vector3.zero;
-            gameObject.SetActive(false);
-            canvasGroup = gameObject.AddComponent<CanvasGroup>();
-            canvasGroup.alpha = 0;
+
+            SceneManager.sceneLoaded += OnSceneLoaded;
+        }
+
+        private void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene,LoadSceneMode mode)
+        {
+            if(isActiveAndEnabled)
+            {
+                gameObject.SetActive(false);
+            }
         }
 
         public void Show(string message, Action<bool> callback, string buttonText)
@@ -51,8 +58,9 @@ namespace UI
             {
                 return;
             }
-            windowToggler.Activate();
+            toggler.Activate();
             messageText.text = message;
+            toggler.UnActivate();
             button1.gameObject.SetActive(false);
             button2Text.text = buttonText;
             this.callback = callback;
@@ -64,7 +72,7 @@ namespace UI
             {
                 return;
             }
-            windowToggler.Activate();
+            toggler.Activate();
             messageText.text = message;
             button1.gameObject.SetActive(true);
             button1Text.text = agree;
@@ -78,7 +86,7 @@ namespace UI
                 return;
             callback(true);
             messageText.text="";
-            windowToggler.UnActivate();
+            toggler.UnActivate();
             callback = null;
         }
 
@@ -96,7 +104,8 @@ namespace UI
             {
                 callback(false);
             }
-            windowToggler.Activate();
+            messageText.text="";
+            toggler.UnActivate();
             callback = null;
         }
     }

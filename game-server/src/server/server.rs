@@ -12,6 +12,7 @@ use std::time::Duration;
 use model::{Task, TaskResult, TaskRequest, GameServer};
 use redis::Commands;
 use error::Error;
+use std::error::{Error as SError};
 use ticker::Ticker;
 use game::{Game, Player, Board, Cord, Stone};
 use std::sync::mpsc::Sender;
@@ -227,6 +228,12 @@ impl Server {
                 };
                 if let Err(err) = cmd::handle(self, &conn, &cmd) {
                     self.dispatch(conn_id, &Event::Error{message: format!("{}", err)});
+                    match err {
+                        Error::ShouldTerminate(_) => {
+                            self.kick(conn_id);
+                        },
+                        _ => {}
+                    }
                 };
             },
             ServerEvent::DiscoverUpdated => {
@@ -237,13 +244,7 @@ impl Server {
                 let mut completes: Vec<(String, Player, EndedCause)> = Vec::new();
                 for (_, room) in self.rooms.iter_mut() {
                     if let Some(game) = room.game.as_mut() {
-                        if game.time_update(dt) {
-                            events.push((room.id.clone(), Event::Ticked {
-                                black_time: game.black_time / 1000,
-                                white_time: game.white_time / 1000,
-                                current_time: game.current_time / 1000
-                            }));
-                        }
+                        game.time_update(dt);
                         if let Some((loser, cause)) = game.get_lose() {
                             completes.push((room.id.clone(), loser, cause));
                         }
@@ -345,7 +346,7 @@ impl Server {
         self.listen_socket();
         self.listen_task().unwrap();
         self.ping_update();
-        self.time_update(100);
+        self.time_update(30);
         rx
     }
 

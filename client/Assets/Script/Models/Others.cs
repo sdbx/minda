@@ -17,4 +17,13 @@ namespace Models
         [JsonProperty("req_id")]
         public string id;
     }
+    public struct Pic
+    {
+        [JsonProperty("pic_id")]
+        public int id;
+    }
+    public struct EmptyResult
+    {
+
+    }
 }
