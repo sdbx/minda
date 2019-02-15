@@ -12,8 +12,12 @@ public class DisplayChanger : MonoBehaviour
     public class ColorSettings : SerializableDictionaryBase<string, Color> { }
 
     [Serializable]
-    private class setting
+    private class Setting
     {
+        public Setting()
+        {
+
+        }
         public Graphic element;
         [HideInInspector]
         private MonoBehaviour component;
@@ -25,7 +29,15 @@ public class DisplayChanger : MonoBehaviour
     [SerializeField]
     private float duration;
     [SerializeField]
-    private List<setting> settings = new List<setting>();
+    private List<Setting> settings = new List<Setting>()
+    {
+        {new Setting()},
+        {new Setting()},
+        {new Setting()},
+        {new Setting()},
+        {new Setting()},
+        {new Setting()},
+    };
 
     private bool isOriginColorSaved = false;
 

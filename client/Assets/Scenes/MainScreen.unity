@@ -512,7 +512,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   address: https://api.minda.games
-  token: 
+  token: mJehawy3D79sL6QF3fLRXd4=
   loginCheckInterval: 1
 --- !u!4 &245894880
 Transform:
@@ -583,7 +583,7 @@ MonoBehaviour:
       draggable: 1
       expandable: 1
       multipleSelection: 1
-      isExpanded: 0
+      isExpanded: 1
       label:
         m_Text: Keys
         m_Image: {fileID: 0}
@@ -598,7 +598,7 @@ MonoBehaviour:
       elementNameOverride: 
       elementIcon: {fileID: 0}
     reqReferences: {fileID: 0}
-    isExpanded: 0
+    isExpanded: 1
     _keyValues:
     - Info
     - Warning
@@ -614,7 +614,7 @@ MonoBehaviour:
       backGroundColor: {r: 0.7797704, g: 0.87152094, b: 0.9339623, a: 1}
       textColor: {r: 0.3555981, g: 0.4128569, b: 0.5754717, a: 1}
     - icon: {fileID: 2800000, guid: 554ab64301a4a4e4cb0ca878d8affd06, type: 3}
-      backGroundColor: {r: 0.9056604, g: 0.88959634, b: 0.5254539, a: 0}
+      backGroundColor: {r: 0.9056604, g: 0.88959634, b: 0.5254539, a: 1}
       textColor: {r: 0, g: 0, b: 0, a: 1}
     - icon: {fileID: 2800000, guid: 554ab64301a4a4e4cb0ca878d8affd06, type: 3}
       backGroundColor: {r: 0.7830189, g: 0.46907264, b: 0.46907264, a: 1}

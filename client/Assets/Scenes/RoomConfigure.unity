@@ -158,7 +158,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -0.00009670635}
+  m_AnchoredPosition: {x: 0, y: -0.000009970148}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &54490532
@@ -1175,8 +1175,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   duration: 0.25
   settings:
-  - element: {fileID: 61132251}
-    type: 1
+  - element: {fileID: 0}
     origin: {r: 0, g: 0, b: 0, a: 0}
     colors:
       reorderableList:
@@ -1210,8 +1209,7 @@ MonoBehaviour:
       _values:
       - {r: 0.9339623, g: 0.9339623, b: 0.9339623, a: 1}
       - {r: 0.7735849, g: 0.7735849, b: 0.7735849, a: 1}
-  - element: {fileID: 269202529}
-    type: 1
+  - element: {fileID: 0}
     origin: {r: 0, g: 0, b: 0, a: 0}
     colors:
       reorderableList:
@@ -1245,8 +1243,7 @@ MonoBehaviour:
       _values:
       - {r: 0.9339623, g: 0.9339623, b: 0.9339623, a: 1}
       - {r: 0.7735849, g: 0.7735849, b: 0.7735849, a: 1}
-  - element: {fileID: 646992836}
-    type: 1
+  - element: {fileID: 0}
     origin: {r: 0, g: 0, b: 0, a: 0}
     colors:
       reorderableList:
@@ -3140,7 +3137,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AspectMode: 0
-  m_AspectRatio: 2.669584
+  m_AspectRatio: 2.594052
 --- !u!1 &956084649
 GameObject:
   m_ObjectHideFlags: 0
@@ -3436,7 +3433,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -301.40002, y: 103.18009}
+  m_AnchoredPosition: {x: -301.40002, y: 103.18001}
   m_SizeDelta: {x: 607.4, y: 44.6}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &983918448
@@ -4828,7 +4825,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.000020517144, y: -0.0000021721319}
+  m_AnchoredPosition: {x: -0.000020517144, y: 0.000008669894}
   m_SizeDelta: {x: -377.80002, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1396062840
@@ -5661,8 +5658,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   duration: 0.25
   settings:
-  - element: {fileID: 440298946}
-    type: 1
+  - element: {fileID: 0}
     origin: {r: 0, g: 0, b: 0, a: 0}
     colors:
       reorderableList:
@@ -5733,8 +5729,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   duration: 0.25
   settings:
-  - element: {fileID: 1217721689}
-    type: 0
+  - element: {fileID: 0}
     origin: {r: 0, g: 0, b: 0, a: 0}
     colors:
       reorderableList:
@@ -5768,8 +5763,7 @@ MonoBehaviour:
       _values:
       - {r: 1, g: 1, b: 1, a: 1}
       - {r: 0, g: 0, b: 0, a: 1}
-  - element: {fileID: 1422767363}
-    type: 0
+  - element: {fileID: 0}
     origin: {r: 0, g: 0, b: 0, a: 0}
     colors:
       reorderableList:
@@ -5882,7 +5876,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 376441762}
   m_Direction: 2
   m_Value: 0
-  m_Size: 1
+  m_Size: 0.9999994
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -5983,8 +5977,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   duration: 0.25
   settings:
-  - element: {fileID: 1387938327}
-    type: 1
+  - element: {fileID: 0}
     origin: {r: 0, g: 0, b: 0, a: 0}
     colors:
       reorderableList:
@@ -6055,8 +6048,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   duration: 0.25
   settings:
-  - element: {fileID: 447727676}
-    type: 0
+  - element: {fileID: 0}
     origin: {r: 0, g: 0, b: 0, a: 0}
     colors:
       reorderableList:
@@ -6090,8 +6082,7 @@ MonoBehaviour:
       _values:
       - {r: 1, g: 1, b: 1, a: 1}
       - {r: 0, g: 0, b: 0, a: 1}
-  - element: {fileID: 145708202}
-    type: 0
+  - element: {fileID: 0}
     origin: {r: 0, g: 0, b: 0, a: 0}
     colors:
       reorderableList:

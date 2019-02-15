@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using System.Text;
 using UI.Toast;
 using Models;
+using System.Collections.Generic;
 
 namespace Network
 {
@@ -36,6 +37,23 @@ namespace Network
                 RequestCallBack(www.downloadHandler.text, callBack, www.error);
                 Debug.Log(www.downloadHandler.text);
             }
+        }
+
+        public IEnumerator Post(string endPoint, WWWForm formData, string token, Action<byte[], int?> callBack)
+        {
+            UnityWebRequest www = UnityWebRequest.Post(Addr + endPoint, formData);
+
+            if (token != "")
+                www.SetRequestHeader("Authorization", token);
+
+            yield return www.SendWebRequest();
+            int? errorCode = null;
+            if (www.isHttpError)
+            {
+                errorCode = (int)www.responseCode;
+                Debug.Log(www.downloadHandler.text);
+            }
+            callBack(www.downloadHandler.data, errorCode);
         }
 
         public IEnumerator Put<T>(string endPoint, string data, string token, Action<T, int?> callBack)
@@ -91,7 +109,6 @@ namespace Network
                 
                 if(int.TryParse(errorCode,out int parsedCode))
                 {
-                    
                     callBack(default(T), parsedCode);
                     return;
                 }

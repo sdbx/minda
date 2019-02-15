@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using Scene;
 using UI.Toast;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace Network
 {
@@ -162,6 +163,11 @@ namespace Network
         public void Post<T>(string endPoint, string data, Action<T, int?> callBack)
         {
             StartCoroutine(requestor.Post(endPoint, data, token, callBack));
+        }
+
+        public void Post(string endPoint, WWWForm formData, Action<byte[], int?> callBack)
+        {
+            StartCoroutine(requestor.Post(endPoint, formData, token, callBack));
         }
 
         public void Get<T>(string endPoint, Action<T, int?> callBack)
