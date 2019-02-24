@@ -97,7 +97,7 @@ func (s *skin) uploadSkin(user int, name string, black *multipart.FileHeader, wh
 func (s *skin) putCurrent(c2 echo.Context) error {
 	c := c2.(*models.Context)
 	input := struct {
-		ID int `json:"id"`	
+		ID *int `json:"id"`	
 	}{}
 	if err := c.Bind(&input); err != nil {
 		return err
@@ -108,10 +108,18 @@ func (s *skin) putCurrent(c2 echo.Context) error {
 	if err != nil {
 		return err
 	}
+	if id == nil {
+		c.User.Inventory.CurrentSkin = nulls.Int{ Valid:false }
+		err = s.DB.Update(&c.User.Inventory)
+		if err != nil {
+			return err
+		}
+		return c.NoContent(200)
+	}
 	for _, skin := range skins {
-		if skin.ID == id {
-			c.User.Inventory.CurrentSkin = nulls.NewInt(id)
-			err = s.DB.Eager().Save(&c.User)
+		if skin.ID == *id {
+			c.User.Inventory.CurrentSkin = nulls.NewInt(*id)
+			err = s.DB.Update(&c.User.Inventory)
 			if err != nil {
 				return err
 			}
@@ -139,7 +147,7 @@ func (s *skin) postOneSkin(c2 echo.Context) error {
 	}
 
 	c.User.Inventory.OneColorSkin -- 
-	err = s.DB.Update(&c.User)
+	err = s.DB.Update(&c.User.Inventory)
 	if err != nil {
 		return err
 	}
@@ -169,7 +177,7 @@ func (s *skin) postTwoSkin(c2 echo.Context) error {
 	}
 
 	c.User.Inventory.TwoColorSkin -- 
-	err = s.DB.Update(&c.User)
+	err = s.DB.Update(&c.User.Inventory)
 	if err != nil {
 		return err
 	}
