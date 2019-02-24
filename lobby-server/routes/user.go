@@ -39,7 +39,7 @@ func (u *user) getUser(c echo.Context) error {
 		return err
 	}
 	out := models.User{}
-	err = u.DB.Q().Where("id = ?", id).First(&out)
+	err = u.DB.Eager().Q().Where("id = ?", id).First(&out)
 	if err != nil {
 		return err
 	}
