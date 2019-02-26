@@ -183,7 +183,7 @@ namespace Game.Boards
             }
         }
 
-        public int GetSameLine(CubeCoord a, CubeCoord b)
+        static public int GetSameLine(CubeCoord a, CubeCoord b)
         {
             if (a.x == b.x)
                 return 2;

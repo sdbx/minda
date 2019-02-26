@@ -40,6 +40,8 @@ namespace Network
         public User loginUser = null;
         private Texture loginUserTexture = null;
 
+        private Dictionary<int,LoadedSkin> skins = new Dictionary<int, LoadedSkin>();
+
 
         private void Awake()
         {
@@ -159,6 +161,14 @@ namespace Network
             loginState = LoginState.Logout;
         }
 
+        public void GetLoadedSkin(Skin skin ,Action<LoadedSkin> callback)
+        {
+            if(skins.ContainsKey(skin.id))
+                callback(skins[skin.id]);
+
+            LoadedSkin.Get(skin,callback);
+        }
+
         //requestor
         public void Post<T>(string endPoint, string data, Action<T, int?> callBack)
         {
@@ -178,6 +188,10 @@ namespace Network
         public void Put<T>(string endPoint, string data, Action<T, int?> callBack)
         {
             StartCoroutine(requestor.Put(endPoint, data, token, callBack));
+        }
+        public void Put(string endPoint, WWWForm formData, Action<byte[], int?> callBack)
+        {
+            StartCoroutine(requestor.Put(endPoint, formData, token, callBack));
         }
 
         //loginImfomation
@@ -262,6 +276,28 @@ namespace Network
         public bool IsLoginId(int id)
         {
             return id == loginUser.id;
+        }
+        
+        public void EquipSkin(int? id,Action<int?> callback)
+        {
+            var json = JsonConvert.SerializeObject(new CurrentSkin(id));
+            Put<EmptyResult>("/skins/me/current/",json,(result,err)=>
+            {
+                callback(err);
+            });
+        }
+
+        public void GetLoadedSkin(int id,Action<LoadedSkin> callback)
+        {
+            Get<Skin>($"/skins/{id}/",(skin,err)=>
+            {
+                if(err!=null)
+                {
+                    ToastManager.instance.Add("Skin Load Error","Error");
+                    return;
+                }
+                LoadedSkin.Get(skin,callback);
+            });
         }
 
 

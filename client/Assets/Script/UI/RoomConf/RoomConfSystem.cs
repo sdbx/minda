@@ -6,11 +6,14 @@ using Models;
 using Network;
 using Utils;
 using Game.Boards;
+using UnityEngine.UI;
 
 namespace UI
 {
     public class RoomConfSystem : MonoBehaviour
     {
+        [SerializeField]
+        private Text roomNameText;
         [SerializeField]
         private StartBtn startBtn;
         [SerializeField]
@@ -77,9 +80,7 @@ namespace UI
 
         private void UserEnter(int id, BallType ballType)
         {
-            UpdateAllConf();
-            if (!RoomUtils.CheckIsKing(me.id))
-                return;
+            UpdateAllConf();        
         }
 
         
@@ -92,6 +93,7 @@ namespace UI
         {
             if(!hasRecievedFirstConf)
             {
+                roomNameText.text = conf.name;
                 hasRecievedFirstConf = true;
                 UpdateGameruleIntUpDowns();
             }

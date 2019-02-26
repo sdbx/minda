@@ -8,6 +8,7 @@ namespace Game.Guide
 {
     public class ArrowsManager : MonoBehaviour
     {
+        public ZoomSystem zoomSystem;
         [SerializeField]
         private BoardManager boardManager;
         [SerializeField]

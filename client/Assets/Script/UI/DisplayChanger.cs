@@ -53,7 +53,6 @@ public class DisplayChanger : MonoBehaviour
 
         foreach (var sett in settings)
         {
-
             sett.origin = sett.element.color;
         }
         isOriginColorSaved = true;

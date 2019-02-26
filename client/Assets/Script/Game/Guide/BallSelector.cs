@@ -18,8 +18,6 @@ namespace Game.Guide
         private bool _isFirstBallpicked = false;
         private CubeCoord _firstBallSelection, _lastBallSelection;
 
-        //임시 효과 주기용
-        private List<GameObject> _selectingBalls = new List<GameObject>();
 
         public BallSelector(BallManager ballManager, BoardManager boardManager)
         {
@@ -39,7 +37,7 @@ namespace Game.Guide
             {
                 for (int y = 0; y <= 2 * s; y++)
                 {
-                    GameObject ballObject = _ballManager.GetBallObjects()[x, y];
+                    Ball ballObject = _ballManager.ballObjects[x, y];
                     if (ballObject == null)
                         continue;
 
@@ -55,28 +53,35 @@ namespace Game.Guide
             return null;
         }
 
-        public void SelectingBalls(BallType ballType)
+        public void SelectingBalls(BallType ballType,SelectGuideDisplay guide,ZoomSystem zoomSystem)
         {
             if (_isSelected)
             {
                 return;
             }
-
-            foreach (GameObject selectingBall in _selectingBalls)
-            {
-                selectingBall.GetComponent<SpriteRenderer>().color = Color.white;
-            }
-            _selectingBalls.Clear();
             Vector2 mousePos = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0));
             CubeCoord ballCubeCoord = GetBallCubeCoordByMouseXY(mousePos);
 
+
+            if(_isFirstBallpicked)
+            {
+                zoomSystem.isLocked = true;
+                guide.SetPoint1(_ballManager.GetBallByCubeCoord(_firstBallSelection).transform.position);
+                guide.SetPoint2(mousePos);
+            }
+
             if (ballCubeCoord == null)
             {
-                UnSelectable();
+                if(!_isFirstBallpicked)
+                {
+                    zoomSystem.isLocked = false;
+                    guide.Hide();
+                }
+                UnSelectable(guide);
                 return;
             }
-            GameObject ballObject = _ballManager.GetBallObjectByCubeCoord(ballCubeCoord);
-            if (ballObject.GetComponent<Ball>().GetBall() != ballType)
+            Ball ballObject = _ballManager.GetBallObjectByCubeCoord(ballCubeCoord);
+            if (ballObject.GetBall() != ballType)
                 return;
 
             int s = _boardManager.GetBoard().GetSide() - 1;
@@ -90,85 +95,76 @@ namespace Game.Guide
                     _firstBallSelection = ballCubeCoord;
                     _isFirstBallpicked = true;
                 }
+                else
+                {
+                    guide.displayChanger.SetMode("On");
+                    guide.SetPoint1(_ballManager.GetBallByCubeCoord(ballCubeCoord).transform.position);
+                    guide.SetPoint2(_ballManager.GetBallByCubeCoord(ballCubeCoord).transform.position);
+                    return;
+                }
             }
-            else if (_isFirstBallpicked)
+            else
             {
+                //라인 시작점
                 if (ballCubeCoord.CheckInSameLine(_firstBallSelection))
                 {
                     int distance = Utils.GetDistanceBy2CubeCoord(ballCubeCoord, _firstBallSelection);
-
+                    
                     if (distance == 0)
                     {
                         _lastBallSelection = ballCubeCoord;
-                        Selectable(distance);
+                        Selectable(distance,guide);
+                        guide.SetPoint2(_ballManager.GetBallByCubeCoord(_lastBallSelection).transform.position);
                         return;
                     }
                     else if (distance == 1)
                     {
                         _lastBallSelection = ballCubeCoord;
-                        Selectable(distance);
+                        Selectable(distance,guide);
+                        guide.SetPoint2(_ballManager.GetBallByCubeCoord(_lastBallSelection).transform.position);
                         return;
                     }
                     else if (distance == 2)
                     {
-                        GameObject middleBall = _ballManager.GetBallObjectByCubeCoord(
+                        Ball middleBall = _ballManager.GetBallObjectByCubeCoord(
                             CubeCoord.GetCenter(ballCubeCoord, _firstBallSelection));
 
-                        if (middleBall != null && _boardManager.CheckBallObjectIsMine(middleBall))
+                        if (middleBall != null && _boardManager.CheckBallObjectIsMine(middleBall.gameObject))
                         {
                             _lastBallSelection = ballCubeCoord;
-                            Selectable(distance);
+                            Selectable(distance,guide);
+                            guide.SetPoint2(_ballManager.GetBallByCubeCoord(_lastBallSelection).transform.position);
                             return;
                         }
                     }
+                    
                 }
             }
-            UnSelectable();
+            UnSelectable(guide);
         }
 
-        private void UnSelectable()
+        private void UnSelectable(SelectGuideDisplay guide)
         {
             if (Input.GetMouseButtonUp(0))
             {
                 _isFirstBallpicked = false;
             }
+            else
+            {
+                guide.displayChanger.SetMode("Selecting");
+            }
         }
 
-        private void Selectable(int count)
+        private void Selectable(int count, SelectGuideDisplay guide)
         {
             if (Input.GetMouseButtonUp(0))
             {
                 _isSelected = true;
                 _isFirstBallpicked = false;
-                SetBallsColor(count, Color.cyan);
             }
-            else
+            else`
             {
-                SetBallsColor(count, Color.green);
-            }
-        }
-
-        private void SetBallsColor(int count, Color color)
-        {
-            GameObject first = _ballManager.GetBallObjectByCubeCoord(_firstBallSelection);
-            first.GetComponent<SpriteRenderer>().color = color;
-
-            _selectingBalls.Add(first);
-
-            if (count >= 1)
-            {
-                GameObject last = _ballManager.GetBallObjectByCubeCoord(_lastBallSelection);
-                last.GetComponent<SpriteRenderer>().color = color;
-
-                _selectingBalls.Add(last);
-            }
-            if (count == 2)
-            {
-                GameObject middleBall = _ballManager.GetBallObjectByCubeCoord(
-                       CubeCoord.GetCenter(_firstBallSelection, _lastBallSelection));
-                middleBall.GetComponent<SpriteRenderer>().color = color;
-
-                _selectingBalls.Add(middleBall);
+                guide.displayChanger.SetMode("CanSelect");
             }
         }
 

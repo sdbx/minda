@@ -20,30 +20,45 @@ namespace Models
         public string white_picture;
     }
 
+    public struct CurrentSkin
+    {
+        public int? id;
+        public CurrentSkin(int? id)
+        {
+            this.id = id;
+        }
+    }
+
     public class LoadedSkin
     {
         static public void Get(Skin skin, Action<LoadedSkin> callback)
         {
             LoadedSkin downloadedSkin = new LoadedSkin(skin, null, null);
-
-            LobbyServerAPI.DownloadImage(skin.black_picture, (Texture texture) =>
+            
+            if (skin.black_picture != null)
             {
-                downloadedSkin.blackTexture = texture;
-
-                if (downloadedSkin.whiteTexture != null)
+                LobbyServerAPI.DownloadImage(skin.black_picture, (Texture texture) =>
                 {
-                    callback(downloadedSkin);
-                }
-            });
+                    downloadedSkin.blackTexture = texture;
 
-            LobbyServerAPI.DownloadImage(skin.white_picture, (Texture texture) =>
+                    if (downloadedSkin.whiteTexture != null)
+                    {
+                        callback(downloadedSkin);
+                    }
+                });
+            }
+
+            if (skin.white_picture != null)
             {
-                downloadedSkin.whiteTexture = texture;
-                if (downloadedSkin.blackTexture != null)
+                LobbyServerAPI.DownloadImage(skin.white_picture, (Texture texture) =>
                 {
-                    callback(downloadedSkin);
-                }
-            });
+                    downloadedSkin.whiteTexture = texture;
+                    if (downloadedSkin.blackTexture != null)
+                    {
+                        callback(downloadedSkin);
+                    }
+                });
+            }
         }
 
         public LoadedSkin(Skin skin, Texture black, Texture white)

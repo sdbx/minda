@@ -15,7 +15,12 @@ namespace Game.Guide
         private float _pushingDistance = 0;
         private ArrowsManager _arrowsManager;
         private int _direction = 0;
-
+        [SerializeField]
+        private Color unSelected;
+        [SerializeField]
+        private Color selected;
+        [SerializeField]
+        private Color overHalf;
         public void SetDirection(int direction)
         {
             _direction = direction;
@@ -40,7 +45,7 @@ namespace Game.Guide
 
         void Start()
         {
-            gameObject.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255, 0.8f);
+            gameObject.GetComponent<SpriteRenderer>().color = unSelected;
             _arrowsManager = gameObject.transform.parent.GetComponent<ArrowsManager>();
         }
 
@@ -68,6 +73,7 @@ namespace Game.Guide
 
             if (_isPushing)
             {
+                _arrowsManager.zoomSystem.isLocked = true;
                 if (distance <= maxDistance - originDistance)
                 {
                     gameObject.transform.position = GetArrowPosition(maxDistance - originDistance) + parentPostion;
@@ -92,6 +98,7 @@ namespace Game.Guide
             }
             else
             {
+                _arrowsManager.zoomSystem.isLocked = false;
                 gameObject.transform.position = GetArrowPosition(originDistance) + parentPostion;
             }
 
@@ -146,19 +153,19 @@ namespace Game.Guide
                 //unslected
                 case 0:
                     {
-                        gameObject.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255, 0.8f);
+                        gameObject.GetComponent<SpriteRenderer>().color = unSelected;
                         break;
                     }
                 //selected
                 case 1:
                     {
-                        gameObject.GetComponent<SpriteRenderer>().color = Color.white;
+                        gameObject.GetComponent<SpriteRenderer>().color = selected;
                         break;
                     }
                 //AfterHalf
                 case 2:
                     {
-                        gameObject.GetComponent<SpriteRenderer>().color = Color.green;
+                        gameObject.GetComponent<SpriteRenderer>().color = overHalf;
                         break;
                     }
 

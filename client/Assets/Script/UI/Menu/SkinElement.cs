@@ -10,7 +10,7 @@ namespace UI.Menu
 {
     public class SkinElement : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
     {
-        public LoadedSkin skin { get; private set; }
+        public Skin skin { get; private set; }
 
         [SerializeField]
         private RawImage blackImage;
@@ -34,7 +34,7 @@ namespace UI.Menu
         private bool isSelected;
         private bool isEquiped;
 
-        private void Start()
+        private void Awake()
         {
             equipIcon.SetActive(false);
         }
@@ -47,14 +47,21 @@ namespace UI.Menu
 
         public void SetSkin(Skin skin)
         {
-            LoadedSkin.Get(skin, (LoadedSkin downloadedSkin) =>
-             {
-                 this.skin = downloadedSkin;
-                 blackImage.texture = downloadedSkin.blackTexture;
-                 whiteImage.texture = downloadedSkin.whiteTexture;
-             });
+            this.skin = skin;
+            if(skin == null)
+                return;
+            LobbyServer.instance.GetLoadedSkin(skin, (LoadedSkin downloadedSkin) =>
+            {
+                blackImage.texture = downloadedSkin.blackTexture;
+                whiteImage.texture = downloadedSkin.whiteTexture;
+            });
         }
 
+        public void SetTextures(Texture black,Texture white)
+        {
+            blackImage.texture = black;
+            whiteImage.texture = white;
+        }
         public void OnPointerEnter(PointerEventData eventData)
         {
             if (isSelected)
@@ -109,7 +116,7 @@ namespace UI.Menu
             if (eventData.clickCount == 2)
             {
                 Equip();
-                skinSelector.Equip(this);
+                skinSelector.Equip(this, true);
             }
             if (!isSelected)
             {

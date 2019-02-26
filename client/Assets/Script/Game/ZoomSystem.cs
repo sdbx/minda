@@ -1,10 +1,13 @@
 using UnityEngine;
 using DG.Tweening;
+using Game.Balls;
 
 namespace Game
 {
     public class ZoomSystem : MonoBehaviour
     {
+        [SerializeField]
+        private BallManager ballmanager;
         [SerializeField]
         private Camera cam;
         [SerializeField]
@@ -18,13 +21,18 @@ namespace Game
 
         private Vector3 ResetCamera;
         private Vector3 Diference;
-        private bool Drag = false;
+        private bool drag = false;
         [SerializeField]
         private Vector2 dragLimit;
 
         [SerializeField]
         private float duration = 0.5f;
+        public bool isLocked;
 
+        private bool resetVeiw;
+        private bool canResetView;
+
+        private bool mouseRightPrevState;
         void Start()
         {
             ResetCamera = Camera.main.transform.position;
@@ -32,9 +40,23 @@ namespace Game
 
         private void Update()
         {
+            if (isLocked)
+            {
+                drag = false;
+                return;
+            }
+            if (!mouseRightPrevState && Input.GetMouseButton(1) && ballmanager.state != 2)
+            {
+                cam.transform.DOMove(ResetCamera, duration);
+                cam.DOOrthoSize(maxSize, duration);
+                dragLimit = new Vector2(0, 0);
+                resetVeiw = false;
+                return;
+            }
+            mouseRightPrevState = Input.GetMouseButton(1);
             var axis = Input.GetAxis("Mouse ScrollWheel");
 
-            if(axis==0)
+            if (axis == 0)
                 return;
 
             bool isZoom = axis > 0;
@@ -58,29 +80,39 @@ namespace Game
 
             var value = (1 - (camSize / maxSize))*3;
             dragLimit = new Vector2(value, value);
+
         }
 
         //drag
 
-        private Vector3 prevPos;
-        void LateUpdate()
+        public void OnMouseDown()
         {
+            drag = true;
+        }
+
+        private Vector3 prevPos;
+        private void LateUpdate()
+        {
+            if(isLocked)
+            {
+                drag = false;
+                return;
+            }
+
             Vector3 mousePos = cam.ScreenToWorldPoint(Input.mousePosition);
 
-            if (Input.GetMouseButton(0))
+            if (!Input.GetMouseButton(0))
             {
-                if (Drag == false)
+                drag = false;
+                prevPos = Vector3.zero;
+            }
+
+            if (drag == true)
+            {
+                if(prevPos == Vector3.zero)
                 {
                     prevPos = mousePos;
-                    Drag = true;
                 }
-            }
-            else
-            {
-                Drag = false;
-            }
-            if (Drag == true)
-            {
                 var deltaPos = prevPos - mousePos;
                 var pos = cam.transform.position + deltaPos;
                 
@@ -98,12 +130,7 @@ namespace Game
                 cam.transform.position = pos;
                 prevPos = mousePos+deltaPos;
             }
-            if (Input.GetMouseButton(1))
-            {
-                cam.transform.DOMove(ResetCamera,duration);
-                cam.DOOrthoSize(maxSize,duration);
-                dragLimit = new Vector2(0,0);
-            }
+            
         }
     }
 }

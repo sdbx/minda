@@ -11,29 +11,48 @@ namespace Game.Balls
 {
     public class BallManager : MonoBehaviour
     {
-        public GameObject blackBallPrefab;
-        public GameObject whiteBallPrefab;
+        [SerializeField]
+        private ZoomSystem zoomSystem;
+        public Ball blackBallPrefab;
+        public Ball whiteBallPrefab;
         public GameManager gameManager;
+        public Sprite testSprite;
 
         public BoardManager boardManager;
         public ArrowsManager arrowsManager;
+        [SerializeField]
+        private SelectGuideDisplay guideDisplay;
 
         //0: 대기 1: 구슬 선택 2: 구슬 움직임 방향 선택
         public int state = 0;
         public float sizeOfBall = 5;
 
-        private GameObject[,] ballObjects;
+        public Ball[,] ballObjects{get;private set;}
         private BallSelector _ballSelector;
         private BallSelection _ballSelection;
         private List<CubeCoord> _movingBalls;
 
         private bool _canSelect;
 
+        private float distanceBetweenBalls;
+
         public void CreateBalls(BoardManager boardManager)
         {
             ballObjects = BallCreator.CreateBalls(sizeOfBall, gameObject, boardManager.holeDistance, boardManager.GetBoard(), blackBallPrefab, whiteBallPrefab);
             _ballSelector = new BallSelector(this, boardManager);
+            distanceBetweenBalls = boardManager.holeDistance-sizeOfBall;
             this.boardManager = boardManager;
+        }
+
+        public void SetBallsSkin(BallType ballType,Texture2D texture)
+        {
+            var rect = new Rect(0, 0, texture.width, texture.height);
+            var sprite = Sprite.Create(texture, rect, new Vector2(0.5f, 0.5f));
+            foreach (var ballObject in ballObjects)
+            {
+                if (ballObject != null && ballObject.ballType == ballType)
+                    ballObject.SetSprite(sprite);
+            }
         }
 
         public void RemoveBalls()
@@ -46,19 +65,15 @@ namespace Game.Balls
                 Destroy(ballObject);
             }
         }
+        
 
-        public GameObject[,] GetBallObjects()
-        {
-            return ballObjects;
-        }
-
-        public void SetBallObject(CubeCoord cubeCoord, GameObject ballObject)
+        public void SetBallObject(CubeCoord cubeCoord, Ball ballObject)
         {
             int s = boardManager.GetBoard().GetSide() - 1;
             ballObjects[cubeCoord.x + s, cubeCoord.y + s] = ballObject;
         }
 
-        public GameObject GetBallObjectByCubeCoord(CubeCoord cubeCoord)
+        public Ball GetBallObjectByCubeCoord(CubeCoord cubeCoord)
         {
             int s = boardManager.GetBoard().GetSide() - 1;
             return ballObjects[cubeCoord.x + s, cubeCoord.y + s];
@@ -68,25 +83,28 @@ namespace Game.Balls
             int s = boardManager.GetBoard().GetSide() - 1;
             return ballObjects[cubeCoord.x + s, cubeCoord.y + s].GetComponent<Ball>();
         }
+        
 
+        private float prevDistance;
         void Update()
         {
             //State Selecting balls
             if (state == 1)
             {
-                _ballSelector.SelectingBalls(gameManager.myBallType);
+                _ballSelector.SelectingBalls(gameManager.myBallType,guideDisplay,zoomSystem);
                 if (_ballSelector._isSelected)
                 {
                     _ballSelection = _ballSelector.GetBallSelection();
                     state = 2;
                     _ballSelector._isSelected = false;
                     arrowsManager.ballSelection = _ballSelection;
-                    _ballSelector.SelectingBalls(gameManager.myBallType);
+                    _ballSelector.SelectingBalls(gameManager.myBallType,guideDisplay,zoomSystem);
                 }
             }
             //State MovingBalls
             else if (state == 2)
             {
+                guideDisplay.Hide();
                 if (Input.GetKeyDown(KeyCode.Escape) || Input.GetMouseButtonDown(1))
                 {
                     arrowsManager.Reset();
@@ -123,19 +141,48 @@ namespace Game.Balls
                 {
                     if(arrowsManager.pushingArrow==-1)
                         return;
-                        
+
+
                     _movingBalls = GetMovingBalls(_ballSelection, arrowsManager.pushingArrow);
-                    foreach (CubeCoord ballCoord in _movingBalls)
+                    List<CubeCoord> movingBalls = GetMovingBalls(_ballSelection, arrowsManager.pushingArrow);
+
+                    int sameLine = Board.GetSameLine(_ballSelection.first, _ballSelection.end);
+                    CubeCoord dirCubeCoord = CubeCoord.ConvertNumToDirection(arrowsManager.pushingArrow);
+
+                    var distance = arrowsManager.pushedDistance / 1.3f;
+
+                    if (sameLine == arrowsManager.pushingArrow % 3)
                     {
-                        Ball currentBall = GetBallObjectByCubeCoord(ballCoord).GetComponent<Ball>();
-                        currentBall.Push(arrowsManager.pushingArrow, arrowsManager.pushedDistance / 1.5f);
+                        _movingBalls.Reverse();
+                        for (int i = 0; i < _movingBalls.Count; i++)
+                        {
+                            var ballCoord = _movingBalls[i];
+                            Ball currentBall = GetBallObjectByCubeCoord(ballCoord);
+                            if (distance <= prevDistance)
+                            {
+                                currentBall.Push(arrowsManager.pushingArrow, distance);
+                            }
+                            if (i == 0 || (distanceBetweenBalls * i) <= distance)
+                            {
+                                currentBall.Push(arrowsManager.pushingArrow, distance - distanceBetweenBalls * i);
+                            }
+                        }
+                        _movingBalls.Reverse();
+                    }
+                    else
+                    {
+                        foreach (CubeCoord ballCoord in _movingBalls)
+                        {
+                            Ball currentBall = GetBallObjectByCubeCoord(ballCoord);
+                            currentBall.Push(arrowsManager.pushingArrow, distance);
+                        }
                     }
                 }
                 else
                 {
                     foreach (CubeCoord ballCoord in _movingBalls)
                     {
-                        Ball currentBall = GetBallObjectByCubeCoord(ballCoord).GetComponent<Ball>();
+                        Ball currentBall = GetBallObjectByCubeCoord(ballCoord);
                         MoveBall(ballCoord, arrowsManager.selectedArrow, true);
                     }
 
@@ -148,17 +195,49 @@ namespace Game.Balls
         public void PushBalls(BallSelection ballSelection, int direction)
         {
             List<CubeCoord> movingBalls = GetMovingBalls(ballSelection, direction);
-
-            foreach (CubeCoord ballCoord in movingBalls)
+            int sameLine = Board.GetSameLine(ballSelection.first, ballSelection.end);
+            CubeCoord dirCubeCoord = CubeCoord.ConvertNumToDirection(direction);
+            if (sameLine == direction % 3)
             {
-                Ball currentBall = GetBallObjectByCubeCoord(ballCoord).GetComponent<Ball>();
+                StartCoroutine(PushBalls(movingBalls, direction, boardManager.holeDistance / 2));
+            }
+            else
+            {
+                foreach (CubeCoord ballCoord in movingBalls)
+                {
+                    Ball currentBall = GetBallObjectByCubeCoord(ballCoord);
+                    MoveBall(ballCoord, direction, false);
+                }
+            }
+
+        }
+
+        private IEnumerator PushBalls(List<CubeCoord> balls,int direction,float halfDistance)
+        {
+            balls.Reverse();
+            for(float distance = 0;distance<halfDistance;distance+=0.05f)
+            {
+                for(int i = 0;i<balls.Count;i++)
+                {
+                    if ((distanceBetweenBalls * i) <= distance)
+                    {
+                        Ball currentBall = GetBallObjectByCubeCoord(balls[i]);
+                        currentBall.Push(direction, distance - distanceBetweenBalls * i);
+                    }
+                }
+                yield return 0;
+            }
+            balls.Reverse();
+            foreach (CubeCoord ballCoord in balls)
+            {
+                Ball currentBall = GetBallObjectByCubeCoord(ballCoord);
                 MoveBall(ballCoord, direction, false);
             }
         }
 
         public void MoveBall(CubeCoord cubeCoord, int direction, bool isPushingBall)
         {
-            GameObject ballObject = GetBallObjectByCubeCoord(cubeCoord);
+            Ball ballObject = GetBallObjectByCubeCoord(cubeCoord);
             if (boardManager.GetBoard().CheckOutOfBoard(cubeCoord + CubeCoord.ConvertNumToDirection(direction)))
             {
                 //주금
@@ -196,7 +275,7 @@ namespace Game.Balls
             Board board = boardManager.GetBoard();
             BallType myBallType = (BallType)board.GetHoleStateByCubeCoord(ballSelection.first);
 
-            int sameLine = board.GetSameLine(ballSelection.first, ballSelection.end);
+            int sameLine = Board.GetSameLine(ballSelection.first, ballSelection.end);
             CubeCoord dirCubeCoord = CubeCoord.ConvertNumToDirection(direction);
 
             if (sameLine == direction % 3)

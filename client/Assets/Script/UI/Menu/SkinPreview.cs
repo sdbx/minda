@@ -2,6 +2,7 @@ using Models;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using Network;
 
 namespace UI.Menu
 {
@@ -47,10 +48,18 @@ namespace UI.Menu
             skinName.text = name;
         }
 
-        public void SetSkin(LoadedSkin skin)
+        public void SetSkin(Skin skin)
         {
-            blackImage.texture = skin.blackTexture;
-            whiteImage.texture = skin.whiteTexture;
+            if(skin == null)
+            {
+                skinName.text = "Basic";
+                return;
+            }
+            LobbyServer.instance.GetLoadedSkin(skin, (LoadedSkin downloadedSkin) =>
+            {
+                blackImage.texture = downloadedSkin.blackTexture;
+                whiteImage.texture = downloadedSkin.whiteTexture;
+            });
             skinName.text = skin.name;
         }
 

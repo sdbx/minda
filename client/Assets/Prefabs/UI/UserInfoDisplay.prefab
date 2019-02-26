@@ -415,8 +415,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   duration: 0.25
   settings:
-  - element: {fileID: 7216269892280209081}
-    type: 1
+  - element: {fileID: 7216269892280209087}
     origin: {r: 1, g: 1, b: 1, a: 1}
     colors:
       reorderableList:

@@ -83,6 +83,23 @@ namespace Network
             }
         }
 
+        public IEnumerator Put(string endPoint, WWWForm formData, string token, Action<byte[], int?> callBack)
+        {
+            UnityWebRequest www = UnityWebRequest.Post(Addr + endPoint, formData);
+            www.method = UnityWebRequest.kHttpVerbPUT;
+            if (token != "")
+                www.SetRequestHeader("Authorization", token);
+
+            yield return www.SendWebRequest();
+            int? errorCode = null;
+            if (www.isHttpError)
+            {
+                errorCode = (int)www.responseCode;
+                Debug.Log(www.downloadHandler.text);
+            }
+            callBack(www.downloadHandler.data, errorCode);
+        }
+
         public IEnumerator Get<T>(string endPoint, string token, Action<T, int?> callBack)
         {
 
