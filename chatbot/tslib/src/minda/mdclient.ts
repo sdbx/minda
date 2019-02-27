@@ -4,13 +4,15 @@ import { SignalDispatcher, SimpleEventDispatcher } from "strongly-typed-events"
 import awaitEvent from "../timeout"
 import { Immute } from "../types/deepreadonly"
 import { TimerID, WebpackTimer } from "../webpacktimer"
-import { defaultProfile, mdtimeout } from "./mdconst"
+import { mdtimeout } from "./mdconst"
 import { MindaCredit } from "./mdcredit"
-import { extractContent, reqBinary, reqGet, reqPost } from "./mdrequest"
+import { extractContent, reqBinaryGet, reqBinaryPost, reqGet, reqPost } from "./mdrequest"
 import { MindaRoom } from "./mdroom"
 import { MSGameRule } from "./structure/msgamerule"
+import { MSInventory } from "./structure/msinventory"
 import { MSRecStat } from "./structure/msrecstat"
 import { MSRoom, MSRoomConf, MSRoomServer } from "./structure/msroom"
+import { MSSkin } from "./structure/msskin"
 import { MSUser } from "./structure/msuser"
 /**
  * 민다 로비 클라이언트
@@ -20,7 +22,10 @@ export class MindaClient {
      * 방 목록 (immutable)
      */
     public rooms:Immute<MSRoom[]> = []
-    public me:MSUser
+    /**
+     * 내 자신 정보
+     */
+    public me:MSUser & {skins:MSSkin[]}
     /**
      * 방목록 동기화 및 프로필을 불러왔을때
      */
@@ -66,7 +71,7 @@ export class MindaClient {
      * 토큰으로 방 목록 및 유저 정보를 불러옵니다.
      */
     public async login() {
-        this.defaultPicture = await fetch(defaultProfile).then((v) => v.buffer())
+        this.defaultPicture = null
         try {
             await this.getMyself()
             await this.fetchRooms()
@@ -167,7 +172,7 @@ export class MindaClient {
         if (id == null || id < 0) {
             return this.defaultPicture
         }
-        const buf = await reqBinary("GET", `/pics/${id}/`, this.token)
+        const buf = await reqBinaryGet("GET", `/pics/${id}/`, this.token)
         if (buf.ok) {
             return buf.buffer()
         } else {
@@ -191,8 +196,13 @@ export class MindaClient {
      * 자신의 프로필 이미지를 설정합니다.
      * @param image 이미지(Buffer)
      */
-    public async setProfileImage(image:Buffer) {
-        const result = await reqBinary("POST", "/pics/", this.token, image)
+    public async setProfileImage(image:string | Buffer) {
+        if (typeof image === "string") {
+            image = await fetch(image).then((v) => v.blob())
+        }
+        const result = await reqBinaryPost("POST", "/pics/", {
+            file: image,
+        }, this.token)
         if (result.ok) {
             await this.getMyself()
             return extractContent<{pic_id:number}>(result)
@@ -224,10 +234,87 @@ export class MindaClient {
     }
     /**
      * [내부] 자신 스스로의 프로필을 가져옵니다.
+     * 
+     * 스킨도 가져오고 싱크 기능도 합니다.
      */
     public async getMyself() {
         const myself = await extractContent<MSUser>(reqGet("GET", "/users/me/", this.token))
-        this.me = myself
+        const skins = await extractContent<MSSkin[]>(reqGet("GET", "/skins/me/", this.token))
+        this.me = {
+            ...myself,
+            skins,
+        }
+        return {...this.me}
+    }
+    /**
+     * ID로 스킨을 가져옵니다.
+     * @param id 스킨 ID
+     */
+    public async getSkinById(id:number) {
+        const skin = await extractContent<MSSkin>(reqGet("GET", `/skins/${id}/`, this.token))
+        return skin
+    }
+    /**
+     * 유저의 스킨을 가져옵니다.
+     * 
+     * 없으면 null 반환
+     * @param user 유-저
+     */
+    public async getSkinOfUser(user:number | MSUser) {
+        const parseUser = await this.user(user)
+        const skin = parseUser.inventory.current_skin
+        if (skin != null) {
+            return this.getSkinById(skin)
+        } else {
+            return null
+        }
+    }
+    /**
+     * 슬롯에 스킨을 배정합니다.
+     * 마네킹 같은 시스템이긴 한데
+     * 이게 왜 또 백인지 흑인지 모르겠음
+     * @param slot 
+     * @param name 
+     * @param image 
+     */
+    public async setSkinSlotN(slot:1 | 2, name:string, image:string | Buffer) {
+        await this.getMyself()
+        const getCoin = (inv:MSInventory) => {
+            switch (slot) {
+                case 1:
+                    return inv.one_color_skin
+                case 2:
+                    return inv.two_color_skin
+                default:
+                    return inv.current_skin
+            }
+        }
+        let numCode:string
+        switch (slot) {
+            case 1:
+                numCode = "one"; break
+            case 2:
+                numCode = "two"; break
+            default:
+                numCode = "zero"
+        }
+        const coin = getCoin(this.me.inventory)
+        if (coin <= 0) {
+            throw new Error("Not enough money")
+        }
+        if (typeof image === "string") {
+            image = await fetch(image).then((v) => v.blob())
+        }
+        await reqBinaryPost("POST", `/skins/me/${numCode}/`, {
+            name,
+            file: image,
+        }, this.token)
+        await this.getMyself()
+        if (this.me.inventory.one_color_skin < coin) {
+            return this.me.skins.find((v) => v.name === name)
+        } else {
+            return null
+        }
     }
     /**
      * [내부] 동기화합니다.

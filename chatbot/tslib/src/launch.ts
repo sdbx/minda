@@ -23,8 +23,16 @@ async function login() {
     console.log(chalk.yellow(oAuth))
     credit.watchLogin()
     credit.onLogin.one(async (token) => {
-        runCUI(token)
+        // runCUI(token)
     })
+}
+async function runTest(token:string) {
+    const mindaC = new MindaClient(token)
+    await mindaC.login()
+    const skin = await mindaC.getSkinOfUser(mindaC.me)
+    if (skin == null) {
+        // https://cdn.discordapp.com/attachments/152746825806381056/550229916621209600/kkinux.png
+    }
 }
 async function runCUI(token:string) {
     const cui = new CUI(token)

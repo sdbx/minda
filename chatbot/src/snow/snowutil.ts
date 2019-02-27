@@ -10,6 +10,3 @@ export function getFirst<T>(arr:T[] | T, df:T = null):T {
         return arr[0]
     }
 }
-export function logFn(key:string) {
-    return (param:any, ...args:any[]) => debug(key)(param, args) 
-}

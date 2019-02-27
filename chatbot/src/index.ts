@@ -1,4 +1,5 @@
 import { registerFont } from "canvas"
+import { cLog } from "chocolog"
 import fs from "fs-extra"
 import { MindaClient, MindaCredit, MSGrid } from "minda-ts"
 import * as Minda from "minda-ts"
@@ -15,14 +16,19 @@ import SnowConfig, { debugPath } from "./snow/config/snowconfig"
 import TokenStore from "./snow/config/tokenstore"
 import DiscordSnow from "./snow/provider/discordsnow"
 import Snow from "./snow/snow"
+import { Serializable, Serializify } from "./types/serializable"
 import { bindFn } from "./util"
 
 async function run2() {
     const tokenStore = new JsonConfig(GlobalConfig, `${debugPath}/config/token.json5`).ro
     const snow = new Snow(tokenStore, `${debugPath}/config`, BotConfig)
     const authF = new MindaExec(tokenStore.minda, `${debugPath}/config`)
-    await authF.init()
-    console.log(await snow.login())
+    if (!await authF.init()) {
+        await authF.genToken()
+    }
+    await cLog.v(await snow.login())
+    await cLog.v(process.cwd())
+
     snow.addCommands(authF.commands)
     snow.addCommand(new SnowCommand({
         name: "ping",
@@ -64,11 +70,19 @@ class AuthMinda {
         this.onReady.sub(async (token) => {
             this.client = new MindaClient(token)
             await this.client.login()
-            console.log(this.client.me)
+            cLog.i("Myself", this.client.me)
         })
     }
     public async authMinda(context:SnowContext<{}>, provider:string) {
         const {channel, message} = context
 
     }
+}
+interface SerialTest {
+    id:number,
+    username:string,
+    // nullable
+    picture?:number,
+    permission:Minda.MSPerm,
+    inventory:boolean,
 }

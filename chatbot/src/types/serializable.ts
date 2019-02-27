@@ -2,7 +2,7 @@
 /**
  * Serializable type defintion.
  */
-export type Serializable = string | number | boolean | SerializeObject | SerializeArray
+export type Serializable = string | number | boolean | SerializeArray | SerializeObject
 export interface SerializeObject {
     [x:string]: Serializable;
 }

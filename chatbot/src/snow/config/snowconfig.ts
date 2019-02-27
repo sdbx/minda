@@ -7,7 +7,7 @@ import { Connection, ConnectionOptions, createConnection,
 import BaseGuildCfg, { GidType } from "./baseguildcfg"
 import SimpleConfig from "./simpleconfig"
 export const debugPath = path.resolve(
-    process.cwd(), process.argv.find((v) => v === "--vscode") != null ? "../" : "")
+    process.cwd(), process.argv.find((v) => v === "--vscode") != null ? "./" : "")
 
 export type SnowSchema<T> = Pick<T, Exclude<keyof T, keyof BaseGuildCfg>>
 /**

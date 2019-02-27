@@ -1,3 +1,4 @@
+import FormData from "form-data"
 import fetch, { Response } from "node-fetch"
 import querystring from "querystring"
 import { Serializable, SerializeObject } from "../types/serializable"
@@ -28,17 +29,33 @@ export async function reqPost(type:PostType, suffix:string, token?:string,
     return req(type, true, suffix, token, urlParam, postParam)
 }
 /**
- * 바이너리 송/수신 요청을 보냅니다.
+ * 바이너리 수신 요청을 보냅니다.
  */
-export async function reqBinary(type:"POST" | "GET", suffix:string, token?:string, param?:Buffer) {
+export async function reqBinaryGet(type:"GET", suffix:string, token?:string) {
     const h = genHeader(suffix, token)
     suffix = h.suffix
     const response = await fetch(suffix, {
         method: type,
-        body: (type === "POST") ? param : undefined,
         headers: {
             ...h.headers,
-            "Content-Type": (type === "GET") ? "application/octet-stream" : "application/json",
+            "Content-Type": "application/octet-stream",
+        },
+    })
+    return response
+}
+export async function reqBinaryPost(type:"POST", suffix:string,
+    formData:{ [K in string]: string | Buffer }, token?:string) {
+    const form = new FormData()
+    const h = genHeader(suffix, token)
+    for (const [k, v] of Object.entries(formData)) {
+        form.append(k, v)
+    }
+    const response = await fetch(h.suffix, {
+        method: type,
+        body: form,
+        headers: {
+            ...h.headers,
+            ...form.getHeaders(),
         },
     })
     return response

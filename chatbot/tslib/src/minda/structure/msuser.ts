@@ -1,3 +1,4 @@
+import { MSInventory } from "./msinventory"
 import { MSPerm } from "./msperm"
 
 export interface MSUser {
@@ -6,4 +7,5 @@ export interface MSUser {
     // nullable
     picture?:number,
     permission:MSPerm,
+    inventory:MSInventory,
 }

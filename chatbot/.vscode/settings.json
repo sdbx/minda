@@ -7,6 +7,9 @@
   "files.watcherExclude": {
     "**/build/**": true,
     "tslib": true,
+  },
+  "files.exclude": {
+    "tslib": true
   }
   // "typescript.implementationsCodeLens.enabled": true
   // "typescript.referencesCodeLens.enabled": true

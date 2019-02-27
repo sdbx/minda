@@ -1,4 +1,7 @@
-import { MindaAdmin, MindaClient, MindaCredit, MindaRoom, MoveInfo, MSGrid, MSUser, StartInfo, StoneType } from "minda-ts"
+import { cLog } from "chocolog"
+import { prompt } from "enquirer"
+import { MindaAdmin, MindaClient, MindaCredit,
+    MindaRoom, MoveInfo, MSGrid, MSUser, StartInfo, StoneType } from "minda-ts"
 import { MSRoom } from "minda-ts/build/main/minda/structure/msroom"
 import path from "path"
 import { Column, Entity, PrimaryColumn } from "typeorm"
@@ -18,14 +21,14 @@ import BotConfig from "./guildcfg"
 
 export default class MindaExec {
     public commands:Array<SnowCommand<BotConfig>> = []
-    protected admin:MindaAdmin
+    protected admin:MindaClient
     protected dbpath:string
     protected userDB:SimpleConfig<MindaID, UserIdentifier>
     protected authQueue:Map<string, boolean> = new Map()
     protected playingQueue:Map<string, MindaRoom> = new Map()
     public constructor(adminToken:string, dir:string) {
         this.userDB = new SimpleConfig(MindaID, path.resolve(dir, "mindaid.sqlite"))
-        this.admin = new MindaAdmin(adminToken)
+        this.admin = new MindaClient(adminToken)
         this.commands.push(new SnowCommand({
             name: "auth",
             paramNames: ["oAuth-공급자"],
@@ -52,14 +55,37 @@ export default class MindaExec {
             func: bindFn(this, this.cmdRecordStat),
             reqLength: 0,
         }, "SnowUser"))
+        this.commands.push(new SnowCommand({
+            name: "skin",
+            paramNames: ["유-저"],
+            description: "스킨을 알려줍니다.",
+            func: bindFn(this, this.cmdSkin),
+            reqLength: 0,
+        },"SnowUser"))
     }
     public async init() {
         await this.userDB.connect()
+        return this.admin.login()
+    }
+    public async genToken() {
+        const credit = new MindaCredit(60000)
+        const provs = await credit.getProviders()
+        const {choice} = await prompt({
+            type: "select",
+            name: "choice",
+            message: "Select provider",
+            choices: provs,
+        })
+        const url = await credit.genOAuth(choice)
+        cLog.i("oAuth URL", url)
+        credit.watchLogin()
+        const token = await awaitEvent(credit.onLogin, 60000, (t) => t, false)
+        cLog.v("Token", token)
+        this.admin = new MindaClient(token)
         await this.admin.login()
     }
     protected async cmdFight(context:SnowContext<BotConfig>, otherUser:SnowUser) {
         const { channel, message } = context
-        const mindaUsers = await this.admin.listUsers()
         const getMindaUser = async (user:SnowUser) => {
             const u = await this.userDB.get({
                 uid: user.id,
@@ -68,12 +94,7 @@ export default class MindaExec {
             if (u < 0) {
                 return null
             }
-            const minda = mindaUsers.find((v) => v.id === u)
-            if (minda == null) {
-                return null
-            } else {
-                return minda
-            }
+            return this.admin.user(u)
         }
         const user1 = message.author
         const user2 = otherUser
@@ -140,8 +161,8 @@ export default class MindaExec {
             room.close()
             await subCh.deleteChannel()
         }
-        room.onChat.sub((ch) => {
-            const n = this.admin.users.find((v) => v.id === ch.user).username
+        room.onChat.sub(async (ch) => {
+            const n = await this.admin.user(ch.user).then((v) => v.username)
             subCh.send(`${n} : ${ch.content}`)
         })
         room.onLeave.sub(async (lf) => {
@@ -298,6 +319,26 @@ export default class MindaExec {
             }
         } else {
             await channel.send("잘못된 유저입니다.")
+        }
+    }
+    protected async cmdSkin(context:SnowContext<BotConfig>, searchU:SnowUser) {
+        const { channel, message } = context
+        const user = searchU == null ? message.author : searchU
+        const uid = {
+            uid: user.id,
+            platform: user.platform,
+        }
+        const getID = await this.userDB.get(uid, "mindaId")
+        if (getID >= 0) {
+            const skin = await this.admin.getSkinOfUser(getID)
+            if (skin.id != null && skin.id >= 0) {
+                await context.channel.send("검은 돌", skin.black_picture)
+                await context.channel.send("하얀 돌", skin.white_picture)
+            } else {
+                await context.channel.send("스킨 없음")
+            }
+        } else {
+            await context.channel.send("No user found.")
         }
     }
 }

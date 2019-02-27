@@ -1,3 +1,4 @@
+import { cLog } from "chocolog"
 import fs from "fs-extra"
 import hash from "hash.js"
 import path from "path"
@@ -21,7 +22,7 @@ export default class SimpleConfig<T extends B, B extends object> {
     public async connect() {
         const name = `${this.schema.name}_${
             Buffer.from(hash.sha1().update(this.dbpath).digest("hex"), "hex").toString("base64")}`
-        console.log(name)
+        cLog.d(name)
         this.connection = await createConnection({
             type: "sqlite",
             database: this.dbpath,

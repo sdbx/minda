@@ -1,4 +1,5 @@
 import { createCanvas, Image, loadImage, registerFont } from "canvas"
+import { cLog } from "chocolog"
 import emojiUnicode from "emoji-unicode"
 import fs from "fs-extra"
 import sizeOf from "image-size"
@@ -298,7 +299,7 @@ function loadImage(url:string | Buffer) {
         const img = new Image()
         img.onload = () => res(img)
         img.onerror = (err:any) => {
-            console.log(err)
+            cLog.e(err)
             res(null)
         }
         img.src = url

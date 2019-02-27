@@ -1,3 +1,4 @@
+import { cLog } from "chocolog"
 import debug from "debug"
 import SnowChannel, { ConfigDepth } from "../channel/snowchannel"
 import BaseGuildCfg from "../config/baseguildcfg"
@@ -5,10 +6,8 @@ import { SnowConfigSimple, SnowSchema } from "../config/snowconfig"
 import { SnowProvider } from "../provider/snowprovider"
 import SnowMessage from "../snowmessage"
 import SnowUser from "../snowuser"
-import { logFn } from "../snowutil"
 
 // const test:FilteredKeys<[1,"a",true],[1,"a"]> = []
-const log = logFn("SnowCommand")
 
 export default class SnowCommand<
     C extends object, P extends AllowDecode[] = any[]> implements CommandConstructor<C, P> {
@@ -116,7 +115,7 @@ export default class SnowCommand<
         const result = await this.func(context, ...this.convertParam(params) as any)
         await context.updateGroupConfig()
         await context.updateChannelConfig()
-        log("Executed Command.")
+        cLog.v("Executed Command.")
         return result
     }
     /*
