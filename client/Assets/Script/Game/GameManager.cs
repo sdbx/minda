@@ -41,7 +41,8 @@ namespace Game
             boardManger.CreateBoard();
             var game = GameServer.instance.gamePlaying;
             //boardManger.CreateBoard();
-            StartGame(Board.GetMapFromString(game.map), game.turn);
+
+            StartGame(Board.GetMapFromString(game.map), game.turn,game.black,game.white);
             InitTimer(game.rule.turn_timeout, game.rule.game_timeout);
             UpdateTimers(game.current_time, game.rule.game_timeout, game.rule.game_timeout);
             InitHandlers();
@@ -180,12 +181,46 @@ namespace Game
             player2TurnTimer.UpdateTimer();
         }
 
-        public void StartGame(int[,] map, BallType turn)
+        public void StartGame(int[,] map, BallType turn,int black,int white)
         {
             myBallType = RoomUtils.GetBallType(LobbyServer.instance.loginUser.id);
             ballManager.RemoveBalls();
             boardManger.SetMap(map);
             ballManager.CreateBalls(boardManger);
+
+
+            GameServer.instance.GetInGameUser(black, (inGameuser) =>
+            {
+                var skinId = inGameuser.user.inventory.current_skin;
+                if (skinId == null)
+                    return;
+                Debug.Log(skinId + "블랙");
+                LobbyServer.instance.GetLoadedSkin(inGameuser.user.inventory.current_skin.Value, (loadedSkin) =>
+                {
+                    if (loadedSkin != null)
+                    {
+                        ballManager.SetBallsSkin(BallType.Black, (Texture2D)loadedSkin.blackTexture);
+                    }
+                });
+            });
+            GameServer.instance.GetInGameUser(white, (inGameuser) =>
+            {
+                var skinId = inGameuser.user.inventory.current_skin;
+                if (skinId == null)
+                    return;
+                Debug.Log(skinId + "화이트");
+                LobbyServer.instance.GetLoadedSkin(inGameuser.user.inventory.current_skin.Value, (loadedSkin) =>
+                {
+                    if (loadedSkin != null)
+                    {
+                        ballManager.SetBallsSkin(BallType.White, (Texture2D)loadedSkin.whiteTexture);
+                    }
+                });
+            });
+
+            
+
+
             nowTurn = turn;
             if (turn == myBallType)
             {

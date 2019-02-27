@@ -11,10 +11,10 @@ namespace Game.Balls
 {
     static public class BallCreator
     {
-        static public GameObject[,] CreateBalls(float sizeOfBall, GameObject ballsObject, float holeDistance, Board board, GameObject blackBallPrefab, GameObject whiteBallPrefab)
+        static public Ball[,] CreateBalls(float sizeOfBall, GameObject ballsObject, float holeDistance, Board board, Ball blackBallPrefab, Ball whiteBallPrefab)
         {
             int side = board.GetSide();
-            GameObject[,] BallObjects = new GameObject[side * 2 - 1, side * 2 - 1];
+            Ball[,] BallObjects = new Ball[side * 2 - 1, side * 2 - 1];
 
             foreach (Hole hole in board.GetHoles())
             {
@@ -24,11 +24,11 @@ namespace Game.Balls
                 }
 
                 CubeCoord holeCubeCoord = hole.GetCubeCoord();
-                GameObject BallPrefab = (hole.GetHoleState() == HoleState.Black ? blackBallPrefab : whiteBallPrefab);
+                Ball BallPrefab = (hole.GetHoleState() == HoleState.Black ? blackBallPrefab : whiteBallPrefab);
 
                 Vector2 holePosition = hole.GetPixelPoint(holeDistance);
 
-                GameObject ballObject = UnityEngine.Object.Instantiate(BallPrefab, new Vector3(holePosition.x, -holePosition.y, 8),
+                Ball ballObject = UnityEngine.Object.Instantiate(BallPrefab, new Vector3(holePosition.x, -holePosition.y, 8),
                 Quaternion.Euler(0, 0, 0), ballsObject.transform);
 
 

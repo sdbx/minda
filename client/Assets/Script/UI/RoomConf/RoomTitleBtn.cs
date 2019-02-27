@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Network;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using Utils;
@@ -23,7 +24,11 @@ namespace UI
 
         private void Awake()
         {
-            contextMenu = new ContextMenu(contextMenuPivot).Add("Edit Room Setting", null).Add("Copy Room Code", null).Add("Copy Invite Link",null);
+            contextMenu = new ContextMenu(contextMenuPivot).Add("Copy Room Code", ()=>
+            {
+                GUIUtility.systemCopyBuffer = GameServer.instance.connectedRoom.id;
+                Toast.ToastManager.instance.Add("Copied To Clipboard","Info");
+            });
             rectTransform = gameObject.GetComponent<RectTransform>();
         }
 

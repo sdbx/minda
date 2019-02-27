@@ -21,8 +21,8 @@ public class ProfileEditor : MonoBehaviour
     private InputField userNameInputField;
     [SerializeField]
     private Button EditStartBtn;
-    [SerializeField]
-    private Button profileImageRemoveBtn;
+    //[SerializeField]
+    //private Button profileImageRemoveBtn;
     [SerializeField]
     private Button profileImageChangeBtn;
     [SerializeField]
@@ -35,11 +35,12 @@ public class ProfileEditor : MonoBehaviour
     private bool isEditing;
     private byte[] loadedImage;
 
+    private bool isProfileImageExist;
 
     private void Awake()
     {
         EditStartBtn.onClick.AddListener(OnEditStartBtnClicked);
-        profileImageRemoveBtn.onClick.AddListener(OnProfileImageRemoveBtnClicked);
+        //profileImageRemoveBtn.onClick.AddListener(OnProfileImageRemoveBtnClicked);
         profileImageChangeBtn.onClick.AddListener(OnProfileImageChangeBtnClicked);
         saveChangesBtn.onClick.AddListener(OnSaveChangesBtnClicked);
         discardChagesBtn.onClick.AddListener(OnDiscardChagesBtnClicked);
@@ -64,51 +65,49 @@ public class ProfileEditor : MonoBehaviour
     private void OnProfileImageRemoveBtnClicked()
     {
         profileImage.texture = UISettings.instance.placeHolder;
+        //profileImageRemoveBtn.gameObject.SetActive(false);
     }
 
     private void OnSaveChangesBtnClicked()
     {
         var newUser = new User();
-        if (loadedImage != null)
+        newUser.username = userNameInputField.text;
+        var end = false;
+        LobbyServer.instance.Put("/users/me/", JsonConvert.SerializeObject(newUser), (EmptyResult nothing, int? err2) =>
         {
-            LobbyServer.instance.UploadImage(loadedImage, (Pic pic, int? err) =>
-             {
-                 if (err != null)
-                 {
-                     //에러처리
-                     ToastManager.instance.Add("Image uploading Error","Error");
-                     return;
-                 }
-                 //newUser.picture = pic;
-                 newUser.username = userNameInputField.text;
-
-                 LobbyServer.instance.Put("/users/me/", JsonConvert.SerializeObject(newUser), (EmptyResult nothing, int? err2) =>
-                 {
-                     if (err2 != null)
-                     {
-                         //에러처리
-                         ToastManager.instance.Add("Profile uploading Error", "Error");
-                         return;
-                     }
-                     EndEdit();
-                 });
-             });
-        }
-        else
-        {
-            newUser.username = userNameInputField.text;
-
-            LobbyServer.instance.Put("/users/me/", JsonConvert.SerializeObject(newUser), (EmptyResult nothing, int? err2) =>
+            if (err2 != null)
             {
-                if (err2 != null)
-                {
-                    //에러처리
-                    ToastManager.instance.Add("Profile uploading Error", "Error");
-                }
+                //에러처리
+                ToastManager.instance.Add("Profile Uploading Error", "Error");
+                return;
+            }
+            if (end)
                 EndEdit();
-            });
+            end = true;
+        });
+
+        if(loadedImage == null)
+        {
+            end = true;
+            return;
         }
+            
+        var formData = new WWWForm();
+        formData.AddBinaryData("file", loadedImage);
+        LobbyServer.instance.Put("/users/me/picture/", formData, (data, err) =>
+        {
+            if (err != null)
+            {
+                //에러처리
+                ToastManager.instance.Add("Profile Image Uploading Error", "Error");
+                return;
+            }
+            if (end)
+                EndEdit();
+            end = true;
+        });
     }
+
 
     private void EndEdit()
     {
@@ -147,7 +146,8 @@ public class ProfileEditor : MonoBehaviour
     {
         LobbyServer.instance.GetLoginUserProfileImage((Texture texture) =>
         {
-            profileImage.texture = texture;
+            if(texture!=null)
+                profileImage.texture = texture;
         });
         userNametext.text = LobbyServer.instance.loginUser.username;
     }
@@ -157,10 +157,15 @@ public class ProfileEditor : MonoBehaviour
         EditStartBtn.gameObject.SetActive(!isEdit);
         profileChangeIcon.SetActive(isEdit);
         userNameInputField.gameObject.SetActive(isEdit);
-        profileImageChangeBtn.gameObject.SetActive(isEdit);
-        profileImageRemoveBtn.gameObject.SetActive(isEdit);
-        saveChangesBtn.gameObject.SetActive(isEdit);
+        profileImageChangeBtn.enabled = isEdit;
+        userNametext.gameObject.SetActive(!isEdit);
+        // if(isEdit)
+        //     profileImageRemoveBtn.gameObject.SetActive(isEdit);
+        // else
+        //     profileImageRemoveBtn.gameObject.SetActive(isEdit);
+        // saveChangesBtn.gameObject.SetActive(isEdit);
         discardChagesBtn.gameObject.SetActive(isEdit);
+        saveChangesBtn.gameObject.SetActive(isEdit);
     }
 
     public void OpenFileDirectory()
@@ -177,6 +182,7 @@ public class ProfileEditor : MonoBehaviour
             try
             {
                 profileImage.texture =  Output(paths[0]);
+                //profileImageRemoveBtn.gameObject.SetActive(true);
             }
             catch (Exception e)
             {

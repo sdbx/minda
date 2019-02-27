@@ -1,10 +1,14 @@
 ﻿using System.Collections;
 using System.IO;
 using UnityEngine;
-
+using UnityEngine.Networking;
+		using UnityEngine.UI;
 [System.Serializable]
 public class DiscordUser
 {
+	//test
+
+
     /// <summary>
     /// Caching Level. This is a flag.
     /// </summary>
@@ -201,13 +205,13 @@ public class DiscordUser
 			}
 			else
 			{
-				using (WWW www = new WWW(GetAvatarURL(DiscordUser.AvatarFormat, size)))
+				using (UnityWebRequest www = UnityWebRequestTexture.GetTexture(GetAvatarURL(DiscordUser.AvatarFormat, size)))
 				{
 					//Download the texture
-					yield return www;
+					yield return www.SendWebRequest();
 
 					//Update the holder
-					www.LoadImageIntoTexture(avatarTexture);
+					avatarTexture = ((DownloadHandlerTexture)(www.downloadHandler)).texture;
 
                     //Encode and cache the files
                     if (CacheLevel != CacheLevelFlag.None)
@@ -291,13 +295,13 @@ public class DiscordUser
 		else
 		{
 			string url = string.Format("https://{0}/embed/avatars/{1}.png?size={2}", _cdnEndpoint, discrim, (int)size);
-			using (WWW www = new WWW(url))
+			using (UnityWebRequest www = new UnityWebRequest(url))
 			{
 				//Download the texture
 				yield return www;
 
 				//Update the holder
-				www.LoadImageIntoTexture(avatarTexture);
+				avatarTexture = ((DownloadHandlerTexture)(www.downloadHandler)).texture;
 
                 //We have been told to cache, so do so.
                 if (CacheLevel != CacheLevelFlag.None)
