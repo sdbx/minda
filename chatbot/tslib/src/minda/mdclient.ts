@@ -252,7 +252,14 @@ export class MindaClient {
      */
     public async getSkinById(id:number) {
         const skin = await extractContent<MSSkin>(reqGet("GET", `/skins/${id}/`, this.token))
-        return skin
+        if (skin == null) {
+            return null
+        }
+        return {
+            ...skin,
+            whiteImage: await fetch(skin.white_picture).then((v) => v.blob()),
+            blackImage: await fetch(skin.black_picture).then((v) => v.blob())
+        }
     }
     /**
      * 유저의 스킨을 가져옵니다.
@@ -277,7 +284,7 @@ export class MindaClient {
      * @param name 
      * @param image 
      */
-    public async setSkinSlotN(slot:1 | 2, name:string, image:string | Buffer) {
+    public async setSkinSlotN(slot:1 | 2, name:string, black:string | Buffer, white?:string | Buffer) {
         await this.getMyself()
         const getCoin = (inv:MSInventory) => {
             switch (slot) {
@@ -302,15 +309,26 @@ export class MindaClient {
         if (coin <= 0) {
             throw new Error("Not enough money")
         }
-        if (typeof image === "string") {
-            image = await fetch(image).then((v) => v.blob())
+        const getImage = async (image:string | Buffer) => {
+            if (typeof image === "string") {
+                return fetch(image).then((v) => v.blob())
+            } else {
+                return image
+            }
+        }
+        black = await getImage(black)
+        if (white == null) {
+            white = black
+        } else {
+            white = await getImage(white)
         }
         await reqBinaryPost("POST", `/skins/me/${numCode}/`, {
             name,
-            file: image,
+            white,
+            black,
         }, this.token)
         await this.getMyself()
-        if (this.me.inventory.one_color_skin < coin) {
+        if (getCoin(this.me.inventory) < coin) {
             return this.me.skins.find((v) => v.name === name)
         } else {
             return null
