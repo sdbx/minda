@@ -45,8 +45,9 @@ timeout:Timeout!
 lost stones:Lost stones
 blackwin:Black wins!
 whitewin:White wins!
-surrender:Do yo want to surrender?
-exit:Do you want to leave this room?
+surrendermessage:Do yo want to surrender?
+exit:Exit
+exitmessage:Do you want to leave this room?
 retrylogin:Login is already in progress./nDo you want to retry? 
 gamestarted:Game is already started
 roomreceivefailed:Failed to recieve room list

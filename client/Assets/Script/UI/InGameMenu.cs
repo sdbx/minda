@@ -42,7 +42,7 @@ namespace UI
             isInGame = GameServer.instance.isInGame;
             if(isInGame&&!GameServer.instance.isSpectator)
             {
-                ExitOrGGBtnText.text = LanguageManager.GetText("surrender");
+                ExitOrGGBtnText.text = LanguageManager.GetText("gg");
             }
             else
             {
@@ -75,7 +75,7 @@ namespace UI
         {
             if(isInGame)
             {
-                MessageBox.instance.Show(LanguageManager.GetText("surrender"),(bool agreed)=>
+                MessageBox.instance.Show(LanguageManager.GetText("surrendermessage"),(bool agreed)=>
                 {
                     if(agreed)
                     {
@@ -86,7 +86,7 @@ namespace UI
                 },"Yes","No");
                 return;
             }
-            MessageBox.instance.Show(LanguageManager.GetText("exit"),(bool agreed)=>
+            MessageBox.instance.Show(LanguageManager.GetText("exitmessage"),(bool agreed)=>
             {
                 if(agreed)
                 {
