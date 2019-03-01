@@ -46,6 +46,7 @@ namespace UI.Chatting
                     Focus();
                     return;
                 }
+
                 objectToggler.UnActivate();
             }
             if(Input.GetKeyDown(KeyCode.Escape))

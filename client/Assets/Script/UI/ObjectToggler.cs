@@ -61,6 +61,8 @@ namespace UI
 
         public void Activate()
         {
+            if(isActivated)
+                return;
             isActivated = true;
             Init();
             DOTween.To(() => canvasGroup.alpha, x => canvasGroup.alpha = x, 1, duration);
@@ -74,6 +76,8 @@ namespace UI
 
         public void UnActivate()
         {
+            if(!isActivated)
+                return;
             isActivated = false;
             Init();
             DOTween.To(() => canvasGroup.alpha, x => canvasGroup.alpha = x, 0, duration).OnComplete(()=>

@@ -59,7 +59,7 @@ namespace UI.Chatting
             if (Input.GetKeyDown(KeyCode.Return))
             {
                 if (!chattingInputToggler.isActivated)
-                {
+                {   
                     toggler.Activate();
                     chattingInputToggler.Activate();
                     ScrollToBottom();
