@@ -33,5 +33,20 @@ namespace Utils
             }
             return null;
         }
+
+        public static string LoadText(string title, string directory = "")
+        {
+            var filters = new[] {
+                new ExtensionFilter("Image Files", "png", "jpg", "jpeg" ),
+                new ExtensionFilter("All Files", "*" ),
+            };
+
+            var paths = Browse(title, filters);
+            if (paths != null)
+            {
+                return File.ReadAllText(paths[0]);
+            }
+            return null;
+        }
     }
 }

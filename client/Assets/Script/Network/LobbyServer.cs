@@ -43,6 +43,7 @@ namespace Network
         private Dictionary<int,LoadedSkin> skins = new Dictionary<int, LoadedSkin>();
 
 
+
         private void Awake()
         {
             //singleton
@@ -68,7 +69,7 @@ namespace Network
                 loginState = LoginState.Login;
                 RefreshLoginUser((User user) =>
                 {
-                    ToastManager.instance.Add($"Hello, {user.username}", "Success");
+                    ToastManager.instance.Add(LanguageManager.GetText("hello",user.username), "Success");
                 });
                 Debug.Log("로그인 성공");
             }
@@ -109,7 +110,7 @@ namespace Network
             loginState = LoginState.Login;
             RefreshLoginUser((User user) =>
             {
-                ToastManager.instance.Add($"Hello, {user.username}", "Success");
+                ToastManager.instance.Add(LanguageManager.GetText("hello",user.username), "Success");
             });
             Debug.Log("로그인 성공");
         }
@@ -148,7 +149,7 @@ namespace Network
                         StartCoroutine(CheckLogin());
                         return;
                     }
-                    ToastManager.instance.Add("Login Failed", "Error");
+                    ToastManager.instance.Add(LanguageManager.GetText("loginfailed"), "Error");
                     return;
                 }
                 HandleLoginResult(loginResult);
@@ -218,11 +219,11 @@ namespace Network
                 {
                     if(err == 404)
                     {
-                        ToastManager.instance.Add("Room doesn't exist", "Error");
+                        ToastManager.instance.Add(LanguageManager.GetText("roomdoesntexist"), "Error");
                     }
                     else if(err == 500)
                     {
-                        ToastManager.instance.Add("Fatal Error!", "Error");
+                        ToastManager.instance.Add(LanguageManager.GetText("fatalerror"), "Error");
                     }
                     callback(false);
                     return;
@@ -293,7 +294,7 @@ namespace Network
             {
                 if(err!=null)
                 {
-                    ToastManager.instance.Add("Skin Load Error","Error");
+                    ToastManager.instance.Add(LanguageManager.GetText("skinloaderror"),"Error");
                     return;
                 }
                 LoadedSkin.Get(skin,callback);

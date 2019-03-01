@@ -78,7 +78,7 @@ public class ProfileEditor : MonoBehaviour
             if (err2 != null)
             {
                 //에러처리
-                ToastManager.instance.Add("Profile Uploading Error", "Error");
+                ToastManager.instance.Add(LanguageManager.GetText("profileuploadingerror"), "Error");
                 return;
             }
             if (end)
@@ -99,7 +99,7 @@ public class ProfileEditor : MonoBehaviour
             if (err != null)
             {
                 //에러처리
-                ToastManager.instance.Add("Profile Image Uploading Error", "Error");
+                ToastManager.instance.Add(LanguageManager.GetText("profileuploadingerror"), "Error");
                 return;
             }
             if (end)
@@ -111,6 +111,7 @@ public class ProfileEditor : MonoBehaviour
 
     private void EndEdit()
     {
+        ToastManager.instance.Add(LanguageManager.GetText("profilechanged"), "Success");
         LobbyServer.instance.RefreshLoginUser((User user) =>
         {
             LobbyServer.instance.RefreshLoginUserProfileImage((Texture texture) =>
@@ -186,7 +187,7 @@ public class ProfileEditor : MonoBehaviour
             }
             catch (Exception e)
             {
-                ToastManager.instance.Add("Image load error", "Error");
+                ToastManager.instance.Add(LanguageManager.GetText("imageloaderror"), "Error");
                 Debug.Log("이미지 로드 오류 : " + e);
             }
         }

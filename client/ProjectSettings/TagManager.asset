@@ -57,14 +57,14 @@ TagManager:
   - name: UserList
     uniqueID: 3040178159
     locked: 0
-  - name: Chatting
-    uniqueID: 3980232207
-    locked: 0
   - name: MapSelector
     uniqueID: 2997160801
     locked: 1
   - name: GameUI
     uniqueID: 1218451015
+    locked: 0
+  - name: Chatting
+    uniqueID: 3980232207
     locked: 0
   - name: InGameMenu
     uniqueID: 2422795177

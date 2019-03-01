@@ -162,7 +162,7 @@ namespace Game.Guide
                 _isSelected = true;
                 _isFirstBallpicked = false;
             }
-            else`
+            else
             {
                 guide.displayChanger.SetMode("CanSelect");
             }

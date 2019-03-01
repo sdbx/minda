@@ -11,6 +11,8 @@ using UI;
 public class RoomCreateWindow : MonoBehaviour
 {
     [SerializeField]
+    private UnityEngine.UI.Toggle isPublicToggle;
+    [SerializeField]
     private ObjectToggler windowToggler;
     [SerializeField]
     private InputField nameText;
@@ -48,9 +50,9 @@ public class RoomCreateWindow : MonoBehaviour
     public string ToJson()
     {
         Conf conf = new Conf{
+            open = isPublicToggle.isOn,
             name = nameText.text,
             king = -1,
-            open = true,
         };
 
         return JsonConvert.SerializeObject(conf);

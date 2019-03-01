@@ -11,6 +11,8 @@ namespace UI
     public class MapPreview : MonoBehaviour
     {
         [SerializeField]
+        private Transform parent;
+        [SerializeField]
         private float ballSize = 0.1f;
         [SerializeField]
         private float holeDistance = 0.1f;
@@ -41,7 +43,7 @@ namespace UI
                 balls = null;
             }
             board.SetMap(map);
-            balls = BallCreator.CreatePreviewBalls(ballSize, transform, holeDistance, board, black, white);
+            balls = BallCreator.CreatePreviewBalls(ballSize, parent, holeDistance, board, black, white);
         }
 
     }

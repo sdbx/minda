@@ -47,6 +47,20 @@ namespace UI
             placeHolder = UISettings.instance.placeHolder;
             rectTransform = gameObject.GetComponent<RectTransform>();
             GameServer.instance.ConfedEvent += OnConfed;
+            GameServer.instance.RoomConnectedEvent+=OnConnected;
+        }
+
+        private void Start()
+        {
+            if (GameServer.instance.connectedRoom != null)
+                SetPlayerInfo(GameServer.instance.connectedRoom.conf);
+            return;
+        }
+        
+
+        private void OnConnected(Room room)
+        {
+            SetPlayerInfo(room.conf);
         }
         
         private void OnDestroy()
@@ -64,7 +78,7 @@ namespace UI
             UserId = id;
             if(id == -1)
             {
-                usernameText.text = "Waiting..";
+                usernameText.text = LanguageManager.GetText("waiting");
                 SetColor(ballType);
                 kingIcon.SetActive(false);
                 inGameUser = null;
@@ -113,38 +127,45 @@ namespace UI
             //king menu
             if(gameServer.connectedRoom.conf.king == myId)
             {
-                if(inGameUser.ballType != BallType.White)
+                if (RoomUtils.CheckIsKing(myId))
                 {
-                    contextMenu.Add("To White",()=>
+                    if (inGameUser.ballType != BallType.White)
                     {
-                        gameServer.ChangeUserRole(UserId, BallType.White);
-                    });
-                }
-                if(inGameUser.ballType != BallType.Black)
-                {
-                    contextMenu.Add("To Black",()=>
+                        contextMenu.Add(LanguageManager.GetText("towhite"), () =>
+                         {
+                             gameServer.ChangeUserRole(UserId, BallType.White);
+                         });
+                    }
+                    if (inGameUser.ballType != BallType.Black)
                     {
-                        gameServer.ChangeUserRole(UserId, BallType.Black);
-                    });
-                }
-                if(inGameUser.ballType != BallType.None)
-                {
-                    contextMenu.Add("To Spectator",()=>
+                        contextMenu.Add(LanguageManager.GetText("toblack"), () =>
+                         {
+                             gameServer.ChangeUserRole(UserId, BallType.Black);
+                         });
+                    }
+                    if (inGameUser.ballType != BallType.None)
                     {
-                        gameServer.ChangeUserRole(UserId, BallType.None);
-                    });
+                        contextMenu.Add(LanguageManager.GetText("tospec"), () =>
+                         {
+                             gameServer.ChangeUserRole(UserId, BallType.None);
+                         });
+                    }
+                    if (UserId != myId)
+                    {
+                        contextMenu.Add("Give King", () =>
+                         {
+                             gameServer.ChangeKingTo(UserId);
+                         });
+                    }
+                    var conf = GameServer.instance.connectedRoom.conf;
+                    if (!(conf.black == UserId || conf.white == UserId || conf.king == UserId))
+                    {
+                        contextMenu.Add(LanguageManager.GetText("ban"), () =>
+                        {
+                            GameServer.instance.BanUser(UserId);
+                        });
+                    }
                 }
-                if(UserId != myId)
-                {
-                    contextMenu.Add("Give King", () =>
-                     {
-                         gameServer.ChangeKingTo(UserId);
-                     });
-                }
-                contextMenu.Add("Ban",()=>
-                {
-                    GameServer.instance.BanUser(UserId);
-                });
             }   
             
             Vector3[] corners = new Vector3[4];

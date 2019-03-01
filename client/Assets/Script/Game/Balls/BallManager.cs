@@ -140,7 +140,18 @@ namespace Game.Balls
                 if (!arrowsManager.selected)
                 {
                     if(arrowsManager.pushingArrow==-1)
+                    {
+                        GetBallByCubeCoord(_ballSelection.first).StopPushing(true);
+                        if (_ballSelection.count > 1)
+                        {
+                            GetBallByCubeCoord(_ballSelection.end).StopPushing(true);
+                        }
+                        if (_ballSelection.count == 3)
+                        {
+                            GetBallByCubeCoord(_ballSelection.GetMiddleBallCubeCoord()).StopPushing(true);
+                        }
                         return;
+                    }
 
 
                     _movingBalls = GetMovingBalls(_ballSelection, arrowsManager.pushingArrow);

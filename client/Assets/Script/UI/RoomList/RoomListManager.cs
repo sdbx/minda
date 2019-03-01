@@ -59,7 +59,7 @@ namespace UI
             {
                 if (err != null)
                 {
-                    Toast.ToastManager.instance.Add("Room Receive failed", "Error");
+                    Toast.ToastManager.instance.Add(LanguageManager.GetText("roomreceivefailed"), "Error");
                     return;
                 }
                 if (rooms == null)
@@ -89,7 +89,7 @@ namespace UI
             {
                 if (err != null)
                 {
-                    Toast.ToastManager.instance.Add("Room Receive failed", "Error");
+                    Toast.ToastManager.instance.Add(LanguageManager.GetText("roomreceivefailed"), "Error");
                     return;
                 }
                 if (rooms == null)
@@ -101,12 +101,12 @@ namespace UI
                     {
                         if(room.ingame)
                         {
-                            MessageBox.instance.Show("Game is already started",(bool agreed)=>
+                            MessageBox.instance.Show(LanguageManager.GetText("gamestarted"),(bool agreed)=>
                             {
                                 if(!agreed)
                                     return;
                                 LobbyServer.instance.EnterRoom(roomId, (bool success) =>{});
-                            },"Yes","No");
+                            },"Enter","Cancel");
                         }
                         else 
                         {
@@ -116,7 +116,7 @@ namespace UI
                     }
                 }
                 //방이없음
-                Toast.ToastManager.instance.Add("Room doesn't exist","Error");
+                Toast.ToastManager.instance.Add(LanguageManager.GetText("roomdoesntexist"),"Error");
             });
 
         }

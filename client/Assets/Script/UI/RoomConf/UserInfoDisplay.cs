@@ -20,8 +20,8 @@ namespace UI
         private RawImage profileImage;
         [SerializeField]
         private Text usernameText;
-        [SerializeField]
-        private Text imformationText;
+        //[SerializeField]
+        //private Text imformationText;
         [SerializeField]
         private GameObject kingIcon;
         [SerializeField]
@@ -57,7 +57,6 @@ namespace UI
                 if (!destroyed)
                 {
                     usernameText.text = inGameUser.user.username;
-                    imformationText.text = "gorani 53";
                     kingIcon.SetActive(inGameUser.isKing);
                     
                     if(inGameUser.user.picture != null)
@@ -86,21 +85,21 @@ namespace UI
                 {
                     if (inGameUser.ballType != BallType.White)
                     {
-                        contextMenu.Add("To White", () =>
+                        contextMenu.Add(LanguageManager.GetText("towhite"), () =>
                          {
                              gameServer.ChangeUserRole(UserId, BallType.White);
                          });
                     }
                     if (inGameUser.ballType != BallType.Black)
                     {
-                        contextMenu.Add("To Black", () =>
+                        contextMenu.Add(LanguageManager.GetText("toblack"), () =>
                          {
                              gameServer.ChangeUserRole(UserId, BallType.Black);
                          });
                     }
                     if (inGameUser.ballType != BallType.None)
                     {
-                        contextMenu.Add("To Spectator", () =>
+                        contextMenu.Add(LanguageManager.GetText("tospec"), () =>
                          {
                              gameServer.ChangeUserRole(UserId, BallType.None);
                          });
@@ -112,10 +111,14 @@ namespace UI
                              gameServer.ChangeKingTo(UserId);
                          });
                     }
-                    contextMenu.Add("Ban", () =>
+                    var conf = GameServer.instance.connectedRoom.conf;
+                    if (!(conf.black == UserId || conf.white == UserId || conf.king == UserId))
                     {
-                        GameServer.instance.BanUser(UserId);
-                    });
+                        contextMenu.Add(LanguageManager.GetText("ban"), () =>
+                        {
+                            GameServer.instance.BanUser(UserId);
+                        });
+                    }
                 }
 
 

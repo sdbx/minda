@@ -62,7 +62,7 @@ namespace UI.Menu
             {
                 if(err!=null)
                 {
-                    ToastManager.instance.Add("Can't load skins","Error");
+                    ToastManager.instance.Add(LanguageManager.GetText("cantloadskins"),"Error");
                     return;
                 }
                 CreateBasicSkin();
@@ -167,7 +167,7 @@ namespace UI.Menu
             {
                 if(err!=null)
                 {
-                    ToastManager.instance.Add("Equip Failed","Error");
+                    ToastManager.instance.Add(LanguageManager.GetText("equipfailed"),"Error");
                 }
             });
         }

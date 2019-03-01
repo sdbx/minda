@@ -111,6 +111,7 @@ namespace Game
         {
             var end = (EndedEvent)e;
             winScreen.Display(end, () => { SceneChanger.instance.ChangeTo("RoomConfigure"); });
+            ballManager.state = 0;
         }
 
         public void OnTicked(Event e) 

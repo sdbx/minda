@@ -51,7 +51,7 @@ namespace UI
             if (loginState == LobbyServer.LoginState.SendReq ||
             loginState == LobbyServer.LoginState.GetReqid)
             {
-                MessageBox.instance.Show("로그인이 진행중입니다.\n 다시 시도하시겠습니까?", (bool agree) =>
+                MessageBox.instance.Show(LanguageManager.GetText("retrylogin"), (bool agree) =>
                 {
                     if (agree) TryLogin();
                 }, "Yes", "No");

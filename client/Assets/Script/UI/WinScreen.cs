@@ -21,9 +21,9 @@ namespace UI
 
         public void Display(EndedEvent ended, Action callback)
         {
-            winnerText.text = ended.player + " Wins!";
+            winnerText.text = LanguageManager.GetText(ended.player+"win");
             //색 설정 추가  
-            details.text = ended.cause;
+            details.text = LanguageManager.GetText(ended.cause);
             this.callback = callback;
             
             toggler.Activate();

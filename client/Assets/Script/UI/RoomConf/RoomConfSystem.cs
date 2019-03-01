@@ -37,12 +37,18 @@ namespace UI
             GameServer.instance.UserEnteredEvent += UserEnter;
             GameServer.instance.UserLeftEvent += UserLeft;
             GameServer.instance.ConfedEvent += ConfedCallBack;
+            GameServer.instance.RoomConnectedEvent += RoomConnected;
 
             defeatLostMarble.ValueChanged += DefeatLostMarbleValueChanged;
             turnTimeout.ValueChanged += TurnTimeoutValueChanged;
             gameTimeout.ValueChanged += GameTimeoutValueChanged;
         }
         
+        private void RoomConnected(Room room)
+        {
+            UpdateAllConf();
+        }
+
         private void DefeatLostMarbleValueChanged(int value)
         {                
             if(!RoomUtils.CheckIsKing(me.id))
@@ -68,7 +74,8 @@ namespace UI
 
         private void Start()
         {
-            UpdateAllConf();
+            if(GameServer.instance.connectedRoom!=null)
+                ConfedCallBack(GameServer.instance.connectedRoom.conf);
         }
 
         private void OnDestroy()
@@ -103,29 +110,29 @@ namespace UI
         private void UpdateAllConf()
         {
             var room = GameServer.instance.connectedRoom;
-            if (room != null) 
-            {
-                //맵에서의 흰돌과 흑돌 각각 갯수 중 작은 값
-                var max = Mathf.Min(StringUtils.ParticularCharCount(room.conf.map, '1'), StringUtils.ParticularCharCount(room.conf.map, '2'));
-                mapPreview.SetMap(Board.GetMapFromString(room.conf.map));
-                defeatLostMarble.ChangeMax(max);
-                
-                if(RoomUtils.CheckIsKing(me.id))
-                {
-                    defeatLostMarble.isButtonLocked = false;
-                    turnTimeout.isButtonLocked = false;
-                    gameTimeout.isButtonLocked = false;
-                    mapBtn.isLocked = false;
-                }
-                else
-                {
-                    defeatLostMarble.isButtonLocked = true;
-                    turnTimeout.isButtonLocked = true;
-                    gameTimeout.isButtonLocked = true;
-                    mapBtn.isLocked = true;
+            if(room==null)
+                return;
+            var conf = room.conf;
+            //맵에서의 흰돌과 흑돌 각각 갯수 중 작은 값
+            var max = Mathf.Min(StringUtils.ParticularCharCount(conf.map, '1'), StringUtils.ParticularCharCount(conf.map, '2'));
+            mapPreview.SetMap(Board.GetMapFromString(conf.map));
+            defeatLostMarble.ChangeMax(max);
 
-                    UpdateGameruleIntUpDowns();
-                }
+            if (RoomUtils.CheckIsKing(me.id))
+            {
+                defeatLostMarble.isButtonLocked = false;
+                turnTimeout.isButtonLocked = false;
+                gameTimeout.isButtonLocked = false;
+                mapBtn.isLocked = false;
+            }
+            else
+            {
+                defeatLostMarble.isButtonLocked = true;
+                turnTimeout.isButtonLocked = true;
+                gameTimeout.isButtonLocked = true;
+                mapBtn.isLocked = true;
+
+                UpdateGameruleIntUpDowns();
             }
         }
 

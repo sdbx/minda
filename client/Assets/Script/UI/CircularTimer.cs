@@ -16,8 +16,6 @@ public class CircularTimer : MonoBehaviour
     [SerializeField]
     private Image circleImage;
     [SerializeField]
-    private RectTransform mask;
-    [SerializeField]
     private RectTransform BorderRound1;
     [SerializeField]
     private RectTransform BorderRound2;
@@ -34,7 +32,6 @@ public class CircularTimer : MonoBehaviour
     {
         BorderRound1.sizeDelta = new Vector2(thickness, thickness);
         BorderRound2.sizeDelta = BorderRound1.sizeDelta;
-        mask.sizeDelta = circleImage.rectTransform.rect.size - new Vector2(thickness * 2, thickness * 2);
         radius = circleImage.rectTransform.rect.height / 2;
 
         UpdateTimer();

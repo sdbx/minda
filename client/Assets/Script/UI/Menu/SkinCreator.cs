@@ -52,7 +52,7 @@ namespace UI.Menu
 
         private void OnCancelButtonClicked()
         {
-            MessageBox.instance.Show("Do you want to cancel?",(agree)=>{
+            MessageBox.instance.Show(LanguageManager.GetText("cancelmessage"),(agree)=>{
                 if (agree)
                 {
                     skinSelector.Start();
@@ -71,12 +71,12 @@ namespace UI.Menu
             formData.AddField("name", skinName.text);
             if (blackSkin == null || whiteSkin == null)
             {
-                ToastManager.instance.Add("Image not uploaded", "Warning");
+                ToastManager.instance.Add(LanguageManager.GetText("imagenotuploaded"), "Warning");
                 return;
             }
             if (skinName.text == "")
             {
-                ToastManager.instance.Add("Skin name is empty", "Warning");
+                ToastManager.instance.Add(LanguageManager.GetText("skinnameisempty"), "Warning");
                 return;
             }
             CancelButton.gameObject.SetActive(false);
@@ -105,7 +105,7 @@ namespace UI.Menu
                 targetImage.transform.rotation = Quaternion.Euler(Vector3.zero);
                 if (err != null)
                 {
-                    ToastManager.instance.Add("Skin Uploading Error " + err, "Error");
+                    ToastManager.instance.Add(LanguageManager.GetText("skinuploadingerror"), "Error");
                     return;
                 }
                 ToastManager.instance.Add("Skin Created", "Success");
@@ -141,7 +141,7 @@ namespace UI.Menu
                     return;
                 if (err != null)
                 {
-                    ToastManager.instance.Add("Skin Uploading Error " + err, "Error");
+                    ToastManager.instance.Add(LanguageManager.GetText("skinuploadingerror"), "Error");
                     return;
                 }
 

@@ -78,7 +78,7 @@ public class MapList : MonoBehaviour
                 }
                 catch (Exception e)
                 {
-                    ToastManager.instance.Add("Map load error", "Error");
+                    ToastManager.instance.Add(LanguageManager.GetText("maploaderror"), "Error");
                     Debug.Log("맵 로드 오류 : " + e);
                 }
             }));

@@ -47,6 +47,8 @@ namespace Network
         public GameStartedEvent gamePlaying;
         public bool isInGame;
 
+        private Conf prevConf;
+
         private void Awake()
         {
             //singleton
@@ -204,7 +206,7 @@ namespace Network
             var emptyBallType = RoomUtils.GetEmptyBallType(conf);
             
             GetInGameUser(entered.user,(InGameUser inGameUser)=>{
-                MessagedEvent?.Invoke(new SystemMessage("Notice",$"{inGameUser.user.username} has joined"));
+                MessagedEvent?.Invoke(new SystemMessage("Notice",LanguageManager.GetText("joinmessage",inGameUser.user.username)));
             });
            
 
@@ -258,7 +260,7 @@ namespace Network
         private void OnLeft(Event e)
         {
             var left = (LeftEvent)e;
-            MessagedEvent?.Invoke(new SystemMessage("Notice", $"{users[left.user].username} has left"));
+            MessagedEvent?.Invoke(new SystemMessage("Notice", LanguageManager.GetText("leftmessage",users[left.user].username)));
             connectedRoom.Users.Remove(left.user);
             users.Remove(left.user);
             UserLeftEvent?.Invoke(left.user);
@@ -309,7 +311,7 @@ namespace Network
             var banned = (BannedEvent)e;
             GetInGameUser(banned.user, (InGameUser inGameUser) =>
             {
-                MessagedEvent?.Invoke(new SystemMessage("Notice", $"{inGameUser.user.username} was banned"));
+                MessagedEvent?.Invoke(new SystemMessage("Notice", LanguageManager.GetText("banmessage",inGameUser.user.username)));
             });
         }
 
@@ -429,6 +431,16 @@ namespace Network
             profileImages.Clear();
 
             gamePlaying = null;
+        }
+
+        public bool CheckConfChanged()
+        {
+            if(prevConf!=connectedRoom.conf)
+            {
+                prevConf = connectedRoom.conf;
+                return true;
+            }
+            return false;
         }
     }
 }

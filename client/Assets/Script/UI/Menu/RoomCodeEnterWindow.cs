@@ -27,7 +27,7 @@ public class RoomCodeEnterWindow : MonoBehaviour
     {
         if(codeInput.text == "")
         {
-            ToastManager.instance.Add("Input field is empty","Error");
+            ToastManager.instance.Add(LanguageManager.GetText("inputfieldisempty"),"Error");
             return;
         }
         LobbyServer.instance.EnterRoom(codeInput.text,(bool success)=>{});

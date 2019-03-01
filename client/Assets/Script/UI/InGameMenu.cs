@@ -42,11 +42,11 @@ namespace UI
             isInGame = GameServer.instance.isInGame;
             if(isInGame&&!GameServer.instance.isSpectator)
             {
-                ExitOrGGBtnText.text = "Surrender";
+                ExitOrGGBtnText.text = LanguageManager.GetText("surrender");
             }
             else
             {
-                ExitOrGGBtnText.text = "Exit";
+                ExitOrGGBtnText.text = LanguageManager.GetText("exit");
             }
         }
 
@@ -75,7 +75,7 @@ namespace UI
         {
             if(isInGame)
             {
-                MessageBox.instance.Show("항복하시겠습니까?",(bool agreed)=>
+                MessageBox.instance.Show(LanguageManager.GetText("surrender"),(bool agreed)=>
                 {
                     if(agreed)
                     {
@@ -86,7 +86,7 @@ namespace UI
                 },"Yes","No");
                 return;
             }
-            MessageBox.instance.Show("zin za na gal geo ya?",(bool agreed)=>
+            MessageBox.instance.Show(LanguageManager.GetText("exit"),(bool agreed)=>
             {
                 if(agreed)
                 {

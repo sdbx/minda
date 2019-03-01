@@ -18,6 +18,9 @@ public class SizeMatcher : MonoBehaviour
     [SerializeField]
     private Vector2 forceSetSize;
 
+    [SerializeField]
+    private Vector2 scale = new Vector2(1,1);
+
 
     void Awake()
     {
@@ -32,7 +35,20 @@ public class SizeMatcher : MonoBehaviour
             return;
         }
         var targetSize = target.rect.size;
-        targetSize = new Vector2(targetSize.x + horizontal, targetSize.y + vertical);
+        var sizeX = targetSize.x + horizontal;
+        var sizeY = targetSize.y + vertical;
+        sizeX *= scale.x;
+        sizeY*=scale.y;
+
+        if(horizontal == -1)
+        {
+            sizeX = rectTransform.rect.width;
+        }
+        if(vertical == -1)
+        {
+            sizeY = rectTransform.rect.height;
+        }
+        targetSize = new Vector2(sizeX,sizeY);
 
         if(targetSize != rectTransform.rect.size)
         {

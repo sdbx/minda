@@ -1,0 +1,57 @@
+playgame:Play Game
+myskins:My Skins
+custommode:Custom Mode
+roomcode:Room Code
+myinfo:My Info
+map:MAP
+gamerule:Game Rule
+marblelife:Marble life
+gametimeout: GameTimeout
+turntimeout: TurnTimeout
+min:(min)
+sec:(sec)
+startgame:StartGame
+name:Name :
+ispublic: Is public
+search:Search
+cancel:Cancel
+create:Create
+skinloaderror:Skin load error
+cancelmessage:Do you want to cancel?
+fatalerror:Fatal error!
+roomdoesntexist:Room doesn't exist
+loginfailed:Login Failed
+hello:Hello, {0}
+banmessage:{0} was banned
+leftmessage:{0} has left
+joinmessage:{0} has joined
+enter:Enter
+equipfailed:Equip Failed
+cantloadskins:Can't Load Skins
+skinsnameisempty:Skin name is empty
+imagenotuploaded:Image not uploaded
+imageloaderror:Image load error
+skinuploadingerror:Skin Uploading Error
+profilechanged:Profile Changed
+profileuploadingerror:Profile Image Uploading Error
+maploaderror:Map load error
+towhite:To White
+toblack:To Black
+tospec:To Spectator
+ban:Ban
+waiting:Waiting...
+gg:Surrender
+timeout:Timeout!
+lost stones:Lost stones
+blackwin:Black wins!
+whitewin:White wins!
+surrender:Do yo want to surrender?
+exit:Do you want to leave this room?
+retrylogin:Login is already in progress./nDo you want to retry? 
+gamestarted:Game is already started
+roomreceivefailed:Failed to recieve room list
+inputfieldisempty:Input field is empty
+
+
+
+

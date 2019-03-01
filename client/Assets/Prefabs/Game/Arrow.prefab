@@ -95,9 +95,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   originDistance: 0.5
   maxDistance: 1
-  unSelected: {r: 0.3037113, g: 0.39679107, b: 0.8584906, a: 0.6862745}
-  selected: {r: 0.3037113, g: 0.39679107, b: 0.8584906, a: 0.8235294}
-  overHalf: {r: 0.30860624, g: 0.8962264, b: 0.6451069, a: 0.83137256}
+  unSelected: {r: 1, g: 1, b: 1, a: 0.7607843}
+  selected: {r: 1, g: 1, b: 1, a: 1}
+  overHalf: {r: 0.25720897, g: 0.6415094, b: 0.2679436, a: 1}
 --- !u!60 &5190816586142243032
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -115,7 +115,7 @@ PolygonCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.258, y: 0.362}
+    oldSize: {x: 0.314, y: 0.428}
     newSize: {x: 3.11, y: 4.39}
     adaptiveTilingThreshold: 0.5
     drawMode: 0

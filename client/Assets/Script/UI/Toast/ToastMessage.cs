@@ -26,6 +26,8 @@ namespace UI.Toast
         [SerializeField]
         private Image backGround;
         [SerializeField]
+        private Image backGround2;
+        [SerializeField]
         private RawImage icon;
         private CanvasGroup canvasGroup;
 
@@ -41,6 +43,7 @@ namespace UI.Toast
         {
             text.text = message;
             backGround.color = toastType.backGroundColor;
+            backGround2.color = toastType.backGroundColor;
             icon.texture = toastType.icon;
 
         }
