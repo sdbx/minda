@@ -152,7 +152,7 @@ namespace UI
                     }
                     if (UserId != myId)
                     {
-                        contextMenu.Add("Give King", () =>
+                        contextMenu.Add(LanguageManager.GetText("makeking"), () =>
                          {
                              gameServer.ChangeKingTo(UserId);
                          });

@@ -38,6 +38,7 @@ maploaderror:Map load error
 towhite:To White
 toblack:To Black
 tospec:To Spectator
+makeking:Make King
 ban:Ban
 waiting:Waiting...
 gg:Surrender
@@ -52,7 +53,5 @@ retrylogin:Login is already in progress./nDo you want to retry?
 gamestarted:Game is already started
 roomreceivefailed:Failed to recieve room list
 inputfieldisempty:Input field is empty
-
-
 
 

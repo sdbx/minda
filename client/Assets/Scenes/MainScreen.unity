@@ -512,7 +512,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   address: https://api.minda.games
-  token: Xpvzy8Yz0-Vj8xWFEDWEPck=
+  token: 
   loginCheckInterval: 1
 --- !u!4 &245894880
 Transform:
