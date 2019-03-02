@@ -1,23 +1,23 @@
 playgame:Play Game
 myskins:My Skins
-custommode:Custom Mode
+custommode:Room List
 roomcode:Room Code
 myinfo:My Info
 map:MAP
 gamerule:Game Rule
 marblelife:Marble life
-gametimeout: GameTimeout
-turntimeout: TurnTimeout
+gametimeout: Game timeout
+turntimeout: Turn timeout
 min:(min)
 sec:(sec)
-startgame:StartGame
+startgame:Start
 name:Name :
-ispublic: Is public
+ispublic: Public
 search:Search
 cancel:Cancel
 create:Create
 skinloaderror:Skin load error
-cancelmessage:Do you want to cancel?
+cancelmessage:Would you like to cancel?
 fatalerror:Fatal error!
 roomdoesntexist:Room doesn't exist
 loginfailed:Login Failed
@@ -26,19 +26,18 @@ banmessage:{0} was banned
 leftmessage:{0} has left
 joinmessage:{0} has joined
 enter:Enter
-equipfailed:Equip Failed
-cantloadskins:Can't Load Skins
+equipfailed:Couldn't equip the skin
+cantloadskins:Couldn't load skins
 skinsnameisempty:Skin name is empty
-imagenotuploaded:Image not uploaded
-imageloaderror:Image load error
-skinuploadingerror:Skin Uploading Error
-profilechanged:Profile Changed
-profileuploadingerror:Profile Image Uploading Error
-maploaderror:Map load error
-towhite:To White
-toblack:To Black
-tospec:To Spectator
-makeking:Make King
+imagenotuploaded:Skin image is not chosen
+imageloaderror:Error occured while loading the image file
+skinuploadingerror:Error occured while uploading the skin images
+profilechanged:Profile changed
+profileuploadingerror:Error occured while uploading the profile image
+maploaderror:Error occured while loading the map file
+towhite:Make white
+toblack:Make black
+tospec:Make spectator
 ban:Ban
 waiting:Waiting...
 gg:Surrender
@@ -46,12 +45,13 @@ timeout:Timeout!
 lost stones:Lost stones
 blackwin:Black wins!
 whitewin:White wins!
-surrendermessage:Do yo want to surrender?
-exit:Exit
-exitmessage:Do you want to leave this room?
-retrylogin:Login is already in progress./nDo you want to retry? 
-gamestarted:Game is already started
+surrendermessage:Are you a coward?
+exit:Leave
+exitmessage:Are you sure you want to leave the room?
+retrylogin:Authentication is already in progress./nWould you like to abort it? 
+gamestarted:Game already started
 roomreceivefailed:Failed to recieve room list
 inputfieldisempty:Input field is empty
-
-
+makeking:Give admin
+chattingplaceholder:Write the message
+notice:Notice

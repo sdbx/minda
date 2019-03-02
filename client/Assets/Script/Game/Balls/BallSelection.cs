@@ -71,5 +71,20 @@ namespace Game.Balls
             return endPoint;
         }
 
+        public List<CubeCoord> GetCubeCoords()
+        {
+            List<CubeCoord> coords = new List<CubeCoord>();
+            coords.Add(first);
+            if (count > 1)
+            {
+                coords.Add(end);
+            }
+            if (count == 3)
+            {
+                coords.Add(GetMiddleBallCubeCoord());
+            }
+            return coords;
+        }
+
     }
 }

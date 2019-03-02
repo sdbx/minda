@@ -81,30 +81,25 @@ public class ProfileEditor : MonoBehaviour
                 ToastManager.instance.Add(LanguageManager.GetText("profileuploadingerror"), "Error");
                 return;
             }
-            if (end)
-                EndEdit();
-            end = true;
-        });
-
-        if(loadedImage == null)
-        {
-            end = true;
-            return;
-        }
             
-        var formData = new WWWForm();
-        formData.AddBinaryData("file", loadedImage);
-        LobbyServer.instance.Put("/users/me/picture/", formData, (data, err) =>
-        {
-            if (err != null)
+            if (loadedImage == null)
             {
-                //에러처리
-                ToastManager.instance.Add(LanguageManager.GetText("profileuploadingerror"), "Error");
+                EndEdit();
                 return;
             }
-            if (end)
+
+            var formData = new WWWForm();
+            formData.AddBinaryData("file", loadedImage);
+            LobbyServer.instance.Put("/users/me/picture/", formData, (data, err) =>
+            {
+                if (err != null)
+                {
+                //에러처리
+                ToastManager.instance.Add(LanguageManager.GetText("profileuploadingerror"), "Error");
+                    return;
+                }
                 EndEdit();
-            end = true;
+            });
         });
     }
 

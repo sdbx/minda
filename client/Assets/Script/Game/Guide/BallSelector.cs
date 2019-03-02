@@ -148,6 +148,7 @@ namespace Game.Guide
             if (Input.GetMouseButtonUp(0))
             {
                 _isFirstBallpicked = false;
+                guide.Hide();
             }
             else
             {

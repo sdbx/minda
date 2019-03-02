@@ -99,6 +99,7 @@ namespace Game.Balls
                     _ballSelector._isSelected = false;
                     arrowsManager.ballSelection = _ballSelection;
                     _ballSelector.SelectingBalls(gameManager.myBallType,guideDisplay,zoomSystem);
+                    _movingBalls = null;
                 }
             }
             //State MovingBalls
@@ -111,14 +112,10 @@ namespace Game.Balls
 
                     if (arrowsManager.pushingArrow == -1)
                     {
-                        GetBallByCubeCoord(_ballSelection.first).StopPushing(true);
-                        if (_ballSelection.count > 1)
+                        foreach (CubeCoord ballCoord in _ballSelection.GetCubeCoords())
                         {
-                            GetBallByCubeCoord(_ballSelection.end).StopPushing(true);
-                        }
-                        if (_ballSelection.count == 3)
-                        {
-                            GetBallByCubeCoord(_ballSelection.GetMiddleBallCubeCoord()).StopPushing(true);
+                            Ball currentBall = GetBallObjectByCubeCoord(ballCoord).GetComponent<Ball>();
+                            currentBall.StopPushing(true);
                         }
                     }
                     else
@@ -139,28 +136,26 @@ namespace Game.Balls
 
                 if (!arrowsManager.selected)
                 {
-                    if(arrowsManager.pushingArrow==-1)
+                    if (arrowsManager.pushingArrow == -1)
                     {
-                        GetBallByCubeCoord(_ballSelection.first).StopPushing(true);
-                        if (_ballSelection.count > 1)
+                        if (_movingBalls != null)
                         {
-                            GetBallByCubeCoord(_ballSelection.end).StopPushing(true);
-                        }
-                        if (_ballSelection.count == 3)
-                        {
-                            GetBallByCubeCoord(_ballSelection.GetMiddleBallCubeCoord()).StopPushing(true);
+                            foreach (var ballCoord in _movingBalls)
+                             {
+                                Ball currentBall = GetBallObjectByCubeCoord(ballCoord);
+                                currentBall.StopPushing(true);
+                            }
                         }
                         return;
                     }
 
-
-                    _movingBalls = GetMovingBalls(_ballSelection, arrowsManager.pushingArrow);
-                    List<CubeCoord> movingBalls = GetMovingBalls(_ballSelection, arrowsManager.pushingArrow);
+                    if(_movingBalls==null)
+                        _movingBalls = GetMovingBalls(_ballSelection, arrowsManager.pushingArrow);
 
                     int sameLine = Board.GetSameLine(_ballSelection.first, _ballSelection.end);
                     CubeCoord dirCubeCoord = CubeCoord.ConvertNumToDirection(arrowsManager.pushingArrow);
 
-                    var distance = arrowsManager.pushedDistance / 1.3f;
+                    var distance = arrowsManager.pushedDistance;
 
                     if (sameLine == arrowsManager.pushingArrow % 3)
                     {
@@ -255,26 +250,26 @@ namespace Game.Balls
                 Debug.Log("죽엇어");
 
                 if (isPushingBall)
-                    ballObject.GetComponent<Ball>().StopPushing(false);
+                    ballObject.StopPushing(false);
                 else
-                    ballObject.GetComponent<Ball>().Move(direction);
+                    ballObject.Move(direction);
 
-                ballObject.GetComponent<Ball>().Die();
+                ballObject.Die();
                 SetBallObject(cubeCoord, null);
                 boardManager.GetBoard().SetHoleByCubeCoord(cubeCoord, HoleState.Empty);
             }
             else
             {
-                BallType ball = ballObject.GetComponent<Ball>().GetBall();
+                BallType ball = ballObject.GetBall();
                 SetBallObject(cubeCoord, null);
                 SetBallObject(cubeCoord + CubeCoord.ConvertNumToDirection(direction), ballObject);
                 boardManager.GetBoard().SetHoleByCubeCoord(cubeCoord + CubeCoord.ConvertNumToDirection(direction), ball);
                 boardManager.GetBoard().SetHoleByCubeCoord(cubeCoord, HoleState.Empty);
 
                 if (isPushingBall)
-                    ballObject.GetComponent<Ball>().StopPushing(false);
+                    ballObject.StopPushing(false);
                 else
-                    ballObject.GetComponent<Ball>().Move(direction);
+                    ballObject.Move(direction);
             }
 
         }
