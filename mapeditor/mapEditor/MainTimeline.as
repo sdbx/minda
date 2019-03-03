@@ -93,7 +93,7 @@
 					if (Math.abs(x + y) <= s) {
 						var currentHole = new Hole();
 						currentHole.x = x * distance + y * distance / 2 + 350;
-						currentHole.y = -y * Math.sqrt(3) * distance / 2 + 300;
+						currentHole.y = y * Math.sqrt(3) * distance / 2 + 300;
 						currentHole.scaleX = 0.4;
 						currentHole.scaleY = 0.4;
 						currentHole.coordX = x + s;
