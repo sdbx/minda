@@ -74,7 +74,7 @@ namespace UI.Toast
 
         private ToastMessage Create(ToastData toastData)
         {
-            var toast = Instantiate(prefab, transform.position, Quaternion.Euler(0, 0, 0), transform);
+            var toast = Instantiate(prefab, transform.position, Quaternion.Euler(0, 0, (Camera.main.transform.rotation.z==0?0:180)), transform);
             toast.Init(toastData.message, lifeTime, toastTypes[toastData.type], animationDuration, elementSpace + prefabSize.y);
 
             toast.Appear();

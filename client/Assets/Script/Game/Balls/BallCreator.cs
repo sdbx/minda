@@ -61,7 +61,7 @@ namespace Game.Balls
                 Vector2 holePosition = hole.GetPixelPoint(holeDistance);
 
                 GameObject ballObject = UnityEngine.Object.Instantiate(BallPrefab, Vector3.zero, Quaternion.Euler(0, 0, 0), parentTransform);
-                ballObject.transform.localPosition = new Vector3(holePosition.x, -holePosition.y, 8);
+                ballObject.transform.localPosition = new Vector3(holePosition.x, holePosition.y, 8);
                 
 
                 float ballSpriteSize = BallPrefab.GetComponent<RawImage>().texture.width;

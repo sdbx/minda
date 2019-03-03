@@ -83,7 +83,7 @@ public class CircularTimer : MonoBehaviour
         float angle = (float)(leftTime / wholeTime * 360);
         float positionAngle = (float)(angle * Mathf.Deg2Rad + Math.PI / 2);
 
-        BorderRound1.transform.localPosition = new Vector2(Mathf.Cos(positionAngle) * radius, Mathf.Sin(positionAngle) * radius);
+        BorderRound1.transform.localPosition = new Vector2(Mathf.Cos(positionAngle) * (radius-thickness/2), Mathf.Sin(positionAngle) * (radius-thickness/2));
         BorderRound1.transform.rotation = Quaternion.Euler(0, 0, angle);
 
         circleImage.fillAmount = leftTime / wholeTime;

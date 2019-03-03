@@ -16,6 +16,10 @@ namespace UI
         private ObjectToggler toggler;
         [SerializeField]
         private float waitTime;
+        [SerializeField]
+        private ParticleSystem one;
+        [SerializeField]
+        private ParticleSystem two;
 
         private Action callback;
 
@@ -27,6 +31,13 @@ namespace UI
             this.callback = callback;
             
             toggler.Activate();
+            if(Camera.main.transform.rotation.z != 0)
+            {
+                var main = one.main;
+                main.gravityModifier = -1;
+                main = two.main;
+                main.gravityModifier = -1;
+            }
             StartCoroutine(Wait());
         }
 

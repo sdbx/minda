@@ -53,6 +53,7 @@ namespace Game
             GameServer.instance.AddHandler<MoveEvent>(OnMoved);
             GameServer.instance.AddHandler<EndedEvent>(OnEnded);
             GameServer.instance.AddHandler<TickedEvent>(OnTicked);
+            GameServer.instance.AddHandler<ConfedEvent>(OnConfed);
         }
 
         private void OnDestroy()
@@ -60,6 +61,35 @@ namespace Game
             GameServer.instance.RemoveHandler<MoveEvent>(OnMoved);
             GameServer.instance.RemoveHandler<EndedEvent>(OnEnded);
             GameServer.instance.RemoveHandler<TickedEvent>(OnTicked);
+            GameServer.instance.RemoveHandler<ConfedEvent>(OnConfed);
+        }
+
+        private void OnConfed(Event e)
+        {
+            var confed = (ConfedEvent)e;
+            var conf = confed.conf;
+            var myId = LobbyServer.instance.loginUser.id;
+            if(conf.black == myId && myBallType!=BallType.Black)
+            {
+                ChangeBallType(BallType.Black);
+            }
+            else if(conf.white == myId && myBallType!=BallType.White)
+            {
+                ChangeBallType(BallType.White);
+            }
+            else if(myBallType!=BallType.White&&myBallType!=BallType.Black)
+            {
+                ChangeBallType(BallType.None);
+            }
+            
+        }
+
+        public void ChangeBallType(BallType ballType)
+        {
+            myBallType = ballType;
+            if(nowTurn == myBallType)
+                ballManager.state = 1;
+            SetRotation();
         }
 
         private void OnMoved(Event e)
@@ -221,11 +251,25 @@ namespace Game
 
             
 
-
+            SetRotation();
             nowTurn = turn;
             if (turn == myBallType)
             {
                 ballManager.state = 1;
+            }
+        }
+
+        private void SetRotation()
+        {
+            if (myBallType == BallType.White)
+            {
+                Camera.main.transform.rotation = Quaternion.Euler(0, 0, 180);
+                ballManager.gameObject.transform.rotation = Quaternion.Euler(0, 0, 180);
+            }
+            else
+            {
+                Camera.main.transform.rotation = Quaternion.Euler(0, 0, 0);
+                ballManager.gameObject.transform.rotation = Quaternion.Euler(0, 0, 0);
             }
         }
 
