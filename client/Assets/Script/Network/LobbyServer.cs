@@ -73,11 +73,11 @@ namespace Network
                 });
                 Debug.Log("로그인 성공");
             }
-            /*if (SteamManager.isSteamVersion)
+            if (SteamManager.isSteamVersion)
             {
                 steamRetries = 10;
                 TrySteamLogin();
-            }*/
+            }
         }
 
         private void TrySteamLogin()
