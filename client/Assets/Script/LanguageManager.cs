@@ -13,16 +13,22 @@ public class LanguageManager : MonoBehaviour
     private void Awake()
     {
         string language = "en-US";
-        if(File.Exists("language.txt"))
+        if(File.Exists(Path.Combine(Application.persistentDataPath, "language.txt")))
         {
-            language = File.ReadAllText("language.txt");
+            language = File.ReadAllText(Path.Combine(Application.persistentDataPath, "language.txt"));
+        } else {
+            var tempAsset = Resources.Load(language) as TextAsset;
+            var content = tempAsset.text;
+            File.WriteAllText(Path.Combine(Application.persistentDataPath, "language.txt"), language);
+            File.WriteAllText(Path.Combine(Application.persistentDataPath, language), content);
         }
         LoadPack(language);
     }
 
     public void LoadPack(string language)
     {
-        if (!File.Exists(language))
+        var path = Path.Combine(Application.persistentDataPath, language);
+        if (!File.Exists(path))
         {
             ToastManager.instance.Add("Launage File doesn't exist", "Error");
             return;
@@ -31,7 +37,7 @@ public class LanguageManager : MonoBehaviour
         try
         {
             loadedLaunguagePack = new Dictionary<string, string>();
-            foreach (var text in File.ReadLines(language))
+            foreach (var text in File.ReadLines(path))
             {
                 if(text=="")
                     continue;
