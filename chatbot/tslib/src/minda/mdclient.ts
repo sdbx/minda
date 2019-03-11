@@ -229,7 +229,12 @@ export class MindaClient {
         if (options.since != null && typeof options.since !== "number") {
             options.since = options.since.getTime()
         }
-        const result = await extractContent<MSRecStat[]>(reqGet("GET", `/histories/`, this.token))
+        const toStr = (n:number | MSUser | Date) => n == null ? n as null : n.toString()
+        const result = await extractContent<MSRecStat[]>(reqGet("GET", `/histories/`, this.token, {
+            user: toStr(options.user),
+            since: toStr(options.since),
+            p: toStr(options.p),
+        }))
         return result
     }
     /**
