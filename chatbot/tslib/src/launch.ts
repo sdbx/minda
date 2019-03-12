@@ -24,13 +24,19 @@ async function login() {
     credit.watchLogin()
     credit.onLogin.one(async (token) => {
         // runCUI(token)
+        runTest(token)
     })
 }
 async function runTest(token:string) {
     const mindaC = new MindaClient(token)
     await mindaC.login()
+    for (let i = 0; i < 50; i += 1) {
+        console.log("Skin: " + (await mindaC.getSkinOfUser(mindaC.me)))
+    }
     const skin = await mindaC.getSkinOfUser(mindaC.me)
     if (skin == null) {
+        mindaC.setSkinSlotN(1, "test",
+            "https://cdn.discordapp.com/attachments/152746825806381056/550229916621209600/kkinux.png", "")
         // https://cdn.discordapp.com/attachments/152746825806381056/550229916621209600/kkinux.png
     }
 }

@@ -51,11 +51,11 @@ export default class MindaExec {
         }, "SnowUser"))
         this.commands.push(new SnowCommand({
             name: "stat",
-            paramNames: ["검색할 유저"],
+            paramNames: ["페이지", "검색할 유저"],
             description: "전적을 검색합니다.",
             func: bindFn(this, this.cmdRecordStat),
             reqLength: 0,
-        }, "SnowUser"))
+        }, "number", "SnowUser"))
         this.commands.push(new SnowCommand({
             name: "skin",
             paramNames: ["유-저"],
@@ -63,6 +63,12 @@ export default class MindaExec {
             func: bindFn(this, this.cmdSkin),
             reqLength: 0,
         },"SnowUser"))
+        this.commands.push(new SnowCommand({
+            name: "rooms",
+            paramNames: [],
+            description: "방 목록을 불러옵니다.",
+            func: bindFn(this, this.cmdRoomList)
+        }))
     }
     public async init() {
         await this.userDB.connect()
@@ -246,6 +252,18 @@ export default class MindaExec {
         await this.userDB.set(uid, "mindaId", -1)
         return `${channel.mention(user)} 삭제됐습니다.`
     }
+    protected async cmdRoomList(context:SnowContext<BotConfig>) {
+        const { channel, message } = context
+        const rooms = (await this.client.fetchRooms())
+        let out = ""
+        for (let i = 0; i < rooms.length; i += 1) {
+            out += `[${i}] ${rooms[i].conf.name} - ${(await this.client.user(rooms[i].conf.king)).username}\n`
+        }
+        if (out.length < 1) {
+            out = "없음"
+        }
+        return out
+    }
     protected async cmdAuth(context:SnowContext<BotConfig>, provider:string) {
         const { channel, message } = context
         const user = message.author
@@ -284,9 +302,12 @@ export default class MindaExec {
         })
         return null
     }
-    protected async cmdRecordStat(context:SnowContext<BotConfig>, searchU:SnowUser) {
+    protected async cmdRecordStat(context:SnowContext<BotConfig>, page?:number, searchU?:SnowUser) {
         const { channel, message } = context
         const user = searchU == null ? message.author : searchU
+        if (page == null || page < 1) {
+            page = 1
+        }
         const uid = {
             uid: user.id,
             platform: user.platform,
@@ -294,7 +315,7 @@ export default class MindaExec {
         const getID = await this.userDB.get(uid, "mindaId")
         if (getID >= 0) {
             const records:MSRecStat[] = []
-            for (let i = 1; true; i += 1) {
+            for (let i = page; true; i += 1) {
                 const query = await this.client.searchRecords({
                     user: getID,
                     p: i,
@@ -308,6 +329,7 @@ export default class MindaExec {
                     break
                 }
                 cLog.v("Parsing", i)
+                break
             }
             const angry = "\u{1F621}"
             const smile = "\u{1F60F}"
