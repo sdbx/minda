@@ -262,8 +262,8 @@ export class MindaClient {
         }
         return {
             ...skin,
-            whiteImage: await fetch(skin.white_picture).then((v) => v.blob()),
-            blackImage: await fetch(skin.black_picture).then((v) => v.blob())
+            whiteImage: await fetch(skin.white_picture).then((v) => v.buffer()),
+            blackImage: await fetch(skin.black_picture).then((v) => v.buffer())
         }
     }
     /**
