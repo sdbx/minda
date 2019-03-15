@@ -64,6 +64,12 @@ export default class MindaExec {
             reqLength: 0,
         },"SnowUser"))
         this.commands.push(new SnowCommand({
+            name: "syncaccount",
+            paramNames: [],
+            description: "프로필 이미지를 동기화 합니다.",
+            func: bindFn(this, this.cmdSyncSkin)
+        }))
+        this.commands.push(new SnowCommand({
             name: "rooms",
             paramNames: [],
             description: "방 목록을 불러옵니다.",
@@ -398,6 +404,21 @@ export default class MindaExec {
             await channel.send("잘못된 유저입니다.")
         }
     }
+    protected async cmdSyncSkin(context:SnowContext<BotConfig>) {
+        const { channel, message } = context
+        const user = message.author
+        const dm = await channel.dm(user)
+        
+        const token = new MindaCredit(20000)
+        let client:MindaClient
+        await dm.send("로그인을 해주세요.\n" + await token.genOAuth("discord"))
+        token.watchLogin()
+        try {
+            client = new MindaClient(await awaitEvent(token.onLogin, 20000, (t) => t, false))
+        } catch {
+            return "시간이 초과되었습니다."
+        }
+    }
     protected async cmdSkin(context:SnowContext<BotConfig>, searchU:SnowUser) {
         const { channel, message } = context
         const user = searchU == null ? message.author : searchU
@@ -407,8 +428,9 @@ export default class MindaExec {
         }
         const getID = await this.userDB.get(uid, "mindaId")
         if (getID >= 0) {
-            const skin = await this.client.getSkinOfUser(getID)
-            if (skin.id != null && skin.id >= 0) {
+            const skin = await this.client.getSkinOfUser(2)
+            cLog.v("SkinID", skin.id)
+            if (skin != null && skin.id != null && skin.id >= 0) {
                 await context.channel.send("검은 돌", skin.black_picture)
                 await context.channel.send("하얀 돌", skin.white_picture)
             } else {

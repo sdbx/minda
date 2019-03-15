@@ -6,6 +6,7 @@ import { Immute } from "../types/deepreadonly"
 import { TimerID, WebpackTimer } from "../webpacktimer"
 import { mdtimeout } from "./mdconst"
 import { MindaCredit } from "./mdcredit"
+import { MindaError } from "./mderror"
 import { extractContent, reqBinaryGet, reqBinaryPost, reqGet, reqPost } from "./mdrequest"
 import { MindaRoom } from "./mdroom"
 import { MSGameRule } from "./structure/msgamerule"
@@ -196,9 +197,18 @@ export class MindaClient {
      * 자신의 프로필 이미지를 설정합니다.
      * @param image 이미지(Buffer)
      */
-    public async setProfileImage(image:string | Buffer) {
-        if (typeof image === "string") {
-            image = await fetch(image).then((v) => v.blob())
+    public async setProfile(nickname:string, image:string | Buffer) {
+        if (image != null && typeof image === "string") {
+            image = await fetch(image).then((v) => v.buffer())
+        }
+        const me = await this.getMyself()
+        if (image != null) {
+            const url = await reqBinaryPost("POST", "/users/me/picture/", {
+                file: image,
+            }, this.token)
+            if (!url.ok) {
+                throw new MindaError(url)
+            }
         }
         const result = await reqBinaryPost("POST", "/pics/", {
             file: image,
@@ -316,7 +326,7 @@ export class MindaClient {
         }
         const getImage = async (image:string | Buffer) => {
             if (typeof image === "string") {
-                return fetch(image).then((v) => v.blob())
+                return fetch(image).then((v) => v.buffer())
             } else {
                 return image
             }
