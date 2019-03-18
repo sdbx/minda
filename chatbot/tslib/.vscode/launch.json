@@ -22,7 +22,7 @@
       "env": {
         "TYPESCRIPT_STARTER_REPO_URL": "${workspaceFolder}"
       },
-      "console": "externalTerminal"
+      "console": "integratedTerminal"
     },
     {
       "type": "node",

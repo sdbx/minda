@@ -1,5 +1,7 @@
 import Diff from "deep-diff"
+import fs from "fs-extra"
 import fetch from "node-fetch"
+import path from "path"
 import { SignalDispatcher, SimpleEventDispatcher } from "strongly-typed-events"
 import awaitEvent from "../timeout"
 import { Immute } from "../types/deepreadonly"
@@ -197,21 +199,19 @@ export class MindaClient {
      * 자신의 프로필 이미지를 설정합니다.
      * @param image 이미지(Buffer)
      */
-    public async setProfile(nickname:string, image:string | Buffer) {
-        if (image != null && typeof image === "string") {
-            image = await fetch(image).then((v) => v.buffer())
-        }
+    public async setProfile(nickname:string, image:string) {
+        const imageFile = await this.getImage(image)
         const me = await this.getMyself()
         if (image != null) {
             const url = await reqBinaryPost("POST", "/users/me/picture/", {
-                file: image,
+                file: imageFile,
             }, this.token)
             if (!url.ok) {
                 throw new MindaError(url)
             }
         }
         const result = await reqBinaryPost("POST", "/pics/", {
-            file: image,
+            file: imageFile,
         }, this.token)
         if (result.ok) {
             await this.getMyself()
@@ -299,8 +299,9 @@ export class MindaClient {
      * @param name 
      * @param image 
      */
-    public async setSkinSlotN(slot:1 | 2, name:string, black:string | Buffer, white?:string | Buffer) {
+    public async setSkin(name:string, black:string, white?:string) {
         await this.getMyself()
+        const slot = white == null ? 1 : 2
         const getCoin = (inv:MSInventory) => {
             switch (slot) {
                 case 1:
@@ -324,26 +325,23 @@ export class MindaClient {
         if (coin <= 0) {
             throw new Error("Not enough money")
         }
-        const getImage = async (image:string | Buffer) => {
-            if (typeof image === "string") {
-                return fetch(image).then((v) => v.buffer())
-            } else {
-                return image
+        let param:object
+        if (slot === 2) {
+            param = {
+                black: await this.getImage(black),
+                white: await this.getImage(white),
+            }
+        } else {
+            param = {
+                file: await this.getImage(black)
             }
         }
-        black = await getImage(black)
-        if (white == null) {
-            white = black
-        } else {
-            white = await getImage(white)
-        }
-        await reqBinaryPost("POST", `/skins/me/${numCode}/`, {
+        const res = await reqBinaryPost("POST", `/skins/me/${numCode}/`, {
             name,
-            white,
-            black,
+            ...param,
         }, this.token)
-        await this.getMyself()
-        if (getCoin(this.me.inventory) < coin) {
+        if (res.ok) {
+            await this.getMyself()
             return this.me.skins.find((v) => v.name === name)
         } else {
             return null
@@ -354,6 +352,25 @@ export class MindaClient {
      */
     protected async sync() {
         await this.fetchRooms()
+    }
+    /**
+     * [내부] 외부 & 내부 경로로부터 이미지 Buffer를 불러옵니다.
+     * @param imagePath 이미지 경로
+     */
+    protected async getImage(imagePath:string) {
+        if (imagePath.startsWith("http")) {
+            const fname = imagePath.match(/[=\/].+\.(png|jpg|gif)/i)
+            return {
+                filename: fname != null ? fname[0].substr(1) : "unknown.png",
+                buf: await fetch(imagePath).then((v) => v.buffer()),
+            }
+        } else {
+            const fname = imagePath.substr(imagePath.lastIndexOf(path.sep) + 1)
+            return {
+                filename: fname,
+                buf: await fs.readFile(fname),
+            }
+        }
     }
     /**
      * [내부] 방에 연결합니다

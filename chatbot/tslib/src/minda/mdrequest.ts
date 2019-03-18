@@ -1,6 +1,8 @@
 import FormData from "form-data"
+import mimeTypes from "mime-types"
 import fetch, { Response } from "node-fetch"
 import querystring from "querystring"
+import request from "request-promise-native"
 import { Serializable, SerializeObject } from "../types/serializable"
 import { mdserver, mdversion } from "./mdconst"
 import { MindaError } from "./mderror"
@@ -44,11 +46,18 @@ export async function reqBinaryGet(type:"GET", suffix:string, token?:string) {
     return response
 }
 export async function reqBinaryPost(type:"POST", suffix:string,
-    formData:{ [K in string]: string | Buffer }, token?:string) {
-    const form = new FormData()
+    formData:{ [K in string]: string | {filename:string, buf:Buffer} }, token?:string) {
     const h = genHeader(suffix, token)
+    const form = new FormData()
     for (const [k, v] of Object.entries(formData)) {
-        form.append(k, v)
+        if (typeof v === "object") {
+            form.append(k, v.buf, {
+                filename: v.filename,
+                contentType: mimeTypes.contentType(v.filename) || undefined,
+            })
+        } else {
+            form.append(k, v)
+        }
     }
     const response = await fetch(h.suffix, {
         method: type,
