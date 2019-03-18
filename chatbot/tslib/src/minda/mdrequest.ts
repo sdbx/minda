@@ -45,7 +45,7 @@ export async function reqBinaryGet(type:"GET", suffix:string, token?:string) {
     })
     return response
 }
-export async function reqBinaryPost(type:"POST", suffix:string,
+export async function reqBinaryPost(type:"POST" | "PUT", suffix:string,
     formData:{ [K in string]: string | {filename:string, buf:Buffer} }, token?:string) {
     const h = genHeader(suffix, token)
     const form = new FormData()

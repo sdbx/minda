@@ -15,8 +15,8 @@ import { MSGameRule } from "./structure/msgamerule"
 import { MSInventory } from "./structure/msinventory"
 import { MSRecStat } from "./structure/msrecstat"
 import { MSRoom, MSRoomConf, MSRoomServer } from "./structure/msroom"
-import { MSSkin } from "./structure/msskin"
-import { MSUser } from "./structure/msuser"
+import { MSSkin, SkinBinary } from "./structure/msskin"
+import { MSUPicture, MSUser } from "./structure/msuser"
 /**
  * 민다 로비 클라이언트
  */
@@ -28,7 +28,7 @@ export class MindaClient {
     /**
      * 내 자신 정보
      */
-    public me:MSUser & {skins:MSSkin[]}
+    public me:MSUser
     /**
      * 방목록 동기화 및 프로필을 불러왔을때
      */
@@ -165,30 +165,15 @@ export class MindaClient {
         return this.connectRoom(roomServer)
     }
     /**
-     * 유저의 프로필 이미지를 불러옵니다.
-     * @param id 유저의 이미지 ID 혹은 유저
-     */
-    public async getUserImage(id:number | MSUser) {
-        if (typeof id === "object") {
-            id = id.picture
-        }
-        if (id == null || id < 0) {
-            return this.defaultPicture
-        }
-        const buf = await reqBinaryGet("GET", `/pics/${id}/`, this.token)
-        if (buf.ok) {
-            return buf.buffer()
-        } else {
-            return this.defaultPicture
-        }
-    }
-    /**
      * 유저 정보를 불러옵니다.
      * 
-     * 이미지는 `getProfileImage` 사용바람.
+     * 자세한 정보는 `getProfile` 함수를 사용해주세요.
      * @param id 유저 ID
      */
-    public async user(id:number | MSUser) {
+    public async user(id?:number | MSUser) {
+        if (id == null) {
+            return this.getMyself()
+        }
         if (typeof id === "object") {
             id = id.id
         }
@@ -196,30 +181,58 @@ export class MindaClient {
         return user
     }
     /**
+     * 유저의 프로필을 불러옵니다. (스킨, 프로필 포함.)
+     * 
+     * 유저가 없으면 *null*을 반환합니다.
+     * 
+     * 스킨이 없으면 `skin`이 *null*을 반환합니다.
+     * 
+     * 프로필 이미지가 없으면 `picture_image`가 *null*을 반환합니다.
+     * @param id 유저 ID
+     */
+    public async getProfile(id?:number | MSUser) {
+        let u:MSUser
+        try {
+            u = await this.user(id)
+        } catch (err) {
+            console.log(err)
+            return null
+        }
+        let profileI:Buffer
+        if (u.picture == null) {
+            profileI = null
+        } else {
+            profileI = await fetch(u.picture).then((v) => v.buffer())
+        }
+        return {
+            ...u,
+            picture_image: profileI,
+            skin: await this.getSkinOfUser(u),
+        } as MSUser & MSUPicture & {skin:MSSkin & SkinBinary}
+    }
+    /**
      * 자신의 프로필 이미지를 설정합니다.
      * @param image 이미지(Buffer)
      */
-    public async setProfile(nickname:string, image:string) {
-        const imageFile = await this.getImage(image)
+    public async setProfile(nickname:string, image?:string) {
         const me = await this.getMyself()
         if (image != null) {
-            const url = await reqBinaryPost("POST", "/users/me/picture/", {
-                file: imageFile,
+            const url = await reqBinaryPost("PUT", "/users/me/picture/", {
+                file: await this.getImage(image),
             }, this.token)
             if (!url.ok) {
                 throw new MindaError(url)
             }
         }
-        const result = await reqBinaryPost("POST", "/pics/", {
-            file: imageFile,
-        }, this.token)
-        if (result.ok) {
-            await this.getMyself()
-            return extractContent<{pic_id:number}>(result)
-                .then((v) => v.pic_id)
-        } else {
-            return -1
+        if (nickname != null) {
+            const url = await reqPost("PUT", "/users/me/", this.token, {
+                username: nickname == null ? me.username : nickname,
+            })
+            if (!url.ok) {
+                throw new MindaError(url)
+            }
         }
+        return this.getMyself()
     }
     /**
      * 유저의 전적을 불러옵니다.
@@ -254,16 +267,25 @@ export class MindaClient {
      */
     public async getMyself() {
         const myself = await extractContent<MSUser>(reqGet("GET", "/users/me/", this.token))
-        const skins = await extractContent<MSSkin[]>(reqGet("GET", "/skins/me/", this.token))
-        this.me = {
-            ...myself,
-            skins,
-        }
+        this.me = myself
         return {...this.me}
+    }
+    /**
+     * 자신이 소유한 스킨들을 가져옵니다.
+     * @returns [바이너리] 스킨 데이터
+     */
+    public async getMySkins() {
+        const skins = await extractContent<MSSkin[]>(reqGet("GET", "/skins/me/", this.token))
+        const skinBinary:Array<MSSkin & SkinBinary> = []
+        for (const skin of skins) {
+            skinBinary.push(await this.getSkinById(skin.id))
+        }
+        return skinBinary
     }
     /**
      * ID로 스킨을 가져옵니다.
      * @param id 스킨 ID
+     * @returns [바이너리] 스킨 데이터
      */
     public async getSkinById(id:number) {
         const skin = await extractContent<MSSkin>(reqGet("GET", `/skins/${id}/`, this.token))
@@ -274,13 +296,14 @@ export class MindaClient {
             ...skin,
             whiteImage: await fetch(skin.white_picture).then((v) => v.buffer()),
             blackImage: await fetch(skin.black_picture).then((v) => v.buffer())
-        }
+        } as MSSkin & SkinBinary
     }
     /**
      * 유저의 스킨을 가져옵니다.
      * 
-     * 없으면 null 반환
+     * 없으면 *null* 반환
      * @param user 유-저
+     * @returns [바이너리] 스킨 데이터
      */
     public async getSkinOfUser(user:number | MSUser) {
         const parseUser = await this.user(user)
@@ -292,14 +315,27 @@ export class MindaClient {
         }
     }
     /**
-     * 슬롯에 스킨을 배정합니다.
-     * 마네킹 같은 시스템이긴 한데
-     * 이게 왜 또 백인지 흑인지 모르겠음
-     * @param slot 
-     * @param name 
-     * @param image 
+     * 가지고 있는 스킨을 낍니다.
+     * @param skin 스킨
      */
-    public async setSkin(name:string, black:string, white?:string) {
+    public async setSkin(skin:MSSkin | number) {
+        try {
+            return reqPost("PUT", "/skins/me/current/", this.token, {
+                id: typeof skin === "number" ? skin : skin.id
+            }).then((v) => v.ok ? this.getProfile() : null)
+        } catch (err) {
+            console.error(err)
+            return null
+        }
+    }
+    /**
+     * 스킨을 추가합니다.
+     * 장착은 따로 해주세요.
+     * @param name 스킨 이름
+     * @param black 검정색 이미지 혹은 파일
+     * @param white 하얀색 이미지 혹은 파일 (없을 시 검은색과 동일)
+     */
+    public async addSkin(name:string, black:string, white?:string) {
         await this.getMyself()
         const slot = white == null ? 1 : 2
         const getCoin = (inv:MSInventory) => {
@@ -341,8 +377,7 @@ export class MindaClient {
             ...param,
         }, this.token)
         if (res.ok) {
-            await this.getMyself()
-            return this.me.skins.find((v) => v.name === name)
+            return (await this.getMySkins()).find((v) => v.name === name)
         } else {
             return null
         }

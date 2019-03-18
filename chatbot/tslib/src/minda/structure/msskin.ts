@@ -4,3 +4,7 @@ export interface MSSkin {
     black_picture:string,
     white_picture:string,
 }
+export interface SkinBinary {
+    whiteImage:Buffer,
+    blackImage:Buffer,
+}
