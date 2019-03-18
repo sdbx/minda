@@ -64,10 +64,10 @@ export default class MindaExec {
             reqLength: 0,
         },"SnowUser"))
         this.commands.push(new SnowCommand({
-            name: "syncaccount",
+            name: "syncprofile",
             paramNames: [],
             description: "프로필 이미지를 동기화 합니다.",
-            func: bindFn(this, this.cmdSyncSkin)
+            func: bindFn(this, this.cmdSyncProfile)
         }))
         this.commands.push(new SnowCommand({
             name: "rooms",
@@ -202,15 +202,23 @@ export default class MindaExec {
         })
         const dispatchState = async (si:StartInfo | MoveInfo) => {
             const { blackStone, whiteStone } = context.configGroup
-            const blackU = await this.client.user(room.black)
-            const whiteU = await this.client.user(room.white)
+            const blackU = await this.client.getProfile(room.black)
+            const whiteU = await this.client.getProfile(room.white)
             const deltaB = (str:"black" | "white" | "void") =>
                 room.defaultBoard.getStones(str) - room.board.getStones(str)
             const stoneB = deltaB("black")
             const stoneW = deltaB("white")
             await subCh.send(null, await renderBoard(room.board, {}, {
-                black: { username: blackU.username, image: await this.client.getUserImage(blackU), stone: stoneB,},
-                white: { username: whiteU.username, image: await this.client.getUserImage(whiteU), stone: stoneW,},
+                black: {
+                    username: blackU.username,
+                    image: blackU.skin == null ? null : blackU.skin.blackImage,
+                    stone: stoneB,
+                },
+                white: {
+                    username: whiteU.username,
+                    image: whiteU.skin == null ? null : whiteU.skin.whiteImage,
+                    stone: stoneW,
+                },
                 maxstone: room.loseStones,
             }))
             // await channel.send(`게임 시작.\n${}`)
@@ -404,20 +412,24 @@ export default class MindaExec {
             await channel.send("잘못된 유저입니다.")
         }
     }
-    protected async cmdSyncSkin(context:SnowContext<BotConfig>) {
+    protected async cmdSyncProfile(context:SnowContext<BotConfig>) {
         const { channel, message } = context
         const user = message.author
         const dm = await channel.dm(user)
         
-        const token = new MindaCredit(20000)
+        const token = new MindaCredit(60000)
         let client:MindaClient
         await dm.send("로그인을 해주세요.\n" + await token.genOAuth("discord"))
         token.watchLogin()
         try {
-            client = new MindaClient(await awaitEvent(token.onLogin, 20000, (t) => t, false))
-        } catch {
+            client = new MindaClient(await awaitEvent(token.onLogin, 60000, (t) => t, false))
+            const modifyU = await client.setProfile(user.nickname, user.profileImage)
+            return `별명: ${modifyU.username}\n사진: ${modifyU.picture}`
+        } catch (err) {
+            console.error(err)
             return "시간이 초과되었습니다."
         }
+        return null
     }
     protected async cmdSkin(context:SnowContext<BotConfig>, searchU:SnowUser) {
         const { channel, message } = context
