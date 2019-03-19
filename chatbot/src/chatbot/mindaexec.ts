@@ -17,7 +17,7 @@ import { DeepReadonly } from "../types/deepreadonly"
 import { bindFn } from "../util"
 import { WebpackTimer } from "../webpacktimer"
 import { renderBoard } from "./boardrender"
-import { blank1_2, blank1_3, blank1_4, blank1_6, blankChar, blankChar2 } from "./cbconst"
+import { blank1_2, blank1_3, blank1_4, blank1_6, blankChar, blankChar2, defaultBoard } from "./cbconst"
 import BotConfig from "./guildcfg"
 
 export default class MindaExec {
@@ -75,6 +75,13 @@ export default class MindaExec {
             description: "방 목록을 불러옵니다.",
             func: bindFn(this, this.cmdRoomList)
         }))
+        this.commands.push(new SnowCommand({
+            name: "preview",
+            paramNames: ["유-저"],
+            description: "유우저의 돌을 미리봅니다.",
+            func: bindFn(this, this.cmdPreview),
+            reqLength: 0,
+        }, "SnowUser"))
     }
     public async init() {
         await this.userDB.connect()
@@ -431,6 +438,34 @@ export default class MindaExec {
         }
         return null
     }
+    protected async cmdPreview(context:SnowContext<BotConfig>, searchU?:SnowUser) {
+        const { channel, message } = context
+        const user = searchU == null ? message.author : searchU
+        const mdUser = await this.getMindaUser(user)
+        if (mdUser != null) {
+            const profile = await this.client.getProfile(mdUser)
+            const boardImage = await renderBoard(new MSGrid(defaultBoard), {
+                black: profile.skin == null ? null : profile.skin.black_picture,
+                white: profile.skin == null ? null : profile.skin.white_picture,
+            }, {
+                black: {
+                    username: mdUser.username,
+                    stone: 6,
+                    image: profile.picture_image,
+                },
+                white: {
+                    username: mdUser.username,
+                    stone: 6,
+                    image: profile.picture_image,
+                },
+                maxstone: 6,
+            })
+            await channel.send(null, boardImage)
+            return null
+        } else {
+            return "유저를 찾을 수 없습니다."
+        }
+    }
     protected async cmdSkin(context:SnowContext<BotConfig>, searchU:SnowUser) {
         const { channel, message } = context
         const user = searchU == null ? message.author : searchU
@@ -451,6 +486,19 @@ export default class MindaExec {
         } else {
             await context.channel.send("No user found.")
         }
+    }
+    private async getMindaUser(user:SnowUser) {
+        const getID = await this.userDB.get({
+            uid: user.id,
+            platform: user.platform,
+        }, "mindaId")
+        if (getID >= 0) {
+            const u:MSUser = await this.client.user(getID).catch((v) => null)
+            if (u != null) {
+                return u
+            }
+        }
+        return null
     }
     private timeToString(time:number) {
         const date = new Date(time)
