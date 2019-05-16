@@ -1,3 +1,3 @@
-# Deprecated
+# minda-ts
 
-See /chatbot/tslib
+Minda Library
