@@ -141,7 +141,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6bc9e35ca3501b43a801c63d843dbed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  steamId: 0
+  steamId: 1025230
 --- !u!4 &20831476
 Transform:
   m_ObjectHideFlags: 0
@@ -561,7 +561,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: -22.999878}
+  m_AnchoredPosition: {x: 0, y: -23.000015}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &261566407

@@ -53,6 +53,7 @@ class SteamManager : MonoBehaviour {
             }
             initialized = SteamAPI.Init();
         }
+        Debug.Log("Steamworks.NET " + steamId + " initialized:" + initialized);
     }
 
     private void Update() {

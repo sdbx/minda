@@ -1,37 +1,37 @@
 package picserv
 
 import (
-	"mime/multipart"
-	"io"
-	"strconv"
-	"image/color"
-	"time"
-	"lobby/utils"
 	"bytes"
 	"fmt"
 	"image"
+	"image/color"
 	_ "image/gif"
 	_ "image/jpeg"
 	"image/png"
+	"io"
 	"lobby/servs/redisserv"
+	"lobby/utils"
+	"mime/multipart"
+	"strconv"
+	"time"
 
-	"github.com/minio/minio-go"
 	"github.com/garyburd/redigo/redis"
+	"github.com/minio/minio-go"
 )
 
 const (
-	skinSize = 128
-	skinBorder = 0.08
-	profileSize = 128
+	skinSize      = 128
+	skinBorder    = 0.08
+	profileSize   = 128
 	redisCoolTmpl = "pic_cool_%d"
 	coolTime      = 10
-	maxSize = 1000
-	minSize = 50
+	maxSize       = 1000
+	minSize       = 50
 )
 
 var (
-	ColorBlack = color.RGBA{0,0,0,255}
-	ColorWhite = color.RGBA{255,255,255,255}
+	ColorBlack = color.RGBA{0, 0, 0, 255}
+	ColorWhite = color.RGBA{255, 255, 255, 255}
 )
 
 func redisCool(id int) string {
@@ -40,17 +40,17 @@ func redisCool(id int) string {
 
 type PicServConf struct {
 	Endpoint string `yaml:"endpoint"`
-	Key string `yaml:"key"`
-	Secret string `yaml:"secret"`
-	Region string `yaml:"region"`
-	Bucket string `yaml:"bucket"`
+	Key      string `yaml:"key"`
+	Secret   string `yaml:"secret"`
+	Region   string `yaml:"region"`
+	Bucket   string `yaml:"bucket"`
 }
 
 type PicServ struct {
-	Redis *redisserv.RedisServ `dim:"on"`
-	bucket string
+	Redis    *redisserv.RedisServ `dim:"on"`
+	bucket   string
 	endpoint string
-	cli *minio.Client
+	cli      *minio.Client
 }
 
 func Provide(conf PicServConf) (*PicServ, error) {
@@ -59,21 +59,21 @@ func Provide(conf PicServConf) (*PicServ, error) {
 		return nil, err
 	}
 	err = cli.MakeBucket(conf.Bucket, conf.Region)
-    if err != nil {
-        exists, err := cli.BucketExists(conf.Bucket)
-        if err != nil || !exists {
+	if err != nil {
+		exists, err := cli.BucketExists(conf.Bucket)
+		if err != nil || !exists {
 			return nil, err
-        }
+		}
 	}
-	policy := `{"Version": "2012-10-17","Statement": [{"Action": ["s3:GetObject"],"Effect": "Allow","Principal": {"AWS": ["*"]},"Resource": ["arn:aws:s3:::`+ conf.Bucket + `/*"],"Sid": ""}]}`
+	policy := `{"Version": "2012-10-17","Statement": [{"Action": ["s3:GetObject"],"Effect": "Allow","Principal": {"AWS": ["*"]},"Resource": ["arn:aws:s3:::` + conf.Bucket + `/*"],"Sid": ""}]}`
 	err = cli.SetBucketPolicy(conf.Bucket, policy)
 	if err != nil {
 		return nil, err
 	}
-	return &PicServ {
-		cli: cli,
+	return &PicServ{
+		cli:      cli,
 		endpoint: conf.Endpoint,
-		bucket: conf.Bucket,
+		bucket:   conf.Bucket,
 	}, err
 }
 
@@ -101,8 +101,8 @@ func (p *PicServ) UploadImage(img image.Image) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	key := strconv.Itoa(int(time.Now().UnixNano())) + utils.RandString(30)+".png"
-	_, err = p.cli.PutObject(p.bucket, key, &buf, -1, minio.PutObjectOptions{ContentType:"image/png"})
+	key := strconv.Itoa(int(time.Now().UnixNano())) + utils.RandString(30) + ".png"
+	_, err = p.cli.PutObject(p.bucket, key, &buf, -1, minio.PutObjectOptions{ContentType: "image/png"})
 	if err != nil {
 		return "", err
 	}
