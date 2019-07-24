@@ -19,7 +19,7 @@ import (
 func main() {
 	rand.Seed(time.Now().Unix())
 	d := dim.New()
-	d.Provide(authserv.Provide, redisserv.Provide, discserv.Provide, taskserv.Provide, oauthserv.Provide, dbserv.Provide, picserv.Provide, steamserv.Provide)
+	d.Provide(dbserv.Provide, authserv.Provide, redisserv.Provide, discserv.Provide, taskserv.Provide, oauthserv.Provide, picserv.Provide, steamserv.Provide)
 	d.Init("")
 	d.Register(routes.Register)
 	d.Start(":8080")

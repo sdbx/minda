@@ -1,0 +1,23 @@
+version: '3'
+services:
+  lobby:
+    image: "ksunhokim/minda-lobby"
+    ports:
+    - "8080:8080"
+    volumes:
+    - ./configs:/home
+    depends_on:
+    - redis
+  redis:
+    image: "redis"
+    expose:
+     - 6379
+  game:
+    image: "ksunhokim/minda-game"
+    depends_on:
+    - redis
+    ports:
+    - "5353:5353"
+    environment:
+    - RUST_BACKTRACE=full
+    command: ["/minda/target/release/game", "0.0.0.0:5353", "52.78.120.7:5353", "redis://redis/"]

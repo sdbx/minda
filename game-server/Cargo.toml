@@ -1,7 +1,11 @@
 [package]
-name = "avalon"
+name = "game"
 version = "0.1.0"
 authors = ["sunho <ksunhokim123@naver.com>"]
+
+[[bin]]
+name = "game"
+path = "src/main.rs"
 
 [dependencies]
 redis = "0.9.1"

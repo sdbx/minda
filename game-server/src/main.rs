@@ -28,7 +28,6 @@ mod server;
 use server::{Server};
 
 fn main() {
-    CombinedLogger::init(vec![TermLogger::new(LevelFilter::Info, Config::default()).unwrap()]).unwrap();
     let matches = App::new("game-server")
         .arg(Arg::with_name("NAME")
                  .required(true)
@@ -56,6 +55,7 @@ fn main() {
     let real_addr = matches.value_of("REAL_ADDR").unwrap();
     let redis = matches.value_of("REDIS").unwrap();
     let server = Server::new(addr, name, real_addr, redis);
+   // CombinedLogger::init(vec![TermLogger::new(LevelFilter::Info, Config::default()).unwrap()]).unwrap();
     server.serve();
 }
 

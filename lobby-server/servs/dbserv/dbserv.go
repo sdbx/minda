@@ -2,6 +2,8 @@ package dbserv
 
 import (
 	"lobby/models"
+
+	"github.com/gobuffalo/packr/v2"
 	"github.com/gobuffalo/pop"
 )
 
@@ -16,15 +18,16 @@ func Provide() (*DBServ, error) {
 	}
 	return &DBServ{
 		Connection: c,
-	}, nil 
+	}, nil
 }
 
 func (db *DBServ) Init() error {
-	mig, err := pop.NewFileMigrator("migrations", db.Connection)
+	box := packr.New("migrations", "../../migrations")
+	mig, err := pop.NewMigrationBox(box, db.Connection)
 	if err != nil {
 		return err
 	}
-	
+
 	return mig.Up()
 }
 
