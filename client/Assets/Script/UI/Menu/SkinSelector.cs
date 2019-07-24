@@ -66,7 +66,8 @@ namespace UI.Menu
                     return;
                 }
                 CreateBasicSkin();
-                AddElements(skins.Reverse().ToArray());
+                if(skins!=null)
+                    AddElements(skins.Reverse().ToArray());
                 if(callback!=null)
                     callback(skins);
             });

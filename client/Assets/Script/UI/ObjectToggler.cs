@@ -33,6 +33,7 @@ namespace UI
                 if (!onlyToggleAlpha)
                     gameObject.SetActive(true);
                 canvasGroup.alpha = 1;
+                isActivated = true;
             }
             else
             {
