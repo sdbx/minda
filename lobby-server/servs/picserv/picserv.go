@@ -107,7 +107,7 @@ func (p *PicServ) UploadImage(img image.Image) (string, error) {
 		return "", err
 	}
 
-	return "http://" + p.endpoint + "/" + p.bucket + "/" + key, nil
+	return "http://" + p.bucket + "." + p.endpoint + "/" + key, nil
 }
 
 func (p *PicServ) SetCool(id int) error {

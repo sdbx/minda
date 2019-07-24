@@ -5,6 +5,8 @@
 using UnityEngine;
 using System.Collections;
 using Steamworks;
+using Network;
+using UI.Toast;
 using Utils;
 using System;
 using System.Collections.Generic;
@@ -19,7 +21,24 @@ class SteamManager : MonoBehaviour {
     public uint steamId;
     public static SteamManager instance;
     private bool initialized = false;
+    protected Callback<MicroTxnAuthorizationResponse_t> m_MicroTxnAuthorizationResponse;
 
+    void OnEnable() {
+        m_MicroTxnAuthorizationResponse = Callback<MicroTxnAuthorizationResponse_t>.Create(OnMicroTxnAuthorizationResponse);
+    }
+   
+    void OnMicroTxnAuthorizationResponse(MicroTxnAuthorizationResponse_t pCallback) {
+        var formData = new WWWForm();
+        LobbyServer.instance.Put("/skins/buy/"+pCallback.m_ulOrderID+"/", formData, (previewImageData, err) =>
+        {
+            if (err != null)
+            {
+                ToastManager.instance.Add(LanguageManager.GetText("skinuploadingerror"), "Error");
+                return;
+            }
+            ToastManager.instance.Add("Skin Buy", "Success");
+        });
+    }
     private void Awake()
     {
         //singleton

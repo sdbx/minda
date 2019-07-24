@@ -1,28 +1,35 @@
 package routes
 
 import (
-	"lobby/utils"
-	"github.com/gobuffalo/pop/nulls"
-	"strconv"
-	"lobby/middlewares"
-	"image/png"
 	"bytes"
-	"mime/multipart"
-	"lobby/servs/picserv"
+	"image/png"
+	"lobby/middlewares"
 	"lobby/models"
+	"lobby/servs/authserv"
+	"lobby/servs/dbserv"
+	"lobby/servs/payserv"
+	"lobby/servs/picserv"
+	"lobby/utils"
+	"mime/multipart"
+	"strconv"
+
+	"github.com/gobuffalo/pop/nulls"
 	"github.com/labstack/echo"
 	"github.com/sunho/dim"
-	"lobby/servs/dbserv"
 )
 
 type skin struct {
-	DB *dbserv.DBServ `dim:"on"`
-	Pic *picserv.PicServ `dim:"on"`
+	Auth *authserv.AuthServ `dim:"on"`
+	DB   *dbserv.DBServ     `dim:"on"`
+	Pay  *payserv.PayServ   `dim:"on"`
+	Pic  *picserv.PicServ   `dim:"on"`
 }
 
 func (s *skin) Register(d *dim.Group) {
 	d.Use(&middlewares.AuthMiddleware{})
 	d.POST("/preview/", s.previewSkin)
+	d.POST("/buy/", s.postBuy)
+	d.PUT("/buy/:orderid/", s.putBuy)
 	d.RouteFunc("/me", func(d *dim.Group) {
 		d.GET("/", s.getSkins)
 		d.PUT("/current/", s.putCurrent)
@@ -46,7 +53,6 @@ func (s *skin) getSkin(c echo.Context) error {
 
 	return c.JSON(200, item)
 }
-
 
 func (s *skin) getSkins(c2 echo.Context) error {
 	c := c2.(*models.Context)
@@ -78,8 +84,8 @@ func (s *skin) uploadSkin(user int, name string, black *multipart.FileHeader, wh
 		return err
 	}
 
-	item := models.Skin {
-		Name: name,
+	item := models.Skin{
+		Name:         name,
 		BlackPicture: blackURL,
 		WhitePicture: whiteURL,
 	}
@@ -88,7 +94,7 @@ func (s *skin) uploadSkin(user int, name string, black *multipart.FileHeader, wh
 		return err
 	}
 
-	return s.DB.Create(&models.UserSkin {
+	return s.DB.Create(&models.UserSkin{
 		UserID: user,
 		SkinID: item.ID,
 	})
@@ -97,7 +103,7 @@ func (s *skin) uploadSkin(user int, name string, black *multipart.FileHeader, wh
 func (s *skin) putCurrent(c2 echo.Context) error {
 	c := c2.(*models.Context)
 	input := struct {
-		ID *int `json:"id"`	
+		ID *int `json:"id"`
 	}{}
 	if err := c.Bind(&input); err != nil {
 		return err
@@ -109,7 +115,7 @@ func (s *skin) putCurrent(c2 echo.Context) error {
 		return err
 	}
 	if id == nil {
-		c.User.Inventory.CurrentSkin = nulls.Int{ Valid:false }
+		c.User.Inventory.CurrentSkin = nulls.Int{Valid: false}
 		err = s.DB.Update(&c.User.Inventory)
 		if err != nil {
 			return err
@@ -146,7 +152,7 @@ func (s *skin) postOneSkin(c2 echo.Context) error {
 		return err
 	}
 
-	c.User.Inventory.OneColorSkin -- 
+	c.User.Inventory.OneColorSkin--
 	err = s.DB.Update(&c.User.Inventory)
 	if err != nil {
 		return err
@@ -176,7 +182,15 @@ func (s *skin) postTwoSkin(c2 echo.Context) error {
 		return err
 	}
 
-	c.User.Inventory.TwoColorSkin -- 
+	err = s.DB.Create(&models.SkinLog{
+		UserID: c.User.ID,
+		Dif:    -1,
+	})
+	if err != nil {
+		return err
+	}
+
+	c.User.Inventory.TwoColorSkin--
 	err = s.DB.Update(&c.User.Inventory)
 	if err != nil {
 		return err
@@ -186,7 +200,7 @@ func (s *skin) postTwoSkin(c2 echo.Context) error {
 
 func (s *skin) previewSkin(c echo.Context) error {
 	col := picserv.ColorBlack
-	if c.FormValue("color")== "white" {
+	if c.FormValue("color") == "white" {
 		col = picserv.ColorWhite
 	}
 
@@ -199,7 +213,7 @@ func (s *skin) previewSkin(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	
+
 	out := s.Pic.CreateSkin(img, col)
 
 	var buf bytes.Buffer
@@ -208,4 +222,27 @@ func (s *skin) previewSkin(c echo.Context) error {
 		return err
 	}
 	return c.Stream(200, "image/png", &buf)
+}
+
+func (s *skin) postBuy(c2 echo.Context) error {
+	c := c2.(*models.Context)
+	err := s.Pay.InitOrder(c.User.ID)
+	if err != nil {
+		return err
+	}
+	return c.NoContent(200)
+}
+
+func (s *skin) putBuy(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("orderid"))
+	if err != nil {
+		return err
+	}
+
+	err = s.Pay.FinalizeOrder(id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

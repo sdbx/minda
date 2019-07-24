@@ -1,13 +1,13 @@
 package authserv
 
 import (
-	"net/http"
 	"errors"
 	"lobby/models"
 	"lobby/servs/dbserv"
 	"lobby/servs/picserv"
 	"lobby/servs/steamserv"
 	"lobby/utils"
+	"net/http"
 	"strconv"
 
 	"github.com/gobuffalo/pop/nulls"
@@ -160,6 +160,16 @@ func (a *AuthServ) GetUserByOAuth(provider string, id string) (models.User, erro
 	}
 
 	return a.GetUser(ouser.UserID)
+}
+
+func (a *AuthServ) GetOAuthUserByUser(id int) (models.OAuthUser, error) {
+	out := models.OAuthUser{}
+	err := a.DB.Q().Where("user_id = ?", id).First(&out)
+	if err != nil {
+		return models.OAuthUser{}, ErrNotFound
+	}
+
+	return out, nil
 }
 
 func (a *AuthServ) ParseToken(token string) (int, error) {
