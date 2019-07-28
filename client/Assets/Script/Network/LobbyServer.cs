@@ -302,5 +302,13 @@ namespace Network
         }
 
 
+        public void SendBuyRequest(Action callback)
+        {
+            Post<EmptyResult>("/skins/buy/", "" ,(result, err) =>
+             {
+                 callback();
+             });
+        }
+
     }
 }

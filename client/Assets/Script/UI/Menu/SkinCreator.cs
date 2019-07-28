@@ -65,6 +65,7 @@ namespace UI.Menu
 
         private void OnCreateButtonClicked()
         {
+            LobbyServer.instance.SendBuyRequest(()=>{});
             if (isUploading)
                 return;
             var formData = new WWWForm();
