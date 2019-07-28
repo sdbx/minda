@@ -97,6 +97,8 @@ namespace UI.Menu
             whiteImage.transform.DOLocalMove(whitePos, duration);
             blackRectTransform.DOSizeDelta(blackSize, duration);
             whiteRectTransform.DOSizeDelta(whiteSize, duration);
+            whiteImage.texture = UISettings.instance.basicWhiteSkin;
+            blackImage.texture = UISettings.instance.basicBlackSkin;
             skinName.interactable = true;
             skinName.text = "";
         }

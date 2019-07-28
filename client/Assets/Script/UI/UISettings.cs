@@ -8,6 +8,8 @@ namespace UI
 
         public Color dark;
         public Color white;
+        public Texture basicBlackSkin;
+        public Texture basicWhiteSkin;
         public Texture placeHolder;
 
 
