@@ -5,6 +5,8 @@
 using UnityEngine;
 using System.Collections;
 using Steamworks;
+using Network;
+using UI.Toast;
 using Utils;
 using System;
 using System.Collections.Generic;
@@ -20,7 +22,7 @@ class SteamManager : MonoBehaviour {
     public static SteamManager instance;
     private bool initialized = false;
 
-    protected Callback<MicroTxnAuthorizationResponse_t> m_MicroTxnAuthorizationResponse;
+
 
     private void Awake()
     {
@@ -88,16 +90,6 @@ class SteamManager : MonoBehaviour {
             return;
         }
         SteamAPI.Shutdown();
-    }
-
-    public void OnEnable()
-    {
-        m_MicroTxnAuthorizationResponse = Callback<MicroTxnAuthorizationResponse_t>.Create(OnMicroTxnAuthorizationResponse);
-    }
-
-    void OnMicroTxnAuthorizationResponse(MicroTxnAuthorizationResponse_t pCallback)
-    {
-        Debug.Log("[" + MicroTxnAuthorizationResponse_t.k_iCallback + " - MicroTxnAuthorizationResponse] - " + pCallback.m_unAppID + " -- " + pCallback.m_ulOrderID + " -- " + pCallback.m_bAuthorized);
     }
 
 }

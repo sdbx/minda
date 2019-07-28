@@ -206,6 +206,7 @@ namespace Network
                     return;
                 }
                 loginUser = me;
+                Debug.Log(me.inventory.two_color_skin);
                 if (callback != null)
                     callback(me);
             });

@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Utils;
 using DG.Tweening;
+using Steamworks;
 
 namespace UI.Menu
 {
@@ -42,12 +43,28 @@ namespace UI.Menu
         private byte[] blackSkin;
         private byte[] whiteSkin;
 
+        protected Callback<MicroTxnAuthorizationResponse_t> m_MicroTxnAuthorizationResponse;
+
         private void Awake()
         {
             blackLoadButton.onClick.AddListener(OnBlackLoadButtonClicked);
             whiteLoadButton.onClick.AddListener(OnWhiteLoadButtonClicked);
             createButton.onClick.AddListener(OnCreateButtonClicked);
             CancelButton.onClick.AddListener(OnCancelButtonClicked);
+            m_MicroTxnAuthorizationResponse = Callback<MicroTxnAuthorizationResponse_t>.Create(OnMicroTxnAuthorizationResponse);
+        }
+
+        void OnMicroTxnAuthorizationResponse(MicroTxnAuthorizationResponse_t pCallback)
+        {
+            LobbyServer.instance.Put<EmptyResult>("/skins/buy/" + pCallback.m_ulOrderID + "/","", (empty, err) =>
+                {
+                    if (err != null)
+                    {
+                        return;
+                    }
+                    ToastManager.instance.Add(LanguageManager.GetText("purchasesuccess"), "Success");
+                    Upload();
+                });
         }
 
         private void OnCancelButtonClicked()
@@ -63,9 +80,8 @@ namespace UI.Menu
             },"Yes","No");
         }
 
-        private void OnCreateButtonClicked()
+        private void Upload()
         {
-            LobbyServer.instance.SendBuyRequest(()=>{});
             if (isUploading)
                 return;
             var formData = new WWWForm();
@@ -93,7 +109,6 @@ namespace UI.Menu
 
             targetImage.texture = refreshIcon;
 
-
             LobbyServer.instance.Post("/skins/me/two/", formData, (data, err) =>
             {
                 isUploading = false;
@@ -113,6 +128,18 @@ namespace UI.Menu
                 CancelButton.gameObject.SetActive(true);
                 skinSelector.LoadMySkinsAndEquipIndex(1);
             });
+        }
+
+        private void OnCreateButtonClicked()
+        {
+            LobbyServer.instance.RefreshLoginUser((me=>{
+                if(me.inventory.two_color_skin <= 0)
+                {
+                    LobbyServer.instance.SendBuyRequest(()=>{});
+                    return;
+                }
+                Upload();
+            }));
         }
 
         private void OnBlackLoadButtonClicked()

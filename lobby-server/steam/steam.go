@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -13,7 +14,7 @@ import (
 
 const (
 	steamURL       = "https://api.steampowered.com"
-	iSteamMicroTxn = "ISteamMicroTxn"
+	iSteamMicroTxn = "ISteamMicroTxnSandbox"
 )
 const (
 	methodGET  = "GET"
@@ -64,10 +65,14 @@ func (s *Steam) apiCall(method string, args map[string]string, routes ...string)
 	case methodPOST:
 		form := url.Values{}
 		for key, value := range args {
-			form.Add(key, value)
+			form.Set(key, value)
 		}
-		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-		req.Body = ioutil.NopCloser(strings.NewReader(form.Encode()))
+		req, err = http.NewRequest(method, s.apiURL(routes...), strings.NewReader(form.Encode()))
+		if err != nil {
+			return nil, err
+		}
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.Header.Add("Content-Length", strconv.Itoa(len(form.Encode())))
 	}
 
 	resp, err := s.client.Do(req)
@@ -76,7 +81,8 @@ func (s *Steam) apiCall(method string, args map[string]string, routes ...string)
 	}
 
 	if resp.StatusCode != 200 && resp.StatusCode != 201 {
-		return nil, errors.New("steam error: http error " + resp.Status)
+		msg, _ := ioutil.ReadAll(resp.Body)
+		return nil, errors.New("steam error: http error " + resp.Status + string(msg))
 	}
 
 	buf, err := ioutil.ReadAll(resp.Body)
@@ -177,21 +183,18 @@ type Item struct {
 type initTxnResp struct {
 	R struct {
 		Result string `json:"result"`
-		P      struct {
-			TransID int `json:"transid"`
-		} `json:"params"`
 	} `json:"response"`
 }
 
 func (s *Steam) InitTxn(orderid int, id string, items []Item) (int, error) {
 	args := map[string]string{
-		"appid":      s.appid,
-		"key":        s.key,
-		"orderid":    strconv.Itoa(orderid),
-		"steamid":    id,
-		"itemamount": strconv.Itoa(len(items)),
-		"currency":   "USD",
-		"language":   "en",
+		"appid":     s.appid,
+		"key":       s.key,
+		"orderid":   strconv.Itoa(orderid),
+		"steamid":   id,
+		"itemcount": strconv.Itoa(len(items)),
+		"currency":  "USD",
+		"language":  "en",
 	}
 	for i, item := range items {
 		s := strconv.Itoa(i)
@@ -201,9 +204,12 @@ func (s *Steam) InitTxn(orderid int, id string, items []Item) (int, error) {
 		args["description["+s+"]"] = item.Name
 	}
 
-	buf, err := s.apiCall(methodGET, args, iSteamMicroTxn, "InitTxn", "v3")
-
+	buf, err := s.apiCall(methodPOST, args, iSteamMicroTxn, "InitTxn", "v3")
+	if err != nil {
+		return 0, err
+	}
 	var resp initTxnResp
+	log.Println(buf)
 	err = json.Unmarshal(buf, &resp)
 	if err != nil {
 		return 0, err
@@ -212,7 +218,13 @@ func (s *Steam) InitTxn(orderid int, id string, items []Item) (int, error) {
 		return 0, errors.New("steam error: result not OK")
 	}
 
-	return resp.R.P.TransID, nil
+	return 0, nil
+}
+
+type finTxnResp struct {
+	R struct {
+		Result string `json:"result"`
+	} `json:"response"`
 }
 
 func (s *Steam) FinalizeTxn(orderid int) error {
@@ -222,12 +234,12 @@ func (s *Steam) FinalizeTxn(orderid int) error {
 		"orderid": strconv.Itoa(orderid),
 	}
 
-	buf, err := s.apiCall(methodGET, args, iSteamMicroTxn, "FinalizeTxn", "v2")
+	buf, err := s.apiCall(methodPOST, args, iSteamMicroTxn, "FinalizeTxn", "v2")
 	if err != nil {
 		return err
 	}
 
-	var resp initTxnResp
+	var resp finTxnResp
 	err = json.Unmarshal(buf, &resp)
 	if err != nil {
 		return err
