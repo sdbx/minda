@@ -94,9 +94,9 @@ public class ProfileEditor : MonoBehaviour
             {
                 if (err != null)
                 {
-                //에러처리
-                ToastManager.instance.Add(LanguageManager.GetText("profileuploadingerror"), "Error");
-                    return;
+                    //에러처리
+                    ToastManager.instance.Add(LanguageManager.GetText("profileuploadingerror"), "Error");
+                        return;
                 }
                 EndEdit();
             });

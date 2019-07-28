@@ -55,3 +55,4 @@ inputfieldisempty:Input field is empty
 makeking:Give admin
 chattingplaceholder:Write the message
 notice:Notice
+purchasesuccess:Purchase is successful
