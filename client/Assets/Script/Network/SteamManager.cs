@@ -21,8 +21,7 @@ class SteamManager : MonoBehaviour {
     public uint steamId;
     public static SteamManager instance;
     private bool initialized = false;
-
-
+    protected Callback<MicroTxnAuthorizationResponse_t> m_MicroTxnAuthorizationResponse;
 
     private void Awake()
     {

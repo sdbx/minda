@@ -69,6 +69,9 @@ namespace UI.Menu
 
         private void OnCancelButtonClicked()
         {
+            var formData = new WWWForm();
+            LobbyServer.instance.Post("/skins/buy/", formData, (previewImageData, err) =>
+            {});
             MessageBox.instance.Show(LanguageManager.GetText("cancelmessage"),(agree)=>{
                 if (agree)
                 {
