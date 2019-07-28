@@ -25,7 +25,7 @@ namespace UI
 
         public void Display(EndedEvent ended, Action callback)
         {
-            winnerText.text = LanguageManager.GetText(ended.player+"win");
+            winnerText.text = LanguageManager.GetText((ended.player==Models.BallType.Black?"white":"black")+"win");
             //색 설정 추가  
             details.text = LanguageManager.GetText(ended.cause);
             this.callback = callback;

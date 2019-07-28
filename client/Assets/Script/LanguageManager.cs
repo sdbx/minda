@@ -9,6 +9,7 @@ using Utils;
 public class LanguageManager : MonoBehaviour
 {
     private static Dictionary<string,string> loadedLaunguagePack;
+    [SerializeField]
     private static bool isLoaded = false;
     private void Awake()
     {

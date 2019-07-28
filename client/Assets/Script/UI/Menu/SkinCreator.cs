@@ -132,6 +132,16 @@ namespace UI.Menu
 
         private void OnCreateButtonClicked()
         {
+            if (blackSkin == null || whiteSkin == null)
+            {
+                ToastManager.instance.Add(LanguageManager.GetText("imagenotuploaded"), "Warning");
+                return;
+            }
+            if (skinName.text == "")
+            {
+                ToastManager.instance.Add(LanguageManager.GetText("skinsnameisempty"), "Warning");
+                return;
+            }
             LobbyServer.instance.RefreshLoginUser((me=>{
                 if(me.inventory.two_color_skin <= 0)
                 {
@@ -144,12 +154,14 @@ namespace UI.Menu
 
         private void OnBlackLoadButtonClicked()
         {
-            loadSkinImage(BallType.Black);
+            if(!isUploading)
+                loadSkinImage(BallType.Black);
         }
 
         private void OnWhiteLoadButtonClicked()
         {
-            loadSkinImage(BallType.White);
+            if(!isUploading)
+                loadSkinImage(BallType.White);
         }
 
         private void loadSkinImage(BallType ballType)
