@@ -21,7 +21,22 @@ class SteamManager : MonoBehaviour {
     public uint steamId;
     public static SteamManager instance;
     private bool initialized = false;
-    protected Callback<MicroTxnAuthorizationResponse_t> m_MicroTxnAuthorizationResponse;
+
+    private SteamAPIWarningMessageHook_t m_SteamAPIWarningMessageHook;
+	private static void SteamAPIDebugTextHook(int nSeverity, System.Text.StringBuilder pchDebugText) {
+		Debug.LogWarning(pchDebugText);
+	}
+
+    private void OnEnable() {
+		if (!initialized) { return; }
+
+		if (m_SteamAPIWarningMessageHook == null) {
+			// Set up our callback to receive warning messages from Steam.
+			// You must launch with "-debug_steamapi" in the launch args to receive warnings.
+			m_SteamAPIWarningMessageHook = new SteamAPIWarningMessageHook_t(SteamAPIDebugTextHook);
+			SteamClient.SetWarningMessageHook(m_SteamAPIWarningMessageHook);
+		}
+	}
 
     private void Awake()
     {
@@ -39,6 +54,7 @@ class SteamManager : MonoBehaviour {
 
         if (isSteamVersion)
         {
+            initialized = SteamAPI.Init();
             try
             {
                 if (SteamAPI.RestartAppIfNecessary((AppId_t)steamId))
@@ -53,8 +69,7 @@ class SteamManager : MonoBehaviour {
 
                 Application.Quit();
                 return;
-            }
-            initialized = SteamAPI.Init();
+            } 
         }
         Debug.Log("Steamworks.NET " + steamId + " initialized:" + initialized);
     }
