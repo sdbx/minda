@@ -98,6 +98,11 @@ func (a *AuthServ) CreateUserByOAuth(provider string, guser goth.User) (models.U
 	user := models.User{
 		Username: username,
 		Picture:  picture,
+		Rating: models.UserRating{
+			R:  1500,
+			RD: 350,
+			V:  0.06,
+		},
 	}
 	err := a.DB.Eager().Create(&user)
 	if err != nil {

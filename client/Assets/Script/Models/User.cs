@@ -9,11 +9,16 @@ namespace Models
         public string picture;
         public Premissions permissions;
         public Inventory inventory;
+        public Rating rating;
     }
 
     public class Premissions
     {
         public bool admin;
+    }
+
+    public class Rating {
+        public double score;
     }
 
     public class InGameUser

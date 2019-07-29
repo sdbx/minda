@@ -1,6 +1,7 @@
 package models
 
 import (
+	"lobby/gicko"
 	"time"
 
 	"github.com/gobuffalo/uuid"
@@ -14,8 +15,31 @@ type User struct {
 	Picture    nulls.String   `db:"picture" json:"picture"`
 	CreatedAt  time.Time      `db:"created_at" json:"-"`
 	UpdatedAt  time.Time      `db:"updated_at" json:"-"`
+	Rating     UserRating     `has_one:"user_rating" json:"rating"`
 	Permission UserPermission `has_one:"user_permission" json:"permission"`
 	Inventory  UserInventory  `has_one:"user_inventory" json:"inventory"`
+}
+
+type UserRating struct {
+	ID     uuid.UUID `db:"id" json:"-"`
+	UserID int       `db:"user_id" json:"-"`
+	R      float64   `db:"r" json:"score"`
+	RD     float64   `db:"rd" json:"-"`
+	V      float64   `db:"v" json:"-"`
+}
+
+func (u *UserRating) ToPlayer() gicko.Player {
+	return gicko.Player{
+		R:  u.R,
+		RD: u.RD,
+		V:  u.V,
+	}
+}
+
+func (u *UserRating) Update(p gicko.Player) {
+	u.R = p.R
+	u.RD = p.RD
+	u.V = p.V
 }
 
 type UserPermission struct {

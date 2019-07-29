@@ -9,7 +9,7 @@ use server::task;
 use model::Event;
 use std::net::Shutdown;
 use std::time::Duration;
-use model::{Task, TaskResult, TaskRequest, GameServer};
+use model::{Task, TaskResult, CompleteGameResult, TaskRequest, GameServer};
 use redis::Commands;
 use error::Error;
 use std::error::{Error as SError};
@@ -157,7 +157,7 @@ impl Server {
     }
 
     pub fn complete_game(&mut self, room_id: &str, loser: Player, cause: &EndedCause) -> Result<(), Error> {
-        let (task, event) = {
+        let game = {
             let room = match self.rooms.get_mut(room_id) {
                 Some(x) => x,
                 None => return Err(Error::Internal)
@@ -167,14 +167,16 @@ impl Server {
                 None => return Err(Error::Internal)
             };
             room.game = None;
+            game
+        };
 
+        let event = {
             let user = if loser == Player::Black {
                 game.black
             } else {
                 game.white
             };
-            
-            (Task::CompleteGame {
+            let task = Task::CompleteGame {
                 black: game.black,
                 white: game.white,
                 loser: loser.to_string(),
@@ -182,15 +184,24 @@ impl Server {
                 map: game.map,
                 game_rule: game.rule,
                 moves: game.history
-            },
+            };
+            
+            let buf = match self.request_task(&task) {
+                Ok(x) => x,
+                Err(_) => return Err(Error::Internal)
+            };
+            
+            let res2: CompleteGameResult = serde_json::from_str(&buf)?;
+            
             Event::Ended {
                 loser: user,
+                winner_delta: res2.winner_delta,
+                loser_delta: res2.loser_delta,
                 player: loser.to_string(),
                 cause: cause.clone()
-            })
+            }
         };
         self.broadcast(&room_id, &event);
-        self.request_task(&task)?;
         Ok(())
     }
 

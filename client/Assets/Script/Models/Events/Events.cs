@@ -63,6 +63,8 @@ namespace Models.Events
         public int loser;
         public BallType player;
         public string cause;
+        public double winner_delta;
+        public double loser_delta;
     }
 
     public class ChattedEvent : Event

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"lobby/models"
+	"lobby/servs/authserv"
 	"lobby/servs/dbserv"
 	"lobby/servs/discserv"
 	"lobby/servs/redisserv"
@@ -27,6 +28,7 @@ type TaskServ struct {
 	Redis *redisserv.RedisServ   `dim:"on"`
 	Disc  *discserv.DiscoverServ `dim:"on"`
 	DB    *dbserv.DBServ         `dim:"on"`
+	Auth  *authserv.AuthServ     `dim:"on"`
 
 	resMu sync.RWMutex
 }

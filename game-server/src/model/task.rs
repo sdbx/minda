@@ -35,3 +35,9 @@ pub struct LobbyRoomResult {
     pub invite: String,
     pub addr: String
 }
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct CompleteGameResult {
+    pub winner_delta: f64,
+    pub loser_delta: f64 
+}

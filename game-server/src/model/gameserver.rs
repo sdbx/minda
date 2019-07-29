@@ -83,7 +83,7 @@ pub enum Event {
     #[serde(rename = "left")]
     Left { user: UserId },
     #[serde(rename = "ended")]
-    Ended { loser: UserId, player: String, cause: EndedCause },
+    Ended { loser: UserId, player: String, cause: EndedCause, winner_delta: f64, loser_delta: f64 },
     #[serde(rename = "banned")]
     Banned { user: UserId },
     #[serde(rename = "ticked")]
