@@ -16,7 +16,7 @@ export abstract class SnowProvider<C extends BaseGuildCfg> {
     public available:boolean = false
     public abstract readonly name:string
     protected store:SnowConfig<C>
-    protected prefix:string = "!"
+    protected prefix:string = "??"
     protected commands:Array<SnowCommand<C>> = []
     protected handleFn:(commandName:string, context:SnowContext<C>, params:AvaiableParams[]) => Promise<void>
     /**
@@ -64,7 +64,7 @@ export abstract class SnowProvider<C extends BaseGuildCfg> {
         if (splitContents == null) {
             return
         }
-        const commandName = splitContents[0].substr(1)
+        const commandName = splitContents[0].substr(this.prefix.length)
         splitContents.splice(0, 1)
         for (let i = 0; i < splitContents.length; i += 1) {
             const content = splitContents[i]

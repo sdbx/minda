@@ -210,4 +210,3 @@ async function run() {
     console.log(bl)
 }
 // runCUI("WU7htx_4_helo4FO3Im44pU=")
-login()

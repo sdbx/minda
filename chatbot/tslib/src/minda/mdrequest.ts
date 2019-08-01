@@ -91,6 +91,7 @@ export async function extractContent<T>(r:Promise<Response> | Response) {
  */
 async function req(type:GetType | PostType, isPost:boolean, suffix:string, token?:string,
     getParam:{[key in string]:string} = {}, postParam:SerializeObject = null) {
+    console.log("request: " + suffix)
     const h = genHeader(suffix, token)
     suffix = h.suffix
     const qs = querystring.stringify(getParam, "&", "="/* ,{encodeURIComponent: (v:string) => }*/)

@@ -1,4 +1,3 @@
-import { cLog } from "chocolog"
 import debug from "debug"
 import SnowChannel, { ConfigDepth } from "../channel/snowchannel"
 import BaseGuildCfg from "../config/baseguildcfg"
@@ -115,7 +114,7 @@ export default class SnowCommand<
         const result = await this.func(context, ...this.convertParam(params) as any)
         await context.updateGroupConfig()
         await context.updateChannelConfig()
-        cLog.v("Executed Command.")
+        console.log("Executed Command.")
         return result
     }
     /*

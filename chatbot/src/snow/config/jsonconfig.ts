@@ -17,7 +17,6 @@ export default class JsonConfig<T extends object> {
         this.value = cloneDeep(new obj())
         this.path = path
         this.load()
-        this.save(this.value)
     }
     /**
      * 읽기 전용으로 불러옵니다
