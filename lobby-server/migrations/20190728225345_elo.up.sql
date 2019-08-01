@@ -9,4 +9,4 @@ CREATE TABLE user_ratings (
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-INSERT INTO user_ratings (id, user_id, r, rd, v) SELECT (uuid_generate_v4(), id, 1500, 350, 0.06) FROM users;
+INSERT INTO user_ratings (id, user_id, r, rd, v) SELECT uuid_generate_v4(), id, 1500, 350, 0.06 FROM users;

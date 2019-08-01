@@ -1,13 +1,5 @@
-import fs from "fs-extra"
-import hash from "hash.js"
-import { DeepReadonly } from "minda-ts/build/main/types/deepreadonly"
-import path from "path"
-import { Connection, ConnectionOptions, createConnection,
-    DeepPartial, EntitySchema, FindConditions, Repository } from "typeorm"
 import BaseGuildCfg, { GidType } from "./baseguildcfg"
 import SimpleConfig from "./simpleconfig"
-export const debugPath = path.resolve(
-    process.cwd(), process.argv.find((v) => v === "--vscode") != null ? "./" : "")
 
 export type SnowSchema<T> = Pick<T, Exclude<keyof T, keyof BaseGuildCfg>>
 /**

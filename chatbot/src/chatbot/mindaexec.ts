@@ -1,24 +1,18 @@
 import { cLog } from "chocolog"
 import { prompt } from "enquirer"
 import { MindaClient, MindaCredit,
-    MindaRoom, MoveInfo, MSGrid, MSLoseCause, MSUser, StartInfo, StoneType } from "minda-ts"
-import { MSRecStat } from "minda-ts/build/main/minda/structure/msrecstat"
-import { MSRoom } from "minda-ts/build/main/minda/structure/msroom"
-import path from "path"
+    MindaRoom, MSLoseCause, MSUser, MSRecStat } from "minda-ts"
 import { Column, Entity, PrimaryColumn } from "typeorm"
 import SnowCommand, { SnowContext } from "../snow/bot/snowcommand"
 import SnowChannel from "../snow/channel/snowchannel"
-import BaseGuildCfg from "../snow/config/baseguildcfg"
 import SimpleConfig from "../snow/config/simpleconfig"
-import SnowConfig from "../snow/config/snowconfig"
 import SnowUser from "../snow/snowuser"
-import awaitEvent from "../timeout"
-import { DeepReadonly } from "../types/deepreadonly"
+import { subscribe } from "../timeout"
 import { bindFn } from "../util"
 import { WebpackTimer } from "../webpacktimer"
-import { renderBoard } from "./boardrender"
-import { blank1_2, blank1_3, blank1_4, blank1_6, blankChar, blankChar2, defaultBoard } from "./cbconst"
+import { defaultBoard } from "./cbconst"
 import BotConfig from "./guildcfg"
+import path from "path"
 
 export default class MindaExec {
     public commands:Array<SnowCommand<BotConfig>> = []
@@ -32,56 +26,48 @@ export default class MindaExec {
         this.client = new MindaClient(clientToken)
         this.commands.push(new SnowCommand({
             name: "auth",
-            paramNames: ["oAuth-공급자"],
-            description: "민다 인-증을 해봅시다.",
+            paramNames: [],
+            description: "Authenticate",
             func: bindFn(this, this.cmdAuth),
-            reqLength: 0,
-        }, "string"))
+        }))
         this.commands.push(new SnowCommand({
             name: "unauth",
             paramNames: [],
-            description: "민다 인증을 뚜따합니다.",
+            description: "Unauthenticate",
             func: bindFn(this, this.cmdUnAuth),
         }))
+        // this.commands.push(new SnowCommand({
+        //     name: "fight",
+        //     paramNames: ["mention of user"],
+        //     description: "Challange the user",
+        //     func: bindFn(this, this.cmdFight),
+        // }, "SnowUser"))
         this.commands.push(new SnowCommand({
-            name: "fight",
-            paramNames: ["맞짱뜰 유저"],
-            description: "싸우자",
-            func: bindFn(this, this.cmdFight),
-        }, "SnowUser"))
-        this.commands.push(new SnowCommand({
-            name: "stat",
-            paramNames: ["페이지", "검색할 유저"],
-            description: "전적을 검색합니다.",
+            name: "stats",
+            paramNames: ["mention of user", "page number"],
+            description: "view match history of the user",
             func: bindFn(this, this.cmdRecordStat),
             reqLength: 0,
-        }, "number", "SnowUser"))
+        }, "SnowUser", "number"))
         this.commands.push(new SnowCommand({
             name: "skin",
-            paramNames: ["유-저"],
-            description: "스킨을 알려줍니다.",
+            paramNames: ["mention of user"],
+            description: "show the current stone skin of the user",
             func: bindFn(this, this.cmdSkin),
             reqLength: 0,
         },"SnowUser"))
         this.commands.push(new SnowCommand({
             name: "syncprofile",
             paramNames: [],
-            description: "프로필 이미지를 동기화 합니다.",
+            description: "use Discord profile image as Minda profile image",
             func: bindFn(this, this.cmdSyncProfile)
         }))
         this.commands.push(new SnowCommand({
             name: "rooms",
             paramNames: [],
-            description: "방 목록을 불러옵니다.",
+            description: "list public Minda rooms",
             func: bindFn(this, this.cmdRoomList)
         }))
-        this.commands.push(new SnowCommand({
-            name: "preview",
-            paramNames: ["유-저"],
-            description: "유우저의 돌을 미리봅니다.",
-            func: bindFn(this, this.cmdPreview),
-            reqLength: 0,
-        }, "SnowUser"))
     }
     public async init() {
         await this.userDB.connect()
@@ -99,7 +85,7 @@ export default class MindaExec {
         const url = await credit.genOAuth(choice)
         cLog.i("oAuth URL", url)
         credit.watchLogin()
-        const token = await awaitEvent(credit.onLogin, 60000, (t) => t, false)
+        const token = await subscribe(credit.onLogin, 1000)
         cLog.v("Token", token)
         this.client = new MindaClient(token)
         await this.client.login()
@@ -181,10 +167,12 @@ export default class MindaExec {
             room.close()
             await subCh.deleteChannel()
         }
+
         room.onChat.sub(async (ch) => {
             const n = await this.client.user(ch.user).then((v) => v.username)
             subCh.send(`${n} : ${ch.content}`)
         })
+
         room.onLeave.sub(async (lf) => {
             if (room.ingame) {
                 if (lf.user === minda1.id) {
@@ -194,6 +182,7 @@ export default class MindaExec {
                 }
             }
         })
+
         room.onEnd.sub(async (event) => {
             let winner:string
             let color:"검은 돌" | "하얀 돌"
@@ -207,53 +196,29 @@ export default class MindaExec {
             await subCh.send(`${winner} (${color}) 승리!`)
             await deleteQueue()
         })
-        const dispatchState = async (si:StartInfo | MoveInfo) => {
-            const { blackStone, whiteStone } = context.configGroup
-            const blackU = await this.client.getProfile(room.black)
-            const whiteU = await this.client.getProfile(room.white)
-            const deltaB = (str:"black" | "white" | "void") =>
-                room.defaultBoard.getStones(str) - room.board.getStones(str)
-            const stoneB = deltaB("black")
-            const stoneW = deltaB("white")
-            await subCh.send(null, await renderBoard(room.board, {}, {
-                black: {
-                    username: blackU.username,
-                    image: blackU.skin == null ? null : blackU.skin.blackImage,
-                    stone: stoneB,
-                },
-                white: {
-                    username: whiteU.username,
-                    image: whiteU.skin == null ? null : whiteU.skin.whiteImage,
-                    stone: stoneW,
-                },
-                maxstone: room.loseStones,
-            }))
-            // await channel.send(`게임 시작.\n${}`)
-        }
-        room.onStart.sub(dispatchState)
-        room.onMove.sub(dispatchState)
-        awaitEvent(room.onEnter, 60000, async (info) => {
+
+        subscribe(room.onEnter, 60000).then(async (info) => {
             if (info.user === minda1.id) {
                 if (await room.setBlack(minda1)) {
-                    await room.sendChat(`흑돌 선수 ${minda1.username}님이 입장합니다.`)   
-                } else {
-                    subCh.send("흑돌을 설정하는데 실패했습니다.")
+                    await room.sendChat(`흑돌 선수 ${minda1.username}님이 입장합니다.`);
+                }
+                else {
+                    subCh.send("흑돌을 설정하는데 실패했습니다.");
                 }
             } else if (info.user === minda2.id) {
                 if (await room.setWhite(minda2)) {
-                    await room.sendChat(`백돌 선수 ${minda2.username}님이 입장합니다.`)
-                } else {
-                    subCh.send("백돌을 설정하는데 실패했습니다.")
+                    await room.sendChat(`백돌 선수 ${minda2.username}님이 입장합니다.`);
+                }
+                else {
+                    subCh.send("백돌을 설정하는데 실패했습니다.");
                 }
             }
             if (room.black >= 0 && room.white >= 0) {
                 if (await room.startGame()) {
-                    await room.sendChat("경기를 시작합니다.")
-                    return true
+                    await room.sendChat("경기를 시작합니다.");
                 }
             }
-            return null
-        }, true).catch(async () => {
+        }).catch(async () => {
             await channel.send("유저가 접속을 안하여 방이 닫혔습니다.")
             await deleteQueue()
         })
@@ -285,7 +250,7 @@ export default class MindaExec {
         }
         return out
     }
-    protected async cmdAuth(context:SnowContext<BotConfig>, provider:string) {
+    protected async cmdAuth(context:SnowContext<BotConfig>) {
         const { channel, message } = context
         const user = message.author
         const uid = {
@@ -297,9 +262,6 @@ export default class MindaExec {
         }
         const credit = new MindaCredit(5000)
         const proves = await credit.getProviders()
-        if (provider == null || proves.indexOf(provider) < 0) {
-            return provider + "(이)라는 공급자가 없습니다." + "\n공급자 목록: " + proves.join(",")
-        }
         const dm = await channel.dm(user)
         if (dm == null) {
             return "1:1 메시지를 보낼 수 없습니다." 
@@ -308,15 +270,15 @@ export default class MindaExec {
             return "이미 인증 과정 중입니다."
         }
         this.authQueue.set(user.getUID(), true)
-        const url = await credit.genOAuth(provider)
+        const url = await credit.genOAuth("steam")
         await dm.send(`${dm.mention(user)} ${url}`)
         credit.watchLogin()
-        awaitEvent(credit.onLogin, 60000, async (token) => {
-            const client = new MindaClient(token)
-            await client.login()
-            await this.userDB.set(uid, "mindaId", client.me.id)
-            await dm.send(`${channel.mention(user)} 로그인 완료 (ID:${client.me.id})`)
-            this.authQueue.delete(user.getUID())
+        subscribe(credit.onLogin, 60000).then(async (token) => {
+            const client = new MindaClient(token);
+            await client.login();
+            await this.userDB.set(uid, "mindaId", client.me.id);
+            await dm.send(`${channel.mention(user)} 로그인 완료 (ID:${client.me.id})`);
+            this.authQueue.delete(user.getUID());
         }).catch(async () => {
             await dm.send(`인증 시간이 초과됐습니다.`)
             this.authQueue.delete(user.getUID())
@@ -429,7 +391,7 @@ export default class MindaExec {
         await dm.send("로그인을 해주세요.\n" + await token.genOAuth("discord"))
         token.watchLogin()
         try {
-            client = new MindaClient(await awaitEvent(token.onLogin, 60000, (t) => t, false))
+            client = new MindaClient(await subscribe(token.onLogin, 1000))
             const modifyU = await client.setProfile(user.nickname, user.profileImage)
             return `별명: ${modifyU.username}\n사진: ${modifyU.picture}`
         } catch (err) {
@@ -438,34 +400,6 @@ export default class MindaExec {
         }
         return null
     }
-    protected async cmdPreview(context:SnowContext<BotConfig>, searchU?:SnowUser) {
-        const { channel, message } = context
-        const user = searchU == null ? message.author : searchU
-        const mdUser = await this.getMindaUser(user)
-        if (mdUser != null) {
-            const profile = await this.client.getProfile(mdUser)
-            const boardImage = await renderBoard(new MSGrid(defaultBoard), {
-                black: profile.skin == null ? null : profile.skin.black_picture,
-                white: profile.skin == null ? null : profile.skin.white_picture,
-            }, {
-                black: {
-                    username: mdUser.username,
-                    stone: 6,
-                    image: profile.picture_image,
-                },
-                white: {
-                    username: mdUser.username,
-                    stone: 6,
-                    image: profile.picture_image,
-                },
-                maxstone: 6,
-            })
-            await channel.send(null, boardImage)
-            return null
-        } else {
-            return "유저를 찾을 수 없습니다."
-        }
-    }
     protected async cmdSkin(context:SnowContext<BotConfig>, searchU:SnowUser) {
         const { channel, message } = context
         const user = searchU == null ? message.author : searchU
@@ -473,9 +407,9 @@ export default class MindaExec {
             uid: user.id,
             platform: user.platform,
         }
-        const getID = await this.userDB.get(uid, "mindaId")
-        if (getID >= 0) {
-            const skin = await this.client.getSkinOfUser(2)
+        const id = await this.userDB.get(uid, "mindaId")
+        if (id >= 0) {
+            const skin = await this.client.getSkinOfUser(id)
             cLog.v("SkinID", skin.id)
             if (skin != null && skin.id != null && skin.id >= 0) {
                 await context.channel.send("검은 돌", skin.black_picture)

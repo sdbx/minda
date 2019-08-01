@@ -6,6 +6,7 @@ export * from "./minda/structure/msgrid"
 export * from "./minda/structure/mslosecause"
 export * from "./minda/structure/msperm"
 export * from "./minda/structure/msuser"
+export * from "./minda/structure/msrecstat"
 
 export * from "./minda/mdadmin"
 export * from "./minda/mdclient"

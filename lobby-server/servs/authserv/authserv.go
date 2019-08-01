@@ -57,8 +57,8 @@ func (a *AuthServ) Init() error {
 		if err != nil {
 			return err
 		}
-		utils.Log.Info("Admin token", zap.String("token", a.CreateToken(user.ID)))
 	}
+	utils.Log.Info("Admin token", zap.String("token", a.CreateToken(1)))
 	return nil
 }
 

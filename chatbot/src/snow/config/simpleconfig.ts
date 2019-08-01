@@ -1,6 +1,7 @@
 import { cLog } from "chocolog"
 import fs from "fs-extra"
 import hash from "hash.js"
+import "sqlite3"
 import path from "path"
 import {
     Connection, ConnectionOptions, createConnection,

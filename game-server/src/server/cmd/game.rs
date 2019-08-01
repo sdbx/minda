@@ -55,9 +55,9 @@ pub fn game_gg(server: &mut Server, conn: &Connection) -> Result<(), Error> {
             return Err(Error::Permission)
         }
         if game.black == conn.user_id {
-            Player::White
-        } else {
             Player::Black
+        } else {
+            Player::White
         }
     };
     print_err(server.complete_game(conn.room_id.as_ref().unwrap(), loser, &EndedCause::Gg));

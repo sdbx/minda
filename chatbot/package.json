@@ -11,6 +11,7 @@
   "scripts": {
     "describe": "npm-scripts-info",
     "build": "run-s clean && run-p build:*",
+    "start": "node build/main/index.js",
     "build:main": "tsc -p tsconfig.json",
     "fix": "run-s fix:*",
     "fix:prettier": "prettier \"src/**/*.ts\" --write",
@@ -43,7 +44,6 @@
     "@types/msgpack5": "^3.4.1",
     "@types/node-fetch": "^2.1.6",
     "@types/sharp": "^0.21.3",
-    "canvas": "^2.3.1",
     "chocolog": "git+https://gitlab.com/craftingmod/chocolog.git",
     "clone-deep": "^4.0.1",
     "debug": "^4.1.1",
