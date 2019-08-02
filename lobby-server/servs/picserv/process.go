@@ -74,7 +74,7 @@ func (p *PicServ) CreateSkin(src image.Image, c color.Color) image.Image {
 	dst := image.NewRGBA(image.Rect(0, 0, size, size))
 	draw.DrawMask(dst, dst.Bounds(), &image.Uniform{c}, image.ZP, &circle{image.Point{size / 2, size / 2}, size/2 - 1}, image.ZP, draw.Over)
 	r := int(float64(size/2) * (1 - skinBorder))
-	draw.DrawMask(dst, dst.Bounds(), src, image.Point{width/2 - r, height/2 - r}, &circle{image.Point{size / 2, size / 2}, r}, image.ZP, draw.Over)
+	draw.DrawMask(dst, dst.Bounds(), src, image.ZP, &circle{image.Point{size / 2, size / 2}, r}, image.ZP, draw.Over)
 	return imaging.Resize(antialias(dst), skinSize, skinSize, imaging.Lanczos)
 }
 

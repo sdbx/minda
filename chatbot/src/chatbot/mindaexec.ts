@@ -412,7 +412,7 @@ export default class MindaExec {
     }
     protected async help(context:SnowContext<BotConfig>) {
         await context.channel.send(this.commands.map(command => (
-            `- ${command.name} ${command.paramNames.join(' ')}\n    ${command.description}`
+            `- ${command.name} ${command.paramNames.map(s => '['+s+']').join(' ')}\n    ${command.description}`
         )).join('\n'))
     }
     private async getMindaUser(user:SnowUser) {
