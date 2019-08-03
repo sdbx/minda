@@ -171,13 +171,14 @@ func (m *MatchServ) createRoom(black int, white int) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	log.Println(servers)
 	id, err := m.Disc.CreateRoomID()
 	if err != nil {
 		return "", err
 	}
 	conf := models.RoomConf{
 		Name:  "Rank room",
-		Open:  false,
+		Open:  true,
 		White: -1,
 		Black: -1,
 		King:  -1,
@@ -219,7 +220,7 @@ func (m *MatchServ) update() {
 		}
 	}
 	reqs = reqs2
-	for i := 0; i < len(reqs); i += 2 {
+	for i := 0; i < len(reqs)-1; i += 2 {
 		black := reqs[i].UserID
 		white := reqs[i+1].UserID
 		id, err := m.createRoom(black, white)

@@ -180,6 +180,12 @@ impl Server {
                 None => return Err(Error::Internal)
             };
             room.game = None;
+            if room.rank.is_some() {
+                let rank = room.rank.as_mut().unwrap();
+                rank.black = UserId::empty;
+                rank.white = UserId::empty;
+                rank.time = 10*1000;
+            }
             (game, room.rank.is_some())
         };
 
@@ -216,9 +222,6 @@ impl Server {
             }
         };
         self.broadcast(&room_id, &event);
-        if is_rank {
-            self.destroy_room(&room_id);
-        }
         Ok(())
     }
 
@@ -272,21 +275,22 @@ impl Server {
                 let mut completes: Vec<(String, Player, EndedCause)> = Vec::new();
                 let mut closes: Vec<String> = Vec::new();
                 for (_, room) in self.rooms.iter_mut() {
-                    if room.rank.is_some() {
-                        if room.game.is_none() {
-                            // TODO use just isize
-                            let rank = {
-                                let rank = room.rank.as_mut().unwrap();
-                                if rank.time <= 0 { 
-                                    closes.push(room.id.clone());
-                                } else {
-                                    rank.time -= (dt as isize);
-                                }
-                                rank.clone()
-                            };
+                    if room.rank.is_some() && room.game.is_none() {
+                        // TODO use just isize
+                        let rank = {
+                            let rank = room.rank.as_mut().unwrap();
+                            if rank.time <= 0 { 
+                                closes.push(room.id.clone());
+                            } else {
+                                rank.time -= (dt as isize);
+                            }
+                            rank.clone()
+                        };
 
-                            if room.exists_user(rank.black) && room.exists_user(rank.white) {
-                                print_err(room.start())
+                        if room.exists_user(rank.black) && room.exists_user(rank.white) {
+                            print_err(room.start());
+                            if let Some(ref game) = room.game {
+                                events.push((room.id.clone(), Event::game_to_started(game)));
                             }
                         }
                     }
