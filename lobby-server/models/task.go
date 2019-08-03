@@ -90,9 +90,10 @@ func (r TaskRequest) MarshalJSON() ([]byte, error) {
 }
 
 type CreateRoomTask struct {
-	RoomID string   `json:"room_id"`
-	Conf   RoomConf `json:"conf"`
-	UserID int      `json:"user_id"`
+	RoomID string    `json:"room_id"`
+	Conf   RoomConf  `json:"conf"`
+	UserID int       `json:"user_id"`
+	Rank   *RoomRank `json:"rank"`
 }
 
 func (CreateRoomTask) Out() interface{} {

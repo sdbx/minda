@@ -18,9 +18,8 @@ pub fn start(server: &mut Server, conn: &Connection) -> Result<(), Error> {
         if !room.game.is_none() {
             return Err(Error::GameStarted)
         }
-        let game = Game::new(room.conf.black, room.conf.white, &room.conf.map, room.conf.game_rule.clone())?;
-        let event = Event::game_to_started(&game);
-        room.game = Some(game);
+        room.start()?;
+        let event = Event::game_to_started(room.game.as_ref().unwrap());
         (room.id.clone(), event)
     };
     server.broadcast(&room_id, &event);
@@ -33,24 +32,7 @@ pub fn conf(server: &mut Server, conn: &Connection, conf: &RoomConf) -> Result<(
         if room.conf.king != conn.user_id {
             return Err(Error::Permission)
         }
-        if 
-            //ensure that the users in the conf exist
-            (!room.exists_user(conf.black) && conf.black != UserId::empty) || 
-            (!room.exists_user(conf.white) && conf.white != UserId::empty) || 
-            !room.exists_user(conf.king) ||
-            //prohibit a same player playing in both colors
-            (conf.black == conf.white && conf.black != UserId::empty) ||
-            //prohibit changing color of player while ingame
-            ((room.conf.black != conf.black || room.conf.white != conf.white) && !room.game.is_none()) {
-            return Err(Error::InvalidParm)
-        }
-        let board = Board::from_string(&conf.map)?;
-        //TODO make this configurable
-        if board.side() != 5 || !conf.game_rule.verify(&board) {
-            return Err(Error::InvalidParm)
-        }
-
-        room.conf = conf.clone();
+        room.set_conf(&conf)?;
         room.id.clone()
     };
     server.broadcast(&room, &Confed{

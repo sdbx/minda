@@ -21,5 +21,6 @@ func Register(d *dim.Group) {
 	d.Route("/admin", &admin{})
 	d.Route("/maps", &mapr{})
 	d.Route("/skins", &skin{})
+	d.Route("/match", &match{})
 	d.Route("/histories", &history{})
 }

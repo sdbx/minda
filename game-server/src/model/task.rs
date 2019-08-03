@@ -1,7 +1,7 @@
 use game::Move;
 use model::EndedCause;
 use model::GameRule;
-use super::{RoomConf, UserId};
+use super::{RoomConf, RoomRank, UserId};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct TaskRequest {
@@ -13,7 +13,7 @@ pub struct TaskRequest {
 #[serde(tag = "kind")]
 pub enum Task {
     #[serde(rename = "create-room")]
-    CreateRoom { room_id: String, conf: RoomConf, user_id: UserId },
+    CreateRoom { room_id: String, conf: RoomConf, user_id: UserId, rank: Option<RoomRank> },
     #[serde(rename = "join-room")]
     JoinRoom { room_id: String, user_id: UserId },
     #[serde(rename = "kick-user")]
@@ -21,7 +21,7 @@ pub enum Task {
     #[serde(rename = "delete-room")]
     DeleteRoom { room_id: String },
     #[serde(rename = "complete-game")]
-    CompleteGame { black: UserId, white: UserId, loser: String, cause: EndedCause, map: String, game_rule: GameRule, moves: Vec<Move>},
+    CompleteGame { black: UserId, rank: bool, white: UserId, loser: String, cause: EndedCause, map: String, game_rule: GameRule, moves: Vec<Move>},
 }
 
 #[derive(Serialize, Deserialize, Debug)]

@@ -14,7 +14,7 @@ import (
 
 const (
 	steamURL       = "https://api.steampowered.com"
-	iSteamMicroTxn = "ISteamMicroTxnSandbox"
+	iSteamMicroTxn = "ISteamMicroTxn"
 )
 const (
 	methodGET  = "GET"

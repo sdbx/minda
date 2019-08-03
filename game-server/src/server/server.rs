@@ -142,6 +142,19 @@ impl Server {
         }
     }
 
+    pub fn destroy_room(&mut self, room_id: &str) {
+        let users = {
+            if let Some(room) = self.rooms.get(room_id) {
+                room.users.clone()
+            } else {
+                HashMap::new()
+            }
+        };
+        for (_, user) in users.iter() {
+            self.kick(user.conn_id);
+        }
+    }
+
     pub fn broadcast(&mut self, room_id: &str, event: &Event) {
         let conn_ids = {
             let room = self.rooms.get(room_id).unwrap();
@@ -157,7 +170,7 @@ impl Server {
     }
 
     pub fn complete_game(&mut self, room_id: &str, loser: Player, cause: &EndedCause) -> Result<(), Error> {
-        let game = {
+        let (game, is_rank) = {
             let room = match self.rooms.get_mut(room_id) {
                 Some(x) => x,
                 None => return Err(Error::Internal)
@@ -167,7 +180,7 @@ impl Server {
                 None => return Err(Error::Internal)
             };
             room.game = None;
-            game
+            (game, room.rank.is_some())
         };
 
         let event = {
@@ -179,6 +192,7 @@ impl Server {
             let task = Task::CompleteGame {
                 black: game.black,
                 white: game.white,
+                rank: is_rank,
                 loser: loser.to_string(),
                 cause: cause.clone(),
                 map: game.map,
@@ -202,6 +216,9 @@ impl Server {
             }
         };
         self.broadcast(&room_id, &event);
+        if is_rank {
+            self.destroy_room(&room_id);
+        }
         Ok(())
     }
 
@@ -253,7 +270,26 @@ impl Server {
             ServerEvent::TimeUpdated { dt }=> {
                 let mut events: Vec<(String, Event)> = Vec::new();
                 let mut completes: Vec<(String, Player, EndedCause)> = Vec::new();
+                let mut closes: Vec<String> = Vec::new();
                 for (_, room) in self.rooms.iter_mut() {
+                    if room.rank.is_some() {
+                        if room.game.is_none() {
+                            // TODO use just isize
+                            let rank = {
+                                let rank = room.rank.as_mut().unwrap();
+                                if rank.time <= 0 { 
+                                    closes.push(room.id.clone());
+                                } else {
+                                    rank.time -= (dt as isize);
+                                }
+                                rank.clone()
+                            };
+
+                            if room.exists_user(rank.black) && room.exists_user(rank.white) {
+                                print_err(room.start())
+                            }
+                        }
+                    }
                     if let Some(game) = room.game.as_mut() {
                         game.time_update(dt);
                         if let Some((loser, cause)) = game.get_lose() {
@@ -266,6 +302,9 @@ impl Server {
                 }
                 for (room_id, loser, cause) in completes.iter() {
                     print_err(self.complete_game(&room_id, *loser, &cause));
+                }
+                for room_id in closes.iter() {
+                    self.destroy_room(room_id);
                 }
             },
             ServerEvent::TaskRequest { task_request } => {
@@ -288,7 +327,7 @@ impl Server {
             },
             ServerEvent::Close { conn_id } => {
                 info!("client({}) disconnected", conn_id);
-                let (room_id, user_id, user_len, conf) = {
+                let (room_id, user_id, user_len, conf, is_rank) = {
                     let conn = self.conns.get(&conn_id)?;
                     let room_id = conn.room_id.as_ref()?;
                     let user_id = conn.user_id;
@@ -313,10 +352,10 @@ impl Server {
                         }
                     }
 
-                    (room_id.clone(), user_id, user_len, if old != room.conf { Some(room.conf.clone()) } else { None })
+                    (room_id.clone(), user_id, user_len, if old != room.conf { Some(room.conf.clone()) } else { None }, room.rank.is_some())
                 };
 
-                if user_len == 0 {
+                if user_len == 0 && !is_rank {
                     //delete empty room
                     self.delete_room(&room_id)
                 } else {

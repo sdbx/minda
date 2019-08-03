@@ -9,8 +9,8 @@ mod join_room;
 
 pub fn handle(server: &mut Server, task: Task) -> Result<String, Error> {
     match task {
-        Task::CreateRoom { room_id, user_id, conf } => {
-            create_room::handle(server, &room_id, user_id, &conf)
+        Task::CreateRoom { room_id, user_id, conf, rank } => {
+            create_room::handle(server, &room_id, user_id, &conf, rank.as_ref())
         },
         Task::JoinRoom { user_id, room_id } => {
             join_room::handle(server, user_id, &room_id)

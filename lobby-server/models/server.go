@@ -13,9 +13,16 @@ type Room struct {
 	ID        string    `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
 	Conf      RoomConf  `json:"conf"`
+	Rank      *RoomRank `json:"rank"`
 	Users     []int     `json:"users"`
 	Ingame    bool      `json:"ingame"`
 	Server    string    `json:"-"`
+}
+
+type RoomRank struct {
+	Black int `json:"black"`
+	White int `json:"white"`
+	Time  int `json:"time"`
 }
 
 type RoomConf struct {
