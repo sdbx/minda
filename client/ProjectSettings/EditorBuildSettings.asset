@@ -20,4 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Menu.unity
     guid: 6d82c7dfd6e07d34cbb39badc48839fe
+  - enabled: 1
+    path: Assets/Scenes/Matching.unity
+    guid: 41afb5298702eb848a48a9635a90b5d2
   m_configObjects: {}

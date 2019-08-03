@@ -22,6 +22,10 @@ namespace Models
         [JsonProperty("pic_id")]
         public int id;
     }
+    public struct Matched
+    {
+        public string roomId;
+    }
     public struct EmptyResult
     {
 

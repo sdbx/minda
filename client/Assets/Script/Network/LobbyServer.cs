@@ -46,8 +46,8 @@ namespace Network
 
         private void Awake()
         {
-            address = SettingManager.GetSetting("ServerAddress");
-            token = SettingManager.GetSetting("Token");
+           // address = SettingManager.GetSetting("ServerAddress");
+            //token = SettingManager.GetSetting("Token");
             //singleton
             if (instance == null)
             {

@@ -49,6 +49,8 @@ namespace Network
 
         private Conf prevConf;
 
+        private bool  isGameEnded = false;
+
         private void Awake()
         {
             //singleton
@@ -288,7 +290,7 @@ namespace Network
             var gameEnded = (EndedEvent)e;
             isInGame = false;
             endedEvent?.Invoke(gameEnded);
-            
+            isGameEnded = true;
         }
         
         public void OnError(Event e)
@@ -411,6 +413,8 @@ namespace Network
         private void OnSocketClose()
         {
             ClearAll();
+            if(isGameEnded&&connectedRoom.roomRank!=null)
+                return;
             SceneManager.LoadSceneAsync("Menu",LoadSceneMode.Single);
         }
         public void Surrender()

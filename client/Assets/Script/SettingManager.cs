@@ -22,6 +22,7 @@ public class SettingManager : MonoBehaviour
 
     public void LoadSettings()
     {
+        //버전 체크 필요
         var path = Path.Combine(Application.persistentDataPath, "setting.txt");
 
         try
