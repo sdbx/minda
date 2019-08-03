@@ -46,6 +46,8 @@ namespace Network
 
         private void Awake()
         {
+            address = SettingManager.GetSetting("ServerAddress");
+            token = SettingManager.GetSetting("Token");
             //singleton
             if (instance == null)
             {
@@ -63,7 +65,7 @@ namespace Network
 
         void Start()
         {
-            if (token != "")
+            if (token != ""&&token!="null")
             {
                 SceneManager.LoadSceneAsync("Menu", LoadSceneMode.Single);
                 loginState = LoginState.Login;

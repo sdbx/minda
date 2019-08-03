@@ -17,11 +17,15 @@ public class LanguageManager : MonoBehaviour
         if(File.Exists(Path.Combine(Application.persistentDataPath, "language.txt")))
         {
             language = File.ReadAllText(Path.Combine(Application.persistentDataPath, "language.txt"));
-        } else {
-            var tempAsset = Resources.Load(language) as TextAsset;
-            var content = tempAsset.text;
+        }
+        else
+        {
             File.WriteAllText(Path.Combine(Application.persistentDataPath, "language.txt"), language);
-            File.WriteAllText(Path.Combine(Application.persistentDataPath, language), content);
+        }
+        if(language == "en-US")
+        {
+            var tempAsset = Resources.Load("en-US") as TextAsset;
+            File.WriteAllText(Path.Combine(Application.persistentDataPath, language), tempAsset.text);
         }
         LoadPack(language);
     }
