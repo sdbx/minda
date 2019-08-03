@@ -24,7 +24,7 @@ namespace Models
     }
     public struct Matched
     {
-        public string roomId;
+        public string room_id;
     }
     public struct EmptyResult
     {

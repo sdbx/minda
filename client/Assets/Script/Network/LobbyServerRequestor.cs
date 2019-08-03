@@ -100,6 +100,22 @@ namespace Network
             callBack(www.downloadHandler.data, errorCode);
         }
 
+        public IEnumerator DELETE(string endPoint, string token, Action<int?> callBack)
+        {
+            UnityWebRequest www = UnityWebRequest.Delete(Addr + endPoint);
+            www.method = UnityWebRequest.kHttpVerbPUT;
+            if (token != "")
+                www.SetRequestHeader("Authorization", token);
+
+            yield return www.SendWebRequest();
+            int? errorCode = null;
+            if (www.isHttpError)
+            {
+                errorCode = (int)www.responseCode;
+            }
+            callBack(errorCode);
+        }
+
         public IEnumerator Get<T>(string endPoint, string token, Action<T, int?> callBack)
         {
 

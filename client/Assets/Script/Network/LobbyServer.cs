@@ -196,6 +196,10 @@ namespace Network
         {
             StartCoroutine(requestor.Put(endPoint, formData, token, callBack));
         }
+        public void DELETE(string endPoint, Action<int?> callBack)
+        {
+            StartCoroutine(requestor.DELETE(endPoint, token, callBack));
+        }
 
         //loginImfomation
         public void RefreshLoginUser(Action<User> callback = null)

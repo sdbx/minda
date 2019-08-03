@@ -9,6 +9,7 @@ public class MatchingSystem : MonoBehaviour
 {
     private void Awake() 
     {
+        cancelBtn.onClick.AddListener(OnCancelBtnClicked);
         StartCoroutine(MatchTimer(0));
     }
     [SerializeField]
@@ -27,11 +28,18 @@ public class MatchingSystem : MonoBehaviour
             {
                 if (err == 404)
                     return;
-                ToastManager.instance.Add(err + " Error!", "error");
+                ToastManager.instance.Add(err + " Error!", "Error");
             }
             State.text = "FOUND GAME";
-            LobbyServer.instance.EnterRoom(Matched.roomId, (success) => { });
+            LobbyServer.instance.EnterRoom(Matched.room_id, (success) => { });
         });
         StartCoroutine(MatchTimer(timeTaken+1));
+    }
+    private void OnCancelBtnClicked()
+    {
+        State.text="CANCELING";
+        LobbyServer.instance.DELETE("/match/", (err) =>{
+            Scene.SceneChanger.instance.ChangeTo("Menu");
+        });
     }
 }
