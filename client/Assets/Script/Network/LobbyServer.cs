@@ -65,7 +65,7 @@ namespace Network
 
         void Start()
         {
-            if (token != "")
+            if (token != ""&&token!="null")
             {
                 SceneManager.LoadSceneAsync("Menu", LoadSceneMode.Single);
                 loginState = LoginState.Login;
