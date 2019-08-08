@@ -159,8 +159,6 @@ namespace Network
 
         public IEnumerator PostImage(string endPoint, byte[] data, string token, Action<Pic, int?> callBack)
         {
-            // WWWForm postForm = new WWWForm();
-            // postForm.AddBinaryData(data);
             using (UnityWebRequest www = UnityWebRequest.Put(Addr + endPoint, data))
             {
                 www.method = UnityWebRequest.kHttpVerbPOST;

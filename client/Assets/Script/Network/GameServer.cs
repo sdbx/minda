@@ -159,7 +159,7 @@ namespace Network
         public void GetInGameUser(int id, Action<InGameUser> callback)
         {
             if(!connectedRoom.Users.Contains(id))
-                return;
+              return;
 
             if(!users.ContainsKey(id))
             {
@@ -413,7 +413,7 @@ namespace Network
         private void OnSocketClose()
         {
             ClearAll();
-            if(isGameEnded&&connectedRoom.roomRank!=null)
+            if(isGameEnded&&connectedRoom!=null&&connectedRoom.rank!=null)
                 return;
             SceneManager.LoadSceneAsync("Menu",LoadSceneMode.Single);
         }

@@ -13,6 +13,6 @@ public class CustomModeBtn : MonoBehaviour
 
     private void MoveToRoomList()
     {
-        SceneChanger.instance.ChangeTo("Matching");
+        SceneChanger.instance.ChangeTo("RoomList");
     }
 }

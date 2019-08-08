@@ -42,6 +42,7 @@ namespace UI
             defeatLostMarble.ValueChanged += DefeatLostMarbleValueChanged;
             turnTimeout.ValueChanged += TurnTimeoutValueChanged;
             gameTimeout.ValueChanged += GameTimeoutValueChanged;
+            Debug.Log("이벤트 등록완료");
         }
         
         private void RoomConnected(Room room)
