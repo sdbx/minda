@@ -127,6 +127,7 @@ namespace Network
         {
             ClearHandles();
             asyncCallbackClient.Close();
+            SteamManager.instance.UnActivateInvite();
         }
 
         public void ClearHandles()

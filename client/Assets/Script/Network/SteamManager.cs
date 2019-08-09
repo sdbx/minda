@@ -62,6 +62,12 @@ public class SteamManager : MonoBehaviour {
         OnLobbyCreatedCallResult.Set(handle);
     }
 
+    public void UnActivateInvite()
+    {
+        SteamMatchmaking.LeaveLobby(m_Lobby);
+            m_Lobby = CSteamID.Nil;
+    }
+
     private void JoinLobby(CSteamID lobbyId)
     {
         Debug.Log("조인로비");
