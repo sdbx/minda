@@ -127,7 +127,6 @@ namespace Network
         {
             ClearHandles();
             asyncCallbackClient.Close();
-            SteamManager.instance.UnActivateInvite();
         }
 
         public void ClearHandles()
@@ -437,6 +436,7 @@ namespace Network
             profileImages.Clear();
 
             gamePlaying = null;
+            SteamManager.instance.UnActivateInvite();
         }
 
         public bool CheckConfChanged()
