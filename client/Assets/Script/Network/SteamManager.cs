@@ -31,18 +31,25 @@ public class SteamManager : MonoBehaviour {
 
     private CallResult<LobbyCreated_t> OnLobbyCreatedCallResult;
     private CallResult<LobbyEnter_t> OnLobbyEnterCallResult;
+    private CallResult<LobbyInvite_t> OnLobbyInviteCallResult;
 
     void OnLobbyCreated(LobbyCreated_t pCallback, bool bIOFailure)
     {
+        m_Lobby = (CSteamID)pCallback.m_ulSteamIDLobby;
         SteamMatchmaking.SetLobbyData(m_Lobby, "roomid", currentGameRoomID);
         Debug.Log("[" + LobbyCreated_t.k_iCallback + " - LobbyCreated] - " + pCallback.m_eResult + " -- " + pCallback.m_ulSteamIDLobby);
-
-        m_Lobby = (CSteamID)pCallback.m_ulSteamIDLobby;
     }
 
     private void OnLobbyEnter(LobbyEnter_t pCallback, bool bIOFailure)
     {
-        LobbyServer.instance.EnterRoom(SteamMatchmaking.GetLobbyData(m_Lobby, "name"),(t)=>{});
+        m_Lobby = new CSteamID(pCallback.m_ulSteamIDLobby);
+        LobbyServer.instance.inviteCode = SteamMatchmaking.GetLobbyData(m_Lobby, "roomid");
+        Debug.Log("로비엔터 code: "+LobbyServer.instance.inviteCode); 
+    }
+
+    private void OnLobbyInvite(LobbyInvite_t pCallback, bool bIOFailure)
+    {
+        JoinLobby(new CSteamID(pCallback.m_ulSteamIDLobby));
     }
 
     public void ActivateInvite(string roomID)
@@ -54,6 +61,7 @@ public class SteamManager : MonoBehaviour {
 
     private void JoinLobby(CSteamID lobbyId)
     {
+        Debug.Log("조인로비");
         SteamAPICall_t handle = SteamMatchmaking.JoinLobby(lobbyId);
         OnLobbyEnterCallResult.Set(handle);
     }
@@ -64,6 +72,7 @@ public class SteamManager : MonoBehaviour {
 
         OnLobbyCreatedCallResult = CallResult<LobbyCreated_t>.Create(OnLobbyCreated);
         OnLobbyEnterCallResult = CallResult<LobbyEnter_t>.Create(OnLobbyEnter);
+        OnLobbyInviteCallResult = CallResult<LobbyInvite_t>.Create(OnLobbyInvite);
 
         string[] args = System.Environment.GetCommandLineArgs();
         string input = "";
@@ -72,6 +81,7 @@ public class SteamManager : MonoBehaviour {
             if (args[i] == "+connect_lobby" && args.Length > i + 1)
             {
                 input = args[i + 1];
+                Debug.Log(input+" 후에에엥");
             }
         }
  
@@ -82,6 +92,7 @@ public class SteamManager : MonoBehaviour {
  
             if (ulong.TryParse(input, out lobbyId))
             {
+                Debug.Log("조인로비 시작");
                 JoinLobby(new CSteamID(lobbyId));
             }
  
