@@ -37,14 +37,17 @@ public class SteamManager : MonoBehaviour {
     {
         m_Lobby = (CSteamID)pCallback.m_ulSteamIDLobby;
         SteamMatchmaking.SetLobbyData(m_Lobby, "roomid", currentGameRoomID);
+        Debug.Log(SteamMatchmaking.GetLobbyData(m_Lobby, "roomid")+"과"+m_Lobby+"를 얻엇다");
         Debug.Log("[" + LobbyCreated_t.k_iCallback + " - LobbyCreated] - " + pCallback.m_eResult + " -- " + pCallback.m_ulSteamIDLobby);
     }
 
     private void OnLobbyEnter(LobbyEnter_t pCallback, bool bIOFailure)
     {
         m_Lobby = new CSteamID(pCallback.m_ulSteamIDLobby);
-        LobbyServer.instance.inviteCode = SteamMatchmaking.GetLobbyData(m_Lobby, "roomid");
-        Debug.Log("로비엔터 code: "+LobbyServer.instance.inviteCode); 
+        Debug.Log("로비 아이디 "+m_Lobby+"를 얻엇다");
+        Debug.Log("로비엔터 code: "+SteamMatchmaking.GetLobbyData(m_Lobby, "roomid"));
+        LobbyServer.instance.JoinInvitedRoom(SteamMatchmaking.GetLobbyData(m_Lobby, "roomid"));
+ 
     }
 
     private void OnLobbyInvite(LobbyInvite_t pCallback, bool bIOFailure)
@@ -54,9 +57,9 @@ public class SteamManager : MonoBehaviour {
 
     public void ActivateInvite(string roomID)
     {
-        SteamAPICall_t handle = SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypePublic, 1);
-        OnLobbyCreatedCallResult.Set(handle);
         currentGameRoomID = roomID;
+        SteamAPICall_t handle = SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypePublic, 53);
+        OnLobbyCreatedCallResult.Set(handle);
     }
 
     private void JoinLobby(CSteamID lobbyId)

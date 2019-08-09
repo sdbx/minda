@@ -42,7 +42,19 @@ namespace Network
 
         private Dictionary<int,LoadedSkin> skins = new Dictionary<int, LoadedSkin>();
   
-        public string inviteCode = "";
+        private string inviteCode = "";
+
+        public void JoinInvitedRoom(string roomid)
+        {
+            if(loginState == LoginState.Login)
+            {
+                EnterRoom(roomid, (b) => { });
+            }
+            else
+            {
+                inviteCode = roomid;
+            }
+        }
 
         private void Awake()
         {
