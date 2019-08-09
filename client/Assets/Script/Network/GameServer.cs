@@ -216,6 +216,7 @@ namespace Network
             if(entered.user == me.id&&RoomUtils.GetBallType(me.id)==BallType.None)
             {
                 isSpectator = (emptyBallType == BallType.None);
+                SteamManager.instance.ActivateInvite(connectedRoom.id);
             }
 
             if (emptyBallType != BallType.None && conf.king == me.id)

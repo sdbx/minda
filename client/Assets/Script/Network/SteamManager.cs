@@ -11,7 +11,7 @@ using Utils;
 using System;
 using System.Collections.Generic;
 
-class SteamManager : MonoBehaviour {
+public class SteamManager : MonoBehaviour {
     #if !DISABLESTEAMWORKS
     public static bool isSteamVersion = true;
     #endif
@@ -22,21 +22,80 @@ class SteamManager : MonoBehaviour {
     public static SteamManager instance;
     private bool initialized = false;
 
+    private CSteamID m_Lobby;
+    private string currentGameRoomID;
     private SteamAPIWarningMessageHook_t m_SteamAPIWarningMessageHook;
 	private static void SteamAPIDebugTextHook(int nSeverity, System.Text.StringBuilder pchDebugText) {
 		Debug.LogWarning(pchDebugText);
 	}
 
-    private void OnEnable() {
-		if (!initialized) { return; }
+    private CallResult<LobbyCreated_t> OnLobbyCreatedCallResult;
+    private CallResult<LobbyEnter_t> OnLobbyEnterCallResult;
 
-		if (m_SteamAPIWarningMessageHook == null) {
-			// Set up our callback to receive warning messages from Steam.
-			// You must launch with "-debug_steamapi" in the launch args to receive warnings.
-			m_SteamAPIWarningMessageHook = new SteamAPIWarningMessageHook_t(SteamAPIDebugTextHook);
-			SteamClient.SetWarningMessageHook(m_SteamAPIWarningMessageHook);
-		}
-	}
+    void OnLobbyCreated(LobbyCreated_t pCallback, bool bIOFailure)
+    {
+        SteamMatchmaking.SetLobbyData(m_Lobby, "roomid", currentGameRoomID);
+        Debug.Log("[" + LobbyCreated_t.k_iCallback + " - LobbyCreated] - " + pCallback.m_eResult + " -- " + pCallback.m_ulSteamIDLobby);
+
+        m_Lobby = (CSteamID)pCallback.m_ulSteamIDLobby;
+    }
+
+    private void OnLobbyEnter(LobbyEnter_t pCallback, bool bIOFailure)
+    {
+        LobbyServer.instance.EnterRoom(SteamMatchmaking.GetLobbyData(m_Lobby, "name"),(t)=>{});
+    }
+
+    public void ActivateInvite(string roomID)
+    {
+        SteamAPICall_t handle = SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypePublic, 1);
+        OnLobbyCreatedCallResult.Set(handle);
+        currentGameRoomID = roomID;
+    }
+
+    private void JoinLobby(CSteamID lobbyId)
+    {
+        SteamAPICall_t handle = SteamMatchmaking.JoinLobby(lobbyId);
+        OnLobbyEnterCallResult.Set(handle);
+    }
+
+    private void OnEnable()
+    {
+        if (!initialized) { return; }
+
+        OnLobbyCreatedCallResult = CallResult<LobbyCreated_t>.Create(OnLobbyCreated);
+        OnLobbyEnterCallResult = CallResult<LobbyEnter_t>.Create(OnLobbyEnter);
+
+        string[] args = System.Environment.GetCommandLineArgs();
+        string input = "";
+        for (int i = 0; i < args.Length; i++)
+        {
+            if (args[i] == "+connect_lobby" && args.Length > i + 1)
+            {
+                input = args[i + 1];
+            }
+        }
+ 
+        if (!string.IsNullOrEmpty(input))
+        {
+            // Invite accepted, launched game. Join friend's game
+            ulong lobbyId = 0;
+ 
+            if (ulong.TryParse(input, out lobbyId))
+            {
+                JoinLobby(new CSteamID(lobbyId));
+            }
+ 
+        }
+
+
+        if (m_SteamAPIWarningMessageHook == null)
+        {
+            // Set up our callback to receive warning messages from Steam.
+            // You must launch with "-debug_steamapi" in the launch args to receive warnings.
+            m_SteamAPIWarningMessageHook = new SteamAPIWarningMessageHook_t(SteamAPIDebugTextHook);
+            SteamClient.SetWarningMessageHook(m_SteamAPIWarningMessageHook);
+        }
+    }
 
     private void Awake()
     {
