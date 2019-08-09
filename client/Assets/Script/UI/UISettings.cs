@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace UI
@@ -6,12 +7,25 @@ namespace UI
     {
         public static UISettings instance;
 
-        public Color dark;
-        public Color white;
+        [Serializable]
+        public struct Colors
+        {
+            public Color transparent;
+            public Color shadowEnabled;
+        }
+
+        [Serializable]
+        public struct Durations
+        {
+            public float shadowShowDuration;
+        }
+
         public Texture basicBlackSkin;
         public Texture basicWhiteSkin;
         public Texture placeHolder;
 
+        public Colors colors;
+        public Durations durations;
 
         private void Awake()
         {
