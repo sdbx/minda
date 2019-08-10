@@ -1,0 +1,6 @@
+endpoint: s3:9000
+key: 36J9X8EZI4KEV1G7EHXA
+secret: ECk2uqOoNqvtJIMQ3WYugvmNPL_-zm3WcRqP5vUM
+region: ap-southeast-2
+bucket: minda
+external_name: localhost:9199

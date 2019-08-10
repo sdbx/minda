@@ -1,0 +1,7 @@
+minda:
+  dialect: postgres
+  database: postgres
+  user: postgres
+  password: postgres
+  host: db
+  pool: 5

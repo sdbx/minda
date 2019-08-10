@@ -23,16 +23,19 @@ type AuthServ struct {
 	Steam  *steamserv.SteamServ `dim:"on"`
 	DB     *dbserv.DBServ       `dim:"on"`
 	Pic    *picserv.PicServ     `dim:"on"`
+	debug  bool
 	secret []byte
 }
 
 type AuthServConf struct {
 	Secret string `yaml:"secret"`
+	Debug  bool   `yaml:"debug"`
 }
 
 func Provide(conf AuthServConf) *AuthServ {
 	return &AuthServ{
 		secret: []byte(conf.Secret),
+		debug:  conf.Debug,
 	}
 }
 
@@ -195,6 +198,20 @@ func (a *AuthServ) CreateToken(id int) string {
 }
 
 func (a *AuthServ) Authorize(token string) (models.User, error) {
+	if a.debug {
+		token2, err := a.AuthorizeByOAuth("test", goth.User{
+			UserID: token,
+			Name:   "tester " + token,
+		})
+		if err != nil {
+			return models.User{}, err
+		}
+		id, err := a.ParseToken(*token2.Token)
+		if err != nil {
+			return models.User{}, err
+		}
+		return a.GetUser(id)
+	}
 	id, err := a.ParseToken(token)
 	if err != nil {
 		return models.User{}, err

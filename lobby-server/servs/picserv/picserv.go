@@ -44,12 +44,14 @@ type PicServConf struct {
 	Secret   string `yaml:"secret"`
 	Region   string `yaml:"region"`
 	Bucket   string `yaml:"bucket"`
+	ExternalName string `yaml:"external_name"`
 }
 
 type PicServ struct {
 	Redis    *redisserv.RedisServ `dim:"on"`
 	bucket   string
 	endpoint string
+	external string
 	cli      *minio.Client
 }
 
@@ -74,6 +76,7 @@ func Provide(conf PicServConf) (*PicServ, error) {
 		cli:      cli,
 		endpoint: conf.Endpoint,
 		bucket:   conf.Bucket,
+		external: conf.ExternalName,
 	}, err
 }
 
@@ -106,7 +109,9 @@ func (p *PicServ) UploadImage(img image.Image) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
+	if p.external != "" {
+		return "http://" + p.external + "/" + p.bucket + "/" + key, nil
+	}
 	return "http://" + p.bucket + "." + p.endpoint + "/" + key, nil
 }
 

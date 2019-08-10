@@ -55,6 +55,8 @@ Assets/StreamingAssets/crashlytics-build.properties
 
 /chatbot/config/
 
+/configs
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
