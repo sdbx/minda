@@ -111,6 +111,7 @@ namespace Network
                     ToastManager.instance.Add(LanguageManager.GetText("hello",user.username), "Success");
                 });
                 Debug.Log("로그인 성공");
+                return;
             }
             if (SteamManager.isSteamVersion)
             {

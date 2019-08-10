@@ -57,6 +57,7 @@ public class SteamManager : MonoBehaviour {
 
     public void ActivateInvite(string roomID)
     {
+        if (!initialized) { return; }
         currentGameRoomID = roomID;
         SteamAPICall_t handle = SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypePublic, 53);
         OnLobbyCreatedCallResult.Set(handle);
@@ -64,12 +65,14 @@ public class SteamManager : MonoBehaviour {
 
     public void UnActivateInvite()
     {
+        if (!initialized) { return; }
         SteamMatchmaking.LeaveLobby(m_Lobby);
             m_Lobby = CSteamID.Nil;
     }
 
     private void JoinLobby(CSteamID lobbyId)
     {
+        if (!initialized) { return; }
         Debug.Log("조인로비");
         SteamAPICall_t handle = SteamMatchmaking.JoinLobby(lobbyId);
         OnLobbyEnterCallResult.Set(handle);
@@ -119,6 +122,7 @@ public class SteamManager : MonoBehaviour {
 
     private void Awake()
     {
+
         //singleton
         if (instance == null)
         {
@@ -130,6 +134,21 @@ public class SteamManager : MonoBehaviour {
         }
 
         DontDestroyOnLoad(gameObject);
+
+        string[] args = System.Environment.GetCommandLineArgs();
+
+        for (int i = 0; i < args.Length; i++)
+        {
+            if (args[i] == "token" && args.Length > i + 1)
+            {
+                if (args[i + 1] != "")
+                {
+                    return;
+                }
+            }
+        }
+
+        
 
         if (isSteamVersion)
         {
