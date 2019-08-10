@@ -73,18 +73,18 @@ pub fn connect(server: &mut Server, conn: &Connection, key: &str) -> Result<(), 
             }))
         }
     };
-
+    
     server.invites.remove(&invite.key);
     server.update_discover()?;
     server.dispatch(conn.conn_id, &Event::Connected{ room: room });
+    server.broadcast(&invite.room_id, &Event::Entered{
+        user: invite.user_id
+    });
     if let Some(event) = gameevent {
         server.dispatch(conn.conn_id, &event);
     }
     if let Some(event) = confevent {
         server.broadcast(&invite.room_id, &event);
     }
-    server.broadcast(&invite.room_id, &Event::Entered{
-        user: invite.user_id
-    });
     Ok(())
 }
