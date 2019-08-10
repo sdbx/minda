@@ -65,6 +65,31 @@ namespace Network
             {
                 instance = this;
             }
+
+            string[] args = System.Environment.GetCommandLineArgs();
+            string invite = "";
+            for (int i = 0; i < args.Length; i++)
+            {
+                if (args[i] == "invite" && args.Length > i + 1)
+                {
+                    invite = args[i + 1];
+                }
+                if (args[i] == "ip" && args.Length > i + 1)
+                {
+                    address = args[i + 1];
+                }
+                if (args[i] == "token" && args.Length > i + 1)
+                {
+                    token = args[i + 1];
+                }
+            }
+
+            if (!string.IsNullOrEmpty(invite))
+            {
+                inviteCode = invite;
+            }
+
+
             else if (instance != this)
             {
                 Destroy(gameObject);
@@ -128,21 +153,6 @@ namespace Network
             });
             Debug.Log("로그인 성공");
 
-
-            string[] args = System.Environment.GetCommandLineArgs();
-            string input = "";
-            for (int i = 0; i < args.Length; i++)
-            {
-                if (args[i] == "invite" && args.Length > i + 1)
-                {
-                    input = args[i + 1];
-                }
-            }
-
-            if (!string.IsNullOrEmpty(input))
-            {
-                inviteCode = input;
-            }
 
             if (inviteCode != "")
             {
