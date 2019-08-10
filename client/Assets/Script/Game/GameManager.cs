@@ -265,11 +265,13 @@ namespace Game
             {
                 Camera.main.transform.rotation = Quaternion.Euler(0, 0, 180);
                 ballManager.gameObject.transform.rotation = Quaternion.Euler(0, 0, 180);
+                Physics2D.gravity = new Vector3(0, 9.8f, 0);
             }
             else
             {
                 Camera.main.transform.rotation = Quaternion.Euler(0, 0, 0);
                 ballManager.gameObject.transform.rotation = Quaternion.Euler(0, 0, 0);
+                Physics2D.gravity = new Vector3(0, -9.8f, 0);
             }
         }
 

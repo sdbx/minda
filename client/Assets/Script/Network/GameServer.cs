@@ -159,7 +159,7 @@ namespace Network
         public void GetInGameUser(int id, Action<InGameUser> callback)
         {
             if(!connectedRoom.Users.Contains(id))
-                return;
+              return;
 
             if(!users.ContainsKey(id))
             {
@@ -216,6 +216,7 @@ namespace Network
             if(entered.user == me.id&&RoomUtils.GetBallType(me.id)==BallType.None)
             {
                 isSpectator = (emptyBallType == BallType.None);
+                SteamManager.instance.ActivateInvite(connectedRoom.id);
             }
 
             if (emptyBallType != BallType.None && conf.king == me.id)
@@ -413,7 +414,7 @@ namespace Network
         private void OnSocketClose()
         {
             ClearAll();
-            if(isGameEnded&&connectedRoom.roomRank!=null)
+            if(isGameEnded&&connectedRoom!=null&&connectedRoom.rank!=null)
                 return;
             SceneManager.LoadSceneAsync("Menu",LoadSceneMode.Single);
         }
@@ -435,6 +436,7 @@ namespace Network
             profileImages.Clear();
 
             gamePlaying = null;
+            SteamManager.instance.UnActivateInvite();
         }
 
         public bool CheckConfChanged()

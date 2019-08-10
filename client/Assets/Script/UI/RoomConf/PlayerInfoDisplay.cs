@@ -46,6 +46,7 @@ namespace UI
         {
             placeHolder = UISettings.instance.placeHolder;
             rectTransform = gameObject.GetComponent<RectTransform>();
+            Debug.Log("콘프드 이벤트 등록");
             GameServer.instance.ConfedEvent += OnConfed;
             GameServer.instance.RoomConnectedEvent+=OnConnected;
         }
@@ -70,11 +71,14 @@ namespace UI
         
         public void OnConfed(Conf conf)
         {
+            Debug.Log("콘프드발생해서 플레이어인포 설정");
             SetPlayerInfo(conf);
+            Debug.Log("콘프드 이벤트 발생끝");
         }
 
         public void Display(int id, BallType ballType = BallType.None)
         {
+            Debug.Log(id+"사진, 정보 시작");
             UserId = id;
             if(id == -1)
             {
@@ -83,18 +87,22 @@ namespace UI
                 kingIcon.SetActive(false);
                 inGameUser = null;
                 SetProfileImage(placeHolder);
-                return;
+                Debug.Log(id+"끝");
+                return;   
             }
 
             GameServer.instance.GetInGameUser(id, (InGameUser inGameUser)=>
             {
+                
                 this.inGameUser = inGameUser;
                 usernameText.text = inGameUser.user.username;
                 SetColor(inGameUser.ballType);
                 kingIcon.SetActive(inGameUser.isKing);
+                Debug.Log(id+"정보 등록 완료");
                 if(inGameUser.user.picture != null)
                 {
                     GameServer.instance.GetProfileTexture(id, SetProfileImage);
+                                Debug.Log(id+"사진 등록완료");
                 }
                 else SetProfileImage(placeHolder);
             });

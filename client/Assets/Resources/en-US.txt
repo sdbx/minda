@@ -1,6 +1,7 @@
 playgame:Play Game
 myskins:My Skins
 custommode:Room List
+rankmode:Rank Mode
 roomcode:Room Code
 myinfo:My Info
 map:MAP

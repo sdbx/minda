@@ -11,6 +11,6 @@ namespace Models
         public Conf conf;
         public List<int> Users;
         public bool ingame;
-        public RoomRank roomRank;
+        public RoomRank rank;
     }
 }

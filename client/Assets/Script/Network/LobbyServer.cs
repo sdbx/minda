@@ -41,8 +41,20 @@ namespace Network
         private Texture loginUserTexture = null;
 
         private Dictionary<int,LoadedSkin> skins = new Dictionary<int, LoadedSkin>();
+  
+        private string inviteCode = "";
 
-
+        public void JoinInvitedRoom(string roomid)
+        {
+            if(loginState == LoginState.Login)
+            {
+                EnterRoom(roomid, (b) => { });
+            }
+            else
+            {
+                inviteCode = roomid;
+            }
+        }
 
         private void Awake()
         {
@@ -115,6 +127,28 @@ namespace Network
                 ToastManager.instance.Add(LanguageManager.GetText("hello",user.username), "Success");
             });
             Debug.Log("로그인 성공");
+
+
+            string[] args = System.Environment.GetCommandLineArgs();
+            string input = "";
+            for (int i = 0; i < args.Length; i++)
+            {
+                if (args[i] == "invite" && args.Length > i + 1)
+                {
+                    input = args[i + 1];
+                }
+            }
+
+            if (!string.IsNullOrEmpty(input))
+            {
+                inviteCode = input;
+            }
+
+            if (inviteCode != "")
+            {
+                EnterRoom(inviteCode, (b) => { });
+            }
+
         }
 
         public void Login(string service)
