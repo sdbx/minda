@@ -1,0 +1,15 @@
+{
+  "extends": ["tslint-config-standard", "tslint-react"],
+  "rules": {
+    "semicolon": false,
+    "ter-indent": false,
+    "space-before-function-paren": false,
+    "eofline": false,
+    "whitespace": false,
+    "strict-type-predicates": false,
+    "radix": false,
+    "jsx-alignment": false,
+    "jsx-no-lambda": false,
+    "jsx-no-multiline-js": false
+  }
+}

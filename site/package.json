@@ -1,0 +1,40 @@
+{
+  "name": "minda-site",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "lint": "tslint -p .",
+    "dev": "react-scripts start",
+    "build": "npm run lint && react-scripts build",
+    "test": "react-scripts test"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "dependencies": {
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
+    "react-scripts": "3.1.1",
+    "styled-components": "^4.3.2"
+  },
+  "devDependencies": {
+    "@types/jest": "24.0.17",
+    "@types/node": "12.7.2",
+    "@types/react": "16.9.1",
+    "@types/react-dom": "16.8.5",
+    "@types/styled-components": "^4.1.18",
+    "tslint": "^5.18.0",
+    "tslint-config-standard": "^8.0.1",
+    "tslint-react": "^4.0.0",
+    "typescript": "3.5.3"
+  }
+}
