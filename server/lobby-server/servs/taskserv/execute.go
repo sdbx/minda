@@ -5,7 +5,6 @@ import (
 	"lobby/gicko"
 	"lobby/models"
 	"lobby/utils"
-	"log"
 )
 
 func (t *TaskServ) Execute(task models.Task) models.TaskResult {
@@ -25,6 +24,11 @@ func (t *TaskServ) Execute(task models.Task) models.TaskResult {
 			White: task.White,
 			Map:   task.Map,
 			Moves: task.Moves,
+			Rule: models.HistoryGameRule{
+				DefeatLostStones: task.GameRule.DefeatLostStones,
+				TurnTimeout:      task.GameRule.TurnTimeout,
+				GameTimeout:      task.GameRule.GameTimeout,
+			},
 			Loser: loser,
 			Cause: task.Cause,
 		}
@@ -73,10 +77,6 @@ func (t *TaskServ) Execute(task models.Task) models.TaskResult {
 			WinnerDelta: delta1,
 			LoserDelta:  delta2,
 		}
-		log.Println("winner r:", pp.R)
-		log.Println("loser r:", p2p.R)
-		log.Println("winner delta:", delta1)
-		log.Println("loser delta:", delta2)
 
 		buf, err := json.Marshal(out)
 		if err != nil {

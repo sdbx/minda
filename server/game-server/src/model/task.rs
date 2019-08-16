@@ -38,6 +38,6 @@ pub struct LobbyRoomResult {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct CompleteGameResult {
-    pub winner_delta: f64,
-    pub loser_delta: f64 
+    pub winner_delta: f32,
+    pub loser_delta: f32 
 }
