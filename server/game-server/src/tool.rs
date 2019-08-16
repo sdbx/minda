@@ -57,6 +57,6 @@ macro_rules! enum_number {
 
 pub fn print_err<T, E: Display>(res: Result<T, E>) {
     if let Err(e) = res {
-        error!("{}", e)
+        println!("{}", e)
     }
 }

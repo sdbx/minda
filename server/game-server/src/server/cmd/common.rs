@@ -55,9 +55,6 @@ pub fn connect(server: &mut Server, conn: &Connection, key: &str) -> Result<(), 
             }
         }
         room.conf = conf.clone();
-        println!("{:?}", room.conf);
-        println!("{:?}", room.rank);
-
 
         let mroom = room.to_model();
         if let Some(ref game) = room.game {

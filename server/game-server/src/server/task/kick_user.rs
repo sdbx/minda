@@ -9,5 +9,6 @@ pub fn handle(server: &mut Server, user_id: UserId, room_id: &str) -> Result<Str
         user.conn_id.clone()
     };
     server.kick(conn_id);
+    println!("[room:{}] user({:?}) got kiced", room_id, user_id);
     Ok("{}".to_owned())
 }

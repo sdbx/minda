@@ -6,8 +6,6 @@ extern crate serde;
 extern crate ticker;
 extern crate serde_json;
 #[macro_use]
-extern crate log;
-#[macro_use]
 extern crate serde_derive;
 #[macro_use]
 extern crate quick_error;
@@ -55,7 +53,6 @@ fn main() {
     let real_addr = matches.value_of("REAL_ADDR").unwrap();
     let redis = matches.value_of("REDIS").unwrap();
     let server = Server::new(addr, name, real_addr, redis);
-   // CombinedLogger::init(vec![TermLogger::new(LevelFilter::Info, Config::default()).unwrap()]).unwrap();
     server.serve();
 }
 

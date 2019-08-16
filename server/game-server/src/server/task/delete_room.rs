@@ -11,5 +11,6 @@ pub fn handle(server: &mut Server, room_id: &str) -> Result<String, Error> {
         }
     }
     server.delete_room(&room_id);
+    println!("[room:{}] deleted", room_id);
     Ok("{}".to_owned())
 }

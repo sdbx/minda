@@ -24,5 +24,11 @@ pub fn handle(server: &mut Server, room_id: &str, user_id: UserId, conf: &RoomCo
             addr: server.real_addr.clone()
         }
     };
+    if rank.is_some() {
+        println!("[room:{}] created by user({:?})", room_id, user_id);
+    } else {
+        println!("[room:{}] created by user({:?}) as ranked", room_id, user_id);
+    }
+    
     Ok(serde_json::to_string(&res).unwrap())
 }

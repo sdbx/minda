@@ -15,7 +15,9 @@ pub struct Move {
     pub player: UserId,
     pub start: AxialCord,
     pub end: AxialCord,
-    pub dir: AxialCord
+    pub dir: AxialCord,
+    pub game_time: usize,
+    pub turn_time: usize
 }
 
 #[derive(Clone, Debug)]
@@ -61,7 +63,13 @@ impl Game {
             player: id,
             start: start,
             end: end,
-            dir: dir
+            dir: dir,
+            game_time: if self.turn == Player::Black {
+                self.black_time
+            } else {
+                self.white_time
+            },
+            turn_time: self.current_time,
         });
         self.current_time = self.rule.turn_timeout * 1000;
         self.turn = self.turn.opp();

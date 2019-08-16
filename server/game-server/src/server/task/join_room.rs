@@ -19,5 +19,6 @@ pub fn handle(server: &mut Server, user_id: UserId, room_id: &str) -> Result<Str
         invite: key,
         addr: server.real_addr.clone()
     };
+    println!("[room:{}] an invite({}) made for user({:?})", room_id, res.invite, user_id);
     Ok(serde_json::to_string(&res).unwrap())
 }

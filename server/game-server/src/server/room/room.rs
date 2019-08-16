@@ -77,6 +77,7 @@ impl Room {
     pub fn start(&mut self) -> Result<(), Error> {
         let game = Game::new(self.conf.black, self.conf.white, &self.conf.map, self.conf.game_rule.clone())?;
         self.game = Some(game);
+        println!("[room:{}] game started", self.id);
         Ok(())
     }
 

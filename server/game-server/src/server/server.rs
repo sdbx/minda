@@ -136,7 +136,6 @@ impl Server {
     pub fn dispatch(&mut self, conn_id: Uuid, event: &Event) {
         if let Some(stream) = self.streams.get_mut(&conn_id) {
             let msg = serde_json::to_string(&event).unwrap() + "\n";
-            info!("client({}) will receive msg: {}", conn_id, msg);
             print_err(stream.write(msg.as_bytes()));
             print_err(stream.flush());
         }
@@ -175,6 +174,12 @@ impl Server {
                 Some(x) => x,
                 None => return Err(Error::Internal)
             };
+            if room.rank.is_some() {
+                println!("[room:{}] ranked game ended", room_id);
+            } else {
+                println!("[room:{}] game ended", room_id);
+            }
+            
             let game = match room.game.as_ref() {
                 Some(x) => x.clone(),
                 None => return Err(Error::Internal)
@@ -245,7 +250,7 @@ impl Server {
     fn handle_event(&mut self, event: ServerEvent) -> Result<(), Error> {
         match event {
             ServerEvent::Connect { conn_id, conn } => {
-                info!("client({}) connected", conn_id);
+                println!("[socket] client({}) connected", conn_id);
                 self.conns.insert(conn_id, Connection {
                     conn_id: conn_id,
                     user_id: UserId::empty,
@@ -314,14 +319,14 @@ impl Server {
             ServerEvent::TaskRequest { task_request } => {
                 match task::handle(self, task_request.task) {
                     Ok(res) => {
-                        info!("task({}) was successful: {}", task_request.id, res);
+                        println!("[task] task({}) was successful: {}", task_request.id, res);
                         print_err(self.send_result(&task_request.id, &TaskResult{
                             error: None,
                             value: res
                         }));
                     },
                     Err(e) => {
-                        info!("task({}) encounterd an error: {}", task_request.id, e);
+                        println!("[task] task({}) encounterd an error: {}", task_request.id, e);
                         print_err(self.send_result(&task_request.id, &TaskResult{
                             error: Some(format!("{}", e)),
                             value: "".to_owned()
@@ -330,7 +335,7 @@ impl Server {
                 };
             },
             ServerEvent::Close { conn_id } => {
-                info!("client({}) disconnected", conn_id);
+                println!("[socket] client({}) disconnected", conn_id);
                 let (room_id, user_id, user_len, conf, is_rank) = {
                     let conn = self.conns.get(&conn_id)?;
                     let room_id = conn.room_id.as_ref()?;
@@ -460,11 +465,11 @@ impl Server {
                     if size == 0 {
                         break;
                     }
-                    info!("client({}) sent msg: {}", conn_id, msg);
+                    println!("[socket] client({}) sent msg: {}", conn_id, msg);
                     let t = parse_command(&msg.trim_matches('\0'));
                     msg.clear(); 
                     if let Ok(cmd) = t {
-                        info!("client({}) command: {:?}", conn_id, cmd);
+                        println!("[socket] client({}) command: {:?}", conn_id, cmd);
                         print_err(tx.send(ServerEvent::Command{
                             conn_id,
                             cmd
@@ -479,7 +484,7 @@ impl Server {
                     }
                 },
                 Err(e) => {
-                    error!("{}", e);
+                    println!("[socket] error: {}", e);
                     break;
                 }
             }
@@ -494,13 +499,13 @@ impl Server {
             loop {
                 let res: Vec<String> = match conn.blpop(redis_game_queue(&name), 0) {
                     Ok(res) => res,
-                    Err(e) => { error!("{}", e); continue }
+                    Err(e) => { println!("{}", e); continue }
                 };
                 let task_request: TaskRequest = match serde_json::from_str(&res.get(1).unwrap()) {
                     Ok(task) => task,
-                    Err(e) => { error!("{}", e); continue }
+                    Err(e) => { println!("{}", e); continue }
                 };
-                info!("task({}) arrived: {:?}", task_request.id, task_request.task);
+                println!("[task] task ({}) arrived: {:?}", task_request.id, task_request.task);
                 print_err(tx.send(ServerEvent::TaskRequest { task_request }));
             }
         });
