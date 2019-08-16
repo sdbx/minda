@@ -1,5 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './pages/Main';
+import Main from './pages/Main';
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
 
-ReactDOM.render(<App />, document.getElementById('root'));
+const App = (
+    <BrowserRouter>
+        <Switch>
+            <Route exact={true} path={'/'} component={Main}/>
+        </Switch>
+    </BrowserRouter>
+);
+
+ReactDOM.render(App, document.getElementById('root'));
