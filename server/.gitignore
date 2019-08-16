@@ -1,0 +1,11 @@
+/configs
+
+
+schema.sql
+
+/lobby-server/database.yml
+/lobby-server/*.yaml
+/lobby-server/lobby.exe
+/lobby-server/lobby
+
+/game-server/target

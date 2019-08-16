@@ -1,7 +1,5 @@
 .DS_Store
 
-/game-server/target
-/specbot/target
 **/*.rs.bk
 
 [Ll]ibrary/
@@ -51,14 +49,7 @@ Assets/StreamingAssets/crashlytics-build.properties
 
 **/node_modules/
 
-/lobby-server/database.yml
-/lobby-server/*.yaml
-/lobby-server/lobby.exe
-/lobby-server/lobby
-
 /chatbot/config/
-
-/configs
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -174,5 +165,3 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-
-schema.sql
