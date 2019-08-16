@@ -17,6 +17,7 @@ type History struct {
 	White     int             `db:"white" json:"white"`
 	Loser     int             `db:"loser" json:"loser"`
 	Cause     string          `db:"cause" json:"cause"`
+	Rank      bool            `db:"ranked" json:"rank"`
 	Map       string          `db:"map" json:"map"`
 	Moves     []Move          `json:"moves" has_many:"moves" order_by:"id asc"`
 	Rule      HistoryGameRule `json:"rule" has_one:"history_game_rules"`

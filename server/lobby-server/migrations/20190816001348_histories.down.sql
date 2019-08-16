@@ -5,3 +5,6 @@ DROP COLUMN turn_time;
 
 ALTER TABLE moves
 DROP COLUMN game_time;
+
+ALTER TABLE histories
+DROP COLUMN ranked;

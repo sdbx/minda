@@ -31,6 +31,7 @@ func (t *TaskServ) Execute(task models.Task) models.TaskResult {
 			},
 			Loser: loser,
 			Cause: task.Cause,
+			Rank:  task.Rank,
 		}
 		err := t.DB.Eager().Create(&history)
 		if err != nil {

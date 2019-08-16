@@ -155,6 +155,7 @@ type CompleteGameTask struct {
 	White    int      `json:"white"`
 	Loser    string   `json:"loser"`
 	Cause    string   `json:"cause"`
+	Rank     bool     `json:"rank"`
 	Map      string   `json:"map"`
 	GameRule GameRule `json:"game_rule"`
 	Moves    []Move   `json:"moves"`

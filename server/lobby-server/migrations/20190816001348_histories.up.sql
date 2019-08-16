@@ -4,6 +4,9 @@ ADD COLUMN game_time double precision NOT NULL DEFAULT 0;
 ALTER TABLE moves
 ADD COLUMN turn_time double precision NOT NULL DEFAULT 0;
 
+ALTER TABLE histories
+ADD COLUMN ranked boolean NOT NULL DEFAULT FALSE;;
+
 CREATE TABLE history_game_rules (
     id uuid NOT NULL,
     history_id integer PRIMARY KEY REFERENCES histories ON DELETE CASCADE,
