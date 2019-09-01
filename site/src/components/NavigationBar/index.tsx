@@ -32,7 +32,7 @@ const NavigationBar: React.FC = () => {
     return (
         <NavWrapperStyle>
             <NavItemStyle><Link to={'/'}>LOGO OR NAME</Link></NavItemStyle>
-            <NavItemStyle><Link to={'/'}>전적</Link></NavItemStyle>
+            <NavItemStyle><Link to={'/stat'}>전적</Link></NavItemStyle>
             <NavItemStyle><Link to={'/'}>랭킹</Link></NavItemStyle>
             <NavItemStyle><Link to={'/'}>지금은 배경 투명색</Link></NavItemStyle>
             <br/>
