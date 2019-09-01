@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import MainLayout from '../layouts/MainLayout';
 
 const WrapperStyle = styled.div`
     text-align: center;
@@ -8,9 +9,11 @@ const WrapperStyle = styled.div`
 
 const Main: React.FC = () => {
     return (
-        <WrapperStyle>
-            TEST
-        </WrapperStyle>
+        <MainLayout>
+            <WrapperStyle>
+                Minda
+            </WrapperStyle>
+        </MainLayout>
     );
 };
 
