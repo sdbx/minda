@@ -19,8 +19,8 @@ func (m *match) Register(g *dim.Group) {
 	g.DELETE("/", m.Delete)
 }
 
-func (m *match) Get(c2 echo.Context) error {
-	c := c2.(*models.Context)
+func (m *match) Get(c *models.Context) error {
+	
 	id, err := m.Match.FindMatch(c.User.ID)
 	if err == matchserv.ErrNotFound {
 		return echo.NewHTTPError(404, "not found yet")
@@ -36,8 +36,8 @@ func (m *match) Get(c2 echo.Context) error {
 	return c.JSON(200, out)
 }
 
-func (m *match) Delete(c2 echo.Context) error {
-	c := c2.(*models.Context)
+func (m *match) Delete(c *models.Context) error {
+	
 	m.Match.CancelSearching(c.User.ID)
 	return c.NoContent(200)
 }

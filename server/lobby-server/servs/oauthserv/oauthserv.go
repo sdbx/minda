@@ -1,23 +1,25 @@
 package oauthserv
 
 import (
-	"github.com/markbates/goth/providers/steam"
+	"encoding/base64"
 	"encoding/json"
-	"github.com/garyburd/redigo/redis"
+	"errors"
 	"fmt"
 	"lobby/models"
-	"errors"
-	"encoding/base64"
-	"github.com/gofrs/uuid"
 	"lobby/servs/authserv"
-	"net/http"
-	"github.com/labstack/echo"
-	"github.com/markbates/goth/gothic"
 	"lobby/servs/redisserv"
-	"github.com/markbates/goth/providers/google"
-	"github.com/markbates/goth/providers/discord"
+	"net/http"
+
+	"github.com/garyburd/redigo/redis"
+	"github.com/gofrs/uuid"
+	"github.com/labstack/echo"
 	"github.com/markbates/goth"
+	"github.com/markbates/goth/gothic"
+	"github.com/markbates/goth/providers/discord"
+	"github.com/markbates/goth/providers/google"
 	"github.com/markbates/goth/providers/naver"
+	"github.com/markbates/goth/providers/steam"
+
 	"gopkg.in/boj/redistore.v1"
 )
 
@@ -26,9 +28,9 @@ var (
 )
 
 const (
-	sessionName = "_minda_reqid"
+	sessionName          = "_minda_reqid"
 	redisAuthRequestTmpl = "auth_request_%s"
-	authRequestTimeout = 180
+	authRequestTimeout   = 180
 )
 
 type oauthProvier struct {
@@ -38,16 +40,16 @@ type oauthProvier struct {
 
 type OAuthServConf struct {
 	CallbackURL string        `yaml:"callback_url"`
-	Secret string `yaml:"secret"`
+	Secret      string        `yaml:"secret"`
 	Naver       *oauthProvier `yaml:"naver"`
 	Discord     *oauthProvier `yaml:"discord"`
 	Google      *oauthProvier `yaml:"google"`
-	Steam *oauthProvier `yaml:"steam"`
+	Steam       *oauthProvier `yaml:"steam"`
 }
 
 type OAuthServ struct {
-	Auth *authserv.AuthServ `dim:"on"`
-	Redis *redisserv.RedisServ `dim:"on"`
+	Auth   *authserv.AuthServ   `dim:"on"`
+	Redis  *redisserv.RedisServ `dim:"on"`
 	secret []byte
 }
 
@@ -85,7 +87,7 @@ func (a *OAuthServ) Init() error {
 }
 
 func (a *OAuthServ) List() []string {
-	providers := goth.GetProviders() 
+	providers := goth.GetProviders()
 	out := make([]string, 0, len(providers))
 	for name := range providers {
 		out = append(out, name)
@@ -131,7 +133,7 @@ func (a *OAuthServ) setRequest(reqid string, req models.AuthRequest) error {
 	return err
 }
 
-func (a *OAuthServ) CompleteAuth(c echo.Context, provider string) error {
+func (a *OAuthServ) CompleteAuth(c *models.Context, provider string) error {
 	r := c.Request()
 	q := r.URL.Query()
 	q.Set("provider", provider)
@@ -155,7 +157,7 @@ func (a *OAuthServ) CompleteAuth(c echo.Context, provider string) error {
 		return echo.NewHTTPError(http.StatusBadRequest)
 	}
 
-	guser, err := gothic.CompleteUserAuth(c.Response().Writer,r)
+	guser, err := gothic.CompleteUserAuth(c.Response().Writer, r)
 	if err != nil {
 		return err
 	}
@@ -200,5 +202,5 @@ func (a *OAuthServ) BeginAuth(c echo.Context, provider string, reqid string) err
 }
 
 func redisAuthRequest(reqid string) string {
-    return fmt.Sprintf(redisAuthRequestTmpl, reqid)
+	return fmt.Sprintf(redisAuthRequestTmpl, reqid)
 }

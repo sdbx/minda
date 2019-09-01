@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/labstack/echo"
 	"github.com/sunho/dim"
 )
 
@@ -18,7 +17,7 @@ func (h *history) Register(d *dim.Group) {
 	d.GET("/", h.getHistories)
 }
 
-func (h *history) getHistories(c echo.Context) error {
+func (h *history) getHistories(c *models.Context) error {
 	q := h.DB.Eager().Q()
 	user2 := c.QueryParam("user")
 	if user2 != "" {

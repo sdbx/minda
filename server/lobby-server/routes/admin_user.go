@@ -7,8 +7,6 @@ import (
 	"lobby/servs/dbserv"
 
 	"github.com/sunho/dim"
-
-	"github.com/labstack/echo"
 )
 
 type adminUser struct {
@@ -27,7 +25,7 @@ func (a *adminUser) Register(d *dim.Group) {
 	})
 }
 
-func (a *adminUser) listUser(c echo.Context) error {
+func (a *adminUser) listUser(c *models.Context) error {
 	var out []models.User
 	err := a.DB.Eager().All(&out)
 	if err != nil {
@@ -36,7 +34,7 @@ func (a *adminUser) listUser(c echo.Context) error {
 	return c.JSON(200, out)
 }
 
-func (a *adminUser) postUser(c echo.Context) error {
+func (a *adminUser) postUser(c *models.Context) error {
 	var user models.User
 	err := c.Bind(&user)
 	if err != nil {
@@ -50,8 +48,7 @@ func (a *adminUser) postUser(c echo.Context) error {
 	return c.NoContent(201)
 }
 
-func (a *adminUser) putUser(c2 echo.Context) error {
-	c := c2.(*models.Context)
+func (a *adminUser) putUser(c *models.Context) error {
 
 	var user models.User
 	err := c.Bind(&user)
@@ -68,8 +65,8 @@ func (a *adminUser) putUser(c2 echo.Context) error {
 	return c.NoContent(200)
 }
 
-func (a *adminUser) deleteUser(c2 echo.Context) error {
-	c := c2.(*models.Context)
+func (a *adminUser) deleteUser(c *models.Context) error {
+
 	err := a.DB.Destroy(&c.UserParam)
 	if err != nil {
 		return err
@@ -77,8 +74,7 @@ func (a *adminUser) deleteUser(c2 echo.Context) error {
 	return c.NoContent(200)
 }
 
-func (a *adminUser) postUserToken(c2 echo.Context) error {
-	c := c2.(*models.Context)
+func (a *adminUser) postUserToken(c *models.Context) error {
 
 	tok := a.Auth.CreateToken(c.UserParam.ID)
 	return c.JSON(200, struct {

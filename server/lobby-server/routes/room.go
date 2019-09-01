@@ -28,7 +28,7 @@ func (r *room) Register(d *dim.Group) {
 	})
 }
 
-func (r *room) listRoom(c echo.Context) error {
+func (r *room) listRoom(c *models.Context) error {
 	rooms := r.Disc.GetRooms()
 	if name := c.QueryParam("name"); name != "" {
 		out := []models.Room{}
@@ -42,8 +42,8 @@ func (r *room) listRoom(c echo.Context) error {
 	return c.JSONPretty(200, rooms, "\t")
 }
 
-func (r *room) postRoom(c2 echo.Context) error {
-	c := c2.(*models.Context)
+func (r *room) postRoom(c *models.Context) error {
+	
 
 	user := c.User
 	conf := models.RoomConf{}
@@ -121,8 +121,8 @@ func (r *room) postRoom(c2 echo.Context) error {
 	return c.JSONPretty(201, res.(*models.LobbyRoomResult), "\t")
 }
 
-func (r *room) putRoom(c2 echo.Context) error {
-	c := c2.(*models.Context)
+func (r *room) putRoom(c *models.Context) error {
+	
 	id := c.Param("roomid")
 	rooms, err := r.Disc.FetchRooms(false, true)
 	if err != nil {

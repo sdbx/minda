@@ -28,12 +28,11 @@ func (u *user) Register(d *dim.Group) {
 	d.GET("/:id/", u.getUser)
 }
 
-func (u *user) me(c2 echo.Context) error {
-	c := c2.(*models.Context)
+func (u *user) me(c *models.Context) error {
 	return c.JSON(200, c.User)
 }
 
-func (u *user) getUser(c echo.Context) error {
+func (u *user) getUser(c *models.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return err
@@ -46,8 +45,7 @@ func (u *user) getUser(c echo.Context) error {
 	return c.JSON(200, out)
 }
 
-func (u *user) putMe(c2 echo.Context) error {
-	c := c2.(*models.Context)
+func (u *user) putMe(c *models.Context) error {
 	var item models.User
 	err := c.Bind(&item)
 	if err != nil {
@@ -61,8 +59,7 @@ func (u *user) putMe(c2 echo.Context) error {
 	return c.NoContent(200)
 }
 
-func (u *user) putMePicture(c2 echo.Context) error {
-	c := c2.(*models.Context)
+func (u *user) putMePicture(c *models.Context) error {
 	yes, err := u.Pic.IsCool(c.User.ID)
 	if err != nil {
 		return err

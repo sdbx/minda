@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"lobby/models"
 	"lobby/servs/authserv"
 	"lobby/servs/oauthserv"
 
@@ -22,11 +23,11 @@ func (a *auth) Register(d *dim.Group) {
 	d.GET("/steam/", a.getSteam)
 }
 
-func (a *auth) listOauth(c echo.Context) error {
+func (a *auth) listOauth(c *models.Context) error {
 	return c.JSON(200, a.OAuth.List())
 }
 
-func (a *auth) getReq(c echo.Context) error {
+func (a *auth) getReq(c *models.Context) error {
 	req, err := a.OAuth.GetRequest(c.Param("reqid"))
 	if err != nil {
 		return err
@@ -34,7 +35,7 @@ func (a *auth) getReq(c echo.Context) error {
 	return c.JSONPretty(200, req, "\t")
 }
 
-func (a *auth) postReq(c echo.Context) error {
+func (a *auth) postReq(c *models.Context) error {
 	reqid, err := a.OAuth.CreateRequest()
 	if err != nil {
 		return err
@@ -46,15 +47,15 @@ func (a *auth) postReq(c echo.Context) error {
 	}, "\t")
 }
 
-func (a *auth) oauth(c echo.Context) error {
+func (a *auth) oauth(c *models.Context) error {
 	return a.OAuth.BeginAuth(c, c.Param("provider"), c.Param("reqid"))
 }
 
-func (a *auth) oauthCallback(c echo.Context) error {
+func (a *auth) oauthCallback(c *models.Context) error {
 	return a.OAuth.CompleteAuth(c, c.Param("provider"))
 }
 
-func (a *auth) getSteam(c echo.Context) error {
+func (a *auth) getSteam(c *models.Context) error {
 	ticket := c.QueryParam("ticket")
 	if ticket == "" {
 		return echo.NewHTTPError(400, "Empty ticket")

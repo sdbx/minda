@@ -2,12 +2,12 @@ package routes
 
 import (
 	"lobby/middlewares"
+	"lobby/models"
 
-	"github.com/labstack/echo"
 	"github.com/sunho/dim"
 )
 
-func HelloWorld(c echo.Context) error {
+func HelloWorld(c *models.Context) error {
 	return c.String(200, "Hello, World!")
 }
 

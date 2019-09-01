@@ -6,7 +6,6 @@ import (
 	"lobby/servs/dbserv"
 	"strconv"
 
-	"github.com/labstack/echo"
 	"github.com/sunho/dim"
 )
 
@@ -21,8 +20,7 @@ func (m *mapr) Register(d *dim.Group) {
 	d.DELETE("/:mapid/", m.deleteMap)
 }
 
-func (m *mapr) getMaps(c2 echo.Context) error {
-	c := c2.(*models.Context)
+func (m *mapr) getMaps(c *models.Context) error {
 	var out []models.Map
 	err := m.DB.Q().
 		InnerJoin("user_maps", "maps.id = user_maps.map_id").
@@ -33,8 +31,7 @@ func (m *mapr) getMaps(c2 echo.Context) error {
 	return c.JSON(200, out)
 }
 
-func (m *mapr) postMap(c2 echo.Context) error {
-	c := c2.(*models.Context)
+func (m *mapr) postMap(c *models.Context) error {
 	var item models.Map
 	err := c.Bind(&item)
 	if err != nil {
@@ -62,8 +59,7 @@ func (m *mapr) postMap(c2 echo.Context) error {
 	return c.NoContent(201)
 }
 
-func (m *mapr) deleteMap(c2 echo.Context) error {
-	c := c2.(*models.Context)
+func (m *mapr) deleteMap(c *models.Context) error {
 	tmp := c.Param("mapid")
 	mapid, err := strconv.Atoi(tmp)
 	if err != nil {

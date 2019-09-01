@@ -1,11 +1,12 @@
 package middlewares
 
 import (
-	"go.uber.org/zap"
-	"strconv"
-	"strings"
 	"lobby/servs/oauthserv"
 	"lobby/utils"
+	"strconv"
+	"strings"
+
+	"go.uber.org/zap"
 
 	"github.com/labstack/echo"
 )

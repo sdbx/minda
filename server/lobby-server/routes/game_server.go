@@ -1,9 +1,9 @@
 package routes
 
 import (
+	"lobby/models"
 	"lobby/servs/discserv"
 
-	"github.com/labstack/echo"
 	"github.com/sunho/dim"
 )
 
@@ -15,7 +15,7 @@ func (g *gameServer) Register(d *dim.Group) {
 	d.GET("/", g.getGameServers)
 }
 
-func (g *gameServer) getGameServers(c echo.Context) error {
+func (g *gameServer) getGameServers(c *models.Context) error {
 	servers, err := g.Disc.ListGameServers()
 	if err != nil {
 		return err

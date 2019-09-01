@@ -39,7 +39,7 @@ func (s *skin) Register(d *dim.Group) {
 	d.GET("/:id/", s.getSkin)
 }
 
-func (s *skin) getSkin(c echo.Context) error {
+func (s *skin) getSkin(c *models.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return err
@@ -54,8 +54,8 @@ func (s *skin) getSkin(c echo.Context) error {
 	return c.JSON(200, item)
 }
 
-func (s *skin) getSkins(c2 echo.Context) error {
-	c := c2.(*models.Context)
+func (s *skin) getSkins(c *models.Context) error {
+	
 	out, err := s.DB.GetSkinsOfUser(c.User.ID)
 	if err != nil {
 		return err
@@ -100,8 +100,8 @@ func (s *skin) uploadSkin(user int, name string, black *multipart.FileHeader, wh
 	})
 }
 
-func (s *skin) putCurrent(c2 echo.Context) error {
-	c := c2.(*models.Context)
+func (s *skin) putCurrent(c *models.Context) error {
+	
 	input := struct {
 		ID *int `json:"id"`
 	}{}
@@ -135,8 +135,8 @@ func (s *skin) putCurrent(c2 echo.Context) error {
 	return utils.ErrNotExists
 }
 
-func (s *skin) postOneSkin(c2 echo.Context) error {
-	c := c2.(*models.Context)
+func (s *skin) postOneSkin(c *models.Context) error {
+	
 	if c.User.Inventory.OneColorSkin <= 0 {
 		return echo.NewHTTPError(400, "Not enough point")
 	}
@@ -160,8 +160,8 @@ func (s *skin) postOneSkin(c2 echo.Context) error {
 	return c.NoContent(201)
 }
 
-func (s *skin) postTwoSkin(c2 echo.Context) error {
-	c := c2.(*models.Context)
+func (s *skin) postTwoSkin(c *models.Context) error {
+	
 	if c.User.Inventory.TwoColorSkin <= 0 {
 		return echo.NewHTTPError(400, "Not enough point")
 	}
@@ -198,7 +198,7 @@ func (s *skin) postTwoSkin(c2 echo.Context) error {
 	return c.NoContent(201)
 }
 
-func (s *skin) previewSkin(c echo.Context) error {
+func (s *skin) previewSkin(c *models.Context) error {
 	col := picserv.ColorBlack
 	if c.FormValue("color") == "white" {
 		col = picserv.ColorWhite
@@ -224,8 +224,8 @@ func (s *skin) previewSkin(c echo.Context) error {
 	return c.Stream(200, "image/png", &buf)
 }
 
-func (s *skin) postBuy(c2 echo.Context) error {
-	c := c2.(*models.Context)
+func (s *skin) postBuy(c *models.Context) error {
+	
 	err := s.Pay.InitOrder(c.User.ID)
 	if err != nil {
 		return err
@@ -233,7 +233,7 @@ func (s *skin) postBuy(c2 echo.Context) error {
 	return c.NoContent(200)
 }
 
-func (s *skin) putBuy(c echo.Context) error {
+func (s *skin) putBuy(c *models.Context) error {
 	id, err := strconv.Atoi(c.Param("orderid"))
 	if err != nil {
 		return err

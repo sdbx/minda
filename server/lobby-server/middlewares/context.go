@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"lobby/models"
+
 	"github.com/labstack/echo"
 )
 

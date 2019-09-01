@@ -1,8 +1,9 @@
 package middlewares
 
 import (
-	"github.com/labstack/echo"
 	"lobby/models"
+
+	"github.com/labstack/echo"
 )
 
 type AdminMiddleware struct {
