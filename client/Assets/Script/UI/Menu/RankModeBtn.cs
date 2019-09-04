@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Scene;
 using UnityEngine;
 using UnityEngine.UI;
+using UI.Toast;
 
 public class RankModeBtn : MonoBehaviour
 {
@@ -13,6 +14,6 @@ public class RankModeBtn : MonoBehaviour
 
     private void MoveToMatchScene()
     {
-        SceneChanger.instance.ChangeTo("Matching");
+        ToastManager.instance.Add("Ranked mode will open after a while. Please enjoy the custom mode in the meantime.", "Info");
     }
 }

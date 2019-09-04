@@ -17,6 +17,7 @@ namespace UI
         public bool isActivated{get;private set;}
 
         private bool isInitalized;
+        private bool isAnimating = false;
 
         private void Awake()
         {
@@ -66,8 +67,10 @@ namespace UI
                 return;
             isActivated = true;
             Init();
-            DOTween.To(() => canvasGroup.alpha, x => canvasGroup.alpha = x, 1, duration);
-
+            isAnimating = true;
+            DOTween.To(() => canvasGroup.alpha, x => canvasGroup.alpha = x, 1, duration).OnComplete(() => {
+                isAnimating = false;
+            });
             if (!onlyToggleAlpha)
                 gameObject.SetActive(true);
 
@@ -81,6 +84,7 @@ namespace UI
                 return;
             isActivated = false;
             Init();
+            isAnimating = true;
             DOTween.To(() => canvasGroup.alpha, x => canvasGroup.alpha = x, 0, duration).OnComplete(()=>
             {
                 if(!onlyToggleAlpha)
@@ -88,7 +92,15 @@ namespace UI
 
                 canvasGroup.interactable = false;
                 canvasGroup.blocksRaycasts = false;
+                isAnimating = false;
             });
+        }
+
+        public void UnActivateIfNotAnimating()
+        {
+            if (isAnimating)
+                return;
+            UnActivate();
         }
 
         public void Toggle()
