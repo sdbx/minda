@@ -4,6 +4,7 @@ use model::Event;
 use server::room::Room;
 use server::{Server,Connection};
 use model::Event::Chated;
+use model::UserId;
 
 pub fn chat(server: &mut Server, conn: &Connection, content: &str) -> Result<(), Error> {
     let room_id = server.get_room(&conn)?.id.clone();
@@ -53,7 +54,14 @@ pub fn connect(server: &mut Server, conn: &Connection, key: &str) -> Result<(), 
                 conf.white = conn.user_id;
                 rank.time = 10*1000;
             }
-        }
+        } 
+        let conf_out = if room.conf == conf {
+            Some(Event::Confed{
+                conf: conf.clone(),
+            })
+        } else {
+            None
+        }; 
         room.conf = conf.clone();
 
         let mroom = room.to_model();
@@ -65,23 +73,21 @@ pub fn connect(server: &mut Server, conn: &Connection, key: &str) -> Result<(), 
             });
             (mroom, invite.clone(), Some(Event::game_to_started(game)), None)
         } else {
-            (mroom, invite.clone(), None, Some(Event::Confed{
-                conf: conf,
-            }))
+            (mroom, invite.clone(), None, conf_out) 
         }
     };
     
     server.invites.remove(&invite.key);
     server.update_discover()?;
     server.dispatch(conn.conn_id, &Event::Connected{ room: room });
+    if let Some(event) = confevent {
+        server.broadcast(&invite.room_id, &event);
+    }
     server.broadcast(&invite.room_id, &Event::Entered{
         user: invite.user_id
     });
     if let Some(event) = gameevent {
         server.dispatch(conn.conn_id, &event);
-    }
-    if let Some(event) = confevent {
-        server.broadcast(&invite.room_id, &event);
     }
     Ok(())
 }
