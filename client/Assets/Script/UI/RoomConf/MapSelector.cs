@@ -22,7 +22,6 @@ namespace UI
         protected override void Awake()
         {
             base.Awake();
-            LoadMyMaps();
             selectButton.onClick.AddListener(SetSelectedMap);
         }
 
@@ -30,18 +29,29 @@ namespace UI
         {
             var basic = CreateBasicMapObject();
             Select(basic);
+            LoadMyMaps();
         }
 
         private void LoadMyMaps()
         {
-            LobbyServerAPI.GetMyMaps((Map[] maps, int? err) =>
-            {
-                if (err != null)
-                {
-                    return;
-                }
-                AddMapElements(maps);
-            });
+            // LobbyServerAPI.GetMyMaps((Map[] maps, int? err) =>
+            // {
+            //     if (err != null)
+            //     {
+            //         return;
+            //     }
+            //     AddMapElements(maps);
+            // });
+            AddMapElement("Standard", Board.GetMapFromString(Consts.standardMap));
+            AddMapElement("Snake", Board.GetMapFromString(Consts.snakeMap));
+            AddMapElement("Alien", Board.GetMapFromString(Consts.alienMap));
+            AddMapElement("Domination", Board.GetMapFromString(Consts.dominationMap));
+            AddMapElement("Alliance", Board.GetMapFromString(Consts.allianceMap));
+            AddMapElement("Atomouche", Board.GetMapFromString(Consts.atomoucheMap));
+            AddMapElement("Centrifuguse", Board.GetMapFromString(Consts.centrifuguseMap));
+            AddMapElement("Wall", Board.GetMapFromString(Consts.wallMap));
+            AddMapElement("Duel", Board.GetMapFromString(Consts.duelMap));
+            AddMapElement("Fujiyama", Board.GetMapFromString(Consts.fujiyamaMap));
         }
 
         public override MapObject AddMapElement(string name, int[,] map)

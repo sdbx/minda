@@ -5,6 +5,7 @@ import (
 	"lobby/models"
 	"lobby/servs/redisserv"
 	"lobby/utils"
+	"log"
 	"sort"
 	"time"
 
@@ -51,6 +52,7 @@ func Provide() *DiscoverServ {
 }
 
 func (g *DiscoverServ) Init() error {
+	log.Println("Disc Init")
 	go g.update()
 	return nil
 }

@@ -43,8 +43,6 @@ func (r *room) listRoom(c *models.Context) error {
 }
 
 func (r *room) postRoom(c *models.Context) error {
-	
-
 	user := c.User
 	conf := models.RoomConf{}
 	err := c.Bind(&conf)
@@ -90,13 +88,13 @@ func (r *room) postRoom(c *models.Context) error {
 	conf.Black = -1
 	conf.King = user.ID
 	if conf.Map == "" {
-		conf.Map = "0@0@0@0@0@0@0@1@1#0@0@0@0@0@0@0@1@1#0@0@0@0@0@0@1@1@1#0@2@0@0@0@0@1@1@1#2@2@2@0@0@0@1@1@1#2@2@2@0@0@0@0@1@0#2@2@2@0@0@0@0@0@0#2@2@0@0@0@0@0@0@0#2@2@0@0@0@0@0@0@0"
+		conf.Map = "0@0@0@0@0@0@0@1@1#0@0@0@0@0@0@1@1@1#0@0@0@0@0@0@1@1@0#0@2@2@0@0@0@0@2@2#2@2@2@0@0@0@2@2@2#2@2@0@0@0@0@2@2@0#0@1@1@0@0@0@0@0@0#1@1@1@0@0@0@0@0@0#1@1@0@0@0@0@0@0@0"
 	}
 	if conf.GameRule.GameTimeout == 0 {
-		conf.GameRule.GameTimeout = 600
+		conf.GameRule.GameTimeout = 1200
 	}
 	if conf.GameRule.TurnTimeout == 0 {
-		conf.GameRule.TurnTimeout = 20
+		conf.GameRule.TurnTimeout = 120
 	}
 	if conf.GameRule.DefeatLostStones == 0 {
 		conf.GameRule.DefeatLostStones = 6
@@ -122,7 +120,6 @@ func (r *room) postRoom(c *models.Context) error {
 }
 
 func (r *room) putRoom(c *models.Context) error {
-	
 	id := c.Param("roomid")
 	rooms, err := r.Disc.FetchRooms(false, true)
 	if err != nil {
