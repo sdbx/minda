@@ -80,6 +80,8 @@ public class IntUpDown : MonoBehaviour
 
     public void ChangeValue(int num)
     {
+        var prevValue = value_;
+        
         if (min_ > num)
         {
             value_ = min_;
@@ -92,6 +94,9 @@ public class IntUpDown : MonoBehaviour
         {
             value_ = num;
         }
+
+        if (value_ == prevValue) return;
+        
         ValueChanged?.Invoke(value_);
         UpdateInputField();
     }
