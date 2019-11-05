@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "lint": "tslint -p .",
-    "dev": "npm run lint && react-scripts start",
-    "build": "npm run lint && react-scripts build",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
     "test": "react-scripts test"
   },
   "browserslist": {
@@ -25,7 +24,6 @@
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "react-router-dom": "^5.0.1",
-    "react-scripts": "3.1.1",
     "styled-components": "^4.3.2"
   },
   "devDependencies": {
@@ -35,9 +33,35 @@
     "@types/react-dom": "16.8.5",
     "@types/react-router-dom": "^4.3.4",
     "@types/styled-components": "^4.1.18",
-    "tslint": "^5.18.0",
-    "tslint-config-standard": "^8.0.1",
-    "tslint-react": "^4.0.0",
+    "eslint-config-airbnb": "^18.0.1",
+    "eslint-plugin-react": "^7.16.0",
+    "eslint-plugin-react-hooks": "^2.2.0",
+    "prettier": "^1.18.2",
+    "react-scripts": "3.1.1",
     "typescript": "3.5.3"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "airbnb"
+    ],
+    "plugins": [
+      "react-hooks"
+    ],
+    "rules": {
+      "arrow-body-style": "off",
+      "indent": "off",
+      "jsx-quotes": "off",
+      "comma-dangle": "off",
+      "object-curly-newline": "off",
+      "import/no-unresolved": "off",
+      "max-len": "off",
+      "react/jsx-indent": "off",
+      "react/jsx-filename-extension": "off",
+      "react/no-unescaped-entities": "off",
+      "react/jsx-tag-spacing": "off",
+      "react/prop-types": "off",
+      "react/jsx-one-expression-per-line": "off"
+    }
   }
 }
