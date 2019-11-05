@@ -4,7 +4,7 @@ import NavigationBar from '../components/NavigationBar';
 const MainLayout: React.FC = ({ children }) => {
     return (
         <>
-            <NavigationBar/>
+            <NavigationBar />
             {children}
         </>
     );
