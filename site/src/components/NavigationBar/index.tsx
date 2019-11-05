@@ -6,7 +6,6 @@ const NavWrapperStyle = styled.ul`
     list-style-type: none;
     margin: 0;
     padding: 0;
-
     overflow: hidden;
     background-color: rgba(255, 255, 255, 0);
 `;
@@ -18,7 +17,7 @@ const NavItemStyle = styled.li`
         display: block;
         color: #000000;
         text-align: center;
-        padding: 20px 16px;
+        padding: 28px 18px;
         text-decoration: none;
 
         &:hover {
@@ -31,18 +30,14 @@ const NavigationBar: React.FC = () => {
     return (
         <NavWrapperStyle>
             <NavItemStyle>
-                <Link to="/">LOGO OR NAME</Link>
+                <Link to="/">MINDA</Link>
             </NavItemStyle>
             <NavItemStyle>
-                <Link to="/stat">전적</Link>
+                <Link to="/stat">STATS</Link>
             </NavItemStyle>
             <NavItemStyle>
-                <Link to="/">랭킹</Link>
+                <Link to="/">RANK</Link>
             </NavItemStyle>
-            <NavItemStyle>
-                <Link to="/">지금은 배경 투명색</Link>
-            </NavItemStyle>
-            <br />
         </NavWrapperStyle>
     );
 };
