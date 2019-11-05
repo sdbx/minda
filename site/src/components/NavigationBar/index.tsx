@@ -10,7 +10,15 @@ const NavWrapperStyle = styled.ul`
     padding: 0;
     overflow: hidden;
     list-style-type: none;
-    background-color: rgba(255, 255, 255, 0);
+    background-color: #3d3d3d;
+`;
+
+const NavItemWrapperStyle = styled.div`
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    min-width: 100%;
+    z-index: -1;
 `;
 
 const NavItemStyle = styled.li`
@@ -18,13 +26,16 @@ const NavItemStyle = styled.li`
 
     a {
         display: block;
-        color: #000000;
-        text-align: center;
-        padding: 28px 18px;
+        font-family: 'Oxygen', sans-serif;
+        letter-spacing: 4px;
+        font-size: 14px;
+        color: white;
+        padding: 30px 18px;
         text-decoration: none;
+        transition: all 300ms ease;
 
         &:hover {
-            background-color: rgba(255, 255, 255, 0.2);
+            color: #3498db;
         }
     }
 `;
@@ -35,12 +46,18 @@ const NavigationBar: React.FC = () => {
             <NavItemStyle>
                 <Link to="/">[LOGO] MINDA</Link>
             </NavItemStyle>
-            <NavItemStyle>
-                <Link to="/stat">STATS</Link>
-            </NavItemStyle>
-            <NavItemStyle>
-                <Link to="/">RANK</Link>
-            </NavItemStyle>
+
+            <NavItemWrapperStyle className="flex justify-center">
+                <NavItemStyle>
+                    <Link to="/about">ABOUT</Link>
+                </NavItemStyle>
+                <NavItemStyle>
+                    <Link to="/stat">STAT</Link>
+                </NavItemStyle>
+                <NavItemStyle>
+                    <Link to="/">RANK</Link>
+                </NavItemStyle>
+            </NavItemWrapperStyle>
         </NavWrapperStyle>
     );
 };
