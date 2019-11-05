@@ -1,16 +1,19 @@
 import React from 'react';
 import styled from 'styled-components';
 import MainLayout from '../layouts/MainLayout';
+import MainBackground from '../components/MainBackground';
+import SummaryText from '../atoms/MainPage/SummaryText';
 
 const WrapperStyle = styled.div`
-    font-size: 50px;
+    margin-top: 60px;
 `;
 
 const Main: React.FC = () => {
     return (
         <MainLayout>
+            <MainBackground />
             <WrapperStyle className="container mx-auto">
-                Minda
+                <SummaryText />
             </WrapperStyle>
         </MainLayout>
     );

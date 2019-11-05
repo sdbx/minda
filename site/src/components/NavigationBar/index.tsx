@@ -24,7 +24,7 @@ const NavItemStyle = styled.li`
         text-decoration: none;
 
         &:hover {
-            background-color: #eeeeee;
+            background-color: rgba(255, 255, 255, 0.2);
         }
     }
 `;
@@ -33,7 +33,7 @@ const NavigationBar: React.FC = () => {
     return (
         <NavWrapperStyle>
             <NavItemStyle>
-                <Link to="/">MINDA</Link>
+                <Link to="/">[LOGO] MINDA</Link>
             </NavItemStyle>
             <NavItemStyle>
                 <Link to="/stat">STATS</Link>
