@@ -3,10 +3,13 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
 const NavWrapperStyle = styled.ul`
-    list-style-type: none;
+    position: fixed;
+    width: 100%;
+    top: 0;
     margin: 0;
     padding: 0;
     overflow: hidden;
+    list-style-type: none;
     background-color: rgba(255, 255, 255, 0);
 `;
 
