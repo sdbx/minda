@@ -15,8 +15,6 @@ const NavWrapperStyle = styled.ul`
 
 const NavItemWrapperStyle = styled.div`
     position: absolute;
-    top: 0;
-    bottom: 0;
     min-width: 100%;
     z-index: -1;
 `;

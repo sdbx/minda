@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 const TextStyle = styled.p`
     text-align: center;
-    font-size: 48px;
+    font-size: 44px;
     color: white;
 `;
 
