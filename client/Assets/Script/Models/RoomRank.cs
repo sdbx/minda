@@ -1,9 +1,9 @@
-namespace Models
+﻿namespace Models
 {
     public class RoomRank
     {
-        public int black;
-        public int white;
-        public int time;
+        public int Black;
+        public int White;
+        public int Time;
     }
 }

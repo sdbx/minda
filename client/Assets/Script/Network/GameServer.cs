@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
@@ -19,104 +19,104 @@ namespace Network
 {
     public class GameServer : MonoBehaviour
     {
-        public static GameServer instance;
+        public static GameServer Instance;
 
         //socket
-        private SocketClient asyncCallbackClient = new SocketClient();
+        private SocketClient _asyncCallbackClient = new SocketClient();
         //event
-        private JsonSerializerSettings eventJsonSettings = new JsonSerializerSettings
+        private JsonSerializerSettings _eventJsonSettings = new JsonSerializerSettings
         {
             TypeNameHandling = TypeNameHandling.Objects,
         };
         public delegate void GameEventHandler(Event e);
-        private Dictionary<Type, List<GameEventHandler>> handlers = new Dictionary<Type, List<GameEventHandler>>();
+        private Dictionary<Type, List<GameEventHandler>> _handlers = new Dictionary<Type, List<GameEventHandler>>();
 
-        public event Action<int,BallType> UserEnteredEvent;
+        public event Action<int, BallType> UserEnteredEvent;
         public event Action<int> UserLeftEvent;
         public event Action<Room> RoomConnectedEvent;
         public event Action<Conf> ConfedEvent;
         public event Action<Message> MessagedEvent;
-        public event Action<GameStartedEvent> gameStarted;
-        public event Action<EndedEvent> endedEvent;
-        
+        public event Action<GameStartedEvent> GameStarted;
+        public event Action<EndedEvent> EndedEvent;
+
         public bool isSpectator = false;
         public Room connectedRoom;
-        private Dictionary<int, User> users = new Dictionary<int, User>();
-        private Dictionary<int, Texture> profileImages = new Dictionary<int, Texture>();
-        
+        private Dictionary<int, User> _users = new Dictionary<int, User>();
+        private Dictionary<int, Texture> _profileImages = new Dictionary<int, Texture>();
+
         public GameStartedEvent gamePlaying;
         public bool isInGame;
 
-        private Conf prevConf;
+        private Conf _prevConf;
 
-        private bool  isGameEnded = false;
+        private bool _isGameEnded = false;
 
         private void Awake()
         {
             //singleton
-            if (instance == null)
+            if (Instance == null)
             {
-                instance = this;
+                Instance = this;
             }
-            else if (instance != this)
+            else if (Instance != this)
             {
                 Destroy(gameObject);
             }
 
             DontDestroyOnLoad(gameObject);
-            eventJsonSettings.Converters.Add(new EventConverter());
+            _eventJsonSettings.Converters.Add(new EventConverter());
             InitHandlers();
-            asyncCallbackClient.closeSocketCallback = OnSocketClose;
+            _asyncCallbackClient.CloseSocketCallback = OnSocketClose;
         }
 
         private void Update()
         {
-            int dataCount = asyncCallbackClient.dataQueue.Count;
+            var dataCount = _asyncCallbackClient.DataQueue.Count;
             if (dataCount > 0)
             {
-                for (int i = 0; i < dataCount; i++)
+                for (var i = 0; i < dataCount; i++)
                 {
-                    string data = asyncCallbackClient.dataQueue.Dequeue();
+                    var data = _asyncCallbackClient.DataQueue.Dequeue();
                     ReceiveEvent(data);
                 }
             }
 
-            int logCount = asyncCallbackClient.logQueue.Count;
+            var logCount = _asyncCallbackClient.LogQueue.Count;
             if (logCount > 0)
             {
-                for (int i = 0; i < logCount; i++)
+                for (var i = 0; i < logCount; i++)
                 {
-                    Debug.Log(asyncCallbackClient.logQueue.Dequeue());
+                    Debug.Log(_asyncCallbackClient.LogQueue.Dequeue());
                 }
             }
 
-            int callbackCount = asyncCallbackClient.callbackQuene.Count;
+            var callbackCount = _asyncCallbackClient.CallbackQuene.Count;
             if (callbackCount > 0)
             {
-                for (int i = 0; i < callbackCount; i++)
+                for (var i = 0; i < callbackCount; i++)
                 {
-                    asyncCallbackClient.callbackQuene.Dequeue()();
+                    _asyncCallbackClient.CallbackQuene.Dequeue()();
                 }
             }
         }
 
         private void Connect(string ip, int port, Action callback)
         {
-            if (asyncCallbackClient.state == ClientState.DISCONNECTED)
-                asyncCallbackClient.Connect(ip, port, callback);
+            if (_asyncCallbackClient.State == ClientState.Disconnected)
+                _asyncCallbackClient.Connect(ip, port, callback);
             else Debug.Log($"[AsyncCallbackClient] Already Connected {ip}:{port}");
         }
 
         private void ReceiveEvent(string data)
         {
-            foreach (string splitedStr in data.Split('\n'))
+            foreach (var splitedStr in data.Split('\n'))
             {
                 if (splitedStr == "")
                     return;
 
-                Event e = JsonConvert.DeserializeObject<Event>(splitedStr, eventJsonSettings);
+                var e = JsonConvert.DeserializeObject<Event>(splitedStr, _eventJsonSettings);
                 Debug.Log(e.GetType());
-                foreach(var handle in handlers[e.GetType()])
+                foreach (var handle in _handlers[e.GetType()])
                 {
                     handle(e);
                 }
@@ -126,56 +126,57 @@ namespace Network
         public void EndConnection()
         {
             ClearHandles();
-            asyncCallbackClient.Close();
+            _asyncCallbackClient.Close();
         }
 
         public void ClearHandles()
         {
-            handlers.Clear();
+            _handlers.Clear();
         }
 
         public void SendCommand(Command command)
         {
-            string json = JsonConvert.SerializeObject(command);
-            asyncCallbackClient.SendData(json + "\n");
+            var json = JsonConvert.SerializeObject(command);
+            _asyncCallbackClient.SendData(json + "\n");
         }
 
         public void AddHandler<T>(GameEventHandler handler)
         {
-            Type type = typeof(T);
-            if(!handlers.ContainsKey(type))
+            var type = typeof(T);
+            if (!_handlers.ContainsKey(type))
             {
-                handlers[type] = new List<GameEventHandler>();
+                _handlers[type] = new List<GameEventHandler>();
             }
-            handlers[type].Add(handler);
+            _handlers[type].Add(handler);
         }
 
         public void RemoveHandler<T>(GameEventHandler handler)
         {
-            Type type = typeof(T);
-            handlers[type].Remove(handler);
+            var type = typeof(T);
+            _handlers[type].Remove(handler);
         }
         //game
         public void GetInGameUser(int id, Action<InGameUser> callback)
         {
-            if(!connectedRoom.Users.Contains(id))
-              return;
+            if (!connectedRoom.Users.Contains(id))
+                return;
 
-            if(!users.ContainsKey(id))
+            if (!_users.ContainsKey(id))
             {
-                LobbyServerAPI.GetUserInformation(id, (User user) =>{
-                    users[id] = user;
-                    GetInGameUser(id,callback);
+                LobbyServerApi.GetUserInformation(id, (User user) =>
+                {
+                    _users[id] = user;
+                    GetInGameUser(id, callback);
                 });
                 return;
             }
             var inGameUser = new InGameUser();
-            inGameUser.user = users[id];
-            inGameUser.isKing = (connectedRoom.conf.king == id);
-            inGameUser.ballType = RoomUtils.GetBallType(id);
+            inGameUser.User = _users[id];
+            inGameUser.IsKing = (connectedRoom.Conf.King == id);
+            inGameUser.BallType = RoomUtils.GetBallType(id);
 
             callback(inGameUser);
-                 
+
         }
         //EventHandlers
         private void InitHandlers()
@@ -194,95 +195,96 @@ namespace Network
         private void OnConnected(Event e)
         {
             var connected = (ConnectedEvent)e;
-            connectedRoom = connected.room;
-            RoomConnectedEvent?.Invoke(connected.room);
+            connectedRoom = connected.Room;
+            RoomConnectedEvent?.Invoke(connected.Room);
         }
 
         private void OnEntered(Event e)
         {
             var entered = (EnteredEvent)e;
-            connectedRoom.Users.Add(entered.user);
+            connectedRoom.Users.Add(entered.User);
 
-            var conf = connectedRoom.conf;
-            var me = LobbyServer.instance.loginUser;
+            var conf = connectedRoom.Conf;
+            var me = LobbyServer.Instance.loginUser;
             var emptyBallType = RoomUtils.GetEmptyBallType(conf);
-            
-            GetInGameUser(entered.user,(InGameUser inGameUser)=>{
-                MessagedEvent?.Invoke(new SystemMessage("Notice",LanguageManager.GetText("joinmessage",inGameUser.user.username)));
+
+            GetInGameUser(entered.User, (InGameUser inGameUser) =>
+            {
+                MessagedEvent?.Invoke(new SystemMessage("Notice", LanguageManager.GetText("joinmessage", inGameUser.User.Username)));
             });
-           
+
 
             //MyEnter
-            if(entered.user == me.id&&RoomUtils.GetBallType(me.id)==BallType.None)
+            if (entered.User == me.Id && RoomUtils.GetBallType(me.Id) == BallType.None)
             {
                 isSpectator = (emptyBallType == BallType.None);
-                SteamManager.instance.ActivateInvite(connectedRoom.id);
+                SteamManager.Instance.ActivateInvite(connectedRoom.Id);
             }
 
-            if (emptyBallType != BallType.None && conf.king == me.id)
+            if (emptyBallType != BallType.None && conf.King == me.Id)
             {
                 if (emptyBallType == BallType.Black)
                 {
-                    conf.black = entered.user;
+                    conf.Black = entered.User;
                 }
                 else
                 {
-                    conf.white = entered.user;
+                    conf.White = entered.User;
                 }
                 UpdateConf();
             }
             Debug.Log(UserEnteredEvent);
-            UserEnteredEvent?.Invoke(entered.user, emptyBallType);
+            UserEnteredEvent?.Invoke(entered.User, emptyBallType);
         }
 
         public void GetProfileTexture(int id, Action<Texture> callback)
         {
-            if(profileImages.ContainsKey(id))
+            if (_profileImages.ContainsKey(id))
             {
-                callback(profileImages[id]);
+                callback(_profileImages[id]);
                 return;
             }
-            if(!connectedRoom.Users.Contains(id))
+            if (!connectedRoom.Users.Contains(id))
                 return;
 
-            GetInGameUser(id, (InGameUser inGameUser)=>
+            GetInGameUser(id, (InGameUser inGameUser) =>
             {
-                if(inGameUser.user.picture==null)
+                if (inGameUser.User.Picture == null)
                 {
                     return;
                 }
-                LobbyServerAPI.DownloadImage(inGameUser.user.picture,(Texture texture)=>
-                {
-                    if(!profileImages.ContainsKey(id))
-                        profileImages.Add(id,texture);
-                    callback(texture);
-                });
+                LobbyServerApi.DownloadImage(inGameUser.User.Picture, (Texture texture) =>
+                 {
+                     if (!_profileImages.ContainsKey(id))
+                         _profileImages.Add(id, texture);
+                     callback(texture);
+                 });
             });
         }
 
         private void OnLeft(Event e)
         {
             var left = (LeftEvent)e;
-            MessagedEvent?.Invoke(new SystemMessage("Notice", LanguageManager.GetText("leftmessage",users[left.user].username)));
-            connectedRoom.Users.Remove(left.user);
-            users.Remove(left.user);
-            UserLeftEvent?.Invoke(left.user);
+            MessagedEvent?.Invoke(new SystemMessage("Notice", LanguageManager.GetText("leftmessage", _users[left.User].Username)));
+            connectedRoom.Users.Remove(left.User);
+            _users.Remove(left.User);
+            UserLeftEvent?.Invoke(left.User);
         }
 
         private void OnConfed(Event e)
         {
             var confed = (ConfedEvent)e;
-            var myId = LobbyServer.instance.loginUser.id;
-            connectedRoom.conf = confed.conf;
-            isSpectator = (confed.conf.black != myId && confed.conf.white != myId);
-            ConfedEvent?.Invoke(confed.conf);
+            var myId = LobbyServer.Instance.loginUser.Id;
+            connectedRoom.Conf = confed.Conf;
+            isSpectator = (confed.Conf.Black != myId && confed.Conf.White != myId);
+            ConfedEvent?.Invoke(confed.Conf);
         }
 
         public void OnGameStarted(Event e)
         {
             var gameStarted = (GameStartedEvent)e;
             gamePlaying = gameStarted;
-            SceneManager.LoadScene("Game",LoadSceneMode.Single);
+            SceneManager.LoadScene("Game", LoadSceneMode.Single);
             isInGame = true;
         }
 
@@ -290,46 +292,46 @@ namespace Network
         {
             var gameEnded = (EndedEvent)e;
             isInGame = false;
-            endedEvent?.Invoke(gameEnded);
-            isGameEnded = true;
+            EndedEvent?.Invoke(gameEnded);
+            _isGameEnded = true;
         }
-        
+
         public void OnError(Event e)
         {
             var error = (ErrorEvent)e;
-            ToastManager.instance.Add(error.message,"Error");
+            ToastManager.Instance.Add(error.Message, "Error");
         }
 
         public void OnChatted(Event e)
         {
             var chatted = (ChattedEvent)e;
-            GetInGameUser(chatted.user,(InGameUser inGameUser)=>
-            {
-                MessagedEvent?.Invoke(new UserMessage(inGameUser,chatted.content));
-            });
+            GetInGameUser(chatted.User, (InGameUser inGameUser) =>
+             {
+                 MessagedEvent?.Invoke(new UserMessage(inGameUser, chatted.Content));
+             });
         }
 
         public void OnBanned(Event e)
         {
             var banned = (BannedEvent)e;
-            GetInGameUser(banned.user, (InGameUser inGameUser) =>
+            GetInGameUser(banned.User, (InGameUser inGameUser) =>
             {
-                MessagedEvent?.Invoke(new SystemMessage("Notice", LanguageManager.GetText("banmessage",inGameUser.user.username)));
+                MessagedEvent?.Invoke(new SystemMessage("Notice", LanguageManager.GetText("banmessage", inGameUser.User.Username)));
             });
         }
 
         public void EnterRoom(string ip, int port, string invite)
         {
-            Connect(ip, port, ()=> 
-            { 
-                ConnectCommand connectCommand = new ConnectCommand(invite);
+            Connect(ip, port, () =>
+            {
+                var connectCommand = new ConnectCommand(invite);
                 SendCommand(connectCommand);
             });
         }
 
         public void UpdateConf()
         {
-            ConfCommand command = new ConfCommand { conf = connectedRoom.conf };
+            var command = new ConfCommand { Conf = connectedRoom.Conf };
             SendCommand(command);
         }
 
@@ -340,41 +342,41 @@ namespace Network
             //기존에 관전자일시
             if (originBallType == BallType.None)
             {
-                if(ballType == BallType.Black)
+                if (ballType == BallType.Black)
                 {
-                    connectedRoom.conf.black = id;
+                    connectedRoom.Conf.Black = id;
                 }
-                if(ballType == BallType.White)
+                if (ballType == BallType.White)
                 {
-                    connectedRoom.conf.white = id;
+                    connectedRoom.Conf.White = id;
                 }
             }
             //기존이 블랙일시
-            else if(originBallType == BallType.Black)
+            else if (originBallType == BallType.Black)
             {
-                if(ballType == BallType.None)
+                if (ballType == BallType.None)
                 {
-                    connectedRoom.conf.black = -1;
+                    connectedRoom.Conf.Black = -1;
                 }
-                if(ballType == BallType.White)
+                if (ballType == BallType.White)
                 {
-                    var white = connectedRoom.conf.white;
-                    connectedRoom.conf.white = id;
-                    connectedRoom.conf.black = white;
+                    var white = connectedRoom.Conf.White;
+                    connectedRoom.Conf.White = id;
+                    connectedRoom.Conf.Black = white;
                 }
             }
             //기존이 화이트일시
             else
             {
-                if(ballType == BallType.None)
+                if (ballType == BallType.None)
                 {
-                    connectedRoom.conf.white = -1;
+                    connectedRoom.Conf.White = -1;
                 }
-                if(ballType == BallType.Black)
+                if (ballType == BallType.Black)
                 {
-                    var black = connectedRoom.conf.black;
-                    connectedRoom.conf.black = id;
-                    connectedRoom.conf.white = black;
+                    var black = connectedRoom.Conf.Black;
+                    connectedRoom.Conf.Black = id;
+                    connectedRoom.Conf.White = black;
                 }
             }
             UpdateConf();
@@ -382,45 +384,45 @@ namespace Network
 
         public void ChangeKingTo(int id)
         {
-            connectedRoom.conf.king = id;
+            connectedRoom.Conf.King = id;
             UpdateConf();
         }
 
         public void ChangeMapTo(string map)
         {
-            connectedRoom.conf.map = map;
+            connectedRoom.Conf.Map = map;
             UpdateConf();
         }
 
         public void SendChat(string message)
         {
-            ChatCommand command = new ChatCommand();
-            command.content = message;
+            var command = new ChatCommand();
+            command.Content = message;
             SendCommand(command);
         }
 
         public void BanUser(int id)
         {
-            BanCommnad command = new BanCommnad();
-            command.user = id;
+            var command = new BanCommnad();
+            command.User = id;
             SendCommand(command);
         }
 
         public void ExitGame()
         {
-            asyncCallbackClient.Close();   
+            _asyncCallbackClient.Close();
         }
 
         private void OnSocketClose()
         {
             ClearAll();
-            if(isGameEnded&&connectedRoom!=null&&connectedRoom.rank!=null)
+            if (_isGameEnded && connectedRoom != null && connectedRoom.Rank != null)
                 return;
-            SceneManager.LoadSceneAsync("Menu",LoadSceneMode.Single);
+            SceneManager.LoadSceneAsync("Menu", LoadSceneMode.Single);
         }
         public void Surrender()
         {
-            SendCommand(new GGCommand());
+            SendCommand(new GgCommand());
         }
 
         private void ClearAll()
@@ -432,18 +434,18 @@ namespace Network
             MessagedEvent = null;
 
             connectedRoom = null;
-            users.Clear();
-            profileImages.Clear();
+            _users.Clear();
+            _profileImages.Clear();
 
             gamePlaying = null;
-            SteamManager.instance.UnActivateInvite();
+            SteamManager.Instance.UnActivateInvite();
         }
 
         public bool CheckConfChanged()
         {
-            if(prevConf!=connectedRoom.conf)
+            if (_prevConf != connectedRoom.Conf)
             {
-                prevConf = connectedRoom.conf;
+                _prevConf = connectedRoom.Conf;
                 return true;
             }
             return false;

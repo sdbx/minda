@@ -1,4 +1,4 @@
-using Network;
+﻿using Network;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,7 +14,7 @@ namespace UI.Chatting
         public ObjectToggler objectToggler;
 
 
-        
+
         public bool isActivated
         {
             get
@@ -34,13 +34,13 @@ namespace UI.Chatting
             objectToggler.UnActivate();
         }
 
-        private void Update() 
+        private void Update()
         {
             if (Input.GetKeyDown(KeyCode.Return))
             {
-                if(inputField.text!="")
+                if (inputField.text != "")
                 {
-                    GameServer.instance.SendChat(inputField.text);
+                    GameServer.Instance.SendChat(inputField.text);
                     inputField.text = "";
                     chattingSystem.ScrollToBottom();
                     Focus();
@@ -49,7 +49,7 @@ namespace UI.Chatting
 
                 objectToggler.UnActivate();
             }
-            if(Input.GetKeyDown(KeyCode.Escape))
+            if (Input.GetKeyDown(KeyCode.Escape))
             {
                 inputField.text = "";
                 objectToggler.UnActivate();
@@ -61,6 +61,6 @@ namespace UI.Chatting
             inputField.Select();
             inputField.ActivateInputField();
         }
-        
+
     }
 }

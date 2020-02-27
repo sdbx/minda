@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Scene;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using UI.Toast;
 
@@ -14,6 +11,6 @@ public class RankModeBtn : MonoBehaviour
 
     private void MoveToMatchScene()
     {
-        ToastManager.instance.Add("Ranked mode will open after a while. Please enjoy the custom mode in the meantime.", "Info");
+        ToastManager.Instance.Add("Ranked mode will open after a while. Please enjoy the custom mode in the meantime.", "Info");
     }
 }

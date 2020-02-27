@@ -20,30 +20,30 @@ namespace UI
         private GameObject black;
         [SerializeField]
         private GameObject white;
-        private Board board;
-        private GameObject[,] balls;
+        private Board _board;
+        private GameObject[,] _balls;
 
-        private MapObject selectedMap;
+        private MapObject _selectedMap;
 
 
-        void Awake()
+        private void Awake()
         {
-            board = new Board(5);
+            _board = new Board(5);
         }
 
         public void SetMap(int[,] map)
         {
-            if (balls != null)
+            if (_balls != null)
             {
-                foreach (var ball in balls)
+                foreach (var ball in _balls)
                 {
                     if (ball != null)
                         Destroy(ball);
                 }
-                balls = null;
+                _balls = null;
             }
-            board.SetMap(map);
-            balls = BallCreator.CreatePreviewBalls(ballSize, parent, holeDistance, board, black, white);
+            _board.SetMap(map);
+            _balls = BallCreator.CreatePreviewBalls(ballSize, parent, holeDistance, _board, black, white);
         }
 
     }

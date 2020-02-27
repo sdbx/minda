@@ -1,4 +1,4 @@
-using Game.Coords;
+﻿using Game.Coords;
 using Models;
 
 namespace Models
@@ -6,54 +6,54 @@ namespace Models
     public abstract class Command { };
     public class ConnectCommand : Command
     {
-        public string type = "connect";
-        public string invite;
+        public string Type = "connect";
+        public string Invite;
 
         public ConnectCommand(string invite)
         {
-            this.invite = invite;
+            this.Invite = invite;
         }
     }
 
     public class MoveCommand : Command
     {
-        public string type = "move";
-        public CubeCoord start;
-        public CubeCoord end;
-        public CubeCoord dir;
+        public string Type = "move";
+        public CubeCoord Start;
+        public CubeCoord End;
+        public CubeCoord Dir;
 
         public MoveCommand(BallType player, CubeCoord start, CubeCoord end, CubeCoord dir)
         {
-            this.start = start;
-            this.end = end;
-            this.dir = dir;
+            this.Start = start;
+            this.End = end;
+            this.Dir = dir;
         }
     }
 
-    public class GGCommand : Command
+    public class GgCommand : Command
     {
-        public string type = "gg";
+        public string Type = "gg";
     }
 
     public class ConfCommand : Command
     {
-        public string type = "conf";
-        public Conf conf;
+        public string Type = "conf";
+        public Conf Conf;
     }
 
-    public class GameStart : Command 
+    public class GameStart : Command
     {
-        public string type = "start";
+        public string Type = "start";
     }
 
     public class ChatCommand : Command
     {
-        public string type = "chat";
-        public string content;
+        public string Type = "chat";
+        public string Content;
     }
     public class BanCommnad : Command
     {
-        public string type = "ban";
-        public int user;
+        public string Type = "ban";
+        public int User;
     }
 }

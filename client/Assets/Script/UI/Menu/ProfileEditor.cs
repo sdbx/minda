@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using Models;
 using Network;
@@ -10,6 +10,7 @@ using UnityEngine.Networking;
 using UnityEngine.UI;
 using Newtonsoft.Json;
 using System.IO;
+using UnityEngine.Serialization;
 
 public class ProfileEditor : MonoBehaviour
 {
@@ -19,8 +20,8 @@ public class ProfileEditor : MonoBehaviour
     private Text userNametext;
     [SerializeField]
     private InputField userNameInputField;
-    [SerializeField]
-    private Button EditStartBtn;
+    [FormerlySerializedAs("EditStartBtn")] [SerializeField]
+    private Button editStartBtn;
     //[SerializeField]
     //private Button profileImageRemoveBtn;
     [SerializeField]
@@ -32,27 +33,27 @@ public class ProfileEditor : MonoBehaviour
     [SerializeField]
     private Button discardChagesBtn;
 
-    private bool isEditing;
-    private byte[] loadedImage;
+    private bool _isEditing;
+    private byte[] _loadedImage;
 
-    private bool isProfileImageExist;
+    private bool _isProfileImageExist;
 
     private void Awake()
     {
-        EditStartBtn.onClick.AddListener(OnEditStartBtnClicked);
+        editStartBtn.onClick.AddListener(OnEditStartBtnClicked);
         //profileImageRemoveBtn.onClick.AddListener(OnProfileImageRemoveBtnClicked);
         profileImageChangeBtn.onClick.AddListener(OnProfileImageChangeBtnClicked);
         saveChangesBtn.onClick.AddListener(OnSaveChangesBtnClicked);
         discardChagesBtn.onClick.AddListener(OnDiscardChagesBtnClicked);
         SetDisplaymentState(false);
-        display();
+        Display();
     }
 
     private void OnEditStartBtnClicked()
     {
-        if (!isEditing)
+        if (!_isEditing)
         {
-            loadedImage = null;
+            _loadedImage = null;
             StartEdit();
         }
     }
@@ -64,39 +65,38 @@ public class ProfileEditor : MonoBehaviour
 
     private void OnProfileImageRemoveBtnClicked()
     {
-        profileImage.texture = UISettings.instance.placeHolder;
+        profileImage.texture = UiSettings.Instance.placeHolder;
         //profileImageRemoveBtn.gameObject.SetActive(false);
     }
 
     private void OnSaveChangesBtnClicked()
     {
         var newUser = new User();
-        newUser.username = userNameInputField.text;
-        var end = false;
-        LobbyServer.instance.Put("/users/me/", JsonConvert.SerializeObject(newUser), (EmptyResult nothing, int? err2) =>
+        newUser.Username = userNameInputField.text;
+        LobbyServer.Instance.Put("/users/me/", JsonConvert.SerializeObject(newUser), (EmptyResult nothing, int? err2) =>
         {
             if (err2 != null)
             {
                 //에러처리
-                ToastManager.instance.Add(LanguageManager.GetText("profileuploadingerror"), "Error");
+                ToastManager.Instance.Add(LanguageManager.GetText("profileuploadingerror"), "Error");
                 return;
             }
-            
-            if (loadedImage == null)
+
+            if (_loadedImage == null)
             {
                 EndEdit();
                 return;
             }
 
             var formData = new WWWForm();
-            formData.AddBinaryData("file", loadedImage);
-            LobbyServer.instance.Put("/users/me/picture/", formData, (data, err) =>
+            formData.AddBinaryData("file", _loadedImage);
+            LobbyServer.Instance.Put("/users/me/picture/", formData, (data, err) =>
             {
                 if (err != null)
                 {
                     //에러처리
-                    ToastManager.instance.Add(LanguageManager.GetText("profileuploadingerror"), "Error");
-                        return;
+                    ToastManager.Instance.Add(LanguageManager.GetText("profileuploadingerror"), "Error");
+                    return;
                 }
                 EndEdit();
             });
@@ -106,12 +106,12 @@ public class ProfileEditor : MonoBehaviour
 
     private void EndEdit()
     {
-        ToastManager.instance.Add(LanguageManager.GetText("profilechanged"), "Success");
-        LobbyServer.instance.RefreshLoginUser((User user) =>
+        ToastManager.Instance.Add(LanguageManager.GetText("profilechanged"), "Success");
+        LobbyServer.Instance.RefreshLoginUser((User user) =>
         {
-            LobbyServer.instance.RefreshLoginUserProfileImage((Texture texture) =>
+            LobbyServer.Instance.RefreshLoginUserProfileImage((Texture texture) =>
             {
-                userNametext.text = user.username;
+                userNametext.text = user.Username;
                 profileImage.texture = texture;
             });
         });
@@ -135,22 +135,22 @@ public class ProfileEditor : MonoBehaviour
     private void CancelEdit()
     {
         SetDisplaymentState(false);
-        display();
+        Display();
     }
 
-    private void display()
+    private void Display()
     {
-        LobbyServer.instance.GetLoginUserProfileImage((Texture texture) =>
+        LobbyServer.Instance.GetLoginUserProfileImage((Texture texture) =>
         {
-            if(texture!=null)
+            if (texture != null)
                 profileImage.texture = texture;
         });
-        userNametext.text = LobbyServer.instance.loginUser.username;
+        userNametext.text = LobbyServer.Instance.loginUser.Username;
     }
 
     private void SetDisplaymentState(bool isEdit)
     {
-        EditStartBtn.gameObject.SetActive(!isEdit);
+        editStartBtn.gameObject.SetActive(!isEdit);
         profileChangeIcon.SetActive(isEdit);
         userNameInputField.gameObject.SetActive(isEdit);
         profileImageChangeBtn.enabled = isEdit;
@@ -171,18 +171,18 @@ public class ProfileEditor : MonoBehaviour
             new ExtensionFilter("All Files", "*" ),
         };
 
-         var paths = StandaloneFileBrowser.OpenFilePanel("Map", "", extensions, false);
+        var paths = StandaloneFileBrowser.OpenFilePanel("Map", "", extensions, false);
 
         if (paths.Length > 0)
         {
             try
             {
-                profileImage.texture =  Output(paths[0]);
+                profileImage.texture = Output(paths[0]);
                 //profileImageRemoveBtn.gameObject.SetActive(true);
             }
             catch (Exception e)
             {
-                ToastManager.instance.Add(LanguageManager.GetText("imageloaderror"), "Error");
+                ToastManager.Instance.Add(LanguageManager.GetText("imageloaderror"), "Error");
                 Debug.Log("이미지 로드 오류 : " + e);
             }
         }
@@ -198,7 +198,7 @@ public class ProfileEditor : MonoBehaviour
             fileData = File.ReadAllBytes(filePath);
             tex = new Texture2D(2, 2);
             tex.LoadImage(fileData);
-            loadedImage = fileData;
+            _loadedImage = fileData;
         }
         return tex;
     }

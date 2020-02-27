@@ -1,11 +1,11 @@
-using System;
+﻿using System;
 using UnityEngine;
 
 namespace UI
 {
-    public class UISettings : MonoBehaviour
+    public class UiSettings : MonoBehaviour
     {
-        public static UISettings instance;
+        public static UiSettings Instance;
 
         [Serializable]
         public struct Colors
@@ -30,11 +30,11 @@ namespace UI
         private void Awake()
         {
             //singleton
-            if (instance == null)
+            if (Instance == null)
             {
-                instance = this;
+                Instance = this;
             }
-            else if (instance != this)
+            else if (Instance != this)
             {
                 Destroy(gameObject);
             }

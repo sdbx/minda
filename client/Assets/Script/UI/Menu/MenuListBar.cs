@@ -7,11 +7,11 @@ public class MenuListBar : MonoBehaviour
 {
     [SerializeField]
     private List<MenuElement> menuList = new List<MenuElement>();
-    private MenuElement selectedMenu;
+    private MenuElement _selectedMenu;
     [SerializeField]
     private int startingIndex;
-    
-    void Start()
+
+    private void Start()
     {
 
         foreach (var menuElement in menuList)
@@ -20,14 +20,14 @@ public class MenuListBar : MonoBehaviour
         }
         var startingMenu = menuList[startingIndex];
         startingMenu.Select();
-        selectedMenu = startingMenu; 
+        _selectedMenu = startingMenu;
     }
-    
-    void MenuElementClicked(MenuElement element)
+
+    private void MenuElementClicked(MenuElement element)
     {
-        if(selectedMenu!=null)
-            selectedMenu.UnSelect();
+        if (_selectedMenu != null)
+            _selectedMenu.UnSelect();
         element.Select();
-        selectedMenu = element;
+        _selectedMenu = element;
     }
 }

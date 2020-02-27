@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using RotaryHeart.Lib.SerializableDictionary;
 using UnityEngine;
@@ -12,17 +12,17 @@ namespace UI.Toast
         {
             public ToastData(string message, string type)
             {
-                this.message = message;
-                this.type = type;
+                this.Message = message;
+                this.Type = type;
             }
-            public string message;
-            public string type;
+            public string Message;
+            public string Type;
         }
 
         [Serializable]
         public class ToastTypes : SerializableDictionaryBase<string, ToastType> { }
 
-        public static ToastManager instance;
+        public static ToastManager Instance;
 
         [SerializeField]
         private ToastTypes toastTypes = new ToastTypes();
@@ -38,59 +38,59 @@ namespace UI.Toast
         [SerializeField]
         private int limit;
 
-        private Vector2 prefabSize;
+        private Vector2 _prefabSize;
 
-        private Queue<ToastData> toastQueues = new Queue<ToastData>();
-        private List<ToastMessage> toastMessages = new List<ToastMessage>();
+        private Queue<ToastData> _toastQueues = new Queue<ToastData>();
+        private List<ToastMessage> _toastMessages = new List<ToastMessage>();
 
-        private bool isMoving = false;
+        private bool _isMoving = false;
 
         private void Awake()
         {
-            if (instance == null)
+            if (Instance == null)
             {
-                instance = this;
+                Instance = this;
             }
-            else if (instance != this)
+            else if (Instance != this)
             {
                 Destroy(gameObject);
             }
 
-            prefabSize = prefab.GetComponent<RectTransform>().rect.size;
+            _prefabSize = prefab.GetComponent<RectTransform>().rect.size;
         }
 
         private void Update()
         {
-            if (toastQueues.Count != 0 && !isMoving && toastMessages.Count < limit)
+            if (_toastQueues.Count != 0 && !_isMoving && _toastMessages.Count < limit)
             {
-                Create(toastQueues.Dequeue());
+                Create(_toastQueues.Dequeue());
             }
         }
 
         public void Add(string message, string type)
         {
-            toastQueues.Enqueue(new ToastData(message, type));
+            _toastQueues.Enqueue(new ToastData(message, type));
         }
 
         private ToastMessage Create(ToastData toastData)
         {
-            var toast = Instantiate(prefab, transform.position, Quaternion.Euler(0, 0, (Camera.main.transform.rotation.z==0?0:180)), transform);
-            toast.Init(toastData.message, lifeTime, toastTypes[toastData.type], animationDuration, elementSpace + prefabSize.y);
+            var toast = Instantiate(prefab, transform.position, Quaternion.Euler(0, 0, (Camera.main.transform.rotation.z == 0 ? 0 : 180)), transform);
+            toast.Init(toastData.Message, lifeTime, toastTypes[toastData.Type], animationDuration, elementSpace + _prefabSize.y);
 
             toast.Appear();
 
             toast.destroyedCallback = (ToastMessage toastMessage) =>
             {
-                toastMessages.Remove(toastMessage);
+                _toastMessages.Remove(toastMessage);
             };
 
             toast.MoveDown().OnComplete(() =>
             {
-                isMoving = false;
+                _isMoving = false;
             });
-            isMoving = true;
+            _isMoving = true;
 
-            toastMessages.Add(toast);
+            _toastMessages.Add(toast);
             MoveAll();
 
             return toast;
@@ -98,9 +98,9 @@ namespace UI.Toast
 
         private void MoveAll()
         {
-            for (int i = toastMessages.Count - 1; i >= 0; i--)
+            for (var i = _toastMessages.Count - 1; i >= 0; i--)
             {
-                toastMessages[i].MoveDown();
+                _toastMessages[i].MoveDown();
             }
         }
     }

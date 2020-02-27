@@ -6,7 +6,7 @@ public class SizeMatcher : MonoBehaviour
 {
     [SerializeField]
     private RectTransform target;
-    private RectTransform rectTransform;
+    private RectTransform _rectTransform;
 
     [SerializeField]
     private float vertical;
@@ -19,40 +19,40 @@ public class SizeMatcher : MonoBehaviour
     private Vector2 forceSetSize;
 
     [SerializeField]
-    private Vector2 scale = new Vector2(1,1);
+    private Vector2 scale = new Vector2(1, 1);
 
 
-    void Awake()
+    private void Awake()
     {
-        rectTransform = gameObject.GetComponent<RectTransform>();
+        _rectTransform = gameObject.GetComponent<RectTransform>();
     }
 
-    void Update()
-    {   
-        if(forceSetMode)
+    private void Update()
+    {
+        if (forceSetMode)
         {
-            rectTransform.sizeDelta = forceSetSize;
+            _rectTransform.sizeDelta = forceSetSize;
             return;
         }
         var targetSize = target.rect.size;
         var sizeX = targetSize.x + horizontal;
         var sizeY = targetSize.y + vertical;
         sizeX *= scale.x;
-        sizeY*=scale.y;
+        sizeY *= scale.y;
 
-        if(horizontal == -1)
+        if (horizontal == -1)
         {
-            sizeX = rectTransform.rect.width;
+            sizeX = _rectTransform.rect.width;
         }
-        if(vertical == -1)
+        if (vertical == -1)
         {
-            sizeY = rectTransform.rect.height;
+            sizeY = _rectTransform.rect.height;
         }
-        targetSize = new Vector2(sizeX,sizeY);
+        targetSize = new Vector2(sizeX, sizeY);
 
-        if(targetSize != rectTransform.rect.size)
+        if (targetSize != _rectTransform.rect.size)
         {
-            rectTransform.sizeDelta = targetSize;
+            _rectTransform.sizeDelta = targetSize;
         }
     }
 
@@ -60,8 +60,8 @@ public class SizeMatcher : MonoBehaviour
     {
         forceSetMode = true;
         forceSetSize = new Vector2(
-            (size.x==-1?rectTransform.rect.width:size.x),
-            (size.y==-1?rectTransform.rect.height:size.y)
+            (size.x == -1 ? _rectTransform.rect.width : size.x),
+            (size.y == -1 ? _rectTransform.rect.height : size.y)
         );
         Update();
     }

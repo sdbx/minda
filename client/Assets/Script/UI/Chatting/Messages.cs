@@ -1,28 +1,28 @@
-using Models;
+﻿using Models;
 
 namespace UI.Chatting
 {
     public abstract class Message
     {
-        public Message(string message)
+        public Message(string content)
         {
-            this.message = message;
+            this.Content = content;
         }
-        public string message;
+        public string Content;
     }
 
     public class UserMessage : Message
     {
-        public InGameUser sendUser;
+        public InGameUser SendUser;
 
-        public UserMessage(InGameUser sendUser, string message) : base(message)
+        public UserMessage(InGameUser sendUser, string content) : base(content)
         {
-            this.sendUser = sendUser;
+            this.SendUser = sendUser;
         }
 
         public override string ToString()
         {
-            return $"{sendUser.user.username}: {message}";
+            return $"{SendUser.User.Username}: {Content}";
         }
     }
 
@@ -30,14 +30,14 @@ namespace UI.Chatting
     {
         public string SystemMessageType;
 
-        public SystemMessage(string SystemMessageType, string message) : base(message)
+        public SystemMessage(string systemMessageType, string content) : base(content)
         {
-            this.SystemMessageType = SystemMessageType;
+            this.SystemMessageType = systemMessageType;
         }
 
         public override string ToString()
         {
-            return $"[{SystemMessageType}] {message}";
+            return $"[{SystemMessageType}] {Content}";
         }
     }
 }

@@ -14,22 +14,22 @@ namespace UI
 
         [SerializeField]
         private RectTransform parentTransform;
-        private RectTransform rectTransform;
+        private RectTransform _rectTransform;
 
         [SerializeField]
         private Vector2 contextMenuPivot;
         [SerializeField]
         private Vector2 contextMenuPositionPivot;
-        private ContextMenu contextMenu;
+        private ContextMenu _contextMenu;
 
         private void Awake()
         {
-            contextMenu = new ContextMenu(contextMenuPivot).Add("Copy Room Code", ()=>
+            _contextMenu = new ContextMenu(contextMenuPivot).Add("Copy Room Code", () =>
             {
-                GUIUtility.systemCopyBuffer = GameServer.instance.connectedRoom.id;
-                Toast.ToastManager.instance.Add("Copied To Clipboard","Info");
+                GUIUtility.systemCopyBuffer = GameServer.Instance.connectedRoom.Id;
+                Toast.ToastManager.Instance.Add("Copied To Clipboard", "Info");
             });
-            rectTransform = gameObject.GetComponent<RectTransform>();
+            _rectTransform = gameObject.GetComponent<RectTransform>();
         }
 
         public void OnPointerEnter(PointerEventData eventData)
@@ -50,10 +50,10 @@ namespace UI
         public void OnPointerClick(PointerEventData eventData)
         {
             displayChanger.SetOrigin();
-            var size = rectTransform.rect.size;
-            var position = PositionUtils.WorldPosToLocalRectPos(transform.position,parentTransform);
-            var deltaPostion = new Vector2(size.x * (contextMenuPositionPivot.x-0.5f), size.y*(contextMenuPositionPivot.y-0.5f) );
-            ContextMenuManager.instance.Create(position+deltaPostion,contextMenu);
+            var size = _rectTransform.rect.size;
+            var position = PositionUtils.WorldPosToLocalRectPos(transform.position, parentTransform);
+            var deltaPostion = new Vector2(size.x * (contextMenuPositionPivot.x - 0.5f), size.y * (contextMenuPositionPivot.y - 0.5f));
+            ContextMenuManager.Instance.Create(position + deltaPostion, _contextMenu);
         }
     }
 

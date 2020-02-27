@@ -17,27 +17,27 @@ public class MainScreen : MonoBehaviour
     private GameObject socialLoginBtns;
     [SerializeField]
     private float time = 1;
-    private Vector3 buttonVelocity = Vector3.zero;
-    private bool Clicked = false;
+    private Vector3 _buttonVelocity = Vector3.zero;
+    private bool _clicked = false;
 
-    void Awake()
+    private void Awake()
     {
         socialLoginBtns.gameObject.SetActive(false);
     }
 
-    void Update()
+    private void Update()
     {
-        if (LobbyServer.instance.loginState == LobbyServer.LoginState.Logout)
+        if (LobbyServer.Instance.CurrentLoginState == LobbyServer.LoginState.Logout)
         {
-            if (Input.GetMouseButtonDown(0)) Clicked = true;
-            if (Clicked)
+            if (Input.GetMouseButtonDown(0)) _clicked = true;
+            if (_clicked)
             {
-                title.localPosition = Vector3.SmoothDamp(title.localPosition, destination, ref buttonVelocity, smoothTime);
+                title.localPosition = Vector3.SmoothDamp(title.localPosition, destination, ref _buttonVelocity, smoothTime);
                 if (time > 0)
                 {
                     time -= Time.deltaTime;
                 }
-                if (time <=0)
+                if (time <= 0)
                 {
                     time = 0;
                     clickToLogin.gameObject.SetActive(false);

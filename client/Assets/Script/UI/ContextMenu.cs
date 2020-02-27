@@ -1,4 +1,4 @@
-using UnityEngine.Events;
+﻿using UnityEngine.Events;
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -8,53 +8,53 @@ public class ContextMenu
     {
         public Menu(string name, UnityAction action)
         {
-            this.name = name;
-            this.action = action;
+            this.Name = name;
+            this.Action = action;
         }
-        public string name;
-        public UnityAction action;
+        public string Name;
+        public UnityAction Action;
     }
 
-    public Vector2 pivot;
-    public List<Menu> menus = new List<Menu>();
+    public Vector2 Pivot;
+    public List<Menu> Menus = new List<Menu>();
 
     public ContextMenu(Vector2 pivot)
     {
-        this.pivot = pivot;
+        this.Pivot = pivot;
     }
 
     public ContextMenu(Vector2 pivot, Menu[] menus)
     {
         AddRange(menus);
-        this.pivot = pivot;
+        this.Pivot = pivot;
     }
 
     public ContextMenu Add(string name, UnityAction action)
     {
-        Add(new Menu(name,action));
+        Add(new Menu(name, action));
         return this;
     }
 
     public ContextMenu Add(Menu menu)
     {
-        menus.Add(menu);
+        Menus.Add(menu);
         return this;
     }
 
     public ContextMenu AddRange(IEnumerable<Menu> menus)
     {
-        this.menus.AddRange(menus);
+        this.Menus.AddRange(menus);
         return this;
     }
 
     public ContextMenu SetPivot(Vector2 pivot)
     {
-        this.pivot = pivot;
+        this.Pivot = pivot;
         return this;
     }
 
     public static ContextMenu operator +(ContextMenu a, ContextMenu b)
     {
-        return new ContextMenu(a.pivot).AddRange(a.menus).AddRange(b.menus);
+        return new ContextMenu(a.Pivot).AddRange(a.Menus).AddRange(b.Menus);
     }
 }

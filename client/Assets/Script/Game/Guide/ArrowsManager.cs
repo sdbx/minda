@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using Game.Balls;
 using Game.Boards;
@@ -36,11 +36,11 @@ namespace Game.Guide
             working = false;
         }
 
-        void Start()
+        private void Start()
         {
-            for (int i = 0; i < 6; i++)
+            for (var i = 0; i < 6; i++)
             {
-                Arrow current = Instantiate(arrowPrefab, new Vector3(), new Quaternion(0, 0, 0, 0), gameObject.transform).GetComponent<Arrow>();
+                var current = Instantiate(arrowPrefab, new Vector3(), new Quaternion(0, 0, 0, 0), gameObject.transform).GetComponent<Arrow>();
                 current.SetDirection(i);
                 current.originDistance = arrowDistance;
                 current.maxDistance = boardManager.holeDistance;
@@ -48,12 +48,12 @@ namespace Game.Guide
             }
         }
 
-        void Update()
+        private void Update()
         {
             if (!working)
             {
                 Reset();
-                for (int i = 0; i < 6; i++)
+                for (var i = 0; i < 6; i++)
                 {
                     _arrows[i].Stop();
                 }
@@ -70,7 +70,7 @@ namespace Game.Guide
 
             if (pushingArrow != -1)
             {
-                for (int i = 0; i < 6; i++)
+                for (var i = 0; i < 6; i++)
                 {
                     if (i == pushingArrow)
                         continue;
@@ -80,7 +80,7 @@ namespace Game.Guide
 
             else
             {
-                for (int i = 0; i < 6; i++)
+                for (var i = 0; i < 6; i++)
                 {
 
                     if (boardManager.GetBoard().CheckMovement(ballSelection, i, gameManager.myBallType))

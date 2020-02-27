@@ -1,13 +1,13 @@
-using System.Collections;
+﻿using System.Collections;
 using Models;
 using Network;
 using UI.Toast;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MatchingSystem : MonoBehaviour 
+public class MatchingSystem : MonoBehaviour
 {
-    private void Awake() 
+    private void Awake()
     {
         cancelBtn.onClick.AddListener(OnCancelBtnClicked);
         StartCoroutine(MatchTimer(0));
@@ -23,29 +23,30 @@ public class MatchingSystem : MonoBehaviour
     {
         timeTakenTxt.text = MakeTimeStr(timeTaken);
         yield return new WaitForSeconds(1);
-        LobbyServer.instance.Get<Matched>("/match/", (Matched, err) =>
+        LobbyServer.Instance.Get<Matched>("/match/", (matched, err) =>
         {
             if (err != null)
             {
                 if (err == 404)
                     return;
-                ToastManager.instance.Add(err + " Error!", "Error");
+                ToastManager.Instance.Add(err + " Error!", "Error");
             }
             stateTxt.text = "FOUND GAME";
-            LobbyServer.instance.EnterRoom(Matched.room_id, (success) => { });
+            LobbyServer.Instance.EnterRoom(matched.RoomId, (success) => { });
             return;
         });
-        StartCoroutine(MatchTimer(timeTaken+1));
+        StartCoroutine(MatchTimer(timeTaken + 1));
     }
     private void OnCancelBtnClicked()
     {
-        stateTxt.text="CANCELING";
-        LobbyServer.instance.DELETE("/match/", (err) =>{
-            Scene.SceneChanger.instance.ChangeTo("Menu");
+        stateTxt.text = "CANCELING";
+        LobbyServer.Instance.Delete("/match/", (err) =>
+        {
+            Scene.SceneChanger.Instance.ChangeTo("Menu");
         });
     }
 
-    
+
     private string MakeTimeStr(int time)
     {
         var min = Mathf.CeilToInt(time / 60);

@@ -1,4 +1,4 @@
-using Game.Coords;
+﻿using Game.Coords;
 using Newtonsoft.Json;
 using Models;
 using Game;
@@ -9,73 +9,73 @@ namespace Models.Events
 
     public class GameStartedEvent : Event
     {
-        public int black, white;
-        public string map;
-        public GameRule rule;
-        public BallType turn;
-        public float white_time;
-        public float black_time;
-        public float current_time;
+        public int Black, White;
+        public string Map;
+        public GameRule Rule;
+        public BallType Turn;
+        public float WhiteTime;
+        public float BlackTime;
+        public float CurrentTime;
     }
 
     public class EnteredEvent : Event
     {
-        public int user;
+        public int User;
     }
 
     public class LeftEvent : Event
     {
-        public int user;
+        public int User;
     }
 
     public class ConnectedEvent : Event
     {
-        public Models.Room room;
+        public Models.Room Room;
     }
 
     public class MoveEvent : Event
     {
-        public BallType player;
-        public CubeCoord start;
-        public CubeCoord end;
-        public CubeCoord dir;
+        public BallType Player;
+        public CubeCoord Start;
+        public CubeCoord End;
+        public CubeCoord Dir;
     }
 
     public class ConfedEvent : Event
     {
-        public Conf conf;
+        public Conf Conf;
     }
 
     public class ErrorEvent : Event
     {
-        public string message;
+        public string Message;
     }
 
     public class TickedEvent : Event
     {
-        public int black_time;
-        public int white_time;
-        public int current_time;
+        public int BlackTime;
+        public int WhiteTime;
+        public int CurrentTime;
     }
 
     public class EndedEvent : Event
     {
-        public int loser;
-        public BallType player;
-        public string cause;
-        public double winner_delta;
-        public double loser_delta;
+        public int Loser;
+        public BallType Player;
+        public string Cause;
+        public double WinnerDelta;
+        public double LoserDelta;
     }
 
     public class ChattedEvent : Event
     {
-        public int user;
-        public string content;
+        public int User;
+        public string Content;
     }
 
     public class BannedEvent : Event
     {
-        public int user;
+        public int User;
     }
-    
+
 }

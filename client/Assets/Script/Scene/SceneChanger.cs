@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using Game;
@@ -15,15 +15,15 @@ namespace Scene
 {
     public class SceneChanger : MonoBehaviour
     {
-        public static SceneChanger instance = null;
-        private Action loaded;
-        private void Awake() 
+        public static SceneChanger Instance = null;
+        private Action _loaded;
+        private void Awake()
         {
-            if(instance == null)
+            if (Instance == null)
             {
-                instance = this;
+                Instance = this;
             }
-            else if (instance != this)
+            else if (Instance != this)
             {
                 Destroy(gameObject);
             }
@@ -31,18 +31,18 @@ namespace Scene
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
 
-        private void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene,LoadSceneMode mode)
+        private void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, LoadSceneMode mode)
         {
-            if(loaded!=null)
+            if (_loaded != null)
             {
-                loaded();
-                loaded = null;
+                _loaded();
+                _loaded = null;
             }
         }
 
-        public void ChangeTo(string SceneName)
+        public void ChangeTo(string sceneName)
         {
-            SceneManager.LoadScene(SceneName,LoadSceneMode.Single);
+            SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
         }
     }
 }

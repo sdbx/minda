@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 
@@ -15,10 +16,10 @@ public class CircularTimer : MonoBehaviour
 
     [SerializeField]
     private Image circleImage;
-    [SerializeField]
-    private RectTransform BorderRound1;
-    [SerializeField]
-    private RectTransform BorderRound2;
+    [FormerlySerializedAs("BorderRound1")] [SerializeField]
+    private RectTransform borderRound1;
+    [FormerlySerializedAs("BorderRound2")] [SerializeField]
+    private RectTransform borderRound2;
     [SerializeField]
     private Text timeText;
     [SerializeField]
@@ -26,13 +27,13 @@ public class CircularTimer : MonoBehaviour
 
     public bool displayText = true;
 
-    private float radius;
+    private float _radius;
 
     private void Awake()
     {
-        BorderRound1.sizeDelta = new Vector2(thickness, thickness);
-        BorderRound2.sizeDelta = BorderRound1.sizeDelta;
-        radius = circleImage.rectTransform.rect.height / 2;
+        borderRound1.sizeDelta = new Vector2(thickness, thickness);
+        borderRound2.sizeDelta = borderRound1.sizeDelta;
+        _radius = circleImage.rectTransform.rect.height / 2;
 
         UpdateTimer();
     }
@@ -45,9 +46,9 @@ public class CircularTimer : MonoBehaviour
     public void CountDown(float time)
     {
         isRunning = true;
-        
-        BorderRound1.gameObject.SetActive(true);
-        BorderRound2.gameObject.SetActive(true);
+
+        borderRound1.gameObject.SetActive(true);
+        borderRound2.gameObject.SetActive(true);
         StartCoroutine(CountdownCorutine(time));
     }
 
@@ -80,19 +81,19 @@ public class CircularTimer : MonoBehaviour
     {
         timeText.text = MakeTimeStr(leftTime);
 
-        float angle = (float)(leftTime / wholeTime * 360);
-        float positionAngle = (float)(angle * Mathf.Deg2Rad + Math.PI / 2);
+        var angle = (float)(leftTime / wholeTime * 360);
+        var positionAngle = (float)(angle * Mathf.Deg2Rad + Math.PI / 2);
 
-        BorderRound1.transform.localPosition = new Vector2(Mathf.Cos(positionAngle) * (radius-thickness/2), Mathf.Sin(positionAngle) * (radius-thickness/2));
-        BorderRound1.transform.rotation = Quaternion.Euler(0, 0, angle);
+        borderRound1.transform.localPosition = new Vector2(Mathf.Cos(positionAngle) * (_radius - thickness / 2), Mathf.Sin(positionAngle) * (_radius - thickness / 2));
+        borderRound1.transform.rotation = Quaternion.Euler(0, 0, angle);
 
         circleImage.fillAmount = leftTime / wholeTime;
 
         if (leftTime <= 0)
         {
             Stop();
-            BorderRound1.gameObject.SetActive(false);
-            BorderRound2.gameObject.SetActive(false);
+            borderRound1.gameObject.SetActive(false);
+            borderRound2.gameObject.SetActive(false);
             timeText.text = "00 : 00";
         }
 

@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
@@ -8,7 +8,8 @@ namespace Game
     {
         [SerializeField]
         private UnityEvent events;
-        void OnMouseDown()
+
+        private void OnMouseDown()
         {
             events.Invoke();
         }

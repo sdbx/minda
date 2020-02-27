@@ -14,40 +14,40 @@ namespace UI
         private float maxScale = 1.1f;
         [SerializeField]
         private float speed = 0.01f;
-        private bool isMouseEnter;
+        private bool _isMouseEnter;
         [SerializeField]
         private MapSelectorToggler mapSelectorToggler;
 
         public bool isLocked = true;
 
-        void Update()
+        private void Update()
         {
-            if (isMouseEnter && mapSelectorToggler.isUnActivated && gameObject.transform.localScale.x < maxScale)
+            if (_isMouseEnter && mapSelectorToggler.isUnActivated && gameObject.transform.localScale.x < maxScale)
             {
                 var transform = gameObject.transform;
-                float value = transform.localScale.x + speed;
+                var value = transform.localScale.x + speed;
                 transform.localScale = new Vector3(value, value, 1);
             }
-            else if (!isMouseEnter && gameObject.transform.localScale.x > 1)
+            else if (!_isMouseEnter && gameObject.transform.localScale.x > 1)
             {
                 var transform = gameObject.transform;
-                float value = transform.localScale.x - speed;
+                var value = transform.localScale.x - speed;
                 transform.localScale = new Vector3(value, value, 1);
             }
         }
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            if(isLocked)
+            if (isLocked)
                 return;
-            isMouseEnter = true;
+            _isMouseEnter = true;
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
             if (isLocked)
                 return;
-            isMouseEnter = false;
+            _isMouseEnter = false;
         }
 
         public void OnPointerClick(PointerEventData eventData)

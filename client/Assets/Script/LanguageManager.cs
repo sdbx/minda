@@ -1,4 +1,4 @@
-
+﻿
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,13 +8,13 @@ using Utils;
 
 public class LanguageManager : MonoBehaviour
 {
-    private static Dictionary<string,string> loadedLaunguagePack;
+    private static Dictionary<string, string> _loadedLaunguagePack;
     [SerializeField]
-    private static bool isLoaded = false;
+    private static bool _isLoaded = false;
     private void Awake()
     {
-        string language = "en-US";
-        if(File.Exists(Path.Combine(Application.persistentDataPath, "language.txt")))
+        var language = "en-US";
+        if (File.Exists(Path.Combine(Application.persistentDataPath, "language.txt")))
         {
             language = File.ReadAllText(Path.Combine(Application.persistentDataPath, "language.txt"));
         }
@@ -22,7 +22,7 @@ public class LanguageManager : MonoBehaviour
         {
             File.WriteAllText(Path.Combine(Application.persistentDataPath, "language.txt"), language);
         }
-        if(language == "en-US")
+        if (language == "en-US")
         {
             var tempAsset = Resources.Load("en-US") as TextAsset;
             File.WriteAllText(Path.Combine(Application.persistentDataPath, language), tempAsset.text);
@@ -35,24 +35,24 @@ public class LanguageManager : MonoBehaviour
         var path = Path.Combine(Application.persistentDataPath, language);
         if (!File.Exists(path))
         {
-            ToastManager.instance.Add("Launage File doesn't exist", "Error");
+            ToastManager.Instance.Add("Launage File doesn't exist", "Error");
             return;
         }
 
         try
         {
-            loadedLaunguagePack = new Dictionary<string, string>();
+            _loadedLaunguagePack = new Dictionary<string, string>();
             foreach (var text in File.ReadLines(path))
             {
-                if(text=="")
+                if (text == "")
                     continue;
-                List<string> splitedText = new List<string>(text.Split(':'));
+                var splitedText = new List<string>(text.Split(':'));
                 var key = splitedText[0];
                 splitedText.RemoveAt(0);
-                var value = String.Join(":", splitedText).Replace("/n","\n");
-                loadedLaunguagePack.Add(key.ToLower(), value);
+                var value = String.Join(":", splitedText).Replace("/n", "\n");
+                _loadedLaunguagePack.Add(key.ToLower(), value);
             }
-            isLoaded =  true;
+            _isLoaded = true;
         }
         catch (Exception e)
         {
@@ -63,16 +63,16 @@ public class LanguageManager : MonoBehaviour
     public static string GetText(string key)
     {
         key = key.ToLower();
-        if(!isLoaded||!loadedLaunguagePack.ContainsKey(key))
+        if (!_isLoaded || !_loadedLaunguagePack.ContainsKey(key))
             return null;
-        
-        return loadedLaunguagePack[key];
+
+        return _loadedLaunguagePack[key];
     }
-    
+
     public static string GetText(string key, params string[] args)
     {
         var text = GetText(key);
-        for (int i = 0; i < args.Length; i++)
+        for (var i = 0; i < args.Length; i++)
         {
             text = text.Replace("{" + i + "}", args[i]);
         }

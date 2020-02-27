@@ -1,4 +1,4 @@
-#if UNITY_ANDROID || UNITY_IOS || UNITY_TIZEN || UNITY_TVOS || UNITY_WEBGL || UNITY_WSA || UNITY_PS4 || UNITY_WII || UNITY_XBOXONE || UNITY_SWITCH
+﻿#if UNITY_ANDROID || UNITY_IOS || UNITY_TIZEN || UNITY_TVOS || UNITY_WEBGL || UNITY_WSA || UNITY_PS4 || UNITY_WII || UNITY_XBOXONE || UNITY_SWITCH
 #define DISABLESTEAMWORKS
 #endif
 
@@ -11,112 +11,114 @@ using Utils;
 using System;
 using System.Collections.Generic;
 
-public class SteamManager : MonoBehaviour {
-    #if !DISABLESTEAMWORKS
-    public static bool isSteamVersion = true;
-    #endif
-    #if DISABLESTEAMWORKS
+public class SteamManager : MonoBehaviour
+{
+#if !DISABLESTEAMWORKS
+    public static bool IsSteamVersion = true;
+#endif
+#if DISABLESTEAMWORKS
     public static bool isSteamVersion = false;
-    #endif
+#endif
     public uint steamId;
-    public static SteamManager instance;
-    private bool initialized = false;
+    public static SteamManager Instance;
+    private bool _initialized = false;
 
-    private CSteamID m_Lobby;
-    private string currentGameRoomID;
-    private SteamAPIWarningMessageHook_t m_SteamAPIWarningMessageHook;
-	private static void SteamAPIDebugTextHook(int nSeverity, System.Text.StringBuilder pchDebugText) {
-		Debug.LogWarning(pchDebugText);
-	}
-
-    private CallResult<LobbyCreated_t> OnLobbyCreatedCallResult;
-    private CallResult<LobbyEnter_t> OnLobbyEnterCallResult;
-    private CallResult<LobbyInvite_t> OnLobbyInviteCallResult;
-
-    void OnLobbyCreated(LobbyCreated_t pCallback, bool bIOFailure)
+    private CSteamID _mLobby;
+    private string _currentGameRoomId;
+    private SteamAPIWarningMessageHook_t _mSteamApiWarningMessageHook;
+    private static void SteamApiDebugTextHook(int nSeverity, System.Text.StringBuilder pchDebugText)
     {
-        m_Lobby = (CSteamID)pCallback.m_ulSteamIDLobby;
-        SteamMatchmaking.SetLobbyData(m_Lobby, "roomid", currentGameRoomID);
-        Debug.Log(SteamMatchmaking.GetLobbyData(m_Lobby, "roomid")+"과"+m_Lobby+"를 얻엇다");
+        Debug.LogWarning(pchDebugText);
+    }
+
+    private CallResult<LobbyCreated_t> _onLobbyCreatedCallResult;
+    private CallResult<LobbyEnter_t> _onLobbyEnterCallResult;
+    private CallResult<LobbyInvite_t> _onLobbyInviteCallResult;
+
+    private void OnLobbyCreated(LobbyCreated_t pCallback, bool bIoFailure)
+    {
+        _mLobby = (CSteamID)pCallback.m_ulSteamIDLobby;
+        SteamMatchmaking.SetLobbyData(_mLobby, "roomid", _currentGameRoomId);
+        Debug.Log(SteamMatchmaking.GetLobbyData(_mLobby, "roomid") + "과" + _mLobby + "를 얻엇다");
         Debug.Log("[" + LobbyCreated_t.k_iCallback + " - LobbyCreated] - " + pCallback.m_eResult + " -- " + pCallback.m_ulSteamIDLobby);
     }
 
-    private void OnLobbyEnter(LobbyEnter_t pCallback, bool bIOFailure)
+    private void OnLobbyEnter(LobbyEnter_t pCallback, bool bIoFailure)
     {
-        m_Lobby = new CSteamID(pCallback.m_ulSteamIDLobby);
-        Debug.Log("로비 아이디 "+m_Lobby+"를 얻엇다");
-        Debug.Log("로비엔터 code: "+SteamMatchmaking.GetLobbyData(m_Lobby, "roomid"));
-        LobbyServer.instance.JoinInvitedRoom(SteamMatchmaking.GetLobbyData(m_Lobby, "roomid"));
- 
+        _mLobby = new CSteamID(pCallback.m_ulSteamIDLobby);
+        Debug.Log("로비 아이디 " + _mLobby + "를 얻엇다");
+        Debug.Log("로비엔터 code: " + SteamMatchmaking.GetLobbyData(_mLobby, "roomid"));
+        LobbyServer.Instance.JoinInvitedRoom(SteamMatchmaking.GetLobbyData(_mLobby, "roomid"));
+
     }
 
-    private void OnLobbyInvite(LobbyInvite_t pCallback, bool bIOFailure)
+    private void OnLobbyInvite(LobbyInvite_t pCallback, bool bIoFailure)
     {
         JoinLobby(new CSteamID(pCallback.m_ulSteamIDLobby));
     }
 
-    public void ActivateInvite(string roomID)
+    public void ActivateInvite(string roomId)
     {
-        if (!initialized) { return; }
-        currentGameRoomID = roomID;
-        SteamAPICall_t handle = SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypePublic, 53);
-        OnLobbyCreatedCallResult.Set(handle);
+        if (!_initialized) { return; }
+        _currentGameRoomId = roomId;
+        var handle = SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypePublic, 53);
+        _onLobbyCreatedCallResult.Set(handle);
     }
 
     public void UnActivateInvite()
     {
-        if (!initialized) { return; }
-        SteamMatchmaking.LeaveLobby(m_Lobby);
-            m_Lobby = CSteamID.Nil;
+        if (!_initialized) { return; }
+        SteamMatchmaking.LeaveLobby(_mLobby);
+        _mLobby = CSteamID.Nil;
     }
 
     private void JoinLobby(CSteamID lobbyId)
     {
-        if (!initialized) { return; }
+        if (!_initialized) { return; }
         Debug.Log("조인로비");
-        SteamAPICall_t handle = SteamMatchmaking.JoinLobby(lobbyId);
-        OnLobbyEnterCallResult.Set(handle);
+        var handle = SteamMatchmaking.JoinLobby(lobbyId);
+        _onLobbyEnterCallResult.Set(handle);
     }
 
     private void OnEnable()
     {
-        if (!initialized) { return; }
+        if (!_initialized) { return; }
 
-        OnLobbyCreatedCallResult = CallResult<LobbyCreated_t>.Create(OnLobbyCreated);
-        OnLobbyEnterCallResult = CallResult<LobbyEnter_t>.Create(OnLobbyEnter);
-        OnLobbyInviteCallResult = CallResult<LobbyInvite_t>.Create(OnLobbyInvite);
+        _onLobbyCreatedCallResult = CallResult<LobbyCreated_t>.Create(OnLobbyCreated);
+        _onLobbyEnterCallResult = CallResult<LobbyEnter_t>.Create(OnLobbyEnter);
+        _onLobbyInviteCallResult = CallResult<LobbyInvite_t>.Create(OnLobbyInvite);
 
-        string[] args = System.Environment.GetCommandLineArgs();
-        string input = "";
-        for (int i = 0; i < args.Length; i++)
+        var args = System.Environment.GetCommandLineArgs();
+        var input = "";
+        for (var i = 0; i < args.Length; i++)
         {
             if (args[i] == "+connect_lobby" && args.Length > i + 1)
             {
                 input = args[i + 1];
-                Debug.Log(input+" 후에에엥");
+                Debug.Log(input + " 후에에엥");
             }
         }
- 
+
         if (!string.IsNullOrEmpty(input))
         {
             // Invite accepted, launched game. Join friend's game
             ulong lobbyId = 0;
- 
+
             if (ulong.TryParse(input, out lobbyId))
             {
                 Debug.Log("조인로비 시작");
                 JoinLobby(new CSteamID(lobbyId));
             }
- 
+
         }
 
 
-        if (m_SteamAPIWarningMessageHook == null)
+        if (_mSteamApiWarningMessageHook == null)
         {
             // Set up our callback to receive warning messages from Steam.
             // You must launch with "-debug_steamapi" in the launch args to receive warnings.
-            m_SteamAPIWarningMessageHook = new SteamAPIWarningMessageHook_t(SteamAPIDebugTextHook);
-            SteamClient.SetWarningMessageHook(m_SteamAPIWarningMessageHook);
+            _mSteamApiWarningMessageHook = new SteamAPIWarningMessageHook_t(SteamApiDebugTextHook);
+            SteamClient.SetWarningMessageHook(_mSteamApiWarningMessageHook);
         }
     }
 
@@ -124,20 +126,20 @@ public class SteamManager : MonoBehaviour {
     {
 
         //singleton
-        if (instance == null)
+        if (Instance == null)
         {
-            instance = this;
+            Instance = this;
         }
-        else if (instance != this)
+        else if (Instance != this)
         {
             Destroy(gameObject);
         }
 
         DontDestroyOnLoad(gameObject);
 
-        string[] args = System.Environment.GetCommandLineArgs();
+        var args = System.Environment.GetCommandLineArgs();
 
-        for (int i = 0; i < args.Length; i++)
+        for (var i = 0; i < args.Length; i++)
         {
             if (args[i] == "token" && args.Length > i + 1)
             {
@@ -148,11 +150,11 @@ public class SteamManager : MonoBehaviour {
             }
         }
 
-        
 
-        if (isSteamVersion)
+
+        if (IsSteamVersion)
         {
-            initialized = SteamAPI.Init();
+            _initialized = SteamAPI.Init();
             try
             {
                 if (SteamAPI.RestartAppIfNecessary((AppId_t)steamId))
@@ -167,13 +169,15 @@ public class SteamManager : MonoBehaviour {
 
                 Application.Quit();
                 return;
-            } 
+            }
         }
-        Debug.Log("Steamworks.NET " + steamId + " initialized:" + initialized);
+        Debug.Log("Steamworks.NET " + steamId + " initialized:" + _initialized);
     }
 
-    private void Update() {
-        if (!initialized) {
+    private void Update()
+    {
+        if (!_initialized)
+        {
             return;
         }
 
@@ -182,7 +186,7 @@ public class SteamManager : MonoBehaviour {
 
     public (string, HAuthTicket) GetAuthTicket()
     {
-        if (!initialized)
+        if (!_initialized)
         {
             return ("", default(HAuthTicket));
         }
@@ -197,7 +201,7 @@ public class SteamManager : MonoBehaviour {
 
     private void OnDestroy()
     {
-        if (!initialized)
+        if (!_initialized)
         {
             return;
         }

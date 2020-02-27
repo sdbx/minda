@@ -4,6 +4,7 @@ using Game.Boards;
 using Game.Coords;
 using Models;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Game.Balls
 {
@@ -12,62 +13,62 @@ namespace Game.Balls
 
         public CubeCoord cubeCoord;
         public float movingSpeed = 0.5f;
-        private SpriteRenderer spriteRenderer;
+        private SpriteRenderer _spriteRenderer;
         public enum PositionState
         {
             Origin,
             Pushing,
             Moving
         }
-        public PositionState _positionState = PositionState.Origin;
+        [FormerlySerializedAs("_positionState")] public PositionState positionState = PositionState.Origin;
         public BallType ballType;
-        public BoardManager _boardManager;
+        [FormerlySerializedAs("_boardManager")] public BoardManager boardManager;
         public bool die = false;
         public int direction;
         public float pushedDistance;
         public float movedDistance;
 
 
-        void Awake()
+        private void Awake()
         {
-            _boardManager = gameObject.transform.parent.GetComponent<BallManager>().boardManager;
-            spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
+            boardManager = gameObject.transform.parent.GetComponent<BallManager>().boardManager;
+            _spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
         }
 
         public void SetSprite(Sprite sprite)
         {
-            spriteRenderer.sprite = sprite;
+            _spriteRenderer.sprite = sprite;
         }
 
         // Update is called once per frame
-        void Update()
+        private void Update()
         {
             if (die)
                 return;
 
-            switch (_positionState)
+            switch (positionState)
             {
                 case PositionState.Origin:
                     {
-                        gameObject.transform.position = cubeCoord.GetPixelPoint(_boardManager.holeDistance);
+                        gameObject.transform.position = cubeCoord.GetPixelPoint(boardManager.holeDistance);
                         break;
                     }
                 case PositionState.Pushing:
                     {
-                        gameObject.transform.position = getPosition(pushedDistance, cubeCoord);
+                        gameObject.transform.position = GetPosition(pushedDistance, cubeCoord);
                         break;
                     }
                 case PositionState.Moving:
                     {
-                        if (!(movedDistance + movingSpeed > _boardManager.holeDistance))
+                        if (!(movedDistance + movingSpeed > boardManager.holeDistance))
                         {
                             movedDistance += movingSpeed;
-                            gameObject.transform.position = getPosition(movedDistance, cubeCoord + CubeCoord.ConvertNumToDirection(direction) * -1);
+                            gameObject.transform.position = GetPosition(movedDistance, cubeCoord + CubeCoord.ConvertNumToDirection(direction) * -1);
                         }
                         else
                         {
                             direction = -1;
-                            _positionState = PositionState.Origin;
+                            positionState = PositionState.Origin;
                             movedDistance = 0;
                         }
                         break;
@@ -75,10 +76,10 @@ namespace Game.Balls
             }
         }
 
-        public Vector2 getPosition(float distance, CubeCoord cubeCoord)
+        public Vector2 GetPosition(float distance, CubeCoord cubeCoord)
         {
-            float angle = -direction * Mathf.PI / 3 + Mathf.PI / 3;
-            return new Vector2(distance * Mathf.Cos(angle), distance * Mathf.Sin(angle)) + cubeCoord.GetPixelPoint(_boardManager.holeDistance);
+            var angle = -direction * Mathf.PI / 3 + Mathf.PI / 3;
+            return new Vector2(distance * Mathf.Cos(angle), distance * Mathf.Sin(angle)) + cubeCoord.GetPixelPoint(boardManager.holeDistance);
         }
 
         public void SetBall(BallType ballType)
@@ -105,7 +106,7 @@ namespace Game.Balls
         {
             this.direction = direction;
             this.pushedDistance = pushedDistance;
-            _positionState = PositionState.Pushing;
+            positionState = PositionState.Pushing;
         }
 
         public void StopPushing(bool isCanceled)
@@ -114,13 +115,13 @@ namespace Game.Balls
             {
                 direction = -1;
                 pushedDistance = 0;
-                _positionState = PositionState.Origin;
+                positionState = PositionState.Origin;
                 return;
             }
             cubeCoord += CubeCoord.ConvertNumToDirection(direction);
             movedDistance = pushedDistance;
             pushedDistance = 0;
-            _positionState = PositionState.Moving;
+            positionState = PositionState.Moving;
         }
 
         public void Move(int direction)
@@ -128,7 +129,7 @@ namespace Game.Balls
             cubeCoord += CubeCoord.ConvertNumToDirection(direction);
             this.direction = direction;
             movedDistance = 0;
-            _positionState = PositionState.Moving;
+            positionState = PositionState.Moving;
         }
 
         public void Die()

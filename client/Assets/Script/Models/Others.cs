@@ -1,30 +1,30 @@
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace Models
 {
     public struct JoinRoomResult
     {
-        public string invite;
-        public string addr;
+        public string Invite;
+        public string Addr;
     }
     public struct LoginResult
     {
-        public string token;
-        public bool first;
+        public string Token;
+        public bool First;
     }
     public struct Reqid
     {
         [JsonProperty("req_id")]
-        public string id;
+        public string Id;
     }
     public struct Pic
     {
         [JsonProperty("pic_id")]
-        public int id;
+        public int Id;
     }
     public struct Matched
     {
-        public string room_id;
+        public string RoomId;
     }
     public struct EmptyResult
     {

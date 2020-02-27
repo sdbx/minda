@@ -1,9 +1,9 @@
-namespace Models
+﻿namespace Models
 {
     public class Map
     {
-        public int id;
-        public string name;
-        public string payload;
+        public int Id;
+        public string Name;
+        public string Payload;
     }
 }

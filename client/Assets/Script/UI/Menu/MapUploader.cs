@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 namespace UI.Menu
@@ -19,7 +19,7 @@ namespace UI.Menu
 
         private void OnUploadButtonClicked()
         {
-            
+
         }
 
         private void OnDeleteButtonClicked()

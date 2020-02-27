@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using Models;
 using Network;
 using UnityEngine;
@@ -19,20 +19,20 @@ namespace UI.Chatting
         [SerializeField]
         private ObjectToggler toggler;
 
-        private RectTransform rectTransform;
+        private RectTransform _rectTransform;
 
         public float lastTime = 0;
 
         private void Awake()
         {
-            rectTransform = gameObject.GetComponent<RectTransform>();
-            GameServer.instance.MessagedEvent += OnMessages;
+            _rectTransform = gameObject.GetComponent<RectTransform>();
+            GameServer.Instance.MessagedEvent += OnMessages;
             Clear();
         }
 
         private void OnDestroy()
         {
-            GameServer.instance.MessagedEvent -= OnMessages;
+            GameServer.Instance.MessagedEvent -= OnMessages;
         }
 
         private void Update()
@@ -59,17 +59,17 @@ namespace UI.Chatting
             if (Input.GetKeyDown(KeyCode.Return))
             {
                 if (!chattingInputToggler.isActivated)
-                {   
+                {
                     toggler.Activate();
                     chattingInputToggler.Activate();
                     ScrollToBottom();
                 }
             }
-            
+
             //채팅창 외부 클릭
             if (Input.GetMouseButton(0) && gameObject.activeSelf &&
                 !RectTransformUtility.RectangleContainsScreenPoint(
-                rectTransform,
+                _rectTransform,
                 Input.mousePosition,
                 Camera.main))
             {
@@ -85,7 +85,7 @@ namespace UI.Chatting
 
             if (isBottom ||
              (message is UserMessage &&
-              ((UserMessage)message).sendUser.user.id == LobbyServer.instance.loginUser.id))
+              ((UserMessage)message).SendUser.User.Id == LobbyServer.Instance.loginUser.Id))
             {
                 ScrollToBottom();
                 StartCoroutine(ScrollToBottomAfter1Frame());
@@ -97,8 +97,8 @@ namespace UI.Chatting
         {
             toggler.Activate();
             lastTime = 0;
-            if(textBox.text!="")
-                textBox.text+="\n";
+            if (textBox.text != "")
+                textBox.text += "\n";
             textBox.text += content;
         }
 

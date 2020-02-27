@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Game;
 using Network;
 using UnityEngine;
@@ -7,25 +7,25 @@ namespace Models
 {
     public class Inventory
     {
-        public int one_color_skin;
-        public int two_color_skin;
-        public int? current_skin;
+        public int OneColorSkin;
+        public int TwoColorSkin;
+        public int? CurrentSkin;
     }
 
     public class Skin
     {
-        public int id;
-        public string name;
-        public string black_picture;
-        public string white_picture;
+        public int Id;
+        public string Name;
+        public string BlackPicture;
+        public string WhitePicture;
     }
 
     public struct CurrentSkin
     {
-        public int? id;
+        public int? Id;
         public CurrentSkin(int? id)
         {
-            this.id = id;
+            this.Id = id;
         }
     }
 
@@ -33,27 +33,27 @@ namespace Models
     {
         static public void Get(Skin skin, Action<LoadedSkin> callback)
         {
-            LoadedSkin downloadedSkin = new LoadedSkin(skin, null, null);
-            
-            if (skin.black_picture != null)
-            {
-                LobbyServerAPI.DownloadImage(skin.black_picture, (Texture texture) =>
-                {
-                    downloadedSkin.blackTexture = texture;
+            var downloadedSkin = new LoadedSkin(skin, null, null);
 
-                    if (downloadedSkin.whiteTexture != null)
+            if (skin.BlackPicture != null)
+            {
+                LobbyServerApi.DownloadImage(skin.BlackPicture, (Texture texture) =>
+                {
+                    downloadedSkin.BlackTexture = texture;
+
+                    if (downloadedSkin.WhiteTexture != null)
                     {
                         callback(downloadedSkin);
                     }
                 });
             }
 
-            if (skin.white_picture != null)
+            if (skin.WhitePicture != null)
             {
-                LobbyServerAPI.DownloadImage(skin.white_picture, (Texture texture) =>
+                LobbyServerApi.DownloadImage(skin.WhitePicture, (Texture texture) =>
                 {
-                    downloadedSkin.whiteTexture = texture;
-                    if (downloadedSkin.blackTexture != null)
+                    downloadedSkin.WhiteTexture = texture;
+                    if (downloadedSkin.BlackTexture != null)
                     {
                         callback(downloadedSkin);
                     }
@@ -63,15 +63,15 @@ namespace Models
 
         public LoadedSkin(Skin skin, Texture black, Texture white)
         {
-            id = skin.id;
-            name = skin.name;
-            blackTexture = black;
-            whiteTexture = white;
+            Id = skin.Id;
+            Name = skin.Name;
+            BlackTexture = black;
+            WhiteTexture = white;
         }
 
-        public int id;
-        public string name;
-        public Texture blackTexture;
-        public Texture whiteTexture;
+        public int Id;
+        public string Name;
+        public Texture BlackTexture;
+        public Texture WhiteTexture;
     }
 }

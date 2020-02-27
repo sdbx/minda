@@ -1,21 +1,15 @@
-using Models;
-using Network;
-using Scene;
+﻿using Network;
 using UI;
 using UI.Toast;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class RoomCodeEnterWindow : MonoBehaviour 
+public class RoomCodeEnterWindow : MonoBehaviour
 {
-    [SerializeField]
-    private ObjectToggler windowToggler;
-    [SerializeField]
-    private InputField codeInput;
-    [SerializeField]
-    private Button enterBtn;
-    [SerializeField]
-    private Button cancelBtn;
+    [SerializeField] private ObjectToggler windowToggler;
+    [SerializeField] private InputField codeInput;
+    [SerializeField] private Button enterBtn;
+    [SerializeField] private Button cancelBtn;
 
     private void Awake()
     {
@@ -25,12 +19,13 @@ public class RoomCodeEnterWindow : MonoBehaviour
 
     private void TryEnter()
     {
-        if(codeInput.text == "")
+        if (codeInput.text == "")
         {
-            ToastManager.instance.Add(LanguageManager.GetText("inputfieldisempty"),"Error");
+            ToastManager.Instance.Add(LanguageManager.GetText("inputfieldisempty"), "Error");
             return;
         }
-        LobbyServer.instance.EnterRoom(codeInput.text,(bool success)=>{});
+
+        LobbyServer.Instance.EnterRoom(codeInput.text, (bool success) => { });
     }
 
     private void Cancel()
@@ -39,4 +34,3 @@ public class RoomCodeEnterWindow : MonoBehaviour
         windowToggler.UnActivate();
     }
 }
-

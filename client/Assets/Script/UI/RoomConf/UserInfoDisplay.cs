@@ -5,6 +5,7 @@ using Models;
 using Network;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Utils;
 
@@ -12,10 +13,10 @@ namespace UI
 {
     public class UserInfoDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
     {
-        public int UserId;
-        private BallType ballType = BallType.Black;
-        private RectTransform rectTransform;
-        private RectTransform rootRectTransform;
+        [FormerlySerializedAs("UserId")] public int userId;
+        private BallType _ballType = BallType.Black;
+        private RectTransform _rectTransform;
+        private RectTransform _rootRectTransform;
         [SerializeField]
         private RawImage profileImage;
         [SerializeField]
@@ -33,103 +34,103 @@ namespace UI
         [SerializeField]
         private int corner;
 
-        private bool destroyed;
+        private bool _destroyed;
 
-        private Texture placeHolder;
-        
-        private void Awake() 
+        private Texture _placeHolder;
+
+        private void Awake()
         {
-            destroyed = false;
-            rectTransform = gameObject.GetComponent<RectTransform>();
-            rootRectTransform = transform.root.GetComponent<RectTransform>();
+            _destroyed = false;
+            _rectTransform = gameObject.GetComponent<RectTransform>();
+            _rootRectTransform = transform.root.GetComponent<RectTransform>();
         }
 
         private void OnDestroy()
         {
-            destroyed = true;
+            _destroyed = true;
         }
 
-        private void Start() 
+        private void Start()
         {
-            placeHolder = UISettings.instance.placeHolder;
-            GameServer.instance.GetInGameUser(UserId, (InGameUser inGameUser)=>
+            _placeHolder = UiSettings.Instance.placeHolder;
+            GameServer.Instance.GetInGameUser(userId, (InGameUser inGameUser) =>
             {
-                if (!destroyed)
+                if (!_destroyed)
                 {
-                    usernameText.text = inGameUser.user.username;
-                    kingIcon.SetActive(inGameUser.isKing);
-                    
-                    if(inGameUser.user.picture != null)
+                    usernameText.text = inGameUser.User.Username;
+                    kingIcon.SetActive(inGameUser.IsKing);
+
+                    if (inGameUser.User.Picture != null)
                     {
-                        GameServer.instance.GetProfileTexture(UserId, SetProfileImage);
+                        GameServer.Instance.GetProfileTexture(userId, SetProfileImage);
                     }
-                    else SetProfileImage(placeHolder);
+                    else SetProfileImage(_placeHolder);
                 }
             });
         }
 
         private void SetProfileImage(Texture texture)
         {
-            profileImage.texture = (texture == null ? placeHolder : texture);
+            profileImage.texture = (texture == null ? _placeHolder : texture);
         }
 
         private void CreateContextMenu()
         {
-            ContextMenu contextMenu = new ContextMenu(contextMenuPivot);
-            var gameServer = GameServer.instance;
-            var myId = LobbyServer.instance.loginUser.id;
+            var contextMenu = new ContextMenu(contextMenuPivot);
+            var gameServer = GameServer.Instance;
+            var myId = LobbyServer.Instance.loginUser.Id;
             //king menu
-            GameServer.instance.GetInGameUser(UserId, (InGameUser inGameUser) =>
+            GameServer.Instance.GetInGameUser(userId, (InGameUser inGameUser) =>
             {
                 if (RoomUtils.CheckIsKing(myId))
                 {
-                    if (inGameUser.ballType != BallType.White)
+                    if (inGameUser.BallType != BallType.White)
                     {
                         contextMenu.Add(LanguageManager.GetText("towhite"), () =>
                          {
-                             gameServer.ChangeUserRole(UserId, BallType.White);
+                             gameServer.ChangeUserRole(userId, BallType.White);
                          });
                     }
-                    if (inGameUser.ballType != BallType.Black)
+                    if (inGameUser.BallType != BallType.Black)
                     {
                         contextMenu.Add(LanguageManager.GetText("toblack"), () =>
                          {
-                             gameServer.ChangeUserRole(UserId, BallType.Black);
+                             gameServer.ChangeUserRole(userId, BallType.Black);
                          });
                     }
-                    if (inGameUser.ballType != BallType.None)
+                    if (inGameUser.BallType != BallType.None)
                     {
                         contextMenu.Add(LanguageManager.GetText("tospec"), () =>
                          {
-                             gameServer.ChangeUserRole(UserId, BallType.None);
+                             gameServer.ChangeUserRole(userId, BallType.None);
                          });
                     }
-                    if (UserId != myId)
+                    if (userId != myId)
                     {
                         contextMenu.Add("Give King", () =>
                          {
-                             gameServer.ChangeKingTo(UserId);
+                             gameServer.ChangeKingTo(userId);
                          });
                     }
-                    var conf = GameServer.instance.connectedRoom.conf;
-                    if (!(conf.black == UserId || conf.white == UserId || conf.king == UserId))
+                    var conf = GameServer.Instance.connectedRoom.Conf;
+                    if (!(conf.Black == userId || conf.White == userId || conf.King == userId))
                     {
                         contextMenu.Add(LanguageManager.GetText("ban"), () =>
                         {
-                            GameServer.instance.BanUser(UserId);
+                            GameServer.Instance.BanUser(userId);
                         });
                     }
                 }
 
 
-                Vector3[] corners = new Vector3[4];
-                rectTransform.GetLocalCorners(corners);
+                var corners = new Vector3[4];
+                _rectTransform.GetLocalCorners(corners);
 
-                Vector2 pos = PositionUtils.WorldPosToLocalRectPos(transform.position, rootRectTransform);
-                ContextMenuManager.instance.Create(new Vector2(corners[corner].x + pos.x, corners[corner].y + pos.y), contextMenu);
+                var pos = PositionUtils.WorldPosToLocalRectPos(transform.position, _rootRectTransform);
+                ContextMenuManager.Instance.Create(new Vector2(corners[corner].x + pos.x, corners[corner].y + pos.y), contextMenu);
             });
         }
-        
+
         //user menucontext
         public void OnPointerEnter(PointerEventData eventData)
         {

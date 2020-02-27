@@ -1,25 +1,25 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class UndestroyableCanvas : MonoBehaviour 
+public class UndestroyableCanvas : MonoBehaviour
 {
-    static private List<string> canvases = new List<string>();
+    static private List<string> _canvases = new List<string>();
 
-    private Canvas canvas;
+    private Canvas _canvas;
     [SerializeField]
     private string[] undestroySceneList;
 
-    private void Awake() 
+    private void Awake()
     {
-        if(canvases.Contains(gameObject.name))
+        if (_canvases.Contains(gameObject.name))
         {
             Destroy(gameObject);
             return;
         }
-        canvases.Add(gameObject.name);
-        canvas = gameObject.GetComponent<Canvas>();
+        _canvases.Add(gameObject.name);
+        _canvas = gameObject.GetComponent<Canvas>();
         DontDestroyOnLoad(gameObject);
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
@@ -28,11 +28,11 @@ public class UndestroyableCanvas : MonoBehaviour
     {
         if (undestroySceneList.Length == 0 || Array.Exists(undestroySceneList, element => element == scene.name))
         {
-            canvas.worldCamera = Camera.main;
+            _canvas.worldCamera = Camera.main;
         }
         else
         {
-            canvases.Remove(gameObject.name);
+            _canvases.Remove(gameObject.name);
             SceneManager.sceneLoaded -= OnSceneLoaded;
             Destroy(gameObject);
         }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -9,80 +9,80 @@ namespace Network
 {
     public enum ClientState
     {
-        DISCONNECTED,
-        CONNECTING,
-        CONNECTED
+        Disconnected,
+        Connecting,
+        Connected
     }
 
     public class SocketClient
     {
-        public Queue<string> dataQueue = new Queue<string>();
-        public Queue<string> logQueue = new Queue<string>();
-        public Queue<Action> callbackQuene = new Queue<Action>(); 
-        private Action connectedCallback;
-        public Action closeSocketCallback;
-        public ClientState state = ClientState.DISCONNECTED;
+        public Queue<string> DataQueue = new Queue<string>();
+        public Queue<string> LogQueue = new Queue<string>();
+        public Queue<Action> CallbackQuene = new Queue<Action>();
+        private Action _connectedCallback;
+        public Action CloseSocketCallback;
+        public ClientState State = ClientState.Disconnected;
 
-        private Socket client;
-        private byte[] receiveByte;
+        private Socket _client;
+        private byte[] _receiveByte;
 
         public void Connect(string ip, int port, Action callback)
         {
             try
             {
-                state = ClientState.CONNECTING;
-                IPAddress ipAddress = IPAddress.Parse(ip);
-                client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                IPEndPoint remoteEP = new IPEndPoint(ipAddress, port);
-                client.BeginConnect(remoteEP, new AsyncCallback(ConnectCallback), client);
-                connectedCallback = callback;
+                State = ClientState.Connecting;
+                var ipAddress = IPAddress.Parse(ip);
+                _client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                var remoteEp = new IPEndPoint(ipAddress, port);
+                _client.BeginConnect(remoteEp, new AsyncCallback(ConnectCallback), _client);
+                _connectedCallback = callback;
             }
             catch (Exception e)
             {
-                state = ClientState.DISCONNECTED;
-                logQueue.Enqueue(e.Message);
+                State = ClientState.Disconnected;
+                LogQueue.Enqueue(e.Message);
             }
         }
 
-        void ConnectCallback(IAsyncResult iar)
+        private void ConnectCallback(IAsyncResult iar)
         {
             try
             {
-                client.EndConnect(iar);
-                logQueue.Enqueue("[Connected]" + client.RemoteEndPoint.ToString());
-                receiveByte = new byte[client.ReceiveBufferSize];
-                client.BeginReceive(receiveByte, 0, receiveByte.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), client);
-                state = ClientState.CONNECTED;
-                if (connectedCallback != null)
-                    connectedCallback();
+                _client.EndConnect(iar);
+                LogQueue.Enqueue("[Connected]" + _client.RemoteEndPoint.ToString());
+                _receiveByte = new byte[_client.ReceiveBufferSize];
+                _client.BeginReceive(_receiveByte, 0, _receiveByte.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), _client);
+                State = ClientState.Connected;
+                if (_connectedCallback != null)
+                    _connectedCallback();
             }
             catch (Exception e)
             {
-                state = ClientState.DISCONNECTED;
-                logQueue.Enqueue(e.Message);
+                State = ClientState.Disconnected;
+                LogQueue.Enqueue(e.Message);
             }
         }
 
-        void ReceiveCallback(IAsyncResult iar)
+        private void ReceiveCallback(IAsyncResult iar)
         {
             try
             {
-                if (client.Available == 0 && client.Poll(1, SelectMode.SelectRead))
+                if (_client.Available == 0 && _client.Poll(1, SelectMode.SelectRead))
                 {
-                    logQueue.Enqueue("Disconnect from Poll");
+                    LogQueue.Enqueue("Disconnect from Poll");
                     Close();
                     return;
                 }
-                int recv = client.EndReceive(iar);
-                string data = Encoding.UTF8.GetString(receiveByte, 0, recv);
+                var recv = _client.EndReceive(iar);
+                var data = Encoding.UTF8.GetString(_receiveByte, 0, recv);
                 data = data.Trim('\0');
-                dataQueue.Enqueue(data);
-                logQueue.Enqueue("[Receive]" + data);
-                client.BeginReceive(receiveByte, 0, receiveByte.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), client);
+                DataQueue.Enqueue(data);
+                LogQueue.Enqueue("[Receive]" + data);
+                _client.BeginReceive(_receiveByte, 0, _receiveByte.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), _client);
             }
             catch (Exception e)
             {
-                logQueue.Enqueue(e.Message);
+                LogQueue.Enqueue(e.Message);
                 Close();
             }
         }
@@ -91,34 +91,34 @@ namespace Network
         {
             try
             {
-                byte[] bytes = Encoding.UTF8.GetBytes(data);
-                client.BeginSend(bytes, 0, bytes.Length, SocketFlags.None, new AsyncCallback(SendCallback), client);
-                logQueue.Enqueue("[Send data]" + data);
+                var bytes = Encoding.UTF8.GetBytes(data);
+                _client.BeginSend(bytes, 0, bytes.Length, SocketFlags.None, new AsyncCallback(SendCallback), _client);
+                LogQueue.Enqueue("[Send data]" + data);
             }
             catch (Exception e)
             {
-                logQueue.Enqueue(e.Message);
+                LogQueue.Enqueue(e.Message);
                 Close();
             }
         }
 
-        void SendCallback(IAsyncResult ias)
+        private void SendCallback(IAsyncResult ias)
         {
-            Socket handler = (Socket)ias.AsyncState;
-            int bytesSent = handler.EndSend(ias);
-            logQueue.Enqueue("[Sent Bytes]" + bytesSent);
+            var handler = (Socket)ias.AsyncState;
+            var bytesSent = handler.EndSend(ias);
+            LogQueue.Enqueue("[Sent Bytes]" + bytesSent);
         }
 
         public void Close()
         {
-            logQueue.Enqueue("[Disconnected]");
-            state = ClientState.DISCONNECTED;
-            callbackQuene.Enqueue(closeSocketCallback);
-            if (client != null)
+            LogQueue.Enqueue("[Disconnected]");
+            State = ClientState.Disconnected;
+            CallbackQuene.Enqueue(CloseSocketCallback);
+            if (_client != null)
             {
-                try { client.Shutdown(SocketShutdown.Both); }
-                catch (Exception e) { }
-                client.Close();
+                try { _client.Shutdown(SocketShutdown.Both); }
+                catch (Exception) { }
+                _client.Close();
             }
         }
     }

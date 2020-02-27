@@ -8,16 +8,16 @@ public class BackBtn : MonoBehaviour
 {
     [SerializeField]
     private string sceneName;
-    private Button button;
+    private Button _button;
 
-    void Awake()
+    private void Awake()
     {
-        button = gameObject.GetComponent<Button>();
-        button.onClick.AddListener(Click);
+        _button = gameObject.GetComponent<Button>();
+        _button.onClick.AddListener(Click);
     }
 
-    void Click()
+    private void Click()
     {
-        SceneManager.LoadScene(sceneName,LoadSceneMode.Single);
+        SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
     }
 }

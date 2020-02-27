@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -9,7 +9,7 @@ namespace UI
 {
     public class MessageBox : MonoBehaviour
     {
-        public static MessageBox instance;
+        public static MessageBox Instance;
 
         [SerializeField]
         private ObjectToggler toggler;
@@ -24,16 +24,16 @@ namespace UI
         [SerializeField]
         private Text button2Text;
 
-        private Action<bool> callback;
+        private Action<bool> _callback;
 
         private void Awake()
         {
             //singleton
-            if (instance == null)
+            if (Instance == null)
             {
-                instance = this;
+                Instance = this;
             }
-            else if (instance != this)
+            else if (Instance != this)
             {
                 Destroy(gameObject);
             }
@@ -44,9 +44,9 @@ namespace UI
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
 
-        private void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene,LoadSceneMode mode)
+        private void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, LoadSceneMode mode)
         {
-            if(isActiveAndEnabled)
+            if (isActiveAndEnabled)
             {
                 gameObject.SetActive(false);
             }
@@ -54,7 +54,7 @@ namespace UI
 
         public void Show(string message, Action<bool> callback, string buttonText)
         {
-            if(isActiveAndEnabled)
+            if (isActiveAndEnabled)
             {
                 return;
             }
@@ -63,7 +63,7 @@ namespace UI
             toggler.UnActivate();
             button1.gameObject.SetActive(false);
             button2Text.text = buttonText;
-            this.callback = callback;
+            this._callback = callback;
         }
 
         public void Show(string message, Action<bool> callback, string agree, string disagree)
@@ -77,36 +77,36 @@ namespace UI
             button1.gameObject.SetActive(true);
             button1Text.text = agree;
             button2Text.text = disagree;
-            this.callback = callback;
+            this._callback = callback;
         }
 
         private void OnButton1Clicked()
         {
-            if (callback == null)
+            if (_callback == null)
                 return;
-            callback(true);
-            messageText.text="";
+            _callback(true);
+            messageText.text = "";
             toggler.UnActivate();
-            callback = null;
+            _callback = null;
         }
 
         private void OnButton2Clicked()
         {
-            if(callback==null) 
+            if (_callback == null)
                 return;
 
             //버튼이 한개일 때
             if (!button1.gameObject.activeSelf)
             {
-                callback(true);
+                _callback(true);
             }
             else
             {
-                callback(false);
+                _callback(false);
             }
-            messageText.text="";
+            messageText.text = "";
             toggler.UnActivate();
-            callback = null;
+            _callback = null;
         }
     }
 }

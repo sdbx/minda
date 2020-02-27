@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.IO;
 using SFB;
@@ -12,9 +12,9 @@ namespace UI
 {
     public class MapObject : MonoBehaviour
     {
-        private string mapName;
-        public int[,] map{private set;get;}
-        private Action<MapObject> clickedCallback;
+        private string _mapName;
+        public int[,] map { private set; get; }
+        private Action<MapObject> _clickedCallback;
 
         [SerializeField]
         private Text nameText;
@@ -30,7 +30,7 @@ namespace UI
 
         public void OnClick()
         {
-            clickedCallback(this);
+            _clickedCallback(this);
         }
 
         public void Select()
@@ -46,11 +46,11 @@ namespace UI
         public void Init(string name, int[,] map, Action<MapObject> clickedCallback)
         {
             transform.localPosition = Vector3.zero;
-            mapName = name;
+            _mapName = name;
             this.map = map;
             nameText.text = name;
-            
-            this.clickedCallback = clickedCallback;
+
+            this._clickedCallback = clickedCallback;
         }
 
 

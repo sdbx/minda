@@ -17,32 +17,32 @@ namespace UI
 
         [SerializeField]
         private GameObject mapSelector;
-        private Vector3 originPosition;
-        
-        private State state = State.UnActivated;
-        public bool isActivated { get { return state == State.Activated; } }
-        public bool isUnActivated { get { return state == State.UnActivated; } }
+        private Vector3 _originPosition;
+
+        private State _state = State.UnActivated;
+        public bool isActivated { get { return _state == State.Activated; } }
+        public bool isUnActivated { get { return _state == State.UnActivated; } }
 
         [SerializeField]
         private float duration = 0.3f;
-        private Vector3 unActivatedScale = new Vector3(0f, 0f, 1);
+        private Vector3 _unActivatedScale = new Vector3(0f, 0f, 1);
 
-        private CanvasGroup canvasGroup;
+        private CanvasGroup _canvasGroup;
 
         public void Awake()
         {
-            canvasGroup = mapSelector.GetComponent<CanvasGroup>();
-            canvasGroup.interactable = false;
-            canvasGroup.blocksRaycasts = false;
+            _canvasGroup = mapSelector.GetComponent<CanvasGroup>();
+            _canvasGroup.interactable = false;
+            _canvasGroup.blocksRaycasts = false;
         }
 
         public void ToggleActivation()
         {
-            if (state == State.UnActivated)
+            if (_state == State.UnActivated)
             {
                 Activate();
             }
-            else if (state == State.Activated)
+            else if (_state == State.Activated)
             {
                 UnActivate();
             }
@@ -50,33 +50,33 @@ namespace UI
 
         public void UnActivate()
         {
-            if (state == State.Activated)
+            if (_state == State.Activated)
             {
-                canvasGroup.interactable = false;
-                state = State.UnActivating;
-                mapSelector.transform.DOScale(unActivatedScale, duration).SetEase(Ease.InQuart).OnComplete(() =>
+                _canvasGroup.interactable = false;
+                _state = State.UnActivating;
+                mapSelector.transform.DOScale(_unActivatedScale, duration).SetEase(Ease.InQuart).OnComplete(() =>
                  {
-                     canvasGroup.blocksRaycasts = false;
+                     _canvasGroup.blocksRaycasts = false;
                      mapSelector.SetActive(false);
-                     state = State.UnActivated;
+                     _state = State.UnActivated;
                  });
             }
         }
 
         public void Activate()
         {
-            if (state == State.UnActivated)
+            if (_state == State.UnActivated)
             {
-                canvasGroup.blocksRaycasts = true;
-                canvasGroup.interactable = true;
-                canvasGroup.alpha = 1;
+                _canvasGroup.blocksRaycasts = true;
+                _canvasGroup.interactable = true;
+                _canvasGroup.alpha = 1;
                 mapSelector.SetActive(true);
-                mapSelector.transform.localScale = unActivatedScale;
-                state = State.Activating;
-                mapSelector.transform.DOScale(new Vector3(1f,1f,1), duration).SetEase(Ease.OutQuart).OnComplete(() =>
-                {
-                    state = State.Activated;
-                });
+                mapSelector.transform.localScale = _unActivatedScale;
+                _state = State.Activating;
+                mapSelector.transform.DOScale(new Vector3(1f, 1f, 1), duration).SetEase(Ease.OutQuart).OnComplete(() =>
+                  {
+                      _state = State.Activated;
+                  });
             }
         }
 

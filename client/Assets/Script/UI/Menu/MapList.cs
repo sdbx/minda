@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -9,6 +9,7 @@ using UI;
 using UI.Toast;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class MapList : MonoBehaviour
@@ -20,15 +21,15 @@ public class MapList : MonoBehaviour
     [SerializeField]
     private ScrollRect scrollRect;
 
-    [SerializeField]
-    protected Button LoadButton;
+    [FormerlySerializedAs("LoadButton")] [SerializeField]
+    protected Button loadButton;
 
-    protected MapObject selectedMapObject;
-    protected List<MapObject> maps = new List<MapObject>();
+    protected MapObject SelectedMapObject;
+    protected List<MapObject> Maps = new List<MapObject>();
 
     protected virtual void Awake()
     {
-        LoadButton.onClick.AddListener(OnLoadButtonClicked);
+        loadButton.onClick.AddListener(OnLoadButtonClicked);
     }
 
     protected void OnLoadButtonClicked()
@@ -39,8 +40,8 @@ public class MapList : MonoBehaviour
     public virtual MapObject AddMapElement(string name, int[,] map)
     {
         var mapObject = Instantiate(prefab, content);
-        mapObject.Init(name,map,Select);
-        maps.Add(mapObject);
+        mapObject.Init(name, map, Select);
+        Maps.Add(mapObject);
 
         //LoadButton.transform.SetAsLastSibling();
 
@@ -49,7 +50,7 @@ public class MapList : MonoBehaviour
 
     public MapObject AddMapElement(Map map)
     {
-        return AddMapElement(map.name, Board.GetMapFromString(map.payload));
+        return AddMapElement(map.Name, Board.GetMapFromString(map.Payload));
     }
 
     public void AddMapElements(Map[] maps)
@@ -78,7 +79,7 @@ public class MapList : MonoBehaviour
                 }
                 catch (Exception e)
                 {
-                    ToastManager.instance.Add(LanguageManager.GetText("maploaderror"), "Error");
+                    ToastManager.Instance.Add(LanguageManager.GetText("maploaderror"), "Error");
                     Debug.Log("맵 로드 오류 : " + e);
                 }
             }));
@@ -109,17 +110,17 @@ public class MapList : MonoBehaviour
 
     public virtual void Select(MapObject mapObject)
     {
-        if(selectedMapObject == mapObject)
+        if (SelectedMapObject == mapObject)
         {
             return;
         }
 
-        if (selectedMapObject != null)
+        if (SelectedMapObject != null)
         {
-            selectedMapObject.UnSelect();
+            SelectedMapObject.UnSelect();
         }
 
-        selectedMapObject = mapObject;
+        SelectedMapObject = mapObject;
         mapObject.Select();
     }
 

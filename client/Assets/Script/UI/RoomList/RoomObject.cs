@@ -21,7 +21,7 @@ namespace UI
 
         private void Awake()
         {
-            button.onClick.AddListener(onClick);
+            button.onClick.AddListener(OnClick);
         }
 
         public void Refresh()
@@ -31,12 +31,12 @@ namespace UI
 
         private string CreateImformationText()
         {
-            return $"#{index+1}  {room.conf.name}";
+            return $"#{index + 1}  {room.Conf.Name}";
         }
 
-        private void onClick()
+        private void OnClick()
         {
-            roomListManger.TryEnter(room.id);
+            roomListManger.TryEnter(room.Id);
         }
     }
 

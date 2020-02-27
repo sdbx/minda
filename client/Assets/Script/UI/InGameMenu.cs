@@ -1,28 +1,29 @@
-using Network;
+﻿using Network;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace UI
 {
     public class InGameMenu : MonoBehaviour
     {
-        [SerializeField]
-        private Button ExitOrGGBtn;
-        [SerializeField]
-        private Text ExitOrGGBtnText;
-        [SerializeField]
-        private Button CancelBtn;
+        [FormerlySerializedAs("ExitOrGGBtn")] [SerializeField]
+        private Button exitOrGgBtn;
+        [FormerlySerializedAs("ExitOrGGBtnText")] [SerializeField]
+        private Text exitOrGgBtnText;
+        [FormerlySerializedAs("CancelBtn")] [SerializeField]
+        private Button cancelBtn;
         [SerializeField]
         private ObjectToggler toggler;
 
-        private bool isEscapeKeyUp = true;
-        private bool isInGame;
-        private bool isDisable;
-        private void Awake() 
+        private bool _isEscapeKeyUp = true;
+        private bool _isInGame;
+        private bool _isDisable;
+        private void Awake()
         {
-            ExitOrGGBtn.onClick.AddListener(OnExitOrGGBtnClicked);
-            CancelBtn.onClick.AddListener(OnCancelBtnClicked);
+            exitOrGgBtn.onClick.AddListener(OnExitOrGgBtnClicked);
+            cancelBtn.onClick.AddListener(OnCancelBtnClicked);
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
 
@@ -34,65 +35,65 @@ namespace UI
         private void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, LoadSceneMode mode)
         {
             toggler.UnActivate();
-            isDisable = false;
+            _isDisable = false;
         }
 
         private void ChangeButtonType()
-        {   
-            isInGame = GameServer.instance.isInGame;
-            if(isInGame&&!GameServer.instance.isSpectator)
+        {
+            _isInGame = GameServer.Instance.isInGame;
+            if (_isInGame && !GameServer.Instance.isSpectator)
             {
-                ExitOrGGBtnText.text = LanguageManager.GetText("gg");
+                exitOrGgBtnText.text = LanguageManager.GetText("gg");
             }
             else
             {
-                ExitOrGGBtnText.text = LanguageManager.GetText("exit");
+                exitOrGgBtnText.text = LanguageManager.GetText("exit");
             }
         }
 
         private void Update()
         {
-            if(isDisable)
+            if (_isDisable)
                 return;
             //누를때 한번만 입력받기
             if (Input.GetKeyDown(KeyCode.Escape))
             {
                 Debug.Log("esc");
-                if(isEscapeKeyUp)
+                if (_isEscapeKeyUp)
                 {
                     ChangeButtonType();
                     toggler.Toggle();
-                    isEscapeKeyUp = false;
+                    _isEscapeKeyUp = false;
                 }
             }
             else
             {
-                isEscapeKeyUp = true;
+                _isEscapeKeyUp = true;
             }
         }
 
-        private void OnExitOrGGBtnClicked()
+        private void OnExitOrGgBtnClicked()
         {
-            if(isInGame)
+            if (_isInGame)
             {
-                MessageBox.instance.Show(LanguageManager.GetText("surrendermessage"),(bool agreed)=>
-                {
-                    if(agreed)
-                    {
-                        GameServer.instance.Surrender();
-                        toggler.UnActivate();
-                        isDisable = true;
-                    }
-                },"Yes","No");
+                MessageBox.Instance.Show(LanguageManager.GetText("surrendermessage"), (bool agreed) =>
+                 {
+                     if (agreed)
+                     {
+                         GameServer.Instance.Surrender();
+                         toggler.UnActivate();
+                         _isDisable = true;
+                     }
+                 }, "Yes", "No");
                 return;
             }
-            MessageBox.instance.Show(LanguageManager.GetText("exitmessage"),(bool agreed)=>
-            {
-                if(agreed)
-                {
-                    GameServer.instance.ExitGame();
-                }
-            },"Yes","No");
+            MessageBox.Instance.Show(LanguageManager.GetText("exitmessage"), (bool agreed) =>
+             {
+                 if (agreed)
+                 {
+                     GameServer.Instance.ExitGame();
+                 }
+             }, "Yes", "No");
         }
 
         private void OnCancelBtnClicked()

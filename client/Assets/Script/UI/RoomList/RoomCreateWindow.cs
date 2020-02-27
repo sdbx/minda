@@ -1,12 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using Network;
 using Newtonsoft.Json;
 using Models;
-using Scene;
 using UI;
+using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
 public class RoomCreateWindow : MonoBehaviour
 {
@@ -16,43 +15,44 @@ public class RoomCreateWindow : MonoBehaviour
     private ObjectToggler windowToggler;
     [SerializeField]
     private InputField nameText;
-    [SerializeField]
-    private Button CancelBtn;
-    [SerializeField]
-    private Button CreateBtn;
+    [FormerlySerializedAs("CancelBtn")] [SerializeField]
+    private Button cancelBtn;
+    [FormerlySerializedAs("CreateBtn")] [SerializeField]
+    private Button createBtn;
 
-    private void Awake() 
+    private void Awake()
     {
-        CancelBtn.onClick.AddListener(Cancel);
-        CreateBtn.onClick.AddListener(Create);
+        cancelBtn.onClick.AddListener(Cancel);
+        createBtn.onClick.AddListener(Create);
     }
 
     public void Create()
     {
-        var me = LobbyServer.instance.loginUser;
+        var me = LobbyServer.Instance.loginUser;
         if (nameText.text == "")
         {
-            nameText.text = $"{me.username}'s room";
+            nameText.text = $"{me.Username}'s room";
         }
-        LobbyServer.instance.Post<JoinRoomResult>("/rooms/", ToJson(), (JoinRoomResult result, int? err) =>
+        LobbyServer.Instance.Post<JoinRoomResult>("/rooms/", ToJson(), (JoinRoomResult result, int? err) =>
         {
-           if (err != null)
-           {
-               Debug.Log(err);
-               return;
-           }
-           var Addr = result.addr.Split(':');
-           SceneChanger.instance.ChangeTo("RoomConfigure");
-           GameServer.instance.EnterRoom(Addr[0], int.Parse(Addr[1]), result.invite);
-       });
+            if (err != null)
+            {
+                Debug.Log(err);
+                return;
+            }
+            var addr = result.Addr.Split(':');
+            SceneManager.LoadScene("RoomConfigure");
+            GameServer.Instance.EnterRoom(addr[0], int.Parse(addr[1]), result.Invite);
+        });
     }
 
     public string ToJson()
     {
-        Conf conf = new Conf{
-            open = isPublicToggle.isOn,
-            name = nameText.text,
-            king = -1,
+        var conf = new Conf
+        {
+            Open = isPublicToggle.isOn,
+            Name = nameText.text,
+            King = -1,
         };
 
         return JsonConvert.SerializeObject(conf);

@@ -14,7 +14,7 @@ namespace Game.Coords
         public int z = 0;
 
 
-        static private CubeCoord[] _directions
+        static private CubeCoord[] Directions
         {
             get
             {
@@ -58,7 +58,7 @@ namespace Game.Coords
             return new CubeCoord(a.x * b, a.y * b, a.z * b);
         }
 
-        public bool isSame(CubeCoord a)
+        public bool IsSame(CubeCoord a)
         {
             return (x == a.x) && (y == a.y) && (z == a.z);
         }
@@ -75,9 +75,9 @@ namespace Game.Coords
 
         static public int ConvertDirectionToNum(CubeCoord direction)
         {
-            for(int i = 0;i<6;i++)
+            for (var i = 0; i < 6; i++)
             {
-                if(direction.isSame(_directions[i]))
+                if (direction.IsSame(Directions[i]))
                 {
                     return i;
                 }
@@ -86,10 +86,10 @@ namespace Game.Coords
         }
         static public CubeCoord ConvertNumToDirection(int num)
         {
-            return _directions[num];
+            return Directions[num];
         }
 
-        public override string ToString ()
+        public override string ToString()
         {
             return $"{x} {y} {z}";
         }

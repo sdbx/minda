@@ -1,5 +1,6 @@
 ﻿using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace UI
 {
@@ -9,15 +10,15 @@ namespace UI
         private float duration;
         [SerializeField]
         private CanvasGroup canvasGroup;
-        [SerializeField]
-        private bool ActiveFirst;
+        [FormerlySerializedAs("ActiveFirst")] [SerializeField]
+        private bool activeFirst;
         [SerializeField]
         private bool onlyToggleAlpha;
 
-        public bool isActivated{get;private set;}
+        public bool isActivated { get; private set; }
 
-        private bool isInitalized;
-        private bool isAnimating = false;
+        private bool _isInitalized;
+        private bool _isAnimating = false;
 
         private void Awake()
         {
@@ -26,10 +27,10 @@ namespace UI
 
         private void Init()
         {
-            if(isInitalized)
+            if (_isInitalized)
                 return;
 
-            if (ActiveFirst)
+            if (activeFirst)
             {
                 if (!onlyToggleAlpha)
                     gameObject.SetActive(true);
@@ -42,15 +43,15 @@ namespace UI
                     gameObject.SetActive(false);
                 canvasGroup.alpha = 0;
             }
-            isInitalized = true;
+            _isInitalized = true;
         }
 
         public void SetActivation(bool activation)
         {
             Init();
-            if(activation != isActivated)
+            if (activation != isActivated)
             {
-                if(activation)
+                if (activation)
                 {
                     Activate();
                 }
@@ -63,13 +64,14 @@ namespace UI
 
         public void Activate()
         {
-            if(isActivated)
+            if (isActivated)
                 return;
             isActivated = true;
             Init();
-            isAnimating = true;
-            DOTween.To(() => canvasGroup.alpha, x => canvasGroup.alpha = x, 1, duration).OnComplete(() => {
-                isAnimating = false;
+            _isAnimating = true;
+            DOTween.To(() => canvasGroup.alpha, x => canvasGroup.alpha = x, 1, duration).OnComplete(() =>
+            {
+                _isAnimating = false;
             });
             if (!onlyToggleAlpha)
                 gameObject.SetActive(true);
@@ -80,25 +82,25 @@ namespace UI
 
         public void UnActivate()
         {
-            if(!isActivated)
+            if (!isActivated)
                 return;
             isActivated = false;
             Init();
-            isAnimating = true;
-            DOTween.To(() => canvasGroup.alpha, x => canvasGroup.alpha = x, 0, duration).OnComplete(()=>
+            _isAnimating = true;
+            DOTween.To(() => canvasGroup.alpha, x => canvasGroup.alpha = x, 0, duration).OnComplete(() =>
             {
-                if(!onlyToggleAlpha)
+                if (!onlyToggleAlpha)
                     gameObject.SetActive(false);
 
                 canvasGroup.interactable = false;
                 canvasGroup.blocksRaycasts = false;
-                isAnimating = false;
+                _isAnimating = false;
             });
         }
 
         public void UnActivateIfNotAnimating()
         {
-            if (isAnimating)
+            if (_isAnimating)
                 return;
             UnActivate();
         }

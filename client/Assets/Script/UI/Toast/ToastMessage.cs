@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 using System.Collections;
@@ -19,7 +19,7 @@ namespace UI.Toast
         public float lifeTime = 3;
         public string message = "Toast";
         public float animationDuration = 3;
-        private float distanceToGoDown;
+        private float _distanceToGoDown;
 
         [SerializeField]
         private Text text;
@@ -29,14 +29,14 @@ namespace UI.Toast
         private Image backGround2;
         [SerializeField]
         private RawImage icon;
-        private CanvasGroup canvasGroup;
+        private CanvasGroup _canvasGroup;
 
         public Action<ToastMessage> destroyedCallback;
 
         private void Awake()
         {
-            canvasGroup = gameObject.AddComponent<CanvasGroup>();
-            canvasGroup.alpha = 0;
+            _canvasGroup = gameObject.AddComponent<CanvasGroup>();
+            _canvasGroup.alpha = 0;
         }
 
         private void Start()
@@ -58,7 +58,7 @@ namespace UI.Toast
             MoveDown();
             DoFade(0).OnComplete(() =>
             {
-                if(destroyedCallback!=null)
+                if (destroyedCallback != null)
                 {
                     destroyedCallback(this);
                 }
@@ -68,7 +68,7 @@ namespace UI.Toast
 
         public DG.Tweening.Tweener MoveDown()
         {
-            return transform.DOLocalMove(new Vector3(0, transform.localPosition.y + distanceToGoDown, 0), animationDuration);
+            return transform.DOLocalMove(new Vector3(0, transform.localPosition.y + _distanceToGoDown, 0), animationDuration);
         }
 
         public void Init(string message, float lifeTime, ToastType toastType, float animationDuration, float distanceToGoDown)
@@ -77,7 +77,7 @@ namespace UI.Toast
             this.lifeTime = lifeTime;
             this.toastType = toastType;
             this.animationDuration = animationDuration;
-            this.distanceToGoDown = distanceToGoDown;
+            this._distanceToGoDown = distanceToGoDown;
             StartCoroutine(LifeTimeEnd());
         }
 
@@ -89,7 +89,7 @@ namespace UI.Toast
 
         private DG.Tweening.Core.TweenerCore<float, float, DG.Tweening.Plugins.Options.FloatOptions> DoFade(float endValue)
         {
-            return DOTween.To(() => canvasGroup.alpha, x => canvasGroup.alpha = x, endValue, animationDuration);
+            return DOTween.To(() => _canvasGroup.alpha, x => _canvasGroup.alpha = x, endValue, animationDuration);
         }
     }
 }

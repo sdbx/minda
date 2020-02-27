@@ -10,7 +10,7 @@ namespace Game.Guide
 {
     public class BallSelector
     {
-        public bool _isSelected = false;
+        public bool IsSelected = false;
 
         private BallManager _ballManager;
         private BoardManager _boardManager;
@@ -30,18 +30,18 @@ namespace Game.Guide
             return new BallSelection(_firstBallSelection, _lastBallSelection);
         }
 
-        public CubeCoord GetBallCubeCoordByMouseXY(Vector2 mouseXY)
+        public CubeCoord GetBallCubeCoordByMouseXy(Vector2 mouseXy)
         {
-            int s = _boardManager.GetBoard().GetSide() - 1;
-            for (int x = 0; x <= 2 * s; x++)
+            var s = _boardManager.GetBoard().GetSide() - 1;
+            for (var x = 0; x <= 2 * s; x++)
             {
-                for (int y = 0; y <= 2 * s; y++)
+                for (var y = 0; y <= 2 * s; y++)
                 {
-                    Ball ballObject = _ballManager.ballObjects[x, y];
+                    var ballObject = _ballManager.ballObjects[x, y];
                     if (ballObject == null)
                         continue;
 
-                    if (Utils.CheckCircleAndPointCollision(mouseXY, ballObject.transform.position, _ballManager.sizeOfBall / 2))
+                    if (Utils.CheckCircleAndPointCollision(mouseXy, ballObject.transform.position, _ballManager.sizeOfBall / 2))
                     {
                         x = x - s;
                         y = y - s;
@@ -53,17 +53,17 @@ namespace Game.Guide
             return null;
         }
 
-        public void SelectingBalls(BallType ballType,SelectGuideDisplay guide,ZoomSystem zoomSystem)
+        public void SelectingBalls(BallType ballType, SelectGuideDisplay guide, ZoomSystem zoomSystem)
         {
-            if (_isSelected)
+            if (IsSelected)
             {
                 return;
             }
             Vector2 mousePos = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0));
-            CubeCoord ballCubeCoord = GetBallCubeCoordByMouseXY(mousePos);
+            var ballCubeCoord = GetBallCubeCoordByMouseXy(mousePos);
 
 
-            if(_isFirstBallpicked)
+            if (_isFirstBallpicked)
             {
                 zoomSystem.isLocked = true;
                 guide.SetPoint1(_ballManager.GetBallByCubeCoord(_firstBallSelection).transform.position);
@@ -72,7 +72,7 @@ namespace Game.Guide
 
             if (ballCubeCoord == null)
             {
-                if(!_isFirstBallpicked)
+                if (!_isFirstBallpicked)
                 {
                     zoomSystem.isLocked = false;
                     guide.Hide();
@@ -80,11 +80,11 @@ namespace Game.Guide
                 UnSelectable(guide);
                 return;
             }
-            Ball ballObject = _ballManager.GetBallObjectByCubeCoord(ballCubeCoord);
+            var ballObject = _ballManager.GetBallObjectByCubeCoord(ballCubeCoord);
             if (ballObject.GetBall() != ballType)
                 return;
 
-            int s = _boardManager.GetBoard().GetSide() - 1;
+            var s = _boardManager.GetBoard().GetSide() - 1;
 
 
 
@@ -108,36 +108,36 @@ namespace Game.Guide
                 //라인 시작점
                 if (ballCubeCoord.CheckInSameLine(_firstBallSelection))
                 {
-                    int distance = Utils.GetDistanceBy2CubeCoord(ballCubeCoord, _firstBallSelection);
-                    
+                    var distance = Utils.GetDistanceBy2CubeCoord(ballCubeCoord, _firstBallSelection);
+
                     if (distance == 0)
                     {
                         _lastBallSelection = ballCubeCoord;
-                        Selectable(distance,guide);
+                        Selectable(distance, guide);
                         guide.SetPoint2(_ballManager.GetBallByCubeCoord(_lastBallSelection).transform.position);
                         return;
                     }
                     else if (distance == 1)
                     {
                         _lastBallSelection = ballCubeCoord;
-                        Selectable(distance,guide);
+                        Selectable(distance, guide);
                         guide.SetPoint2(_ballManager.GetBallByCubeCoord(_lastBallSelection).transform.position);
                         return;
                     }
                     else if (distance == 2)
                     {
-                        Ball middleBall = _ballManager.GetBallObjectByCubeCoord(
+                        var middleBall = _ballManager.GetBallObjectByCubeCoord(
                             CubeCoord.GetCenter(ballCubeCoord, _firstBallSelection));
 
                         if (middleBall != null && _boardManager.CheckBallObjectIsMine(middleBall.gameObject))
                         {
                             _lastBallSelection = ballCubeCoord;
-                            Selectable(distance,guide);
+                            Selectable(distance, guide);
                             guide.SetPoint2(_ballManager.GetBallByCubeCoord(_lastBallSelection).transform.position);
                             return;
                         }
                     }
-                    
+
                 }
             }
             UnSelectable(guide);
@@ -160,7 +160,7 @@ namespace Game.Guide
         {
             if (Input.GetMouseButtonUp(0))
             {
-                _isSelected = true;
+                IsSelected = true;
                 _isFirstBallpicked = false;
             }
             else

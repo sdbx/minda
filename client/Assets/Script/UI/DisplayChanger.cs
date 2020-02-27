@@ -20,7 +20,7 @@ public class DisplayChanger : MonoBehaviour
         }
         public Graphic element;
         [HideInInspector]
-        private MonoBehaviour component;
+        private MonoBehaviour _component;
         [HideInInspector]
         public Color origin;
         public ColorSettings colors = new ColorSettings();
@@ -39,23 +39,23 @@ public class DisplayChanger : MonoBehaviour
         {new Setting()},
     };
 
-    private bool isOriginColorSaved = false;
+    private bool _isOriginColorSaved = false;
 
-    private void Awake() 
+    private void Awake()
     {
         SaveOrigin();
     }
 
     private void SaveOrigin()
     {
-        if(isOriginColorSaved)
+        if (_isOriginColorSaved)
             return;
 
         foreach (var sett in settings)
         {
             sett.origin = sett.element.color;
         }
-        isOriginColorSaved = true;
+        _isOriginColorSaved = true;
     }
 
     public void SetMode(string mode)

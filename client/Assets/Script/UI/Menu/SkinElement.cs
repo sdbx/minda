@@ -1,10 +1,11 @@
-using System;
+﻿using System;
 using Models;
 using Network;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using DG.Tweening;
+using UnityEngine.Serialization;
 
 namespace UI.Menu
 {
@@ -17,22 +18,21 @@ namespace UI.Menu
         [SerializeField]
         private RawImage whiteImage;
 
-        [SerializeField]
-        private Vector3 MouseOnScale;
-        [SerializeField]
-        private Vector3 SelectedScale;
+        [FormerlySerializedAs("MouseOnScale")] [SerializeField]
+        private Vector3 mouseOnScale;
+        [FormerlySerializedAs("SelectedScale")] [SerializeField]
+        private Vector3 selectedScale;
         [SerializeField]
         private float duration;
 
-        [SerializeField]
-        DisplayChanger displayChanger;
+        [SerializeField] private DisplayChanger displayChanger;
         [SerializeField]
         private GameObject equipIcon;
 
-        private SkinSelector skinSelector;
+        private SkinSelector _skinSelector;
 
-        private bool isSelected;
-        private bool isEquiped;
+        private bool _isSelected;
+        private bool _isEquiped;
 
         private void Awake()
         {
@@ -41,54 +41,54 @@ namespace UI.Menu
 
         public void Init(SkinSelector skinSelector, Skin skin)
         {
-            this.skinSelector = skinSelector;
+            this._skinSelector = skinSelector;
             SetSkin(skin);
         }
 
         public void SetSkin(Skin skin)
         {
             this.skin = skin;
-            if(skin == null)
+            if (skin == null)
                 return;
-            LobbyServer.instance.GetLoadedSkin(skin, (LoadedSkin downloadedSkin) =>
+            LobbyServer.Instance.GetLoadedSkin(skin, (LoadedSkin downloadedSkin) =>
             {
-                blackImage.texture = downloadedSkin.blackTexture;
-                whiteImage.texture = downloadedSkin.whiteTexture;
+                blackImage.texture = downloadedSkin.BlackTexture;
+                whiteImage.texture = downloadedSkin.WhiteTexture;
             });
         }
 
-        public void SetTextures(Texture black,Texture white)
+        public void SetTextures(Texture black, Texture white)
         {
             blackImage.texture = black;
             whiteImage.texture = white;
         }
         public void OnPointerEnter(PointerEventData eventData)
         {
-            if (isSelected)
+            if (_isSelected)
             {
                 return;
             }
-            transform.DOScale(MouseOnScale, duration);
+            transform.DOScale(mouseOnScale, duration);
             displayChanger.SetMode("On");
         }
 
         public void UnSelect()
         {
-            isSelected = false;
+            _isSelected = false;
             displayChanger.SetOrigin();
             transform.DOScale(new Vector3(1, 1, 1), duration);
         }
 
         public void Select()
         {
-            isSelected = true;
-            transform.DOScale(SelectedScale, duration);
+            _isSelected = true;
+            transform.DOScale(selectedScale, duration);
             displayChanger.SetMode("Selected");
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            if (isSelected)
+            if (_isSelected)
             {
                 return;
             }
@@ -98,16 +98,16 @@ namespace UI.Menu
 
         public void UnEquip()
         {
-            isEquiped = false;
+            _isEquiped = false;
             equipIcon.SetActive(false);
             UnSelect();
         }
 
         public void Equip()
         {
-            isEquiped = true;
+            _isEquiped = true;
             equipIcon.SetActive(true);
-            transform.DOScale(SelectedScale, duration);
+            transform.DOScale(selectedScale, duration);
             displayChanger.SetMode("Selected");
         }
 
@@ -116,12 +116,12 @@ namespace UI.Menu
             if (eventData.clickCount == 2)
             {
                 Equip();
-                skinSelector.Equip(this, true);
+                _skinSelector.Equip(this, true);
             }
-            if (!isSelected)
+            if (!_isSelected)
             {
                 Select();
-                skinSelector.Select(this);
+                _skinSelector.Select(this);
             }
         }
     }

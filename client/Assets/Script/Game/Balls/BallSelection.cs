@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using Game.Coords;
 using UnityEngine;
@@ -7,49 +7,49 @@ namespace Game.Balls
 {
     public class BallSelection
     {
-        public CubeCoord first, end;
-        public int count = 0;
+        public CubeCoord First, End;
+        public int Count = 0;
 
         public BallSelection(CubeCoord first, CubeCoord end)
         {
-            this.first = first;
-            this.end = end;
-            count = Utils.GetDistanceBy2CubeCoord(first, end) + 1;
+            this.First = first;
+            this.End = end;
+            Count = Utils.GetDistanceBy2CubeCoord(first, end) + 1;
         }
 
         public Vector2 GetMiddlePoint(float distance)
         {
-            Vector2 firstPosition = first.GetPixelPoint(distance);
-            Vector2 endPosition = end.GetPixelPoint(distance);
+            var firstPosition = First.GetPixelPoint(distance);
+            var endPosition = End.GetPixelPoint(distance);
             return new Vector2((firstPosition.x + endPosition.x) / 2, (firstPosition.y + endPosition.y) / 2);
         }
 
         public CubeCoord GetMiddleBallCubeCoord()
         {
-            if (count <= 2)
+            if (Count <= 2)
             {
                 return null;
             }
 
-            return CubeCoord.GetCenter(first, end);
+            return CubeCoord.GetCenter(First, End);
         }
 
         public BallSelection Move(CubeCoord direction)
         {
-            return new BallSelection(first + direction, end + direction);
+            return new BallSelection(First + direction, End + direction);
         }
 
         public CubeCoord GetStartPoint(int dirNum)
         {
             CubeCoord startPoint;
 
-            if ((first + CubeCoord.ConvertNumToDirection(dirNum) * (count - 1)).isSame(end))
+            if ((First + CubeCoord.ConvertNumToDirection(dirNum) * (Count - 1)).IsSame(End))
             {
-                startPoint = end;
+                startPoint = End;
             }
             else
             {
-                startPoint = first;
+                startPoint = First;
             }
 
             return startPoint;
@@ -59,13 +59,13 @@ namespace Game.Balls
         {
             CubeCoord endPoint;
 
-            if ((first + CubeCoord.ConvertNumToDirection(dirNum) * (count - 1)).isSame(end))
+            if ((First + CubeCoord.ConvertNumToDirection(dirNum) * (Count - 1)).IsSame(End))
             {
-                endPoint = first;
+                endPoint = First;
             }
             else
             {
-                endPoint = end;
+                endPoint = End;
             }
 
             return endPoint;
@@ -73,13 +73,13 @@ namespace Game.Balls
 
         public List<CubeCoord> GetCubeCoords()
         {
-            List<CubeCoord> coords = new List<CubeCoord>();
-            coords.Add(first);
-            if (count > 1)
+            var coords = new List<CubeCoord>();
+            coords.Add(First);
+            if (Count > 1)
             {
-                coords.Add(end);
+                coords.Add(End);
             }
-            if (count == 3)
+            if (Count == 3)
             {
                 coords.Add(GetMiddleBallCubeCoord());
             }

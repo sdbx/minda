@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using Models;
 using Network;
@@ -7,11 +7,11 @@ using UnityEngine.Networking;
 
 namespace Network
 {
-    public static class LobbyServerAPI
+    public static class LobbyServerApi
     {
         public static void GetUserInformation(int id, Action<User> callback)
         {
-            LobbyServer.instance.Get<User>("/users/" + id + "/", (User user, int? err) =>
+            LobbyServer.Instance.Get<User>("/users/" + id + "/", (User user, int? err) =>
             {
                 if (err != null)
                 {
@@ -23,15 +23,15 @@ namespace Network
                 }
             });
         }
-        
+
         public static void DownloadImage(string picUrl, Action<Texture> callBack)
         {
-            LobbyServer.instance.StartCoroutine(GetTexture(picUrl,callBack));
+            LobbyServer.Instance.StartCoroutine(GetTexture(picUrl, callBack));
         }
 
         private static IEnumerator GetTexture(string imgUrl, Action<Texture> callBack)
         {
-            UnityWebRequest www = UnityWebRequestTexture.GetTexture(imgUrl);
+            var www = UnityWebRequestTexture.GetTexture(imgUrl);
             yield return www.SendWebRequest();
 
             if (www.isNetworkError || www.isHttpError)
@@ -43,10 +43,10 @@ namespace Network
                 callBack(((DownloadHandlerTexture)www.downloadHandler).texture);
             }
         }
-        
+
         public static void GetMyMaps(Action<Map[], int?> callback)
         {
-            LobbyServer.instance.Get<Map[]>("/maps/",callback);
+            LobbyServer.Instance.Get<Map[]>("/maps/", callback);
         }
     }
 }

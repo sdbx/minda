@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using UnityEngine;
 using DG.Tweening;
 
@@ -6,15 +6,15 @@ namespace UI
 {
     public class PlayPanel : MonoBehaviour
     {
-        private RectTransform[] buttons;
+        private RectTransform[] _buttons;
 
         private void Awake()
         {
-            buttons = GetComponentsInChildren<RectTransform>().Where(rectTransform => rectTransform.parent == transform).ToArray();
+            _buttons = GetComponentsInChildren<RectTransform>().Where(rectTransform => rectTransform.parent == transform).ToArray();
 
             var i = 5;
             var sequence = DOTween.Sequence();
-            foreach (var button in buttons)
+            foreach (var button in _buttons)
             {
                 button.anchoredPosition = button.anchoredPosition + new Vector2(0, -Screen.height * 0.5f);
                 var delay = i * 0.05f;

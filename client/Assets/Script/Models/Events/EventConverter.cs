@@ -1,10 +1,10 @@
-using System;
+﻿using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Models.Events
 {
-    class EventConverter : JsonConverter
+    internal class EventConverter : JsonConverter
     {
         public override bool CanConvert(Type objectType)
         {
@@ -13,8 +13,8 @@ namespace Models.Events
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            JToken obj = JToken.Load(reader);
-            string discriminator = (string)obj["type"];
+            var obj = JToken.Load(reader);
+            var discriminator = (string)obj["type"];
 
             Event item;
             switch (discriminator)
@@ -58,7 +58,7 @@ namespace Models.Events
                 case "chated":
                     item = new ChattedEvent();
                     break;
-                
+
                 case "banned":
                     item = new BannedEvent();
                     break;

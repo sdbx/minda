@@ -34,60 +34,60 @@ namespace Game
         [SerializeField]
         private WinScreen winScreen;
 
-        private BallType nowTurn;
+        private BallType _nowTurn;
 
-        void Awake()
+        private void Awake()
         {
             boardManger.CreateBoard();
-            var game = GameServer.instance.gamePlaying;
+            var game = GameServer.Instance.gamePlaying;
             //boardManger.CreateBoard();
 
-            StartGame(Board.GetMapFromString(game.map), game.turn,game.black,game.white);
-            InitTimer(game.rule.turn_timeout, game.rule.game_timeout);
-            UpdateTimers(game.current_time, game.rule.game_timeout, game.rule.game_timeout);
+            StartGame(Board.GetMapFromString(game.Map), game.Turn, game.Black, game.White);
+            InitTimer(game.Rule.TurnTimeout, game.Rule.GameTimeout);
+            UpdateTimers(game.CurrentTime, game.Rule.GameTimeout, game.Rule.GameTimeout);
             InitHandlers();
         }
 
         private void InitHandlers()
         {
-            GameServer.instance.AddHandler<MoveEvent>(OnMoved);
-            GameServer.instance.AddHandler<EndedEvent>(OnEnded);
-            GameServer.instance.AddHandler<TickedEvent>(OnTicked);
-            GameServer.instance.AddHandler<ConfedEvent>(OnConfed);
+            GameServer.Instance.AddHandler<MoveEvent>(OnMoved);
+            GameServer.Instance.AddHandler<EndedEvent>(OnEnded);
+            GameServer.Instance.AddHandler<TickedEvent>(OnTicked);
+            GameServer.Instance.AddHandler<ConfedEvent>(OnConfed);
         }
 
         private void OnDestroy()
         {
-            GameServer.instance.RemoveHandler<MoveEvent>(OnMoved);
-            GameServer.instance.RemoveHandler<EndedEvent>(OnEnded);
-            GameServer.instance.RemoveHandler<TickedEvent>(OnTicked);
-            GameServer.instance.RemoveHandler<ConfedEvent>(OnConfed);
+            GameServer.Instance.RemoveHandler<MoveEvent>(OnMoved);
+            GameServer.Instance.RemoveHandler<EndedEvent>(OnEnded);
+            GameServer.Instance.RemoveHandler<TickedEvent>(OnTicked);
+            GameServer.Instance.RemoveHandler<ConfedEvent>(OnConfed);
         }
 
         private void OnConfed(Event e)
         {
             var confed = (ConfedEvent)e;
-            var conf = confed.conf;
-            var myId = LobbyServer.instance.loginUser.id;
-            if(conf.black == myId && myBallType!=BallType.Black)
+            var conf = confed.Conf;
+            var myId = LobbyServer.Instance.loginUser.Id;
+            if (conf.Black == myId && myBallType != BallType.Black)
             {
                 ChangeBallType(BallType.Black);
             }
-            else if(conf.white == myId && myBallType!=BallType.White)
+            else if (conf.White == myId && myBallType != BallType.White)
             {
                 ChangeBallType(BallType.White);
             }
-            else if(myBallType!=BallType.White&&myBallType!=BallType.Black)
+            else if (myBallType != BallType.White && myBallType != BallType.Black)
             {
                 ChangeBallType(BallType.None);
             }
-            
+
         }
 
         public void ChangeBallType(BallType ballType)
         {
             myBallType = ballType;
-            if(nowTurn == myBallType)
+            if (_nowTurn == myBallType)
                 ballManager.state = 1;
             SetRotation();
         }
@@ -95,12 +95,12 @@ namespace Game
         private void OnMoved(Event e)
         {
             var move = (MoveEvent)e;
-            nowTurn = OppositeBallType(move.player);
+            _nowTurn = OppositeBallType(move.Player);
 
-            if (move.player != myBallType)
+            if (move.Player != myBallType)
             {
-                ballManager.PushBalls(new BallSelection(move.start, move.end), CubeCoord.ConvertDirectionToNum(move.dir));
-                if (nowTurn == myBallType)
+                ballManager.PushBalls(new BallSelection(move.Start, move.End), CubeCoord.ConvertDirectionToNum(move.Dir));
+                if (_nowTurn == myBallType)
                 {
                     ballManager.state = 1;
                 }
@@ -109,9 +109,9 @@ namespace Game
             CircularTimer turnTimeoutTimer;
             CircularTimer gameTimeoutTimer;
 
-            if(GameServer.instance.isSpectator)
+            if (GameServer.Instance.isSpectator)
             {
-                if(move.player == BallType.Black)
+                if (move.Player == BallType.Black)
                 {
                     turnTimeoutTimer = player2GameTimer;
                     gameTimeoutTimer = player2TurnTimer;
@@ -122,7 +122,7 @@ namespace Game
                     gameTimeoutTimer = player1TurnTimer;
                 }
             }
-            else if (move.player == myBallType)
+            else if (move.Player == myBallType)
             {
                 turnTimeoutTimer = player2GameTimer;
                 gameTimeoutTimer = player2TurnTimer;
@@ -140,14 +140,14 @@ namespace Game
         public void OnEnded(Event e)
         {
             var end = (EndedEvent)e;
-            winScreen.Display(end, () => { SceneChanger.instance.ChangeTo("RoomConfigure"); });
+            winScreen.Display(end, () => { SceneChanger.Instance.ChangeTo("RoomConfigure"); });
             ballManager.state = 0;
         }
 
-        public void OnTicked(Event e) 
+        public void OnTicked(Event e)
         {
             var ticked = (TickedEvent)e;
-            UpdateTimers(ticked.current_time,ticked.black_time,ticked.white_time);
+            UpdateTimers(ticked.CurrentTime, ticked.BlackTime, ticked.WhiteTime);
         }
 
         private void UpdateTimers(float currentTime, float blackTime, float whiteTime)
@@ -157,7 +157,7 @@ namespace Game
             CircularTimer blackTurnTimer;
             CircularTimer whiteTurnTimer;
 
-            if (GameServer.instance.isSpectator || myBallType == BallType.Black)
+            if (GameServer.Instance.isSpectator || myBallType == BallType.Black)
             {
                 blackGameTimer = player2GameTimer;
                 blackTurnTimer = player2TurnTimer;
@@ -177,17 +177,17 @@ namespace Game
             blackGameTimer.leftTime = blackTime;
             whiteGameTimer.leftTime = whiteTime;
 
-            if (nowTurn == BallType.Black)
+            if (_nowTurn == BallType.Black)
             {
-                setTimer(blackGameTimer, blackTurnTimer, currentTime, blackTime, whiteTurnTimer, whiteGameTimer);
+                SetTimer(blackGameTimer, blackTurnTimer, currentTime, blackTime, whiteTurnTimer, whiteGameTimer);
             }
             else
             {
-                setTimer(whiteGameTimer, whiteTurnTimer, currentTime, whiteTime, blackTurnTimer, blackGameTimer);
+                SetTimer(whiteGameTimer, whiteTurnTimer, currentTime, whiteTime, blackTurnTimer, blackGameTimer);
             }
         }
 
-        private void setTimer(CircularTimer nowGameTimer, CircularTimer nowTurnTimer, float turnTime, float gameTime, CircularTimer nextTurnTimer, CircularTimer nextGameTimer)
+        private void SetTimer(CircularTimer nowGameTimer, CircularTimer nowTurnTimer, float turnTime, float gameTime, CircularTimer nextTurnTimer, CircularTimer nextGameTimer)
         {
             nowGameTimer.displayText = false;
             nowTurnTimer.gameObject.SetActive(true);
@@ -200,7 +200,7 @@ namespace Game
             nextGameTimer.UpdateTimer();
         }
 
-        private void InitTimer(int turnTimeout,int gameTimeout)
+        private void InitTimer(int turnTimeout, int gameTimeout)
         {
             player1GameTimer.wholeTime = gameTimeout;
             player1GameTimer.UpdateTimer();
@@ -212,47 +212,47 @@ namespace Game
             player2TurnTimer.UpdateTimer();
         }
 
-        public void StartGame(int[,] map, BallType turn,int black,int white)
+        public void StartGame(int[,] map, BallType turn, int black, int white)
         {
-            myBallType = RoomUtils.GetBallType(LobbyServer.instance.loginUser.id);
+            myBallType = RoomUtils.GetBallType(LobbyServer.Instance.loginUser.Id);
             ballManager.RemoveBalls();
             boardManger.SetMap(map);
             ballManager.CreateBalls(boardManger);
 
 
-            GameServer.instance.GetInGameUser(black, (inGameuser) =>
+            GameServer.Instance.GetInGameUser(black, (inGameuser) =>
             {
-                var skinId = inGameuser.user.inventory.current_skin;
+                var skinId = inGameuser.User.Inventory.CurrentSkin;
                 if (skinId == null)
                     return;
                 Debug.Log(skinId + "블랙");
-                LobbyServer.instance.GetLoadedSkin(inGameuser.user.inventory.current_skin.Value, (loadedSkin) =>
+                LobbyServer.Instance.GetLoadedSkin(inGameuser.User.Inventory.CurrentSkin.Value, (loadedSkin) =>
                 {
                     if (loadedSkin != null)
                     {
-                        ballManager.SetBallsSkin(BallType.Black, (Texture2D)loadedSkin.blackTexture);
+                        ballManager.SetBallsSkin(BallType.Black, (Texture2D)loadedSkin.BlackTexture);
                     }
                 });
             });
-            GameServer.instance.GetInGameUser(white, (inGameuser) =>
+            GameServer.Instance.GetInGameUser(white, (inGameuser) =>
             {
-                var skinId = inGameuser.user.inventory.current_skin;
+                var skinId = inGameuser.User.Inventory.CurrentSkin;
                 if (skinId == null)
                     return;
                 Debug.Log(skinId + "화이트");
-                LobbyServer.instance.GetLoadedSkin(inGameuser.user.inventory.current_skin.Value, (loadedSkin) =>
+                LobbyServer.Instance.GetLoadedSkin(inGameuser.User.Inventory.CurrentSkin.Value, (loadedSkin) =>
                 {
                     if (loadedSkin != null)
                     {
-                        ballManager.SetBallsSkin(BallType.White, (Texture2D)loadedSkin.whiteTexture);
+                        ballManager.SetBallsSkin(BallType.White, (Texture2D)loadedSkin.WhiteTexture);
                     }
                 });
             });
 
-            
+
 
             SetRotation();
-            nowTurn = turn;
+            _nowTurn = turn;
             if (turn == myBallType)
             {
                 ballManager.state = 1;
@@ -277,13 +277,13 @@ namespace Game
 
         public void SendBallMoving(BallSelection ballSelection, int direction)
         {
-            MoveCommand moveCommand = new MoveCommand(myBallType, ballSelection.first, ballSelection.end, CubeCoord.ConvertNumToDirection(direction));
-            GameServer.instance.SendCommand(moveCommand);
+            var moveCommand = new MoveCommand(myBallType, ballSelection.First, ballSelection.End, CubeCoord.ConvertNumToDirection(direction));
+            GameServer.Instance.SendCommand(moveCommand);
         }
 
         private BallType OppositeBallType(BallType ballType)
         {
-            return (ballType == BallType.Black?BallType.White:BallType.Black);
+            return (ballType == BallType.Black ? BallType.White : BallType.Black);
         }
     }
 }

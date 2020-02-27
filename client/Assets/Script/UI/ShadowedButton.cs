@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -13,11 +13,11 @@ namespace UI
 
         public Action onClick;
 
-        private bool isMouseOver;
+        private bool _isMouseOver;
 
         private void Awake()
         {
-            shadowImage.color = UISettings.instance.colors.transparent;
+            shadowImage.color = UiSettings.Instance.colors.transparent;
         }
 
         public void OnPointerClick(PointerEventData eventData)
@@ -27,9 +27,9 @@ namespace UI
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            isMouseOver = true;
+            _isMouseOver = true;
 
-            var uiSettings = UISettings.instance;
+            var uiSettings = UiSettings.Instance;
             var duration = uiSettings.durations.shadowShowDuration;
 
             shadowImage.DOColor(uiSettings.colors.shadowEnabled, duration);
@@ -38,9 +38,9 @@ namespace UI
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            isMouseOver = false;
+            _isMouseOver = false;
 
-            var uiSettings = UISettings.instance;
+            var uiSettings = UiSettings.Instance;
             var duration = uiSettings.durations.shadowShowDuration;
 
             shadowImage.DOColor(uiSettings.colors.transparent, duration);

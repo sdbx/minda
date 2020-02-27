@@ -13,10 +13,10 @@ namespace UI
 {
     public class PlayerInfoDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
     {
-        private int UserId;
-        private InGameUser inGameUser;
+        private int _userId;
+        private InGameUser _inGameUser;
 
-        private RectTransform rectTransform;
+        private RectTransform _rectTransform;
         [SerializeField]
         private RawImage profileImage;
         [SerializeField]
@@ -40,35 +40,35 @@ namespace UI
         [SerializeField]
         private int num;
 
-        private Texture placeHolder;
+        private Texture _placeHolder;
 
         private void Awake()
         {
-            placeHolder = UISettings.instance.placeHolder;
-            rectTransform = gameObject.GetComponent<RectTransform>();
+            _placeHolder = UiSettings.Instance.placeHolder;
+            _rectTransform = gameObject.GetComponent<RectTransform>();
             Debug.Log("콘프드 이벤트 등록");
-            GameServer.instance.ConfedEvent += OnConfed;
-            GameServer.instance.RoomConnectedEvent+=OnConnected;
+            GameServer.Instance.ConfedEvent += OnConfed;
+            GameServer.Instance.RoomConnectedEvent += OnConnected;
         }
 
         private void Start()
         {
-            if (GameServer.instance.connectedRoom != null)
-                SetPlayerInfo(GameServer.instance.connectedRoom.conf);
+            if (GameServer.Instance.connectedRoom != null)
+                SetPlayerInfo(GameServer.Instance.connectedRoom.Conf);
             return;
         }
-        
+
 
         private void OnConnected(Room room)
         {
-            SetPlayerInfo(room.conf);
+            SetPlayerInfo(room.Conf);
         }
-        
+
         private void OnDestroy()
         {
-            GameServer.instance.ConfedEvent -= OnConfed;
+            GameServer.Instance.ConfedEvent -= OnConfed;
         }
-        
+
         public void OnConfed(Conf conf)
         {
             Debug.Log("콘프드발생해서 플레이어인포 설정");
@@ -78,49 +78,49 @@ namespace UI
 
         public void Display(int id, BallType ballType = BallType.None)
         {
-            Debug.Log(id+"사진, 정보 시작");
-            UserId = id;
-            if(id == -1)
+            Debug.Log(id + "사진, 정보 시작");
+            _userId = id;
+            if (id == -1)
             {
                 usernameText.text = LanguageManager.GetText("waiting");
                 SetColor(ballType);
                 kingIcon.SetActive(false);
-                inGameUser = null;
-                SetProfileImage(placeHolder);
-                Debug.Log(id+"끝");
-                return;   
+                _inGameUser = null;
+                SetProfileImage(_placeHolder);
+                Debug.Log(id + "끝");
+                return;
             }
 
-            GameServer.instance.GetInGameUser(id, (InGameUser inGameUser)=>
+            GameServer.Instance.GetInGameUser(id, (InGameUser inGameUser) =>
             {
-                
-                this.inGameUser = inGameUser;
-                usernameText.text = inGameUser.user.username;
-                SetColor(inGameUser.ballType);
-                kingIcon.SetActive(inGameUser.isKing);
-                Debug.Log(id+"정보 등록 완료");
-                if(inGameUser.user.picture != null)
+
+                this._inGameUser = inGameUser;
+                usernameText.text = inGameUser.User.Username;
+                SetColor(inGameUser.BallType);
+                kingIcon.SetActive(inGameUser.IsKing);
+                Debug.Log(id + "정보 등록 완료");
+                if (inGameUser.User.Picture != null)
                 {
-                    GameServer.instance.GetProfileTexture(id, SetProfileImage);
-                                Debug.Log(id+"사진 등록완료");
+                    GameServer.Instance.GetProfileTexture(id, SetProfileImage);
+                    Debug.Log(id + "사진 등록완료");
                 }
-                else SetProfileImage(placeHolder);
+                else SetProfileImage(_placeHolder);
             });
         }
 
         private void SetProfileImage(Texture texture)
         {
-            profileImage.texture = (texture == null ? placeHolder : texture);
+            profileImage.texture = (texture == null ? _placeHolder : texture);
         }
 
         private void SetColor(BallType ballType)
         {
-            if(ballType == BallType.Black)
+            if (ballType == BallType.Black)
             {
                 backGround.texture = backgroundBlack;
                 textDisplayChanger.SetMode("Black");
             }
-            else if(ballType == BallType.White)
+            else if (ballType == BallType.White)
             {
                 backGround.texture = backgroundWhite;
                 textDisplayChanger.SetMode("White");
@@ -129,67 +129,67 @@ namespace UI
 
         private void CreateContextMenu()
         {
-            ContextMenu contextMenu = new ContextMenu(contextMenuPivot);
-            var gameServer = GameServer.instance;
-            var myId = LobbyServer.instance.loginUser.id;
+            var contextMenu = new ContextMenu(contextMenuPivot);
+            var gameServer = GameServer.Instance;
+            var myId = LobbyServer.Instance.loginUser.Id;
             //king menu
-            if(gameServer.connectedRoom.conf.king == myId)
+            if (gameServer.connectedRoom.Conf.King == myId)
             {
                 if (RoomUtils.CheckIsKing(myId))
                 {
-                    if (inGameUser.ballType != BallType.White)
+                    if (_inGameUser.BallType != BallType.White)
                     {
                         contextMenu.Add(LanguageManager.GetText("towhite"), () =>
                          {
-                             gameServer.ChangeUserRole(UserId, BallType.White);
+                             gameServer.ChangeUserRole(_userId, BallType.White);
                          });
                     }
-                    if (inGameUser.ballType != BallType.Black)
+                    if (_inGameUser.BallType != BallType.Black)
                     {
                         contextMenu.Add(LanguageManager.GetText("toblack"), () =>
                          {
-                             gameServer.ChangeUserRole(UserId, BallType.Black);
+                             gameServer.ChangeUserRole(_userId, BallType.Black);
                          });
                     }
-                    if (inGameUser.ballType != BallType.None)
+                    if (_inGameUser.BallType != BallType.None)
                     {
                         contextMenu.Add(LanguageManager.GetText("tospec"), () =>
                          {
-                             gameServer.ChangeUserRole(UserId, BallType.None);
+                             gameServer.ChangeUserRole(_userId, BallType.None);
                          });
                     }
-                    if (UserId != myId)
+                    if (_userId != myId)
                     {
                         contextMenu.Add(LanguageManager.GetText("makeking"), () =>
                          {
-                             gameServer.ChangeKingTo(UserId);
+                             gameServer.ChangeKingTo(_userId);
                          });
                     }
-                    var conf = GameServer.instance.connectedRoom.conf;
-                    if (!(conf.black == UserId || conf.white == UserId || conf.king == UserId))
+                    var conf = GameServer.Instance.connectedRoom.Conf;
+                    if (!(conf.Black == _userId || conf.White == _userId || conf.King == _userId))
                     {
                         contextMenu.Add(LanguageManager.GetText("ban"), () =>
                         {
-                            GameServer.instance.BanUser(UserId);
+                            GameServer.Instance.BanUser(_userId);
                         });
                     }
                 }
-            }   
-            
-            Vector3[] corners = new Vector3[4];
-            rectTransform.GetLocalCorners(corners);
+            }
 
-            var position = corners[corner] + rectTransform.localPosition;
-            ContextMenuManager.instance.Create(new Vector2(position.x,position.y), contextMenu);
+            var corners = new Vector3[4];
+            _rectTransform.GetLocalCorners(corners);
+
+            var position = corners[corner] + _rectTransform.localPosition;
+            ContextMenuManager.Instance.Create(new Vector2(position.x, position.y), contextMenu);
         }
-        
+
         //user menucontext
         public void OnPointerEnter(PointerEventData eventData)
         {
-            if(UserId == -1)
+            if (_userId == -1)
                 return;
             //BlackHightlighed, WhiteHightlighed
-            backGroundDisplayChanger.SetMode(inGameUser.ballType + "Hightlighed");
+            backGroundDisplayChanger.SetMode(_inGameUser.BallType + "Hightlighed");
         }
 
         public void OnPointerExit(PointerEventData eventData)
@@ -199,7 +199,7 @@ namespace UI
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            if(inGameUser != null)
+            if (_inGameUser != null)
             {
                 CreateContextMenu();
             }
@@ -207,13 +207,13 @@ namespace UI
 
         private void SetPlayerInfo(Conf conf)
         {
-            var isSpectator = GameServer.instance.isSpectator;
+            var isSpectator = GameServer.Instance.isSpectator;
 
             int playerId;
             BallType ballType;
 
             //본인이 검은색이거나 관전자
-            if (isSpectator||conf.black == LobbyServer.instance.loginUser.id)
+            if (isSpectator || conf.Black == LobbyServer.Instance.loginUser.Id)
             {
                 ballType = (num == 2 ? BallType.Black : BallType.White);
             }
@@ -222,10 +222,10 @@ namespace UI
             {
                 ballType = (num == 2 ? BallType.White : BallType.Black);
             }
-            
-            playerId = (ballType == BallType.Black ? conf.black : conf.white);
 
-            Display(playerId,ballType);
+            playerId = (ballType == BallType.Black ? conf.Black : conf.White);
+
+            Display(playerId, ballType);
         }
     }
 

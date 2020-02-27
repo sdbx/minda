@@ -1,79 +1,77 @@
-using System;
+﻿using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-public class IntUpDown : MonoBehaviour 
+public class IntUpDown : MonoBehaviour
 {
-    [SerializeField]
-    private Button up;
-    [SerializeField]
-    private Button down;
-    [SerializeField]
-    private InputField inputField;
+    [FormerlySerializedAs("up")] [SerializeField] private Button _up;
+    [FormerlySerializedAs("down")] [SerializeField] private Button _down;
+    [FormerlySerializedAs("inputField")] [SerializeField] private InputField _inputField;
 
-    [SerializeField]
-    private int min_;
-    [SerializeField]
-    private int max_;
+    [FormerlySerializedAs("min_")] [SerializeField]
+    private int _min;
 
-    public int min{get{return min_;}}
-    public int max{get{return max_;}}
-    
-    [SerializeField]
-    private int value_;
-    public int value{get{return value_;}}
+    [FormerlySerializedAs("max_")] [SerializeField]
+    private int _max;
+
+    public int min { get { return _min; } }
+    public int max { get { return _max; } }
+
+    [SerializeField] private int value_;
+    public int value { get { return value_; } }
 
     public event Action<int> ValueChanged;
-    
+
     public bool isButtonLocked = false;
 
-    private void Awake() 
+    private void Awake()
     {
-        up.onClick.AddListener(Up);
-        down.onClick.AddListener(Down);
-        inputField.onEndEdit.AddListener(OnEndEdit);
+        _up.onClick.AddListener(Up);
+        _down.onClick.AddListener(Down);
+        _inputField.onEndEdit.AddListener(OnEndEdit);
         UpdateInputField();
     }
 
     public void Up()
     {
-        if(isButtonLocked)
+        if (isButtonLocked)
             return;
-        ChangeValue(value+1);
+        ChangeValue(value + 1);
     }
 
     public void Down()
     {
-        if(isButtonLocked)
+        if (isButtonLocked)
             return;
-        ChangeValue(value-1);
+        ChangeValue(value - 1);
     }
 
     private void UpdateInputField()
     {
-        inputField.text = value_.ToString();
+        _inputField.text = value_.ToString();
     }
 
     public void ChangeMin(int num)
     {
-        min_ = num;
-        if(min_>max_) max_ = min_;
-        if(min_>value_)
+        _min = num;
+        if (_min > _max) _max = _min;
+        if (_min > value_)
         {
-           value_ = min_;
-           ValueChanged?.Invoke(min_);
-           UpdateInputField();
-        } 
+            value_ = _min;
+            ValueChanged?.Invoke(_min);
+            UpdateInputField();
+        }
     }
 
     public void ChangeMax(int num)
     {
-        max_ = num;
-        if(min_>max_) min_ = max_;
-        if(max_<value_) 
+        _max = num;
+        if (_min > _max) _min = _max;
+        if (_max < value_)
         {
-            value_ = max_;
-            ValueChanged?.Invoke(max_);
+            value_ = _max;
+            ValueChanged?.Invoke(_max);
             UpdateInputField();
         }
     }
@@ -81,14 +79,14 @@ public class IntUpDown : MonoBehaviour
     public void ChangeValue(int num)
     {
         var prevValue = value_;
-        
-        if (min_ > num)
+
+        if (_min > num)
         {
-            value_ = min_;
+            value_ = _min;
         }
-        else if (max_ < num)
+        else if (_max < num)
         {
-            value_ = max_;
+            value_ = _max;
         }
         else
         {
@@ -96,24 +94,24 @@ public class IntUpDown : MonoBehaviour
         }
 
         if (value_ == prevValue) return;
-        
+
         ValueChanged?.Invoke(value_);
         UpdateInputField();
     }
 
     private void OnEndEdit(string str)
     {
-        if(isButtonLocked)
+        if (isButtonLocked)
         {
             UpdateInputField();
             return;
         }
-        if (int.TryParse(str, out int parsedNum))
+
+        if (int.TryParse(str, out var parsedNum))
         {
             ChangeValue(parsedNum);
             UpdateInputField();
             value_ = parsedNum;
         }
     }
-
 }

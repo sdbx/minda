@@ -17,13 +17,13 @@ namespace Game.Boards
         {
             _side = side;
 
-            int s = side - 1;
+            var s = side - 1;
 
             _holes = new Hole[side + s, side + s];
 
-            for (int x = -s; x <= s; x++)
+            for (var x = -s; x <= s; x++)
             {
-                for (int y = -s; y <= s; y++)
+                for (var y = -s; y <= s; y++)
                 {
                     if (Mathf.Abs(x + y) <= s)
                         _holes[x + s, y + s] = new Hole(new CubeCoord(x, y));
@@ -34,13 +34,13 @@ namespace Game.Boards
 
         public void SetMap(int[,] map)
         {
-            int s = _side - 1;
+            var s = _side - 1;
 
-            for (int y = 0; y <= 2 * s; y++)
+            for (var y = 0; y <= 2 * s; y++)
             {
-                for (int x = 0; x <= 2 * s; x++)
+                for (var x = 0; x <= 2 * s; x++)
                 {
-                    int type = map[x, y];
+                    var type = map[x, y];
                     if (type != 0)
                     {
                         Set(x - s, y - s, (HoleState)type);
@@ -53,12 +53,12 @@ namespace Game.Boards
 
         static public int[,] GetMapFromString(string mapStr)
         {
-            string[] firstArray = mapStr.Split('#');
-            int[,] map = new int[firstArray.Length, firstArray.Length];
-            for (int x = 0; x < firstArray.Length; x++)
+            var firstArray = mapStr.Split('#');
+            var map = new int[firstArray.Length, firstArray.Length];
+            for (var x = 0; x < firstArray.Length; x++)
             {
-                string[] secondArray = firstArray[x].Split('@');
-                for (int y = 0; y < firstArray.Length; y++)
+                var secondArray = firstArray[x].Split('@');
+                for (var y = 0; y < firstArray.Length; y++)
                 {
                     int parsedInt;
                     if (!int.TryParse(secondArray[y], out parsedInt))
@@ -137,16 +137,16 @@ namespace Game.Boards
 
         public bool CheckMovement(BallSelection ballSelection, int direction, BallType myBallType)
         {
-            int sameLine = GetSameLine(ballSelection.first, ballSelection.end);
-            CubeCoord dirCubeCoord = CubeCoord.ConvertNumToDirection(direction);
+            var sameLine = GetSameLine(ballSelection.First, ballSelection.End);
+            var dirCubeCoord = CubeCoord.ConvertNumToDirection(direction);
             if (sameLine == direction % 3)
             {
                 //앞으로밀기
-                CubeCoord startPoint = ballSelection.GetStartPoint(direction);
+                var startPoint = ballSelection.GetStartPoint(direction);
 
-                for (int i = 1; i < ballSelection.count + 1; i++)
+                for (var i = 1; i < ballSelection.Count + 1; i++)
                 {
-                    CubeCoord currentcoord = startPoint + dirCubeCoord * i;
+                    var currentcoord = startPoint + dirCubeCoord * i;
                     if (CheckHoleIsEmptyOrOut(currentcoord))
                     {
                         return true;
@@ -161,20 +161,20 @@ namespace Game.Boards
             else
             {
                 //옆으로밀기
-                CubeCoord currentcoord = ballSelection.first + dirCubeCoord;
+                var currentcoord = ballSelection.First + dirCubeCoord;
                 if (!CheckHoleIsEmptyOrOut(currentcoord))
                 {
                     return false;
                 }
-                if (ballSelection.count == 3)
+                if (ballSelection.Count == 3)
                 {
                     currentcoord = ballSelection.GetMiddleBallCubeCoord() + dirCubeCoord;
                     if (!CheckHoleIsEmptyOrOut(currentcoord))
                         return false;
                 }
-                if (ballSelection.count != 1)
+                if (ballSelection.Count != 1)
                 {
-                    currentcoord = ballSelection.end + dirCubeCoord;
+                    currentcoord = ballSelection.End + dirCubeCoord;
                     if (!CheckHoleIsEmptyOrOut(currentcoord))
                         return false;
                 }

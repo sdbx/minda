@@ -6,15 +6,14 @@ using UnityEngine.UI;
 
 public class MenuElement : MonoBehaviour
 {
-    private string MenuName;
-    [SerializeField]
-    GameObject content;
+    private string _menuName;
+    [SerializeField] private GameObject content;
     public bool isSelected { get; private set; } = true;
-    private DisplayChanger displayChanger;
+    private DisplayChanger _displayChanger;
 
     private void Awake()
     {
-        displayChanger = gameObject.GetComponent<DisplayChanger>();     
+        _displayChanger = gameObject.GetComponent<DisplayChanger>();
     }
 
     private void Start()
@@ -26,7 +25,7 @@ public class MenuElement : MonoBehaviour
     {
         if (isSelected)
             return;
-        displayChanger.SetMode("Selected");
+        _displayChanger.SetMode("Selected");
         isSelected = true;
         content.SetActive(true);
     }
@@ -35,7 +34,7 @@ public class MenuElement : MonoBehaviour
     {
         if (!isSelected)
             return;
-        displayChanger.SetOrigin();
+        _displayChanger.SetOrigin();
         isSelected = false;
         content.SetActive(false);
     }

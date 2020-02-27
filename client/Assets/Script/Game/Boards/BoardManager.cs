@@ -17,7 +17,7 @@ namespace Game.Boards
 
         private Board _board;
 
-        void Start()
+        private void Start()
         {
 
         }
@@ -40,12 +40,12 @@ namespace Game.Boards
 
         public int[,] GetMapFromString(string mapStr)
         {
-            string[] firstArray = mapStr.Split('#');
-            int[,] map = new int[firstArray.Length, firstArray.Length];
-            for (int x = 0; x < firstArray.Length; x++)
+            var firstArray = mapStr.Split('#');
+            var map = new int[firstArray.Length, firstArray.Length];
+            for (var x = 0; x < firstArray.Length; x++)
             {
-                string[] secondArray = firstArray[x].Split('@');
-                for (int y = 0; y < firstArray.Length; y++)
+                var secondArray = firstArray[x].Split('@');
+                for (var y = 0; y < firstArray.Length; y++)
                 {
                     int parsedInt;
                     if (!int.TryParse(secondArray[x], out parsedInt))

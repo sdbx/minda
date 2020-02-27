@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
@@ -11,16 +11,16 @@ public class ContextMenuElement : MonoBehaviour
     public Button button;
     public SizeMatcher sizeMatcher;
 
-    private void Awake() 
+    private void Awake()
     {
         button = gameObject.GetComponent<Button>();
     }
 
     public void ResetMenu(ContextMenu.Menu menu)
     {
-        nameText.text = menu.name;
+        nameText.text = menu.Name;
         button.onClick.RemoveAllListeners();
-        button.onClick.AddListener(menu.action);
+        button.onClick.AddListener(menu.Action);
         button.onClick.AddListener(UnActiveParent);
     }
 

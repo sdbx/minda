@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using Utils;
 
@@ -7,27 +7,27 @@ namespace Game.Guide
     public class SelectGuideDisplay : MonoBehaviour
     {
         public DisplayChanger displayChanger;
-        private RectTransform rectTransform;
+        private RectTransform _rectTransform;
         [SerializeField]
         private RectTransform canvasTransfrom;
 
-        private Vector2 point1,point2;
+        private Vector2 _point1, _point2;
 
         private void Awake()
         {
-            rectTransform = gameObject.GetComponent<RectTransform>();
+            _rectTransform = gameObject.GetComponent<RectTransform>();
         }
 
         public void SetPoint1(Vector2 point)
         {
-            point1 = point;
-            refresh();
+            _point1 = point;
+            Refresh();
         }
 
         public void SetPoint2(Vector2 point)
         {
-            point2 = point;
-            refresh();
+            _point2 = point;
+            Refresh();
         }
 
         public void Hide()
@@ -35,13 +35,13 @@ namespace Game.Guide
             gameObject.SetActive(false);
         }
 
-        public void refresh()
+        public void Refresh()
         {
             gameObject.SetActive(true);
-            rectTransform.position = point1;
-            var deltaPoint = point1 - point2;
-            rectTransform.sizeDelta = new Vector2(Mathf.Sqrt(deltaPoint.x * deltaPoint.x + deltaPoint.y * deltaPoint.y), rectTransform.rect.height);
-            rectTransform.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(deltaPoint.y, deltaPoint.x)*Mathf.Rad2Deg);
+            _rectTransform.position = _point1;
+            var deltaPoint = _point1 - _point2;
+            _rectTransform.sizeDelta = new Vector2(Mathf.Sqrt(deltaPoint.x * deltaPoint.x + deltaPoint.y * deltaPoint.y), _rectTransform.rect.height);
+            _rectTransform.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(deltaPoint.y, deltaPoint.x) * Mathf.Rad2Deg);
         }
     }
 }

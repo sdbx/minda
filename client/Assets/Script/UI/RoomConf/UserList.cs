@@ -14,25 +14,25 @@ public class UserList : MonoBehaviour
 
     [SerializeField]
     private UserInfoDisplay prefab;
-    private Dictionary<int, UserInfoDisplay> userInfoDisplays = new Dictionary<int, UserInfoDisplay>();
+    private Dictionary<int, UserInfoDisplay> _userInfoDisplays = new Dictionary<int, UserInfoDisplay>();
 
     private void Awake()
     {
-        GameServer.instance.UserEnteredEvent += OnUserEnter;
-        GameServer.instance.UserLeftEvent += OnUserLeft;
+        GameServer.Instance.UserEnteredEvent += OnUserEnter;
+        GameServer.Instance.UserLeftEvent += OnUserLeft;
     }
 
     private void OnDestroy()
     {
-        GameServer.instance.UserEnteredEvent -= OnUserEnter;
-        GameServer.instance.UserLeftEvent -= OnUserLeft;
+        GameServer.Instance.UserEnteredEvent -= OnUserEnter;
+        GameServer.Instance.UserLeftEvent -= OnUserLeft;
     }
 
     private void OnUserEnter(int id, BallType ballType)
     {
-        if(LobbyServer.instance.IsLoginId(id))
+        if (LobbyServer.Instance.IsLoginId(id))
         {
-            Load(GameServer.instance.connectedRoom.Users.ToArray());
+            Load(GameServer.Instance.connectedRoom.Users.ToArray());
         }
         else
         {
@@ -42,20 +42,20 @@ public class UserList : MonoBehaviour
 
     private void OnUserLeft(int id)
     {
-        Destroy(userInfoDisplays[id].gameObject);
-        userInfoDisplays.Remove(id);
+        Destroy(_userInfoDisplays[id].gameObject);
+        _userInfoDisplays.Remove(id);
     }
 
     public void Load(int[] users)
     {
-        if(users==null)
+        if (users == null)
             return;
-        foreach(var pair in userInfoDisplays)
+        foreach (var pair in _userInfoDisplays)
         {
             Destroy(pair.Value.gameObject);
         }
-        userInfoDisplays.Clear();
-        for(int i = 0;i<users.Length;i++)
+        _userInfoDisplays.Clear();
+        for (var i = 0; i < users.Length; i++)
         {
             Add(users[i]);
         }
@@ -63,12 +63,12 @@ public class UserList : MonoBehaviour
 
     private void Add(int user)
     {
-        if(userInfoDisplays.ContainsKey(user))
+        if (_userInfoDisplays.ContainsKey(user))
             return;
-            
+
         var userInfoDisplay = Instantiate<UserInfoDisplay>(prefab, content);
-        userInfoDisplay.UserId = user;
-        userInfoDisplays.Add(user,userInfoDisplay);
+        userInfoDisplay.userId = user;
+        _userInfoDisplays.Add(user, userInfoDisplay);
         return;
     }
 }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using Models.Events;
 using UnityEngine;
@@ -21,17 +21,17 @@ namespace UI
         [SerializeField]
         private ParticleSystem two;
 
-        private Action callback;
+        private Action _callback;
 
         public void Display(EndedEvent ended, Action callback)
         {
-            winnerText.text = LanguageManager.GetText((ended.player==Models.BallType.Black?"white":"black")+"win");
+            winnerText.text = LanguageManager.GetText((ended.Player == Models.BallType.Black ? "white" : "black") + "win");
             //색 설정 추가  
-            details.text = LanguageManager.GetText(ended.cause);
-            this.callback = callback;
-            
+            details.text = LanguageManager.GetText(ended.Cause);
+            this._callback = callback;
+
             toggler.Activate();
-            if(Camera.main.transform.rotation.z != 0)
+            if (Camera.main.transform.rotation.z != 0)
             {
                 var main = one.main;
                 main.gravityModifier = -1;
@@ -44,7 +44,7 @@ namespace UI
         private IEnumerator Wait()
         {
             yield return new WaitForSeconds(waitTime);
-            callback();
+            _callback();
         }
 
     }

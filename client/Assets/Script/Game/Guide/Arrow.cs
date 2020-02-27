@@ -43,15 +43,15 @@ namespace Game.Guide
             gameObject.SetActive(false);
         }
 
-        void Start()
+        private void Start()
         {
             gameObject.GetComponent<SpriteRenderer>().color = unSelected;
             _arrowsManager = gameObject.transform.parent.GetComponent<ArrowsManager>();
         }
 
-        void Update()
+        private void Update()
         {
-            Vector3 parentPostion = gameObject.transform.parent.position;
+            var parentPostion = gameObject.transform.parent.position;
             if (_isPushing && Input.GetMouseButtonUp(0))
             {
                 if (CheckDistanceOverHalf())
@@ -69,7 +69,7 @@ namespace Game.Guide
             gameObject.transform.rotation = Quaternion.Euler(0, 0, GetArrowDegree());
 
             Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            float distance = GetDistanceFromOrigin(mousePos);
+            var distance = GetDistanceFromOrigin(mousePos);
 
             if (_isPushing)
             {
@@ -109,7 +109,7 @@ namespace Game.Guide
             return _arrowsManager.pushedDistance >= maxDistance / 2;
         }
 
-        void OnMouseOver()
+        private void OnMouseOver()
         {
             if (Input.GetMouseButtonDown(0) && !_isPushing)
             {
@@ -121,7 +121,7 @@ namespace Game.Guide
             }
         }
 
-        void OnMouseExit()
+        private void OnMouseExit()
         {
             if (!_isPushing)
                 SetArrowDisplayMode(0);
@@ -129,16 +129,16 @@ namespace Game.Guide
 
         private float GetDistanceFromOrigin(Vector2 mousePosition)
         {
-            float angle = GetRad();
+            var angle = GetRad();
             Vector2 parentPosition = gameObject.transform.parent.position;
             return (mousePosition.x - parentPosition.x) * Mathf.Cos(angle) + (mousePosition.y - parentPosition.y) * Mathf.Sin(angle);
         }
 
         private Vector3 GetArrowPosition(float distance)
         {
-            float angle = GetRad();
+            var angle = GetRad();
 
-            Vector3 arrowPosition = new Vector3();
+            var arrowPosition = new Vector3();
 
             arrowPosition.x = distance * Mathf.Cos(angle);
             arrowPosition.y = distance * Mathf.Sin(angle);
@@ -146,7 +146,7 @@ namespace Game.Guide
             return arrowPosition;
         }
 
-        void SetArrowDisplayMode(int type)
+        private void SetArrowDisplayMode(int type)
         {
             switch (type)
             {

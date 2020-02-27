@@ -19,15 +19,15 @@ namespace UI
         [SerializeField]
         private float height;
 
-        private Vector3 originPosition;
-        private CanvasGroup canvasGroup;
+        private Vector3 _originPosition;
+        private CanvasGroup _canvasGroup;
 
         private void Awake()
         {
-            canvasGroup = gameObject.AddComponent<CanvasGroup>();
-            canvasGroup.alpha = 0;
+            _canvasGroup = gameObject.AddComponent<CanvasGroup>();
+            _canvasGroup.alpha = 0;
             var position = transform.position;
-            originPosition = position;
+            _originPosition = position;
             transform.position = new Vector3(position.x, position.y + height, position.z);
         }
 
@@ -36,8 +36,8 @@ namespace UI
             if (timer < 0)
             {
                 timer = 0;
-                transform.DOMove(originPosition, duration);
-                DOTween.To(() => canvasGroup.alpha, x => canvasGroup.alpha = x, 1, duration);
+                transform.DOMove(_originPosition, duration);
+                DOTween.To(() => _canvasGroup.alpha, x => _canvasGroup.alpha = x, 1, duration);
             }
             else if (timer > 0)
             {
@@ -47,11 +47,11 @@ namespace UI
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            var loginState = LobbyServer.instance.loginState;
+            var loginState = LobbyServer.Instance.CurrentLoginState;
             if (loginState == LobbyServer.LoginState.SendReq ||
             loginState == LobbyServer.LoginState.GetReqid)
             {
-                MessageBox.instance.Show(LanguageManager.GetText("retrylogin"), (bool agree) =>
+                MessageBox.Instance.Show(LanguageManager.GetText("retrylogin"), (bool agree) =>
                 {
                     if (agree) TryLogin();
                 }, "Yes", "No");
@@ -62,7 +62,7 @@ namespace UI
 
         public void TryLogin()
         {
-            LobbyServer.instance.Login(serviceName);
+            LobbyServer.Instance.Login(serviceName);
         }
     }
 

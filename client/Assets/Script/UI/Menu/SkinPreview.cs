@@ -1,4 +1,4 @@
-using Models;
+﻿using Models;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
@@ -21,13 +21,13 @@ namespace UI.Menu
         [SerializeField]
         private RawImage whiteImage;
 
-        private RectTransform blackRectTransform;
-        private RectTransform whiteRectTransform;
+        private RectTransform _blackRectTransform;
+        private RectTransform _whiteRectTransform;
 
-        private Vector3 originBlackPos;
-        private Vector3 originWhitePos;
-        private Vector2 originBlackSize;
-        private Vector2 originWhiteSize;
+        private Vector3 _originBlackPos;
+        private Vector3 _originWhitePos;
+        private Vector2 _originBlackSize;
+        private Vector2 _originWhiteSize;
 
         [SerializeField]
         private Vector3 whitePos;
@@ -50,65 +50,65 @@ namespace UI.Menu
 
         public void SetSkin(Skin skin)
         {
-            if(skin == null)
+            if (skin == null)
             {
                 skinName.text = "Basic";
                 return;
             }
-            LobbyServer.instance.GetLoadedSkin(skin, (LoadedSkin downloadedSkin) =>
+            LobbyServer.Instance.GetLoadedSkin(skin, (LoadedSkin downloadedSkin) =>
             {
-                blackImage.texture = downloadedSkin.blackTexture;
-                whiteImage.texture = downloadedSkin.whiteTexture;
+                blackImage.texture = downloadedSkin.BlackTexture;
+                whiteImage.texture = downloadedSkin.WhiteTexture;
             });
-            skinName.text = skin.name;
+            skinName.text = skin.Name;
         }
 
-        public void SetTextures(Texture black,Texture White)
+        public void SetTextures(Texture black, Texture white)
         {
             blackImage.texture = black;
-            whiteImage.texture = White;
+            whiteImage.texture = white;
         }
 
         public void SetBlackTexture(Texture black)
         {
             blackImage.texture = black;
         }
-        
-        public void SetWhiteTexture(Texture White)
+
+        public void SetWhiteTexture(Texture white)
         {
-            whiteImage.texture = White;
+            whiteImage.texture = white;
         }
 
         private void Awake()
         {
-            blackRectTransform = blackImage.GetComponent<RectTransform>();
-            whiteRectTransform = whiteImage.GetComponent<RectTransform>();
+            _blackRectTransform = blackImage.GetComponent<RectTransform>();
+            _whiteRectTransform = whiteImage.GetComponent<RectTransform>();
 
-            originBlackPos = blackImage.transform.localPosition;
-            originWhitePos = whiteImage.transform.localPosition;
+            _originBlackPos = blackImage.transform.localPosition;
+            _originWhitePos = whiteImage.transform.localPosition;
 
-            originBlackSize = blackRectTransform.rect.size;
-            originWhiteSize = whiteRectTransform.rect.size;
+            _originBlackSize = _blackRectTransform.rect.size;
+            _originWhiteSize = _whiteRectTransform.rect.size;
         }
 
         public void CreatingMode()
         {
             blackImage.transform.DOLocalMove(blackPos, duration);
             whiteImage.transform.DOLocalMove(whitePos, duration);
-            blackRectTransform.DOSizeDelta(blackSize, duration);
-            whiteRectTransform.DOSizeDelta(whiteSize, duration);
-            whiteImage.texture = UISettings.instance.basicWhiteSkin;
-            blackImage.texture = UISettings.instance.basicBlackSkin;
+            _blackRectTransform.DOSizeDelta(blackSize, duration);
+            _whiteRectTransform.DOSizeDelta(whiteSize, duration);
+            whiteImage.texture = UiSettings.Instance.basicWhiteSkin;
+            blackImage.texture = UiSettings.Instance.basicBlackSkin;
             skinName.interactable = true;
             skinName.text = "";
         }
 
         public void SelectingMode()
         {
-            blackImage.transform.DOLocalMove(originBlackPos, duration);
-            whiteImage.transform.DOLocalMove(originWhitePos, duration);
-            blackRectTransform.DOSizeDelta(originBlackSize, duration);
-            whiteRectTransform.DOSizeDelta(originWhiteSize, duration);
+            blackImage.transform.DOLocalMove(_originBlackPos, duration);
+            whiteImage.transform.DOLocalMove(_originWhitePos, duration);
+            _blackRectTransform.DOSizeDelta(_originBlackSize, duration);
+            _whiteRectTransform.DOSizeDelta(_originWhiteSize, duration);
             skinName.interactable = false;
         }
     }

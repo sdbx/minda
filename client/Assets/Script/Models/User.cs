@@ -1,37 +1,38 @@
-using Game;
+﻿using Game;
 
 namespace Models
 {
     public class User
     {
-        public int id = -1;
-        public string username = "";
-        public string picture;
-        public Premissions permissions;
-        public Inventory inventory;
-        public Rating rating;
+        public int Id = -1;
+        public string Username = "";
+        public string Picture;
+        public Premissions Permissions;
+        public Inventory Inventory;
+        public Rating Rating;
     }
 
     public class Premissions
     {
-        public bool admin;
+        public bool Admin;
     }
 
-    public class Rating {
-        public double score;
+    public class Rating
+    {
+        public double Score;
     }
 
     public class InGameUser
     {
-        public User user;
-        public BallType ballType = BallType.None;
+        public User User;
+        public BallType BallType = BallType.None;
         public bool isSpectator
         {
             get
             {
-                return ballType == BallType.None;
+                return BallType == BallType.None;
             }
         }
-        public bool isKing = false;
+        public bool IsKing = false;
     }
 }

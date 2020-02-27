@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using DG.Tweening;
 using Game.Balls;
 
@@ -17,11 +17,11 @@ namespace Game
         [SerializeField]
         private float sensitivity;
 
-        private Vector3 dragOrigin;
+        private Vector3 _dragOrigin;
 
-        private Vector3 ResetCamera;
-        private Vector3 Diference;
-        private bool drag = false;
+        private Vector3 _resetCamera;
+        private Vector3 _diference;
+        private bool _drag = false;
         [SerializeField]
         private Vector2 dragLimit;
 
@@ -29,39 +29,40 @@ namespace Game
         private float duration = 0.5f;
         public bool isLocked;
 
-        private bool resetVeiw;
-        private bool canResetView;
+        private bool _resetVeiw;
+        private bool _canResetView;
 
-        private bool mouseRightPrevState;
-        void Start()
+        private bool _mouseRightPrevState;
+
+        private void Start()
         {
-            ResetCamera = Camera.main.transform.position;
+            _resetCamera = Camera.main.transform.position;
         }
 
         private void Update()
         {
             if (isLocked)
             {
-                drag = false;
+                _drag = false;
                 return;
             }
-            if (!mouseRightPrevState && Input.GetMouseButton(1) && ballmanager.state != 2)
+            if (!_mouseRightPrevState && Input.GetMouseButton(1) && ballmanager.state != 2)
             {
-                cam.transform.DOMove(ResetCamera, duration);
+                cam.transform.DOMove(_resetCamera, duration);
                 cam.DOOrthoSize(maxSize, duration);
                 dragLimit = new Vector2(0, 0);
-                resetVeiw = false;
+                _resetVeiw = false;
                 return;
             }
-            mouseRightPrevState = Input.GetMouseButton(1);
+            _mouseRightPrevState = Input.GetMouseButton(1);
             var axis = Input.GetAxis("Mouse ScrollWheel");
 
             if (axis == 0)
                 return;
 
-            bool isZoom = axis > 0;
+            var isZoom = axis > 0;
 
-            float camSize = cam.orthographicSize;
+            var camSize = cam.orthographicSize;
             if ((isZoom && camSize <= minSize) || (!isZoom && camSize >= maxSize))
             {
                 return;
@@ -75,10 +76,10 @@ namespace Game
 
             if (axis < 0)
             {
-                cam.transform.position = new Vector3((1 - (camSize / maxSize)) * (camPosition.x) * 2, (1 - (camSize / maxSize)) * (camPosition.y) * 2,-10);
+                cam.transform.position = new Vector3((1 - (camSize / maxSize)) * (camPosition.x) * 2, (1 - (camSize / maxSize)) * (camPosition.y) * 2, -10);
             }
 
-            var value = (1 - (camSize / maxSize))*3;
+            var value = (1 - (camSize / maxSize)) * 3;
             dragLimit = new Vector2(value, value);
 
         }
@@ -87,35 +88,35 @@ namespace Game
 
         public void OnMouseDown()
         {
-            drag = true;
+            _drag = true;
         }
 
-        private Vector3 prevPos;
+        private Vector3 _prevPos;
         private void LateUpdate()
         {
-            if(isLocked)
+            if (isLocked)
             {
-                drag = false;
+                _drag = false;
                 return;
             }
 
-            Vector3 mousePos = cam.ScreenToWorldPoint(Input.mousePosition);
+            var mousePos = cam.ScreenToWorldPoint(Input.mousePosition);
 
             if (!Input.GetMouseButton(0))
             {
-                drag = false;
-                prevPos = Vector3.zero;
+                _drag = false;
+                _prevPos = Vector3.zero;
             }
 
-            if (drag == true)
+            if (_drag == true)
             {
-                if(prevPos == Vector3.zero)
+                if (_prevPos == Vector3.zero)
                 {
-                    prevPos = mousePos;
+                    _prevPos = mousePos;
                 }
-                var deltaPos = prevPos - mousePos;
+                var deltaPos = _prevPos - mousePos;
                 var pos = cam.transform.position + deltaPos;
-                
+
                 if (-dragLimit.x > pos.x || pos.x > dragLimit.x)
                 {
                     deltaPos = new Vector2(0, deltaPos.y);
@@ -128,10 +129,10 @@ namespace Game
 
 
                 cam.transform.position = pos;
-                prevPos = mousePos+deltaPos;
+                _prevPos = mousePos + deltaPos;
             }
-            
+
         }
     }
 }
-                
+

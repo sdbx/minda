@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Models;
 using Network;
@@ -12,7 +12,7 @@ using System.Collections;
 namespace UI.Menu
 {
     public class SkinSelector : MonoBehaviour
-    {   
+    {
         [SerializeField]
         private SkinPreview skinPreview;
         [SerializeField]
@@ -26,22 +26,22 @@ namespace UI.Menu
         [SerializeField]
         private Texture basicSkinWhite;
 
-        private SkinElement selectedElement;
-        private SkinElement equipedElement;
-        private RectTransform rectTransform;
-        private RectTransform contentRectTransform;
+        private SkinElement _selectedElement;
+        private SkinElement _equipedElement;
+        private RectTransform _rectTransform;
+        private RectTransform _contentRectTransform;
 
-        private Dictionary<int, SkinElement> skins = new Dictionary<int, SkinElement>();
-        
+        private Dictionary<int, SkinElement> _skins = new Dictionary<int, SkinElement>();
+
         public void Start()
         {
-            rectTransform = gameObject.GetComponent<RectTransform>();
-            contentRectTransform = content.GetComponent<RectTransform>();
-            LobbyServer.instance.RefreshLoginUser((User user) =>
+            _rectTransform = gameObject.GetComponent<RectTransform>();
+            _contentRectTransform = content.GetComponent<RectTransform>();
+            LobbyServer.Instance.RefreshLoginUser((User user) =>
             {
-                if (user.inventory.current_skin != null)
+                if (user.Inventory.CurrentSkin != null)
                 {
-                    LoadMySkinsAndEquipId(user.inventory.current_skin.Value);
+                    LoadMySkinsAndEquipId(user.Inventory.CurrentSkin.Value);
                 }
                 else
                 {
@@ -53,31 +53,31 @@ namespace UI.Menu
 
         public void LoadMySkins(Action<Skin[]> callback = null)
         {
-            foreach(var skin in skins)
+            foreach (var skin in _skins)
             {
                 Destroy(skin.Value.gameObject);
             }
-            skins = new Dictionary<int,SkinElement>();
-            LobbyServer.instance.Get<Skin[]>("/skins/me/",(skins,err)=>
-            {
-                if(err!=null)
-                {
-                    ToastManager.instance.Add(LanguageManager.GetText("cantloadskins"),"Error");
-                    return;
-                }
-                CreateBasicSkin();
-                if(skins!=null)
-                    AddElements(skins.Reverse().ToArray());
-                if(callback!=null)
-                    callback(skins);
-            });
+            _skins = new Dictionary<int, SkinElement>();
+            LobbyServer.Instance.Get<Skin[]>("/skins/me/", (skins, err) =>
+             {
+                 if (err != null)
+                 {
+                     ToastManager.Instance.Add(LanguageManager.GetText("cantloadskins"), "Error");
+                     return;
+                 }
+                 CreateBasicSkin();
+                 if (skins != null)
+                     AddElements(skins.Reverse().ToArray());
+                 if (callback != null)
+                     callback(skins);
+             });
         }
 
         public void LoadMySkinsAndEquipIndex(int index)
         {
             LoadMySkins((loadedSkins) =>
             {
-                var element = skins.Values.ElementAtOrDefault(index);
+                var element = _skins.Values.ElementAtOrDefault(index);
                 if (element == null)
                     return;
                 Equip(element, false);
@@ -87,11 +87,11 @@ namespace UI.Menu
 
         public void LoadMySkinsAndEquipId(int id)
         {
-            LoadMySkins((loadedSkins)=>
+            LoadMySkins((loadedSkins) =>
             {
-                if (!skins.ContainsKey(id))
+                if (!_skins.ContainsKey(id))
                     return;
-                var currentSkin = skins[id];
+                var currentSkin = _skins[id];
                 Equip(currentSkin, false);
                 StartCoroutine(MoveToElementAfter1Frame(currentSkin));
             });
@@ -101,13 +101,13 @@ namespace UI.Menu
         {
             var element = Instantiate(prefab, content);
             element.Init(this, null);
-            skins.Add(-1, element);
+            _skins.Add(-1, element);
             element.SetTextures(basicSkinBlack, basicSkinWhite);
         }
 
         private void AddElements(Skin[] skinList)
         {
-            foreach(var skin in skinList)
+            foreach (var skin in skinList)
             {
                 AddElement(skin);
             }
@@ -115,41 +115,41 @@ namespace UI.Menu
 
         private void AddElement(Skin skin)
         {
-            var element  = Instantiate(prefab,content);
-            element.Init(this,skin);
-            skins.Add(skin.id,element);
+            var element = Instantiate(prefab, content);
+            element.Init(this, skin);
+            _skins.Add(skin.Id, element);
         }
 
         public void Select(SkinElement element)
         {
-            if(selectedElement==element)
+            if (_selectedElement == element)
                 return;
 
-            if(selectedElement!=null)
-                selectedElement.UnSelect();
+            if (_selectedElement != null)
+                _selectedElement.UnSelect();
 
-            selectedElement = element;
+            _selectedElement = element;
             skinPreview.SetSkin(element.skin);
-            if(element.skin == null)
+            if (element.skin == null)
             {
-                skinPreview.SetTextures(basicSkinBlack,basicSkinWhite);
+                skinPreview.SetTextures(basicSkinBlack, basicSkinWhite);
             }
         }
 
-        public void Equip(int index,bool moveToElement)
+        public void Equip(int index, bool moveToElement)
         {
-            var element = skins.Values.ElementAtOrDefault(index);
-            if(element==null)
+            var element = _skins.Values.ElementAtOrDefault(index);
+            if (element == null)
                 return;
             Equip(element, moveToElement);
         }
 
-        public void Equip(SkinElement element,bool moveToElement)
+        public void Equip(SkinElement element, bool moveToElement)
         {
-            if (element != equipedElement && equipedElement != null)
-                equipedElement.UnEquip();
+            if (element != _equipedElement && _equipedElement != null)
+                _equipedElement.UnEquip();
 
-            equipedElement = element;
+            _equipedElement = element;
             Select(element);
             element.Select();
             element.Equip();
@@ -159,18 +159,18 @@ namespace UI.Menu
             MoveToElement(element);
 
             int? id = null;
-            if(element.skin != null)
+            if (element.skin != null)
             {
-                id = element.skin.id;
+                id = element.skin.Id;
             }
 
-            LobbyServer.instance.EquipSkin(id,(err)=>
-            {
-                if(err!=null)
-                {
-                    ToastManager.instance.Add(LanguageManager.GetText("equipfailed"),"Error");
-                }
-            });
+            LobbyServer.Instance.EquipSkin(id, (err) =>
+             {
+                 if (err != null)
+                 {
+                     ToastManager.Instance.Add(LanguageManager.GetText("equipfailed"), "Error");
+                 }
+             });
         }
 
         private IEnumerator MoveToElementAfter1Frame(SkinElement element)
@@ -182,8 +182,8 @@ namespace UI.Menu
         public void MoveToElement(SkinElement element)
         {
             scrollRect.elasticity = 0;
-            var value = (contentRectTransform.rect.width - rectTransform.rect.width) / 2;
-            content.DOLocalMoveX(Mathf.Clamp(-element.transform.localPosition.x, -value, value) + rectTransform.rect.width / 2, 0.5f).SetEase(Ease.InOutQuad);
+            var value = (_contentRectTransform.rect.width - _rectTransform.rect.width) / 2;
+            content.DOLocalMoveX(Mathf.Clamp(-element.transform.localPosition.x, -value, value) + _rectTransform.rect.width / 2, 0.5f).SetEase(Ease.InOutQuad);
         }
 
     }
