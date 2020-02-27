@@ -3,6 +3,7 @@ using Models;
 using Network;
 using UI.Toast;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class MatchingSystem : MonoBehaviour
@@ -42,7 +43,7 @@ public class MatchingSystem : MonoBehaviour
         stateTxt.text = "CANCELING";
         LobbyServer.Instance.Delete("/match/", (err) =>
         {
-            Scene.SceneChanger.Instance.ChangeTo("Menu");
+            SceneManager.LoadScene("Menu");
         });
     }
 

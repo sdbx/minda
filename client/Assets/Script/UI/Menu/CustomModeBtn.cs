@@ -1,7 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Scene;
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class CustomModeBtn : MonoBehaviour
@@ -13,6 +11,6 @@ public class CustomModeBtn : MonoBehaviour
 
     private void MoveToRoomList()
     {
-        SceneChanger.Instance.ChangeTo("RoomList");
+        SceneManager.LoadScene("RoomList");
     }
 }

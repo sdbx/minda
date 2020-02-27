@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
 using Network;
-using Scene;
 using Models.Events;
 using Game.Coords;
 using Game.Balls;
@@ -12,6 +11,7 @@ using Utils;
 using UI.Toast;
 using UI;
 using Models;
+using UnityEngine.SceneManagement;
 using Event = Models.Events.Event;
 
 namespace Game
@@ -140,7 +140,7 @@ namespace Game
         public void OnEnded(Event e)
         {
             var end = (EndedEvent)e;
-            winScreen.Display(end, () => { SceneChanger.Instance.ChangeTo("RoomConfigure"); });
+            winScreen.Display(end, () => { SceneManager.LoadScene("RoomConfigure"); });
             ballManager.state = 0;
         }
 
