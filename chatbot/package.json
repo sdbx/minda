@@ -57,7 +57,7 @@
     "json5": "^2.1.0",
     "minda-ts": "file:./tslib",
     "msgpack5": "^4.2.1",
-    "node-fetch": "^2.3.0",
+    "node-fetch": "^2.6.1",
     "sha.js": "^2.4.11",
     "sharp": "^0.21.3",
     "sqlite3": "^4.0.6",
