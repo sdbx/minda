@@ -62,7 +62,7 @@
     "sharp": "^0.21.3",
     "sqlite3": "^4.0.6",
     "strongly-typed-events": "^1.4.10",
-    "typeorm": "^0.2.14"
+    "typeorm": "^0.2.25"
   },
   "devDependencies": {
     "codecov": "^3.2.0",
