@@ -26,7 +26,6 @@ public class ContextMenuManager : MonoBehaviour
             Destroy(gameObject);
         }
 
-        DontDestroyOnLoad(gameObject);
         _prefabSize = prefab.GetComponent<RectTransform>().rect.size;
         _rectTransform = gameObject.GetComponent<RectTransform>();
     }
