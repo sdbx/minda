@@ -59,7 +59,7 @@
     "msgpack5": "^4.2.1",
     "node-fetch": "^2.3.0",
     "sha.js": "^2.4.11",
-    "sharp": "^0.21.3",
+    "sharp": "^0.30.5",
     "sqlite3": "^4.0.6",
     "strongly-typed-events": "^1.4.10",
     "typeorm": "^0.2.14"
