@@ -1,66 +1,84 @@
 module lobby
 
 require (
-	cloud.google.com/go v0.43.0 // indirect
-	github.com/aws/aws-sdk-go v1.16.29
-	github.com/coreos/bbolt v1.3.3 // indirect
-	github.com/coreos/etcd v3.3.13+incompatible // indirect
-	github.com/coreos/go-semver v0.3.0 // indirect
-	github.com/coreos/go-systemd v0.0.0-20190719114852-fd7a80b32e1f // indirect
 	github.com/disintegration/imaging v1.6.0
 	github.com/garyburd/redigo v1.6.0
-	github.com/go-ini/ini v1.41.0 // indirect
-	github.com/go-kit/kit v0.9.0 // indirect
-	github.com/go-playground/locales v0.12.1 // indirect
-	github.com/go-playground/universal-translator v0.16.0 // indirect
-	github.com/go-redis/redis v6.15.2+incompatible // indirect
-	github.com/go-sql-driver/mysql v1.4.1 // indirect
-	github.com/gobuffalo/fizz v1.3.0 // indirect
-	github.com/gobuffalo/genny v0.0.0-20181119162812-e8ff4adce8bb // indirect
-	github.com/gobuffalo/logger v1.0.1 // indirect
 	github.com/gobuffalo/packr/v2 v2.5.2
-	github.com/gobuffalo/plush v3.7.31+incompatible // indirect
 	github.com/gobuffalo/pop v4.9.3+incompatible
-	github.com/gobuffalo/syncx v0.0.0-20181120194010-558ac7de985f // indirect
 	github.com/gobuffalo/uuid v2.0.5+incompatible
-	github.com/gobuffalo/x v0.0.0-20181110221217-14085ca3e1a9 // indirect
 	github.com/gofrs/uuid v3.1.0+incompatible
-	github.com/golang/groupcache v0.0.0-20190702054246-869f871628b6 // indirect
-	github.com/google/pprof v0.0.0-20190723021845-34ac40c74b70 // indirect
-	github.com/grpc-ecosystem/grpc-gateway v1.9.5 // indirect
-	github.com/kisielk/errcheck v1.2.0 // indirect
-	github.com/kr/pty v1.1.8 // indirect
 	github.com/labstack/echo v3.3.10+incompatible
-	github.com/labstack/gommon v0.3.0 // indirect
-	github.com/leodido/go-urn v1.1.0 // indirect
-	github.com/lib/pq v1.2.0 // indirect
-	github.com/magiconair/properties v1.8.1 // indirect
 	github.com/markbates/goth v1.47.2
-	github.com/markbates/oncer v0.0.0-20181203154359-bf2de49a0be2 // indirect
 	github.com/minio/minio-go v6.0.14+incompatible
-	github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f // indirect
-	github.com/pelletier/go-toml v1.4.0 // indirect
-	github.com/pkg/errors v0.8.1 // indirect
-	github.com/prometheus/common v0.6.0 // indirect
-	github.com/prometheus/procfs v0.0.3 // indirect
-	github.com/rogpeppe/fastuuid v1.2.0 // indirect
-	github.com/russross/blackfriday v2.0.0+incompatible // indirect
-	github.com/spf13/afero v1.2.2 // indirect
-	github.com/spf13/jwalterweatherman v1.1.0 // indirect
-	github.com/spf13/viper v1.4.0 // indirect
-	github.com/stretchr/objx v0.2.0 // indirect
-	github.com/stretchr/testify v1.4.0
+	github.com/stretchr/testify v1.5.1
 	github.com/sunho/dim v1.2.6
-	github.com/ugorji/go v1.1.7 // indirect
-	go.etcd.io/bbolt v1.3.3 // indirect
 	go.uber.org/zap v1.10.0
-	golang.org/x/crypto v0.0.0-20190829043050-9756ffdc2472 // indirect
-	golang.org/x/exp v0.0.0-20190718202018-cfdd5522f6f6 // indirect
-	golang.org/x/image v0.0.0-20190703141733-d6a02ce849c9 // indirect
-	golang.org/x/mobile v0.0.0-20190719004257-d2bd2a29d028 // indirect
-	golang.org/x/net v0.0.0-20190827160401-ba9fcec4b297 // indirect
-	golang.org/x/sys v0.0.0-20190830142957-1e83adbbebd0 // indirect
-	golang.org/x/tools v0.0.0-20190830223141-573d9926052a // indirect
-	google.golang.org/grpc v1.22.0 // indirect
 	gopkg.in/boj/redistore.v1 v1.0.0-20160128113310-fc113767cd6b
+)
+
+require (
+	cloud.google.com/go v0.43.0 // indirect
+	github.com/blang/semver v3.5.1+incompatible // indirect
+	github.com/cockroachdb/cockroach-go v0.0.0-20181001143604-e0a95dfd547c // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
+	github.com/fatih/color v1.7.0 // indirect
+	github.com/fatih/structs v1.1.0 // indirect
+	github.com/go-ini/ini v1.41.0 // indirect
+	github.com/go-sql-driver/mysql v1.5.0 // indirect
+	github.com/gobuffalo/envy v1.7.0 // indirect
+	github.com/gobuffalo/fizz v1.3.0 // indirect
+	github.com/gobuffalo/flect v0.0.0-20181114183036-47375f6d8328 // indirect
+	github.com/gobuffalo/github_flavored_markdown v1.0.7 // indirect
+	github.com/gobuffalo/logger v1.0.1 // indirect
+	github.com/gobuffalo/makr v1.1.5 // indirect
+	github.com/gobuffalo/packd v0.3.0 // indirect
+	github.com/gobuffalo/plush v3.7.31+incompatible // indirect
+	github.com/gobuffalo/tags v2.0.11+incompatible // indirect
+	github.com/gobuffalo/validate v2.0.3+incompatible // indirect
+	github.com/gobuffalo/x v0.0.0-20181110221217-14085ca3e1a9 // indirect
+	github.com/golang/protobuf v1.3.2 // indirect
+	github.com/gorilla/context v1.1.1 // indirect
+	github.com/gorilla/mux v1.6.2 // indirect
+	github.com/gorilla/securecookie v1.1.1 // indirect
+	github.com/gorilla/sessions v1.1.3 // indirect
+	github.com/jackc/pgx v3.2.0+incompatible // indirect
+	github.com/jmoiron/sqlx v1.2.0 // indirect
+	github.com/joho/godotenv v1.3.0 // indirect
+	github.com/karrick/godirwalk v1.10.12 // indirect
+	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
+	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
+	github.com/labstack/gommon v0.3.0 // indirect
+	github.com/lib/pq v1.2.0 // indirect
+	github.com/markbates/going v1.0.2 // indirect
+	github.com/markbates/inflect v1.0.4 // indirect
+	github.com/markbates/oncer v0.0.0-20181203154359-bf2de49a0be2 // indirect
+	github.com/mattn/go-colorable v0.1.2 // indirect
+	github.com/mattn/go-isatty v0.0.9 // indirect
+	github.com/mattn/go-sqlite3 v1.10.0 // indirect
+	github.com/microcosm-cc/bluemonday v1.0.1 // indirect
+	github.com/mitchellh/go-homedir v1.1.0 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/rogpeppe/go-internal v1.3.0 // indirect
+	github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516 // indirect
+	github.com/sergi/go-diff v1.0.0 // indirect
+	github.com/sirupsen/logrus v1.4.2 // indirect
+	github.com/smartystreets/goconvey v1.7.2 // indirect
+	github.com/sourcegraph/annotate v0.0.0-20160123013949-f4cad6c6324d // indirect
+	github.com/sourcegraph/syntaxhighlight v0.0.0-20170531221838-bd320f5d308e // indirect
+	github.com/valyala/bytebufferpool v1.0.0 // indirect
+	github.com/valyala/fasttemplate v1.0.1 // indirect
+	go.uber.org/atomic v1.4.0 // indirect
+	go.uber.org/multierr v1.1.0 // indirect
+	golang.org/x/crypto v0.0.0-20190829043050-9756ffdc2472 // indirect
+	golang.org/x/image v0.0.0-20190703141733-d6a02ce849c9 // indirect
+	golang.org/x/net v0.0.0-20200202094626-16171245cfb2 // indirect
+	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45 // indirect
+	golang.org/x/sync v0.0.0-20190423024810-112230192c58 // indirect
+	golang.org/x/sys v0.0.0-20190830142957-1e83adbbebd0 // indirect
+	golang.org/x/text v0.3.2 // indirect
+	google.golang.org/appengine v1.6.1 // indirect
+	gopkg.in/ini.v1 v1.67.0 // indirect
+	gopkg.in/yaml.v2 v2.2.2 // indirect
 )
